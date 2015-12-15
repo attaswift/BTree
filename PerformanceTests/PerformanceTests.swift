@@ -23,7 +23,9 @@ extension Array {
     }
 }
 
-let count = 180000
+// Change this to shorten or lengthen the benchmarks.
+let count = 100000
+
 let randomElements: [Int] = {
     var numbers = Array((1...count))
     numbers.shuffleInPlace()
@@ -51,7 +53,7 @@ func <(a: Test, b: Test) -> Bool {
 
 class InsertionPerformanceTests: XCTestCase {
 
-    func testAppendingToArray() {
+    func testAppendingToUnsortedArray() {
         var round = 1
         self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
             let values = randomValues
@@ -67,7 +69,7 @@ class InsertionPerformanceTests: XCTestCase {
         }
     }
 
-    func testInsertingToSortedArray() {
+    func testInsertingToInlinedSortedArray() {
         var round = 1
         self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
             let values = randomValues
@@ -95,7 +97,23 @@ class InsertionPerformanceTests: XCTestCase {
         }
     }
 
-    func testInsertingIntoDictionary() {
+    func testInsertingToSortedArray() {
+        var round = 1
+        self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
+            let values = randomValues
+            print("Round \(round) started with \(values.count) elements")
+            var array = SortedArray<Int, Test>()
+            self.startMeasuring()
+            for v in values {
+                array[v.i] = v
+            }
+            self.stopMeasuring()
+            print("Round \(round) ended")
+            round += 1
+        }
+    }
+
+    func testInsertingIntoUnsortedDictionary() {
         var round = 1
         self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
             let values = randomValues
