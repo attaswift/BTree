@@ -147,7 +147,6 @@ class InsertionPerformanceTests: XCTestCase {
     }
 
     func testAppendingToList() {
-        return
         var round = 1
         self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
             let values = randomValues

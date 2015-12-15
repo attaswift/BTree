@@ -8,14 +8,14 @@
 
 import Foundation
 
-private enum Color {
+internal enum Color {
     case Red
     case Black
 }
 
-private struct RedBlackPayload<Value: RedBlackValue> {
+internal struct RedBlackPayload<Value: RedBlackValue> {
     var value: Value
-    var color: Color = .Black
+    var color: Color = .Red
 
     init(value: Value) {
         self.value = value
@@ -49,10 +49,15 @@ internal protocol RedBlackValue {
 }
 
 internal struct RedBlackTree<Value: RedBlackValue> {
-    internal typealias Key = Value.Key
-    private typealias Payload = RedBlackPayload<Value>
 
-    private var tree: BinaryTree<Payload>
+    // Implementation mostly follows Cormen et al.[1], with many adjustments.
+    //
+    // [1]: Cormen, Leiserson, Rivest, Stein: Introduction to Algorithms, 2nd ed. (MIT Press, 2001)
+
+    internal typealias Key = Value.Key
+    internal typealias Payload = RedBlackPayload<Value>
+
+    internal private(set) var tree: BinaryTree<Payload>
 
     // Init
 
@@ -144,7 +149,9 @@ internal struct RedBlackTree<Value: RedBlackValue> {
 
     internal mutating func insert(value: Value, into slot: Slot) -> Index {
         assert(tree.indexInSlot(slot) == nil)
-        return tree.insert(Payload(value: value), into: slot)
+        let index = tree.insert(Payload(value: value), into: slot)
+        rebalanceAfterInsert(index, slot: slot)
+        return index
     }
 
     internal mutating func remove(index: Index) -> Value {
@@ -161,7 +168,7 @@ internal struct RedBlackTree<Value: RedBlackValue> {
         }
 
         let slot = tree.remove(y)
-        fixupAfterRemove(slot)
+        rebalanceAfterRemove(slot)
         return old
     }
 
@@ -247,35 +254,84 @@ internal struct RedBlackTree<Value: RedBlackValue> {
         return tree.furthestLeafUnder(index, towards: .Right)
     }
 
-    private mutating func fixupAfterInsert(new: Index) {
+    private mutating func rebalanceAfterInsert(new: Index, slot: Slot) {
+        var x = new
+        while case .Toward(let xdir, under: let p) = tree.slotOf(x) {
+            guard isRed(p) else {
+                fixupChain(p)
+                break
+            }
+            fixup(p)
+            guard case .Toward(let pdir, under: let gp) = tree.slotOf(p) else  { fatalError("Invalid tree with red root") }
+            let popp = pdir.opposite
 
+            if let y = tree[gp, popp] where isRed(y) {
+                setBlack(p)
+                setBlack(y)
+                setRed(gp)
+
+                x = gp
+            }
+            else {
+                if xdir == popp {
+                    x = p
+                    tree.rotate(x, pdir)
+                }
+                setBlack(p)
+                setRed(gp)
+                tree.rotate(gp, popp)
+            }
+        }
+        tree[tree.root!].payload.color = .Black
     }
 
-    private mutating func fixupAfterRemove(slot: Slot) {
+    private mutating func rebalanceAfterRemove(slot: Slot) {
 
     }
 
 }
 
+internal struct RedBlackInfo: CustomStringConvertible {
+    let depths: Range<Int>
+    let ranks: Range<Int>
+    let invalidRedNodes: [Index]
+
+    var isValidRedBlackTree: Bool {
+        return ranks.count == 1 && invalidRedNodes.isEmpty
+    }
+
+    var description: String {
+        return "[depth: \(depths.startIndex)...\(depths.endIndex - 1), rank: \(ranks.startIndex)...\(ranks.endIndex - 1), bad reds: \(invalidRedNodes)]"
+    }
+}
 extension RedBlackTree {
-    var debugInfo: Dictionary<String, Int> {
-        var maxDepth = 0
-        var minDepth = Int.max
-        func measureDepth(index: Index?, level: Int) {
+
+    internal var debugInfo: RedBlackInfo {
+        func walk(index: Index?, shouldBeBlack: Bool) -> RedBlackInfo {
             if let index = index {
-                measureDepth(tree.left(index), level: level + 1)
-                measureDepth(tree.right(index), level: level + 1)
+                let color = self.color(index)
+                let i1 = walk(tree.left(index), shouldBeBlack: color == .Red)
+                let i2 = walk(tree.right(index), shouldBeBlack: color == .Red)
+                let b = color == .Black ? 1 : 0
+
+                let colorError: [Index] = (color == .Red && shouldBeBlack ? [index] : [])
+
+                return RedBlackInfo(
+                    depths: Range(
+                        start: min(i1.depths.startIndex, i2.depths.startIndex) + 1,
+                        end: max(i1.depths.endIndex, i2.depths.endIndex) + 1),
+                    ranks: Range(
+                        start: min(i1.ranks.startIndex, i2.ranks.startIndex) + b,
+                        end: max(i1.ranks.endIndex, i2.ranks.endIndex) + b),
+                    invalidRedNodes: i1.invalidRedNodes + i2.invalidRedNodes + colorError)
             }
             else {
-                if maxDepth < level {
-                    maxDepth = level
-                }
-                if minDepth > level {
-                    minDepth = level
-                }
+                return RedBlackInfo(
+                    depths: Range(start: 0, end: 1),
+                    ranks: Range(start: 0, end: 1),
+                    invalidRedNodes: [])
             }
         }
-        measureDepth(self.root, level: 0)
-        return ["MaxDepth": maxDepth, "MinDepth": minDepth, "Count": count]
+        return walk(tree.root, shouldBeBlack: true)
     }
 }

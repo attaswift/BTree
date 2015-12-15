@@ -113,7 +113,5 @@ public struct List<Element>: ArrayLikeCollectionType {
 }
 
 extension List {
-    public var debugInfo: Dictionary<String, Int> {
-        return tree.debugInfo
-    }
+    internal var debugInfo: RedBlackInfo { return tree.debugInfo }
 }

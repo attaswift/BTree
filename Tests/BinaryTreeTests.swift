@@ -9,48 +9,6 @@
 import XCTest
 @testable import TreeCollections
 
-extension BinaryTree {
-    func checkInvariants() -> Bool {
-        var count = 0
-        func check(node: Index?, under parent: Index?) -> Bool {
-            guard let node = node else { return true }
-            count += 1
-            guard parent == self[node, .Parent] else { return false }
-            guard check(self[node, .LeftChild], under: node) else { return false }
-            guard check(self[node, .RightChild], under: node) else { return false }
-            return true
-        }
-
-        check(self.root, under: nil)
-        return count == self.count
-    }
-
-    func dump() -> String {
-        func dump(index: Index?) -> String {
-            guard let index = index else { return "" }
-            let left = dump(self[index, .LeftChild])
-            let right = dump(self[index, .RightChild])
-            let space1 = left.isEmpty ? "" : " "
-            let space2 = right.isEmpty ? "" : " "
-            return "(\(left)\(space1)\(self[index].payload)\(space2)\(right))"
-        }
-        return dump(root)
-    }
-
-    func lookup(directions: Direction...) -> Index? {
-        return self.lookup(directions)
-    }
-
-    func lookup<S: SequenceType where S.Generator.Element == Direction>(directions: S) -> Index? {
-        var index = self.root
-        for direction in directions {
-            guard let i = index else { return nil }
-            index = self[i, direction]
-        }
-        return index
-    }
-}
-
 class BinaryTreeTests: XCTestCase {
     
     func testEmptyTree() {
@@ -241,13 +199,13 @@ class BinaryTreeTests: XCTestCase {
 
         XCTAssertEqual(tree.dump(), "((1) 2 ((3) 4 ((5) 6 (7))))")
 
-        tree.rotate(i4, direction: .Left)
+        tree.rotate(i4, .Left)
 
         XCTAssertEqual(tree.dump(), "((1) 2 (((3) 4 (5)) 6 (7)))")
         XCTAssert(tree.checkInvariants())
         XCTAssertEqual(tree[i4].payload, 6) // 4 and 6 get swapped so that root's index stays the same
 
-        tree.rotate(i4, direction: .Right)
+        tree.rotate(i4, .Right)
         XCTAssertEqual(tree.dump(), "((1) 2 ((3) 4 ((5) 6 (7))))")
         XCTAssert(tree.checkInvariants())
         XCTAssertEqual(tree[i4].payload, 4) // 4 and 6 get swapped again

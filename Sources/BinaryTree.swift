@@ -279,11 +279,11 @@ internal struct BinaryTree<Payload> {
     /// a binary search tree.
     ///
     /// The child towards the opposite of `direction` under `index` becomes the new root, 
-    /// and the previous root becomes its child towards `direction`. The rest of the children 
+    /// and the previous root becomes its child towards `dir`. The rest of the children 
     /// are linked up to preserve BST ordering.
     ///
     /// After the rotation, `index` will still refer to the new root of the subtree.
-    internal mutating func rotate(index: Index, direction dir: Direction) {
+    internal mutating func rotate(index: Index, _ dir: Direction) {
         assert(self[index, dir.opposite] != nil)
         let opp = dir.opposite
         let x = index

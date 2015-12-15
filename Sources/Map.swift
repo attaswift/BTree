@@ -190,7 +190,5 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
 }
 
 extension Map {
-    public var debugInfo: Dictionary<String, Int> {
-        return tree.debugInfo
-    }
+    internal var debugInfo: RedBlackInfo { return tree.debugInfo }
 }
