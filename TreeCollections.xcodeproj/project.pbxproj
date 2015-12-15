@@ -81,6 +81,7 @@
 		BB9AE4721C2041AC002C5D63 /* AssociativeCollectionType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssociativeCollectionType.swift; sourceTree = "<group>"; };
 		BB9AE4771C2052E2002C5D63 /* SortedAssociativeCollectionType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SortedAssociativeCollectionType.swift; sourceTree = "<group>"; };
 		BB9AE47A1C20543A002C5D63 /* ArrayLikeCollectionType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArrayLikeCollectionType.swift; sourceTree = "<group>"; };
+		BB9AE47D1C207303002C5D63 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +130,7 @@
 			isa = PBXGroup;
 			children = (
 				BB0D75D91C1F045C00538080 /* README.md */,
+				BB9AE47D1C207303002C5D63 /* Package.swift */,
 				BB54D0B11C1F0357008A462B /* Sources */,
 				BB54D0BD1C1F0357008A462B /* Tests */,
 				BB9AE42C1C1FB57A002C5D63 /* PerformanceTests */,
