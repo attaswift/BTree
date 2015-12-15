@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>classNames</key>
+	<dict>
+		<key>InsertionPerformanceTests</key>
+		<dict>
+			<key>testAppendingToUnsortedArray()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.0012919</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>2015-12-15 17:07:34</string>
+				</dict>
+			</dict>
+			<key>testInsertingIntoMap()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>1.8602</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>2015-12-15 17:07:34</string>
+				</dict>
+			</dict>
+			<key>testInsertingIntoUnsortedDictionary()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.042781</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>2015-12-15 17:07:34</string>
+				</dict>
+			</dict>
+			<key>testInsertingToInlinedSortedArray()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.81569</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>2015-12-15 17:07:34</string>
+				</dict>
+			</dict>
+			<key>testInsertingToSortedArray()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>13.932</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>2015-12-15 17:07:34</string>
+				</dict>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>
