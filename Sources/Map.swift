@@ -93,7 +93,7 @@ public struct MapGenerator<Key: Comparable, Value>: GeneratorType {
     }
 }
 
-public struct Map<Key: Comparable, Value>: CollectionType {
+public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     public typealias Index = MapIndex<Key, Value>
     public typealias Generator = MapGenerator<Key, Value>
     public typealias Element = (Key, Value)
@@ -109,17 +109,6 @@ public struct Map<Key: Comparable, Value>: CollectionType {
         self.tree = Tree()
     }
 
-    public init(_ elements: Map<Key, Value>) {
-        self.tree = elements.tree
-    }
-
-    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
-        self.tree = Tree()
-        for (key, value) in elements {
-            self[key] = value
-        }
-    }
-
     // Variables.
 
     public var startIndex: Index {
@@ -132,24 +121,6 @@ public struct Map<Key: Comparable, Value>: CollectionType {
 
     public var count: Int {
         return tree.count
-    }
-
-    public var isEmpty: Bool {
-        return tree.count == 0
-    }
-
-    public var keys: LazyMapCollection<Map<Key, Value>, Key> {
-        return LazyMapCollection(self) { (key, value) in key }
-    }
-
-    public var values: LazyMapCollection<Map<Key, Value>, Value> {
-        return LazyMapCollection(self) { (key, value) in value }
-    }
-    
-    public var first: Element? {
-        guard let first = tree.first else { return nil }
-        let mv = tree[first]
-        return (mv.key, mv.value)
     }
 
     public subscript(index: Index) -> Element {
@@ -208,46 +179,18 @@ public struct Map<Key: Comparable, Value>: CollectionType {
         return (mv.key, mv.value)
     }
 
+    public mutating func removeValueForKey(key: Key) -> Value? {
+        guard let index = tree.find(key) else { return nil }
+        return tree.remove(index).value
+    }
+
     public mutating func removeAll() {
         tree = Tree()
     }
 }
 
-extension Map: DictionaryLiteralConvertible {
-    public init(dictionaryLiteral elements: (Key, Value)...) {
-        self.init(elements)
+extension Map {
+    public var debugInfo: Dictionary<String, Int> {
+        return tree.debugInfo
     }
-}
-
-extension Map: CustomStringConvertible {
-    public var description: String {
-        let contents = self.map { (key, value) -> String in
-            let ks = String(key)
-            let vs = String(value)
-            return "\(ks): \(vs)"
-        }
-        return "[" + contents.joinWithSeparator(", ") + "]"
-    }
-}
-
-extension Map: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        let contents = self.map { (key, value) -> String in
-            let ks = String(reflecting: key)
-            let vs = String(reflecting: value)
-            return "\(ks): \(vs)"
-        }
-        return "[" + contents.joinWithSeparator(", ") + "]"
-    }
-}
-
-@warn_unused_result
-public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
-    guard a.count == b.count else { return false }
-    return a.elementsEqual(b, isEquivalent: { ae, be in ae.0 == be.0 && ae.1 == be.1 })
-}
-
-@warn_unused_result
-public func !=<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
-    return !(a == b)
 }

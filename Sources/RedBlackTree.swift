@@ -143,11 +143,13 @@ internal struct RedBlackTree<Value: RedBlackValue> {
     }
 
     internal mutating func insert(value: Value, into slot: Slot) -> Index {
-        precondition(tree.indexInSlot(slot) == nil)
+        assert(tree.indexInSlot(slot) == nil)
         return tree.insert(Payload(value: value), into: slot)
     }
 
-    internal mutating func remove(index: Index) {
+    internal mutating func remove(index: Index) -> Value {
+        let old = value(index)
+
         // Find the node that we will actually remove. The node has to have at most one child.
         var y: Index
         if let _ = tree.left(index), let r = tree.right(index) {
@@ -160,6 +162,15 @@ internal struct RedBlackTree<Value: RedBlackValue> {
 
         let slot = tree.remove(y)
         fixupAfterRemove(slot)
+        return old
+    }
+
+    internal mutating func reserveCapacity(minimumCapacity: Int) {
+        self.tree.reserveCapacity(minimumCapacity)
+    }
+
+    internal mutating func removeAll(keepCapacity keepCapacity: Bool = false) {
+        tree.removeAll(keepCapacity: keepCapacity)
     }
 
     // Lookup utilites
@@ -246,3 +257,25 @@ internal struct RedBlackTree<Value: RedBlackValue> {
 
 }
 
+extension RedBlackTree {
+    var debugInfo: Dictionary<String, Int> {
+        var maxDepth = 0
+        var minDepth = Int.max
+        func measureDepth(index: Index?, level: Int) {
+            if let index = index {
+                measureDepth(tree.left(index), level: level + 1)
+                measureDepth(tree.right(index), level: level + 1)
+            }
+            else {
+                if maxDepth < level {
+                    maxDepth = level
+                }
+                if minDepth > level {
+                    minDepth = level
+                }
+            }
+        }
+        measureDepth(self.root, level: 0)
+        return ["MaxDepth": maxDepth, "MinDepth": minDepth, "Count": count]
+    }
+}

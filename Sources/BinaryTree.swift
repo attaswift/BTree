@@ -98,7 +98,7 @@ extension BinaryNode {
     }
 
     mutating func replaceChild(old: Index, with new: Index?) {
-        precondition(left == old || right == old)
+        assert(left == old || right == old)
         if left == old {
             left = new
         }
@@ -205,7 +205,7 @@ internal struct BinaryTree<Payload> {
 
     /// Inserts a new node with `payload` into `slot`. The slot must currently be empty.
     internal mutating func insert(payload: Payload, into slot: Slot) -> Index {
-        precondition(indexInSlot(slot) == nil)
+        assert(indexInSlot(slot) == nil)
         switch slot {
         case .Root:
             nodes.append(Node(parent: nil, payload: payload))
@@ -228,7 +228,7 @@ internal struct BinaryTree<Payload> {
     ///
     internal mutating func remove(index: Index) -> Slot {
         let node = self[index]
-        precondition(node.left == nil || node.right == nil)
+        assert(node.left == nil || node.right == nil)
 
         let slot = slotOf(index)
         if let c = node.left ?? node.right {
@@ -267,7 +267,15 @@ internal struct BinaryTree<Payload> {
         }
     }
 
-    /// Rotates the subtree rooted at `index` in the specified direction. Used when the tree implements 
+    internal mutating func reserveCapacity(minimumCapacity: Int) {
+        self.nodes.reserveCapacity(minimumCapacity)
+    }
+
+    internal mutating func removeAll(keepCapacity keepCapacity: Bool = false) {
+        self.nodes.removeAll(keepCapacity: keepCapacity)
+    }
+
+    /// Rotates the subtree rooted at `index` in the specified direction. Used when the tree implements
     /// a binary search tree.
     ///
     /// The child towards the opposite of `direction` under `index` becomes the new root, 
@@ -276,7 +284,7 @@ internal struct BinaryTree<Payload> {
     ///
     /// After the rotation, `index` will still refer to the new root of the subtree.
     internal mutating func rotate(index: Index, direction dir: Direction) {
-        precondition(self[index, dir.opposite] != nil)
+        assert(self[index, dir.opposite] != nil)
         let opp = dir.opposite
         let x = index
         let y = self[index, dir.opposite]!

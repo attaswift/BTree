@@ -39,7 +39,7 @@ private struct ListValue<Element>: RedBlackValue {
     }
 }
 
-public struct List<Element>: CollectionType {
+public struct List<Element>: ArrayLikeCollectionType {
     public typealias Index = Int
     public typealias Generator = IndexingGenerator<List<Element>>
 
@@ -67,21 +67,11 @@ public struct List<Element>: CollectionType {
 
     // Variables.
 
-    public var startIndex: Index {
-        return 0
-    }
-
-    public var endIndex: Index {
-        return count
-    }
-
     public var count: Int {
         return tree.count
     }
 
-    public var isEmpty: Bool {
-        return tree.count == 0
-    }
+    // Methods.
 
     public subscript(index: Index) -> Element {
         get {
@@ -94,46 +84,21 @@ public struct List<Element>: CollectionType {
         }
     }
 
-
-    // Methods.
-
-    public mutating func append(newElement: Element) {
-        self.insert(newElement, atIndex: count)
+    public mutating func reserveCapacity(minimumCapacity: Int) {
+        self.tree.reserveCapacity(minimumCapacity)
     }
 
-    public mutating func prepend(newElement: Element) {
-        self.insert(newElement, atIndex: 0)
-    }
-
+    /// Inserts a new element at position `index`.
+    /// - Requires: i < count
+    /// - Complexity: O(log(count))
     public mutating func insert(newElement: Element, atIndex i: Int) {
         let (index, slot) = tree.insertionSlotFor(i)
         assert(index == nil)
         tree.insert(ListValue(count: 0, element: newElement), into: slot)
     }
 
-    public mutating func appendContentsOf<S: SequenceType where S.Generator.Element == Element>(newElements: S) {
-        for element in newElements {
-            self.append(element)
-        }
-    }
-    public mutating func appendContentsOf<C: CollectionType where C.Generator.Element == Element>(newElements: C) {
-        for element in newElements {
-            self.append(element)
-        }
-    }
-
-    /// Remove an element from the end of the List.
-    /// - Requires: count > 0
-    /// - Complexity: O(log(count))
-    public mutating func removeLast() -> Element {
-        return removeAtIndex(count - 1)
-    }
-
-    /// Remove an element from the start of the List.
-    /// - Requires: count > 0
-    /// - Complexity: O(log(count))
-    public mutating func removeFirst() -> Element {
-        return removeAtIndex(0)
+    public mutating func removeAll(keepCapacity keepCapacity: Bool) {
+        tree.removeAll(keepCapacity: keepCapacity)
     }
 
     /// Remove and return the element at `index`.
@@ -144,5 +109,11 @@ public struct List<Element>: CollectionType {
         let result = tree[index].element
         tree.remove(index)
         return result
+    }
+}
+
+extension List {
+    public var debugInfo: Dictionary<String, Int> {
+        return tree.debugInfo
     }
 }
