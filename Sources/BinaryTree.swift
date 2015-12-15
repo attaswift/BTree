@@ -123,7 +123,7 @@ extension BinaryNode {
 internal struct BinaryTree<Payload> {
     internal typealias Node = BinaryNode<Payload>
 
-    private var nodes: [Node] = []
+    private var nodes: ContiguousArray<Node> = []
 
     /// The number of nodes in this tree.
     internal var count: Int {

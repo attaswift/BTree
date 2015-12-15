@@ -14,7 +14,7 @@ internal struct SortedArray<Key: Comparable, Value>: SortedAssociativeCollection
     internal typealias Index = Int
     internal typealias Generator = IndexingGenerator<SortedArray<Key, Value>>
 
-    private var contents: [Element]
+    private var contents: ContiguousArray<Element>
 
     internal init() {
         contents = []
