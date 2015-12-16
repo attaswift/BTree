@@ -50,7 +50,7 @@ internal protocol RedBlackValue {
 
 /// A Red-Black tree implementation with copy-on-write value semantics.
 /// The implementation supports augmenting the red-black tree to support positional addressing and other special effects.
-internal struct RedBlackTree<Value: RedBlackValue> {
+internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
     // Implementation mostly follows Cormen et al.[1], with many adjustments.
     //
     // [1]: Cormen, Leiserson, Rivest, Stein: Introduction to Algorithms, 2nd ed. (MIT Press, 2001)
@@ -75,16 +75,16 @@ internal struct RedBlackTree<Value: RedBlackValue> {
 
     internal subscript(index: Index) -> Value {
         get {
-            return value(index)
+            return tree[index].payload.value
         }
         set(newValue) {
             // The new value must have the same key as the old.
-            let node = tree[index]
-            let oldValue = node.payload.value
-            let left = { self.tree[node.left]?.payload.value }
-            assert(oldValue.key(left) == newValue.key(left))
             self.tree[index].payload.value = newValue
         }
+    }
+    internal subscript(index: Index?) -> Value? {
+        guard let index = index else { return nil }
+        return tree[index].payload.value
     }
 
     internal func find(key: Key) -> Index? {
@@ -154,21 +154,28 @@ internal struct RedBlackTree<Value: RedBlackValue> {
     }
 
     internal mutating func remove(index: Index) -> Value {
-        let old = value(index)
+        let payload = tree[index].payload
 
         // Find the node that we will actually remove. The node has to have at most one child.
-        var y: Index
+        let y: Index
         if let _ = tree[index].left, let r = tree[index].right {
             y = minimumUnder(r) // Remove node following original index
-            setValue(index, value: value(y))
+            self[index] = self[y]
+            fixup(y)
         }
         else {
             y = index
         }
 
+        let color = tree[y].payload.color
         let slot = tree.remove(y)
-        rebalanceAfterRemove(slot)
-        return old
+        if color == .Black {
+            rebalanceAfterRemove(slot)
+        }
+        else if case .Toward(_, under: let p) = slot {
+            fixup(p)
+        }
+        return payload.value
     }
 
     internal mutating func reserveCapacity(minimumCapacity: Int) {
@@ -191,13 +198,15 @@ internal struct RedBlackTree<Value: RedBlackValue> {
     private func isBlack(index: Index?) -> Bool {
         return color(index) == .Black
     }
-
-    private func value(index: Index) -> Value {
-        return tree[index].payload.value
+    private mutating func setRed(index: Index) {
+        tree[index].payload.color = .Red
     }
-    private func value(index: Index?) -> Value? {
-        guard let index = index else { return nil }
-        return self.value(index)
+    private mutating func setBlack(index: Index?) {
+        guard let index = index else { return } // nils are already black
+        tree[index].payload.color = .Black
+    }
+    private mutating func setColor(index: Index, _ color: RedBlackColor) {
+        tree[index].payload.color = color
     }
 
     private func compare(index: Index, key: Key, insert: Bool) -> RedBlackComparisonResult<Key> {
@@ -219,16 +228,6 @@ internal struct RedBlackTree<Value: RedBlackValue> {
         while let i = index where self.fixup(i) {
             index = tree[i].parent
         }
-    }
-
-    private mutating func setRed(index: Index) {
-        tree[index].payload.color = .Red
-    }
-    private mutating func setBlack(index: Index) {
-        tree[index].payload.color = .Black
-    }
-    private mutating func setValue(index: Index, value: Value) {
-        tree[index].payload.value = value
     }
 
     // Private helpers
@@ -256,38 +255,35 @@ internal struct RedBlackTree<Value: RedBlackValue> {
 
     private mutating func rebalanceAfterInsert(new: Index, slot: Slot) -> Index {
         var new = new
-        var x = new
-        while case .Toward(let xdir, under: let p) = tree.slotOf(x) {
-            guard isRed(p) else {
-                fixupChain(p)
+        var child = new
+        while case .Toward(let dir, under: let parent) = tree.slotOf(child) {
+            guard isRed(parent) else {
+                fixupChain(parent)
                 break
             }
-            fixup(p)
-            guard case .Toward(let pdir, under: let gp) = tree.slotOf(p) else  { fatalError("Invalid tree with red root") }
+            fixup(parent)
+            guard case .Toward(let pdir, under: let grandparent) = tree.slotOf(parent) else  { fatalError("Invalid tree with red root") }
             let popp = pdir.opposite
 
-            if let y = tree[gp, popp] where isRed(y) {
-                setBlack(p)
-                setBlack(y)
-                setRed(gp)
-                x = gp
+            if let aunt = tree[grandparent, popp] where isRed(aunt) {
+                setBlack(parent)
+                setBlack(aunt)
+                setRed(grandparent)
+                child = grandparent
             }
             else {
-                if xdir == popp {
-                    tree.rotate(p, pdir)
-                    if x == new {
-                        new = p // new node moved up a level
+                if dir == popp {
+                    self.rotate(parent, pdir)
+                    if child == new {
+                        new = parent // new node moved up a level
                     }
-                    fixup(x)
                 }
-                tree.rotate(gp, popp)
-                if p == new {
-                    new = gp // new node moved up a level
+                self.rotate(grandparent, popp)
+                if parent == new {
+                    new = grandparent // new node moved up a level
                 }
-                setBlack(gp)
-                setRed(p)
-                fixup(p)
-                fixup(gp)
+                setBlack(grandparent)
+                setRed(parent)
             }
         }
         tree[tree.root!].payload.color = .Black
@@ -295,7 +291,56 @@ internal struct RedBlackTree<Value: RedBlackValue> {
     }
 
     private mutating func rebalanceAfterRemove(slot: Slot) {
+        var slot = slot
+        while case .Toward(let dir, under: let parent) = slot {
+            let opp = dir.opposite
+            let sibling = tree[parent, opp]! // we've removed a black node, so it definitely has a sibling.
+            if isRed(sibling) { // (1)
+                setBlack(sibling)
+                setRed(parent)
+                self.rotate(parent, dir)
+                // Repeat with the new parent, which is the previous sibling.
+                // Note that a red sibling must have had two non-nil children, so a sibling will still exist in the next iteration.
+                slot = .Toward(dir, under: sibling)
+                continue
+            }
+            let farNephew = tree[sibling, opp]
+            if isRed(farNephew) { // (4)
+                setColor(sibling, self.color(parent))
+                setBlack(farNephew)
+                setBlack(parent)
+                self.rotate(parent, dir)
+                break // We're done!
+            }
+            let closeNephew = tree[sibling, dir]
+            if isRed(closeNephew) { // (3)
+                setBlack(closeNephew)
+                setRed(sibling)
+                self.rotate(sibling, opp)
+                // The previously red child of sibling has become the new sibling now.
+                continue
+            }
+            else { // (2)
+                // Both nephews are black. We are allowed to paint the sibling red.
+                setRed(sibling)
+                // There is now a missing black in both subtrees of parent. 
+                if isRed(parent) { // We can finish this right now.
+                    setBlack(parent)
+                    fixupChain(parent)
+                    return
+                }
+                // Repeat one level higher.
+                slot = tree.slotOf(parent)
+                fixup(parent)
+            }
+        }
+        self.setBlack(self.root)
+    }
 
+    private mutating func rotate(parent: Index, _ direction: Direction) {
+        let child = self.tree.rotate(parent, direction)
+        fixup(child)
+        fixup(parent)
     }
 }
 
