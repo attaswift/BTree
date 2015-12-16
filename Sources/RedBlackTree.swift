@@ -207,7 +207,8 @@ internal struct RedBlackTree<Value: RedBlackValue> {
         return result
     }
 
-    private mutating func fixup(index: Index) -> Bool {
+    private mutating func fixup(index: Index?) -> Bool {
+        guard let index = index else { return false }
         var node = tree[index]
         let result = node.payload.value.fixup({ self.tree[node.left]?.payload.value }, right: { self.tree[node.right]?.payload.value })
         tree[index].payload.value = node.payload.value
@@ -254,7 +255,8 @@ internal struct RedBlackTree<Value: RedBlackValue> {
         return tree.furthestLeafUnder(index, towards: .Right)
     }
 
-    private mutating func rebalanceAfterInsert(new: Index, slot: Slot) {
+    private mutating func rebalanceAfterInsert(new: Index, slot: Slot) -> Index {
+        var new = new
         var x = new
         while case .Toward(let xdir, under: let p) = tree.slotOf(x) {
             guard isRed(p) else {
@@ -269,20 +271,28 @@ internal struct RedBlackTree<Value: RedBlackValue> {
                 setBlack(p)
                 setBlack(y)
                 setRed(gp)
-
                 x = gp
             }
             else {
                 if xdir == popp {
-                    x = p
-                    tree.rotate(x, pdir)
+                    tree.rotate(p, pdir)
+                    if x == new {
+                        new = p // new node moved up to root of subtree
+                    }
+                    fixup(x)
                 }
-                setBlack(p)
-                setRed(gp)
                 tree.rotate(gp, popp)
+                if p == new {
+                    new = gp // new node moved up to root of subtree
+                }
+                setBlack(gp)
+                setRed(p)
+                fixup(p)
+                fixup(gp)
             }
         }
         tree[tree.root!].payload.color = .Black
+        return new
     }
 
     private mutating func rebalanceAfterRemove(slot: Slot) {
