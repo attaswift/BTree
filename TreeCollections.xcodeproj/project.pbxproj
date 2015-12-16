@@ -37,6 +37,8 @@
 		BB9AE4821C20801E002C5D63 /* RedBlackTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4801C20801E002C5D63 /* RedBlackTreeTests.swift */; };
 		BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4831C20875D002C5D63 /* TestUtils.swift */; };
 		BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4831C20875D002C5D63 /* TestUtils.swift */; };
+		BB9AE4891C20D243002C5D63 /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4881C20D243002C5D63 /* ListTests.swift */; };
+		BB9AE48A1C20D246002C5D63 /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4881C20D243002C5D63 /* ListTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +90,7 @@
 		BB9AE47D1C207303002C5D63 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		BB9AE4801C20801E002C5D63 /* RedBlackTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedBlackTreeTests.swift; sourceTree = "<group>"; };
 		BB9AE4831C20875D002C5D63 /* TestUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
+		BB9AE4881C20D243002C5D63 /* ListTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,6 +183,7 @@
 				BB54D0BE1C1F0357008A462B /* BinaryTreeTests.swift */,
 				BB9AE4801C20801E002C5D63 /* RedBlackTreeTests.swift */,
 				BB9AE4241C1F887D002C5D63 /* MapTests.swift */,
+				BB9AE4881C20D243002C5D63 /* ListTests.swift */,
 				BB54D0C01C1F0357008A462B /* Info.plist */,
 			);
 			path = Tests;
@@ -414,6 +418,7 @@
 				BB9AE4261C1F8893002C5D63 /* MapTests.swift in Sources */,
 				BB9AE4811C20801E002C5D63 /* RedBlackTreeTests.swift in Sources */,
 				BB54D0BF1C1F0357008A462B /* BinaryTreeTests.swift in Sources */,
+				BB9AE4891C20D243002C5D63 /* ListTests.swift in Sources */,
 				BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -441,6 +446,7 @@
 				BB9AE4581C1FCE5A002C5D63 /* MapTests.swift in Sources */,
 				BB9AE4821C20801E002C5D63 /* RedBlackTreeTests.swift in Sources */,
 				BB9AE4571C1FCE5A002C5D63 /* BinaryTreeTests.swift in Sources */,
+				BB9AE48A1C20D246002C5D63 /* ListTests.swift in Sources */,
 				BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -882,6 +888,7 @@
 				BB9AE46B1C203A23002C5D63 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BB9AE4541C1FCE0B002C5D63 /* Build configuration list for PBXNativeTarget "Tests-Mac" */ = {
 			isa = XCConfigurationList;
@@ -891,6 +898,7 @@
 				BB9AE46D1C203A23002C5D63 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BB9AE4651C1FCEB3002C5D63 /* Build configuration list for PBXNativeTarget "PerformanceTests-Mac" */ = {
 			isa = XCConfigurationList;
@@ -900,6 +908,7 @@
 				BB9AE46E1C203A23002C5D63 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

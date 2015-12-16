@@ -80,3 +80,29 @@ extension RedBlackPayload: CustomStringConvertible {
     }
 }
 
+extension List {
+    func checkCounts() -> Bool {
+        var failedIndexes: [Tree.Index] = []
+        func walk(index: Tree.Index?) -> Int {
+            if let index = index {
+                let measured = walk(tree.tree[index].left) + walk(tree.tree[index].right) + 1
+                let stored = tree[index].count
+                if measured != stored {
+                    print("Subtree at index \(index) contains \(measured) nodes, but its root says it has \(stored)")
+                    failedIndexes.append(index)
+                }
+                return measured
+            }
+            else {
+                return 0
+            }
+        }
+        return failedIndexes.isEmpty
+    }
+}
+
+extension ListValue: CustomStringConvertible {
+    var description: String {
+        return "<\(self.element)/#\(self.count)>"
+    }
+}

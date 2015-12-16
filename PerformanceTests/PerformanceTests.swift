@@ -23,59 +23,81 @@ extension Array {
     }
 }
 
+class Test {
+    var i: Int
+
+    init(i: Int) {
+        self.i = i
+    }
+}
+
+struct Payload: Comparable {
+    let i: Int
+//    let j: Int
+//    let ref: Test
+
+    init(_ i: Int) {
+        self.i = i
+//        self.j = 2 * i
+//        self.ref = foo
+    }
+}
+func ==(a: Payload, b: Payload) -> Bool { return a.i == b.i }
+func <(a: Payload, b: Payload) -> Bool { return a.i < b.i }
+
 // Change this to shorten or lengthen the benchmarks.
 let count = 100000
 
-let randomElements: [Int] = {
+
+let randomPermutation: [Int] = {
     var numbers = Array((1...count))
     numbers.shuffleInPlace()
     return numbers
 }()
 
-let foo = Test(i: 0, foo: nil)
-let randomValues = randomElements.map { i in Test(i: i, foo: foo) }
+let foo = Test(i: 42)
+let randomValues = randomPermutation.map { i in Payload(i) }
 
-class Test: Comparable {
-    var i: Int
-    var foo: Test?
-
-    init(i: Int, foo: Test?) {
-        self.i = i
-        self.foo = foo
-    }
-}
-func ==(a: Test, b: Test) -> Bool {
-    return a.i == b.i
-}
-func <(a: Test, b: Test) -> Bool {
-    return a.i < b.i
-}
 
 class InsertionPerformanceTests: XCTestCase {
 
-    func testAppendingToUnsortedArray() {
-        var round = 1
+    var round: Int = 1
+
+    override func setUp() {
+        round = 1
+    }
+
+    func measure(block: [Payload]->Void) {
         self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
             let values = randomValues
-            print("Round \(round) started with \(values.count) elements")
-            var array = Array<Test>()
+            print("Round \(self.round) started with \(values.count) elements")
+            block(values)
+            print("Round \(self.round) ended")
+            self.round += 1
+        }
+    }
+
+    func testAppendingToUnsortedArray() {
+        self.measure { values in
+            var array = Array<Payload>()
+
             self.startMeasuring()
+
             for v in values {
                 array.append(v)
             }
+
             self.stopMeasuring()
-            print("Round \(round) ended")
-            round += 1
         }
     }
 
     func testInsertingToInlinedSortedArray() {
-        var round = 1
-        self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
-            let values = randomValues
-            print("Round \(round) started with \(values.count) elements")
-            var array = Array<Test>()
+        self.measure { values in
+
+            var array = Array<Payload>()
+
             self.startMeasuring()
+
             for v in values {
                 var start = array.startIndex
                 var end = array.endIndex
@@ -90,76 +112,76 @@ class InsertionPerformanceTests: XCTestCase {
                 }
                 array.insert(v, atIndex: start)
             }
+
             self.stopMeasuring()
-            print("Round \(round) ended")
-            round += 1
+
             XCTAssert(array.sort { v1, v2 in v1.i < v2.i }  == array)
         }
     }
 
     func testInsertingToSortedArray() {
-        var round = 1
-        self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
-            let values = randomValues
-            print("Round \(round) started with \(values.count) elements")
-            var array = SortedArray<Int, Test>()
+        self.measure { values in
+
+            var array = SortedArray<Int, Payload>()
+
             self.startMeasuring()
+
             for v in values {
                 array[v.i] = v
             }
+
             self.stopMeasuring()
-            print("Round \(round) ended")
-            round += 1
         }
     }
 
     func testInsertingIntoUnsortedDictionary() {
-        var round = 1
-        self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
-            let values = randomValues
-            print("Round \(round) started with \(values.count) elements")
-            var dict = Dictionary<Int, Test>()
+        self.measure { values in
+
+            var dict = Dictionary<Int, Payload>()
+
             self.startMeasuring()
+
             for v in values {
                 dict[v.i] = v
             }
+
             self.stopMeasuring()
-            print("Round \(round) ended")
-            round += 1
         }
     }
 
     func testInsertingIntoMap() {
-        var round = 1
-        self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
-            let values = randomValues
-            print("Round \(round) started with \(values.count) elements")
-            var map = Map<Int, Test>()
+        self.measure { values in
+            var map = Map<Int, Payload>()
+
             self.startMeasuring()
+
             for v in values {
                 map[v.i] = v
             }
+
             self.stopMeasuring()
-            
-            print("Round \(round) ended, info: \(map.debugInfo)")
-            round += 1
+
+            print(map.tree.debugInfo)
         }
     }
 
     func testAppendingToList() {
-        var round = 1
-        self.measureMetrics(self.dynamicType.defaultPerformanceMetrics(), automaticallyStartMeasuring: false) {
-            let values = randomValues
-            print("Round \(round) started with \(values.count) elements")
-            var list = List<Test>()
+        self.measure { values in
+
+            var list = List<Payload>()
+
             self.startMeasuring()
+            
             for v in values {
                 list.append(v)
             }
+
             self.stopMeasuring()
 
-            print("Round \(round) ended, info: \(list.debugInfo)")
-            round += 1
+            print(list.tree.debugInfo)
+            XCTAssertEqual(list.count, values.count)
+            XCTAssertTrue(list.elementsEqual(values))
         }
     }
+
 }
