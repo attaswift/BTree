@@ -8,11 +8,16 @@
 
 import Foundation
 
-private struct ListValue<Element>: RedBlackValue {
+internal struct ListValue<Element>: RedBlackValue {
     typealias Key = Int
 
     var count: Int // Count of children
     var element: Element
+
+    private init(element: Element) {
+        self.count = 1
+        self.element = element
+    }
 
     func key(@noescape left: Void->ListValue<Element>?) -> Key {
         return left()?.count ?? 0
@@ -24,11 +29,11 @@ private struct ListValue<Element>: RedBlackValue {
             return .Found
         }
         else if key > leftCount {
-            return .Descend(.Right, with: key)
+            return .Descend(.Right, with: key - leftCount - 1)
         }
         else {
             // This also gets returned on a match when insert = true
-            return .Descend(.Left, with: key - leftCount - 1)
+            return .Descend(.Left, with: key)
         }
     }
 
@@ -43,10 +48,10 @@ public struct List<Element>: ArrayLikeCollectionType {
     public typealias Index = Int
     public typealias Generator = IndexingGenerator<List<Element>>
 
-    private typealias TreeValue = ListValue<Element>
-    private typealias Tree = RedBlackTree<TreeValue>
+    internal typealias TreeValue = ListValue<Element>
+    internal typealias Tree = RedBlackTree<TreeValue>
 
-    private var tree: Tree
+    internal private(set) var tree: Tree
 
     // Initializers.
 
@@ -94,7 +99,7 @@ public struct List<Element>: ArrayLikeCollectionType {
     public mutating func insert(newElement: Element, atIndex i: Int) {
         let (index, slot) = tree.insertionSlotFor(i)
         assert(index == nil)
-        tree.insert(ListValue(count: 0, element: newElement), into: slot)
+        tree.insert(ListValue(element: newElement), into: slot)
     }
 
     public mutating func removeAll(keepCapacity keepCapacity: Bool) {
@@ -110,8 +115,4 @@ public struct List<Element>: ArrayLikeCollectionType {
         tree.remove(index)
         return result
     }
-}
-
-extension List {
-    internal var debugInfo: RedBlackInfo { return tree.debugInfo }
 }
