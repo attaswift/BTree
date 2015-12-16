@@ -10,6 +10,7 @@ import XCTest
 @testable import TreeCollections
 
 class BinaryTreeTests: XCTestCase {
+    typealias Index = BinaryTree<Int>.Index
     
     func testEmptyTree() {
         let tree = BinaryTree<Int>()
@@ -20,7 +21,7 @@ class BinaryTreeTests: XCTestCase {
 
     func testInsertingARootNode() {
         var tree = BinaryTree<Int>()
-        let index: Index = tree.insert(42, into: .Root)
+        let index = tree.insert(42, into: .Root)
         XCTAssertEqual(tree.count, 1)
         XCTAssertEqual(tree.root, index)
 
@@ -30,7 +31,7 @@ class BinaryTreeTests: XCTestCase {
 
     func testInsertingALeftChildNode() {
         var tree = BinaryTree<Int>()
-        let root: Index = tree.insert(42, into: .Root)
+        let root = tree.insert(42, into: .Root)
         let index = tree.insert(23, into: .Toward(.Left, under: root))
         XCTAssertEqual(tree[root].payload, 42)
         XCTAssertEqual(tree[index].payload, 23)
@@ -41,7 +42,7 @@ class BinaryTreeTests: XCTestCase {
 
     func testInsertingARightChildNode() {
         var tree = BinaryTree<Int>()
-        let root: Index = tree.insert(42, into: .Root)
+        let root = tree.insert(42, into: .Root)
         let index = tree.insert(23, into: .Toward(.Right, under: root))
         XCTAssertEqual(tree[root].payload, 42)
         XCTAssertEqual(tree[index].payload, 23)
@@ -81,7 +82,7 @@ class BinaryTreeTests: XCTestCase {
         let root = tree.insert(10, into: .Root)
         let slot = tree.remove(root)
 
-        XCTAssertEqual(slot, Slot.Root)
+        XCTAssertEqual(slot, .Root)
         XCTAssertEqual(tree.count, 0)
         XCTAssertEqual(tree.root, nil)
     }
@@ -103,44 +104,44 @@ class BinaryTreeTests: XCTestCase {
 
         // Remove 5 (root.right.left)
         var slot = tree.remove(i5)
-        XCTAssertEqual(slot, Slot.Toward(.Left, under: tree.lookup(.Right)!))
+        XCTAssertEqual(slot, .Toward(.Left, under: tree.lookup(.Right)!))
         XCTAssert(tree.checkInvariants())
         XCTAssertEqual(tree.dump(), "(((1) 2 (3)) 4 (6 (7)))")
 
         // Remove 6 (root.right)
         slot = tree.remove(tree.lookup(.Right)!)
         XCTAssertEqual(tree.dump(), "(((1) 2 (3)) 4 (7))")
-        XCTAssertEqual(slot, Slot.Toward(.Right, under: tree.root!))
+        XCTAssertEqual(slot, .Toward(.Right, under: tree.root!))
         XCTAssert(tree.checkInvariants())
 
         // Remove 3 (root.left.right)
         slot = tree.remove(tree.lookup(.Left, .Right)!)
         XCTAssertEqual(tree.dump(), "(((1) 2) 4 (7))")
-        XCTAssertEqual(slot, Slot.Toward(.Right, under: tree.lookup(.Left)!))
+        XCTAssertEqual(slot, .Toward(.Right, under: tree.lookup(.Left)!))
         XCTAssert(tree.checkInvariants())
 
         // Remove 1 (root.left.left)
         slot = tree.remove(tree.lookup(.Left, .Left)!)
         XCTAssertEqual(tree.dump(), "((2) 4 (7))")
-        XCTAssertEqual(slot, Slot.Toward(.Left, under: tree.lookup(.Left)!))
+        XCTAssertEqual(slot, .Toward(.Left, under: tree.lookup(.Left)!))
         XCTAssert(tree.checkInvariants())
 
         // Remove 7 (root.right)
         slot = tree.remove(tree.lookup(.Right)!)
         XCTAssertEqual(tree.dump(), "((2) 4)")
-        XCTAssertEqual(slot, Slot.Toward(.Right, under: tree.root!))
+        XCTAssertEqual(slot, .Toward(.Right, under: tree.root!))
         XCTAssert(tree.checkInvariants())
 
         // Remove 4 (root)
         slot = tree.remove(tree.root!)
         XCTAssertEqual(tree.dump(), "(2)")
-        XCTAssertEqual(slot, Slot.Root)
+        XCTAssertEqual(slot, .Root)
         XCTAssert(tree.checkInvariants())
 
         // Remove 2 (root)
         slot = tree.remove(tree.root!)
         XCTAssertEqual(tree.dump(), "")
-        XCTAssertEqual(slot, Slot.Root)
+        XCTAssertEqual(slot, .Root)
         XCTAssert(tree.checkInvariants())
     }
 

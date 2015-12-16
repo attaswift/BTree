@@ -8,7 +8,7 @@
 
 import Foundation
 
-private struct MapValue<Key: Comparable, Value>: RedBlackValue {
+internal struct MapValue<Key: Comparable, Value>: RedBlackValue {
     var key: Key
     var value: Value
 
@@ -38,9 +38,11 @@ private struct MapValue<Key: Comparable, Value>: RedBlackValue {
     }
 }
 
-public struct MapIndex<Key: Comparable, Value>: BidirectionalIndexType, Comparable {
-    private typealias TreeValue = MapValue<Key, Value>
-    private typealias Tree = RedBlackTree<TreeValue>
+public struct MapIndex<Key: Comparable, Value>: BidirectionalIndexType {
+    internal typealias TreeValue = MapValue<Key, Value>
+    internal typealias Tree = RedBlackTree<TreeValue>
+    internal typealias Index = Tree.Index
+    internal typealias Slot = Tree.Slot
 
     private let tree: Tree
     private let index: Index?
@@ -62,9 +64,6 @@ public struct MapIndex<Key: Comparable, Value>: BidirectionalIndexType, Comparab
 public func ==<Key: Comparable, Value>(a: MapIndex<Key, Value>, b: MapIndex<Key, Value>) -> Bool {
     return a.index == b.index
 }
-public func < <Key: Comparable, Value>(a: MapIndex<Key, Value>, b: MapIndex<Key, Value>) -> Bool {
-    return a.index < b.index
-}
 
 public struct MapGenerator<Key: Comparable, Value>: GeneratorType {
     public typealias Element = (Key, Value)
@@ -73,14 +72,14 @@ public struct MapGenerator<Key: Comparable, Value>: GeneratorType {
     private typealias Tree = RedBlackTree<TreeValue>
 
     private let tree: Tree
-    private var index: Index?
+    private var index: Tree.Index?
 
     private init(tree: Tree) {
         self.tree = tree
         self.index = tree.first
     }
 
-    private init(tree: Tree, index: Index?) {
+    private init(tree: Tree, index: Tree.Index?) {
         self.tree = tree
         self.index = index
     }
@@ -98,10 +97,11 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     public typealias Generator = MapGenerator<Key, Value>
     public typealias Element = (Key, Value)
 
-    private typealias TreeValue = MapValue<Key, Value>
-    private typealias Tree = RedBlackTree<TreeValue>
+    internal typealias TreeValue = MapValue<Key, Value>
+    internal typealias Tree = RedBlackTree<TreeValue>
+    internal typealias Slot = Tree.Slot
 
-    private var tree: Tree
+    internal private(set) var tree: Tree
 
     // Initializers.
 
@@ -143,7 +143,7 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
             case (nil, .Some(let value)):
                 tree.insert(MapValue(key: key, value: value), into: slot)
             case (.Some(let i), .Some(let value)):
-                tree.replace(i, with: MapValue(key: key, value: value))
+                tree[i] = MapValue(key: key, value: value)
             }
         }
     }
@@ -164,7 +164,7 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
         let (index, slot) = tree.insertionSlotFor(key)
         if let index = index {
             let old = tree[index].value
-            tree.replace(index, with: MapValue(key: key, value: value))
+            tree[index] = MapValue(key: key, value: value)
             return old
         }
         else {
@@ -189,6 +189,3 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     }
 }
 
-extension Map {
-    internal var debugInfo: RedBlackInfo { return tree.debugInfo }
-}

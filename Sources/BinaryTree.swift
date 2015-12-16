@@ -8,19 +8,28 @@
 
 import Foundation
 
-typealias Index = UInt32
+/// Represents a reference to a node in a binary tree.
+/// The generic type parameter only serves to differentiate between indexes belonging to different types of trees;
+/// in actuality, an index is only valid on a single tree, and even there it is easily invalidated by a mutating method.
+struct BinaryIndex<Payload>: Equatable {
+    /// This is simply the index inside of the tree's backing array. 
+    /// Represented as an UInt32 to save space (which is probably silly).
+    private let _value: UInt32
 
+    private init(_ value: Int) { self._value = UInt32(value) }
+
+    private var value: Int { return Int(_value) }
+}
+func ==<Payload>(a: BinaryIndex<Payload>, b: BinaryIndex<Payload>) -> Bool {
+    return a._value == b._value
+}
+
+/// A direction represents a choice between a left and right child in a binary tree.
 internal enum Direction {
     case Left
     case Right
 
-    var link: Link {
-        switch self {
-        case .Left: return .LeftChild
-        case .Right: return .RightChild
-        }
-    }
-
+    /// The opposite direction.
     var opposite: Direction {
         switch self {
         case .Left: return .Right
@@ -29,11 +38,17 @@ internal enum Direction {
     }
 }
 
-internal enum Slot: Equatable {
+/// A slot in the binary tree represents a place into which you can put a node.
+/// The tree's root is one slot, and so is either child of another node.
+internal enum BinarySlot<Payload>: Equatable {
+    internal typealias Index = BinaryIndex<Payload>
+
+    /// A slot representing the place of the topmost node in the tree.
     case Root
+    /// A slot representing the child towards a certain direction under a certain parent node in the tree.
     case Toward(Direction, under: Index)
 }
-internal func ==(a: Slot, b: Slot) -> Bool {
+internal func ==<Payload>(a: BinarySlot<Payload>, b: BinarySlot<Payload>) -> Bool {
     switch a {
     case .Root:
         if case .Root = b {
@@ -52,16 +67,20 @@ internal func ==(a: Slot, b: Slot) -> Bool {
     }
 }
 
-internal enum Link {
-    case Parent
-    case LeftChild
-    case RightChild
-}
-
+/// Node in a binary tree, with a payload and links to its children and parent.
 internal struct BinaryNode<Payload> {
+    // It's a shame we need to store the parent link -- the only reason we require it is that we need to be able to
+    // swap a node with a random one (for removal).
+
+    internal typealias Index = BinaryIndex<Payload>
+
+    /// The link to the parent of this node.
     internal private(set) var parent: Index?
+    /// The link to the left child of this node.
     internal private(set) var left: Index?
+    /// The link to the right child of this node.
     internal private(set) var right: Index?
+    /// The payload of this node.
     internal var payload: Payload
 
     private init(parent: Index?, payload: Payload) {
@@ -71,30 +90,22 @@ internal struct BinaryNode<Payload> {
 }
 
 extension BinaryNode {
-    subscript(link: Link) -> Index? {
+    subscript(direction: Direction) -> Index? {
         get {
-            switch link {
-            case .Parent: return parent
-            case .LeftChild: return left
-            case .RightChild: return right
+            switch direction {
+            case .Left: return left
+            case .Right: return right
             }
         }
         set(index) {
-            switch link {
-            case .Parent: parent = index
-            case .LeftChild: left = index
-            case .RightChild: right = index
+            switch direction {
+            case .Left: left = index
+            case .Right: right = index
             }
         }
     }
-
-    subscript(direction: Direction) -> Index? {
-        get { return self[direction.link] }
-        set { self[direction.link] = newValue }
-    }
-
     func isChild(child: Index) -> Bool {
-        return child == self[.LeftChild] || child == self[.RightChild]
+        return child == left || child == right
     }
 
     mutating func replaceChild(old: Index, with new: Index?) {
@@ -108,21 +119,27 @@ extension BinaryNode {
     }
 }
 
-/// Implements a binary tree with value semantics that stores all its nodes in an array.
-/// The tree provides the following operations:
+/// Implements a generic binary tree with copy-on-write value semantics. 
+/// Each node contains a freely configurable `Payload` component. 
+/// The nodes in a binary tree are stored in an array that is kept compact.
+///
+/// `BinaryTree` supports the following basic operations:
 ///
 /// - Looking up the index of the root node.
 /// - Getting and setting the payload of a node that has a given index.
-/// - Given an index, navigate to its parent index, left child index or right child index.
-/// - Insert a new leaf node under a parent.
-/// - Remove a node that has at most one child.
-/// - Left and right tree rotations.
+/// - Given an index, navigate to the index of its parent node, left child or right child.
+/// - Insert a new leaf node under a parent with a given payload.
+/// - Remove a node that has at most one child, using its index.
+/// - Left and right tree rotations, as used in balancing algorithms.
 ///
 /// All of these operations have O(1) time complexity. 
 /// (Insertion has amortized O(1) -- the array needs to be resized sometimes.)
 internal struct BinaryTree<Payload> {
     internal typealias Node = BinaryNode<Payload>
+    internal typealias Index = BinaryIndex<Payload>
+    internal typealias Slot = BinarySlot<Payload>
 
+    // TODO: As far as I know, the array never shrinks. Try replacing this with a SegmentedArray.
     private var nodes: ContiguousArray<Node> = []
 
     /// The number of nodes in this tree.
@@ -133,36 +150,30 @@ internal struct BinaryTree<Payload> {
     /// Returns an index to the root node of the tree, or nil if the tree is empty.
     internal var root: Index? {
         // The root is always at index 0.
-        return nodes.count > 0 ? 0 : nil
+        return nodes.count > 0 ? Index(0) : nil
     }
 
     /// Gets or replaces the node at `index`.
     internal subscript(index: Index) -> Node {
-        get { return nodes[Int(index)] }
-        set { nodes[Int(index)] = newValue }
+        get { return nodes[index.value] }
+        set { nodes[index.value] = newValue }
     }
 
     internal subscript(index: Index?) -> Node? {
         guard let index = index else { return nil }
-        return self[index] as Node
-    }
-
-    /// Accesses the specified link of the node at `index`.
-    internal private(set) subscript(index: Index, link: Link) -> Index? {
-        get { return self[index][link] }
-        set(new) { self[index][link] = new }
+        return nodes[index.value]
     }
 
     /// Accesses the specified child of the node at `index`.
     internal private(set) subscript(index: Index, direction: Direction) -> Index? {
-        get { return self[index, direction.link] }
-        set(new) { self[index, direction.link] = new }
+        get { return self[index][direction] }
+        set(new) { self[index][direction] = new }
     }
 
     /// Returns the slot of the node at `index`.
     internal func slotOf(index: Index) -> Slot {
-        if let parent = self[index, .Parent] {
-            if self[parent, .LeftChild] == index {
+        if let parent = self[index].parent {
+            if self[parent].left == index {
                 return .Toward(.Left, under: parent)
             }
             else {
@@ -172,16 +183,6 @@ internal struct BinaryTree<Payload> {
         else {
             return .Root
         }
-    }
-
-    internal func left(index: Index) -> Index? {
-        return self[index, .LeftChild]
-    }
-    internal func right(index: Index) -> Index? {
-        return self[index, .RightChild]
-    }
-    internal func parent(index: Index) -> Index? {
-        return self[index, .Parent]
     }
 
     /// Returns the index of the node in `slot`, or nil if the slot is currently empty.
@@ -209,7 +210,7 @@ internal struct BinaryTree<Payload> {
         switch slot {
         case .Root:
             nodes.append(Node(parent: nil, payload: payload))
-            return 0
+            return Index(0)
         case .Toward(let direction, under: let parent):
             let index = Index(nodes.count)
             self[parent, direction] = index
@@ -245,19 +246,20 @@ internal struct BinaryTree<Payload> {
         }
     }
 
+    // Discard the (already unlinked) node at `index`, updating its slot if its parent needed to be moved.
     private mutating func _remove(index: Index, updating slot: Slot) -> Slot {
         let lastIndex = Index(nodes.count - 1)
-        if index < lastIndex {
+        if index.value < lastIndex.value {
             // Remove the node with the largest index instead, and then reinsert it at `i`
             let last = nodes.removeLast()
-            nodes[Int(last.parent!)].replaceChild(lastIndex, with: index)
-            if let l = last.left { self[l, .Parent] = index }
-            if let r = last.right { self[r, .Parent] = index }
+            self[last.parent!].replaceChild(lastIndex, with: index)
+            if let l = last.left { self[l].parent = index }
+            if let r = last.right { self[r].parent = index }
             self[index] = last
-            switch slot {
-            case .Toward(let direction, under: let i) where i == lastIndex:
+            if case .Toward(let direction, under: let i) = slot where i == lastIndex {
                 return .Toward(direction, under: index)
-            default:
+            }
+            else {
                 return slot
             }
         }
@@ -297,8 +299,8 @@ internal struct BinaryTree<Payload> {
         a.parent = x
         a[opp] = b[dir]
         b[dir] = y
-        if let ad = a[dir] { self[ad, .Parent] = y }
-        if let bo = b[opp] { self[bo, .Parent] = x }
+        if let ad = a[dir] { self[ad].parent = y }
+        if let bo = b[opp] { self[bo].parent = x }
 
         self[x] = b
         self[y] = a

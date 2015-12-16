@@ -25,12 +25,13 @@ public func XCTAssertEqual<T : Equatable>(@autoclosure expression1: () -> T, @au
 extension BinaryTree {
     func checkInvariants() -> Bool {
         var count = 0
-        func check(node: Index?, under parent: Index?) -> Bool {
-            guard let node = node else { return true }
+        func check(index: Index?, under parent: Index?) -> Bool {
+            guard let index = index else { return true }
             count += 1
-            guard parent == self[node, .Parent] else { return false }
-            guard check(self[node, .LeftChild], under: node) else { return false }
-            guard check(self[node, .RightChild], under: node) else { return false }
+            let node = self[index]
+            guard parent == node.parent else { return false }
+            guard check(node.left, under: index) else { return false }
+            guard check(node.right, under: index) else { return false }
             return true
         }
 
@@ -41,8 +42,8 @@ extension BinaryTree {
     func dump() -> String {
         func dump(index: Index?) -> String {
             guard let index = index else { return "" }
-            let left = dump(self[index, .LeftChild])
-            let right = dump(self[index, .RightChild])
+            let left = dump(self[index].left)
+            let right = dump(self[index].right)
             let space1 = left.isEmpty ? "" : " "
             let space2 = right.isEmpty ? "" : " "
             return "(\(left)\(space1)\(self[index].payload)\(space2)\(right))"

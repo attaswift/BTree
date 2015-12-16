@@ -61,7 +61,7 @@ class RedBlackTreeTests: XCTestCase {
         
         tree.insert(Value(2), into: tree.insertionSlotFor(2).1)
 
-        XCTAssertEqual(tree.dump(), "((1 (2R)) 3 (4R))")
+        XCTAssertEqual(tree.dump(), "((1 (2R)) 3 (4))")
         XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
     }
 

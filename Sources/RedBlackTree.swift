@@ -8,14 +8,14 @@
 
 import Foundation
 
-internal enum Color {
+internal enum RedBlackColor {
     case Red
     case Black
 }
 
 internal struct RedBlackPayload<Value: RedBlackValue> {
     var value: Value
-    var color: Color = .Red
+    var color: RedBlackColor = .Red
 
     init(value: Value) {
         self.value = value
@@ -48,21 +48,25 @@ internal protocol RedBlackValue {
     mutating func fixup(@noescape left: Void->Self?, @noescape right: Void->Self?) -> Bool
 }
 
+/// A Red-Black tree implementation with copy-on-write value semantics.
+/// The implementation supports augmenting the red-black tree to support positional addressing and other special effects.
 internal struct RedBlackTree<Value: RedBlackValue> {
-
     // Implementation mostly follows Cormen et al.[1], with many adjustments.
     //
     // [1]: Cormen, Leiserson, Rivest, Stein: Introduction to Algorithms, 2nd ed. (MIT Press, 2001)
 
     internal typealias Key = Value.Key
     internal typealias Payload = RedBlackPayload<Value>
+    internal typealias Tree = BinaryTree<Payload>
+    internal typealias Index = Tree.Index
+    internal typealias Slot = Tree.Slot
 
-    internal private(set) var tree: BinaryTree<Payload>
+    internal private(set) var tree: Tree
 
     // Init
 
     internal init() {
-        self.tree = BinaryTree<Payload>()
+        self.tree = Tree()
     }
 
     internal var count: Int { return tree.count }
@@ -82,10 +86,6 @@ internal struct RedBlackTree<Value: RedBlackValue> {
             self.tree[index].payload.value = newValue
         }
     }
-    internal mutating func replace(index: Index, with value: Value) {
-    }
-    
-
 
     internal func find(key: Key) -> Index? {
         var key = key
@@ -150,8 +150,7 @@ internal struct RedBlackTree<Value: RedBlackValue> {
     internal mutating func insert(value: Value, into slot: Slot) -> Index {
         assert(tree.indexInSlot(slot) == nil)
         let index = tree.insert(Payload(value: value), into: slot)
-        rebalanceAfterInsert(index, slot: slot)
-        return index
+        return rebalanceAfterInsert(index, slot: slot)
     }
 
     internal mutating func remove(index: Index) -> Value {
@@ -159,7 +158,7 @@ internal struct RedBlackTree<Value: RedBlackValue> {
 
         // Find the node that we will actually remove. The node has to have at most one child.
         var y: Index
-        if let _ = tree.left(index), let r = tree.right(index) {
+        if let _ = tree[index].left, let r = tree[index].right {
             y = minimumUnder(r) // Remove node following original index
             setValue(index, value: value(y))
         }
@@ -182,7 +181,7 @@ internal struct RedBlackTree<Value: RedBlackValue> {
 
     // Lookup utilites
 
-    private func color(index: Index?) -> Color {
+    private func color(index: Index?) -> RedBlackColor {
         guard let index = index else { return .Black }
         return tree[index].payload.color
     }
@@ -218,7 +217,7 @@ internal struct RedBlackTree<Value: RedBlackValue> {
     private mutating func fixupChain(index: Index) {
         var index: Index? = index
         while let i = index where self.fixup(i) {
-            index = tree[i, .Parent]
+            index = tree[i].parent
         }
     }
 
@@ -239,10 +238,10 @@ internal struct RedBlackTree<Value: RedBlackValue> {
             return tree.furthestLeafUnder(n, towards: direction.opposite)
         }
         var child = index
-        var parent = tree.parent(child)
+        var parent = tree[child].parent
         while let p = parent where child == tree[p, direction] {
             child = p
-            parent = tree.parent(child)
+            parent = tree[child].parent
         }
         return parent
     }
@@ -277,13 +276,13 @@ internal struct RedBlackTree<Value: RedBlackValue> {
                 if xdir == popp {
                     tree.rotate(p, pdir)
                     if x == new {
-                        new = p // new node moved up to root of subtree
+                        new = p // new node moved up a level
                     }
                     fixup(x)
                 }
                 tree.rotate(gp, popp)
                 if p == new {
-                    new = gp // new node moved up to root of subtree
+                    new = gp // new node moved up a level
                 }
                 setBlack(gp)
                 setRed(p)
@@ -298,13 +297,12 @@ internal struct RedBlackTree<Value: RedBlackValue> {
     private mutating func rebalanceAfterRemove(slot: Slot) {
 
     }
-
 }
 
-internal struct RedBlackInfo: CustomStringConvertible {
+internal struct RedBlackInfo<Value: RedBlackValue>: CustomStringConvertible {
     let depths: Range<Int>
     let ranks: Range<Int>
-    let invalidRedNodes: [Index]
+    let invalidRedNodes: [RedBlackTree<Value>.Index]
 
     var isValidRedBlackTree: Bool {
         return ranks.count == 1 && invalidRedNodes.isEmpty
@@ -316,12 +314,12 @@ internal struct RedBlackInfo: CustomStringConvertible {
 }
 extension RedBlackTree {
 
-    internal var debugInfo: RedBlackInfo {
-        func walk(index: Index?, shouldBeBlack: Bool) -> RedBlackInfo {
+    internal var debugInfo: RedBlackInfo<Value> {
+        func walk(index: Index?, shouldBeBlack: Bool) -> RedBlackInfo<Value> {
             if let index = index {
                 let color = self.color(index)
-                let i1 = walk(tree.left(index), shouldBeBlack: color == .Red)
-                let i2 = walk(tree.right(index), shouldBeBlack: color == .Red)
+                let i1 = walk(tree[index].left, shouldBeBlack: color == .Red)
+                let i2 = walk(tree[index].right, shouldBeBlack: color == .Red)
                 let b = color == .Black ? 1 : 0
 
                 let colorError: [Index] = (color == .Red && shouldBeBlack ? [index] : [])
