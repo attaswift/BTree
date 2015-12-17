@@ -17,10 +17,6 @@ internal struct MapValue<Key: Comparable, Value>: RedBlackValue {
         self.value = value
     }
 
-    func key(@noescape left: Void->MapValue<Key, Value>?) -> Key {
-        return key
-    }
-
     func compare(key: Key, @noescape left: Void->MapValue<Key, Value>?, insert: Bool) -> RedBlackComparisonResult<Key> {
         if key == self.key {
             return .Found

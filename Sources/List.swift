@@ -19,10 +19,6 @@ internal struct ListValue<Element>: RedBlackValue {
         self.element = element
     }
 
-    func key(@noescape left: Void->ListValue<Element>?) -> Key {
-        return left()?.count ?? 0
-    }
-
     func compare(key: Key, @noescape left: Void->ListValue<Element>?, insert: Bool) -> RedBlackComparisonResult<Int> {
         let leftCount = left()?.count ?? 0
         if !insert && key == leftCount {

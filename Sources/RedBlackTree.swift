@@ -41,7 +41,6 @@ internal enum RedBlackComparisonResult<Key> {
 internal protocol RedBlackValue {
     typealias Key: Equatable
 
-    func key(@noescape left: Void->Self?) -> Key
     func compare(key: Key, @noescape left: Void->Self?, insert: Bool) -> RedBlackComparisonResult<Key>
 
     /// Recalculate self's state with specified new children. Return true if this self's parent also needs to be fixed up.

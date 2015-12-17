@@ -30,9 +30,6 @@ private struct Value: RedBlackValue, CustomStringConvertible {
         self.i = i
     }
 
-    func key(@noescape left: Void->Value?) -> Key {
-        return i
-    }
     func compare(key: Key, @noescape left: Void->Value?, insert: Bool) -> RedBlackComparisonResult<Key> {
         if i > key {
             return .Descend(.Left, with: key)
