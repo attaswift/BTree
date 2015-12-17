@@ -71,6 +71,15 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
 
     internal var count: Int { return tree.count }
 
+    internal func generate() -> AnyGenerator<Value> {
+        var index = first
+        return anyGenerator { () -> Value? in
+            guard let i = index else { return nil }
+            index = self.successor(i)
+            return self[i] as Value
+        }
+    }
+
     internal var root: Index? { return tree.root }
 
     internal subscript(index: Index) -> Value {
