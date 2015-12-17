@@ -142,11 +142,11 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
     }
 
     internal var firstIndex: Index? {
-        return tree.firstIndex
+        return tree.leftmost
     }
 
     internal var lastIndex: Index? {
-        return tree.lastIndex
+        return tree.rightmost
     }
 
     internal func successor(index: Index) -> Index? {

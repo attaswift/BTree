@@ -141,8 +141,8 @@ internal struct BinaryTree<Payload> {
 
     // TODO: As far as I know, the array never shrinks. Try replacing this with a SegmentedArray.
     private var nodes: ContiguousArray<Node> = []
-    internal private(set) var firstIndex: Index?
-    internal private(set) var lastIndex: Index?
+    internal private(set) var leftmost: Index?
+    internal private(set) var rightmost: Index?
 
     /// The number of nodes in this tree.
     internal var count: Int {
@@ -227,15 +227,15 @@ internal struct BinaryTree<Payload> {
         case .Root:
             nodes.append(Node(parent: nil, payload: payload))
             let index = Index(0)
-            firstIndex = index
-            lastIndex = index
+            leftmost = index
+            rightmost = index
             return index
         case .Toward(let direction, under: let parent):
             let index = Index(nodes.count)
             self[parent, direction] = index
             nodes.append(Node(parent: parent, payload: payload))
-            if firstIndex == parent && direction == .Left { firstIndex = index }
-            if lastIndex == parent && direction == .Right { lastIndex = index }
+            if leftmost == parent && direction == .Left { leftmost = index }
+            if rightmost == parent && direction == .Right { rightmost = index }
             return index
         }
     }
@@ -252,8 +252,8 @@ internal struct BinaryTree<Payload> {
         let node = self[index]
         let slot = slotOf(index)
 
-        if index == firstIndex { firstIndex = inorderStep(index, towards: .Right) }
-        if index == lastIndex { lastIndex = inorderStep(index, towards: .Left) }
+        if index == leftmost { leftmost = inorderStep(index, towards: .Right) }
+        if index == rightmost { rightmost = inorderStep(index, towards: .Left) }
 
         let left = node.left
         let right = node.right
@@ -270,8 +270,8 @@ internal struct BinaryTree<Payload> {
             n.parent = node.parent
             self[index] = n
 
-            if rem == firstIndex { firstIndex = index }
-            if rem == lastIndex { lastIndex = index }
+            if rem == leftmost { leftmost = index }
+            if rem == rightmost { rightmost = index }
 
             return _remove(rem, updating: slot)
         }
@@ -287,8 +287,8 @@ internal struct BinaryTree<Payload> {
             self[last.parent!].replaceChild(highestIndex, with: index)
             if let l = last.left { self[l].parent = index }
             if let r = last.right { self[r].parent = index }
-            if firstIndex == highestIndex { firstIndex = index }
-            if lastIndex == highestIndex { lastIndex = index }
+            if leftmost == highestIndex { leftmost = index }
+            if rightmost == highestIndex { rightmost = index }
             self[index] = last
             if case .Toward(let direction, under: let i) = slot where i == highestIndex {
                 return .Toward(direction, under: index)
@@ -309,8 +309,8 @@ internal struct BinaryTree<Payload> {
 
     internal mutating func removeAll(keepCapacity keepCapacity: Bool = false) {
         self.nodes.removeAll(keepCapacity: keepCapacity)
-        self.firstIndex = nil
-        self.lastIndex = nil
+        self.leftmost = nil
+        self.rightmost = nil
     }
 
     /// Rotates the subtree rooted at `index` in the specified direction. Used when the tree implements
@@ -344,11 +344,11 @@ internal struct BinaryTree<Payload> {
 
         switch dir {
         case .Left:
-            if lastIndex == y { lastIndex = x }
-            if firstIndex == x { firstIndex = y }
+            if rightmost == y { rightmost = x }
+            if leftmost == x { leftmost = y }
         case .Right:
-            if firstIndex == y { firstIndex = x }
-            if lastIndex == x { lastIndex = y }
+            if leftmost == y { leftmost = x }
+            if rightmost == x { rightmost = y }
         }
 
         return y

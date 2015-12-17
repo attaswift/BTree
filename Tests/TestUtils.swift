@@ -38,8 +38,8 @@ extension BinaryTree {
         guard check(self.root, under: nil) else { return false }
 
         if count > 0 {
-            guard let first = firstIndex where self.inorderStep(first, towards: .Left) == nil else { return false }
-            guard let last = lastIndex where self.inorderStep(last, towards: .Right) == nil else { return false }
+            guard let first = leftmost where self.inorderStep(first, towards: .Left) == nil else { return false }
+            guard let last = rightmost where self.inorderStep(last, towards: .Right) == nil else { return false }
         }
 
         return count == self.count
