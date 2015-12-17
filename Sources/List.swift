@@ -93,12 +93,33 @@ public struct List<Element>: ArrayLikeCollectionType {
         self.tree.reserveCapacity(minimumCapacity)
     }
 
+
+    public mutating func append(newElement: Element) {
+        let v = ListValue(element: newElement)
+        if let last = tree.lastIndex {
+            tree.insert(v, into: .Toward(.Right, under: last))
+        }
+        else {
+            tree.insert(v, into: .Root)
+        }
+    }
+    
     /// Inserts a new element at position `index`.
     /// - Requires: i < count
     /// - Complexity: O(log(count))
-    public mutating func insert(newElement: Element, atIndex i: Int) {
-        let (index, slot) = tree.insertionSlotFor(i)
-        assert(index == nil)
+    public mutating func insert(newElement: Element, atIndex index: Int) {
+        let slot: Tree.Slot
+        if let first = tree.firstIndex where index == 0 {
+            slot = .Toward(.Left, under: first)
+        }
+        else if let last = tree.lastIndex where index == count {
+            slot = .Toward(.Right, under: last)
+        }
+        else {
+            let (i, s) = tree.insertionSlotFor(index)
+            assert(i == nil)
+            slot = s
+        }
         tree.insert(ListValue(element: newElement), into: slot)
     }
 

@@ -141,6 +141,8 @@ internal struct BinaryTree<Payload> {
 
     // TODO: As far as I know, the array never shrinks. Try replacing this with a SegmentedArray.
     private var nodes: ContiguousArray<Node> = []
+    internal private(set) var firstIndex: Index?
+    internal private(set) var lastIndex: Index?
 
     /// The number of nodes in this tree.
     internal var count: Int {
@@ -203,6 +205,20 @@ internal struct BinaryTree<Payload> {
         return index
     }
 
+    internal func inorderStep(index: Index, towards direction: Direction) -> Index? {
+        if let n = self[index, direction] {
+            return self.furthestLeafUnder(n, towards: direction.opposite)
+        }
+        var child = index
+        var parent = self[child].parent
+        while let p = parent where child == self[p, direction] {
+            child = p
+            parent = self[child].parent
+        }
+        return parent
+    }
+
+
 
     /// Inserts a new node with `payload` into `slot`. The slot must currently be empty.
     internal mutating func insert(payload: Payload, into slot: Slot) -> Index {
@@ -210,11 +226,16 @@ internal struct BinaryTree<Payload> {
         switch slot {
         case .Root:
             nodes.append(Node(parent: nil, payload: payload))
-            return Index(0)
+            let index = Index(0)
+            firstIndex = index
+            lastIndex = index
+            return index
         case .Toward(let direction, under: let parent):
             let index = Index(nodes.count)
             self[parent, direction] = index
             nodes.append(Node(parent: parent, payload: payload))
+            if firstIndex == parent && direction == .Left { firstIndex = index }
+            if lastIndex == parent && direction == .Right { lastIndex = index }
             return index
         }
     }
@@ -229,34 +250,47 @@ internal struct BinaryTree<Payload> {
     ///
     internal mutating func remove(index: Index) -> Slot {
         let node = self[index]
-        assert(node.left == nil || node.right == nil)
-
         let slot = slotOf(index)
-        if let c = node.left ?? node.right {
-            var cn = self[c]
-            cn.parent = node.parent
-            self[index] = cn
-            return _remove(c, updating: slot)
-        }
-        else {
+
+        if index == firstIndex { firstIndex = inorderStep(index, towards: .Right) }
+        if index == lastIndex { lastIndex = inorderStep(index, towards: .Left) }
+
+        switch (node.left, node.right) {
+        case (nil, nil):
             if case .Toward(let direction, under: let parent) = slot {
                 self[parent, direction] = nil
             }
             return _remove(index, updating: slot)
+        case (.Some(let left), nil):
+            var n = self[left]
+            n.parent = node.parent
+            self[index] = n
+            if left == firstIndex { firstIndex = index }
+            return _remove(left, updating: slot)
+        case (nil, .Some(let right)):
+            var n = self[right]
+            n.parent = node.parent
+            self[index] = n
+            if right == lastIndex { lastIndex = index }
+            return _remove(right, updating: slot)
+        case (.Some(_), .Some(_)):
+            fatalError("Can't remove node with two children")
         }
     }
 
     // Discard the (already unlinked) node at `index`, updating its slot if its parent needed to be moved.
     private mutating func _remove(index: Index, updating slot: Slot) -> Slot {
-        let lastIndex = Index(nodes.count - 1)
-        if index.value < lastIndex.value {
+        let highestIndex = Index(nodes.count - 1)
+        if index.value < highestIndex.value {
             // Remove the node with the largest index instead, and then reinsert it at `i`
             let last = nodes.removeLast()
-            self[last.parent!].replaceChild(lastIndex, with: index)
+            self[last.parent!].replaceChild(highestIndex, with: index)
             if let l = last.left { self[l].parent = index }
             if let r = last.right { self[r].parent = index }
+            if firstIndex == highestIndex { firstIndex = index }
+            if lastIndex == highestIndex { lastIndex = index }
             self[index] = last
-            if case .Toward(let direction, under: let i) = slot where i == lastIndex {
+            if case .Toward(let direction, under: let i) = slot where i == highestIndex {
                 return .Toward(direction, under: index)
             }
             else {
@@ -305,6 +339,16 @@ internal struct BinaryTree<Payload> {
 
         self[x] = b
         self[y] = a
+
+        switch dir {
+        case .Left:
+            if lastIndex == y { lastIndex = x }
+            if firstIndex == x { firstIndex = y }
+        case .Right:
+            if firstIndex == y { firstIndex = x }
+            if lastIndex == x { lastIndex = y }
+        }
+
         return y
     }
 }

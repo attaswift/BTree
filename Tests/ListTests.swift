@@ -33,6 +33,7 @@ class ListTests: XCTestCase {
 
         for v in values {
             list.append(v)
+            print(list)
             XCTAssertTrue(list.checkCounts())
         }
 

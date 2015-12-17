@@ -71,7 +71,7 @@ public struct MapGenerator<Key: Comparable, Value>: GeneratorType {
 
     private init(tree: Tree) {
         self.tree = tree
-        self.index = tree.first
+        self.index = tree.firstIndex
     }
 
     private init(tree: Tree, index: Tree.Index?) {
@@ -107,7 +107,7 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     // Variables.
 
     public var startIndex: Index {
-        return Index(tree: tree, index: tree.first)
+        return Index(tree: tree, index: tree.firstIndex)
     }
     
     public var endIndex: Index {

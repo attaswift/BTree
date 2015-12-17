@@ -102,7 +102,7 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
     internal var count: Int { return tree.count }
 
     internal func generate() -> AnyGenerator<Value> {
-        var index = first
+        var index = firstIndex
         return anyGenerator { () -> Value? in
             guard let i = index else { return nil }
             index = self.successor(i)
@@ -141,22 +141,20 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
         return nil
     }
 
-    internal var first: Index? {
-        guard let r = root else { return nil }
-        return minimumUnder(r)
+    internal var firstIndex: Index? {
+        return tree.firstIndex
     }
 
-    internal var last: Index? {
-        guard let r = root else { return nil }
-        return maximumUnder(r)
+    internal var lastIndex: Index? {
+        return tree.lastIndex
     }
 
     internal func successor(index: Index) -> Index? {
-        return step(index, towards: .Right)
+        return tree.inorderStep(index, towards: .Right)
     }
 
     internal func predecessor(index: Index) -> Index? {
-        return step(index, towards: .Left)
+        return tree.inorderStep(index, towards: .Left)
     }
 
     internal func insertionSlotFor(key: Key) -> (Index?, Slot) {
@@ -205,7 +203,6 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
         else {
             y = index
         }
-
         let color = tree[y].payload.color
         let slot = tree.remove(y)
         if color == .Black {
@@ -282,19 +279,6 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
     }
 
     // Private helpers
-
-    private func step(index: Index, towards direction: Direction) -> Index? {
-        if let n = tree[index, direction] {
-            return tree.furthestLeafUnder(n, towards: direction.opposite)
-        }
-        var child = index
-        var parent = tree[child].parent
-        while let p = parent where child == tree[p, direction] {
-            child = p
-            parent = tree[child].parent
-        }
-        return parent
-    }
 
     private func minimumUnder(index: Index) -> Index {
         return tree.furthestLeafUnder(index, towards: .Left)

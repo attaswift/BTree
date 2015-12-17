@@ -11,9 +11,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>5.9577</real>
+					<real>2.5114</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>2015-12-17 02:35:56</string>
+					<string>2015-12-17 04:28:16</string>
 				</dict>
 			</dict>
 			<key>testAppendingToUnsortedArray()</key>
@@ -21,9 +21,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.0016776</real>
+					<real>0.0018883</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>2015-12-17 02:35:56</string>
+					<string>2015-12-17 04:28:16</string>
 				</dict>
 			</dict>
 			<key>testInsertingIntoMap()</key>
@@ -31,9 +31,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>2.6035</real>
+					<real>2.4649</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>2015-12-17 02:42:26</string>
+					<string>2015-12-17 04:28:16</string>
 				</dict>
 			</dict>
 			<key>testInsertingIntoUnsortedDictionary()</key>
@@ -41,9 +41,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>0.036477</real>
+					<real>0.036603</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>2015-12-17 02:42:26</string>
+					<string>2015-12-17 04:28:16</string>
 				</dict>
 			</dict>
 			<key>testInsertingToInlinedSortedArray()</key>
@@ -51,9 +51,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>2.5955</real>
+					<real>2.7839</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>2015-12-17 02:42:26</string>
+					<string>2015-12-17 04:28:16</string>
 				</dict>
 			</dict>
 			<key>testInsertingToSortedArray()</key>
@@ -61,9 +61,9 @@
 				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
 				<dict>
 					<key>baselineAverage</key>
-					<real>17.432</real>
+					<real>17.083</real>
 					<key>baselineIntegrationDisplayName</key>
-					<string>2015-12-17 02:42:26</string>
+					<string>2015-12-17 04:28:16</string>
 				</dict>
 			</dict>
 		</dict>
