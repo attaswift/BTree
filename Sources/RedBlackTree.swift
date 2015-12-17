@@ -26,7 +26,7 @@ internal enum RedBlackComparisonResult<Key> {
     /// The value matches the key.
     case Found
     /// The search should continue with the child towards `direction`, using the given replacement key.
-    case Descend(Direction, with: Key)
+    case Descend(BinaryTreeDirection, with: Key)
 }
 
 /// The value of a node in our red-black tree holds some state that can be compared with a key to determine if the
@@ -160,14 +160,14 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
     internal func insertionSlotFor(key: Key) -> (Index?, Slot) {
         guard let root = tree.root else { return (nil, .Root) }
 
-        func slot(child: Index?, _ parent: Index?, _ direction: Direction?) -> (Index?, Slot) {
+        func slot(child: Index?, _ parent: Index?, _ direction: BinaryTreeDirection?) -> (Index?, Slot) {
             guard let d = direction else { return (child, .Root) }
             return (child, .Toward(d, under: parent!))
         }
 
         var key = key
         var parent: Index? = nil
-        var direction: Direction? = nil
+        var direction: BinaryTreeDirection? = nil
         var child = tree.root
 
         while let c = child {
@@ -372,7 +372,7 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
         self.setBlack(self.root)
     }
 
-    private mutating func rotate(parent: Index, _ direction: Direction) {
+    private mutating func rotate(parent: Index, _ direction: BinaryTreeDirection) {
         let child = self.tree.rotate(parent, direction)
         fixup(child)
         fixup(parent)

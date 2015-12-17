@@ -57,11 +57,11 @@ extension BinaryTree {
         return dump(root)
     }
 
-    func lookup(directions: Direction...) -> Index? {
+    func lookup(directions: BinaryTreeDirection...) -> Index? {
         return self.lookup(directions)
     }
 
-    func lookup<S: SequenceType where S.Generator.Element == Direction>(directions: S) -> Index? {
+    func lookup<S: SequenceType where S.Generator.Element == BinaryTreeDirection>(directions: S) -> Index? {
         var index = self.root
         for direction in directions {
             guard let i = index else { return nil }
