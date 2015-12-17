@@ -8,7 +8,10 @@
 
 import Foundation
 
-internal struct MapValue<Key: Comparable, Value>: RedBlackValue {
+internal struct MapValue<_Key: Comparable, Value>: RedBlackValue {
+    typealias Key = _Key
+    typealias State = Void
+
     var key: Key
     var value: Value
 
@@ -17,7 +20,7 @@ internal struct MapValue<Key: Comparable, Value>: RedBlackValue {
         self.value = value
     }
 
-    func compare(key: Key, @noescape left: Void->MapValue<Key, Value>?, insert: Bool) -> RedBlackComparisonResult<Key> {
+    func compare(key: Key, children: StateAccessor<MapValue<Key, Value>>, insert: Bool) -> RedBlackComparisonResult<Key> {
         if key == self.key {
             return .Found
         }
@@ -27,10 +30,6 @@ internal struct MapValue<Key: Comparable, Value>: RedBlackValue {
         else {
             return .Descend(.Right, with: key)
         }
-    }
-
-    mutating func fixup(@noescape left: Void->MapValue<Key, Value>?, @noescape right: Void->MapValue<Key, Value>?) -> Bool {
-        return false
     }
 }
 

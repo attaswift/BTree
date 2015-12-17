@@ -86,7 +86,7 @@ extension List {
         func walk(index: Tree.Index?) -> Int {
             if let index = index {
                 let measured = walk(tree.tree[index].left) + walk(tree.tree[index].right) + 1
-                let stored = tree[index].count
+                let stored = tree[index].state
                 if measured != stored {
                     print("Subtree at index \(index) contains \(measured) nodes, but its root says it has \(stored)")
                     failedIndexes.append(index)
@@ -103,7 +103,7 @@ extension List {
 
 extension ListValue: CustomStringConvertible {
     var description: String {
-        return "<\(self.element)/#\(self.count)>"
+        return "<\(self.element)/#\(self.state)>"
     }
 }
 

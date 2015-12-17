@@ -40,14 +40,45 @@ internal enum RedBlackComparisonResult<Key> {
 ///   `List` defines a red-black tree where the "key" of a node is the current index of it in the list.
 internal protocol RedBlackValue {
     typealias Key: Equatable
+    typealias State = Void
 
-    func compare(key: Key, @noescape left: Void->Self?, insert: Bool) -> RedBlackComparisonResult<Key>
+    static var zeroState: State { get }
+    var state: State { get }
 
-    /// Recalculate self's state with specified new children. Return true if this self's parent also needs to be fixed up.
-    mutating func fixup(@noescape left: Void->Self?, @noescape right: Void->Self?) -> Bool
+    func compare(key: Key, children: StateAccessor<Self>, insert: Bool) -> RedBlackComparisonResult<Key>
+
+    /// If the value augments the red-black tree, recalculate the state with the new children.
+    /// Return true if this node's parent node also needs to be updated.
+    mutating func updateState(children: StateAccessor<Self>) -> Bool
 }
 
-/// A Red-Black tree implementation with copy-on-write value semantics.
+extension RedBlackValue where State == Void {
+    static var zeroState: State { return () }
+    var state: Void { return () }
+
+    mutating func updateState(children: StateAccessor<Self>) -> Bool { return false }
+}
+
+struct StateAccessor<Value: RedBlackValue> {
+    typealias Tree = RedBlackTree<Value>
+    typealias Index = Tree.Index
+    typealias State = Value.State
+
+    private let _tree: Tree
+    private let _left: Index?
+    private let _right: Index?
+
+    private init(tree: Tree, left: Index?, right: Index?) {
+        self._tree = tree
+        self._left = left
+        self._right = right
+    }
+
+    internal var left: State { return _tree.state(_left) }
+    internal var right: State { return _tree.state(_right) }
+}
+
+/// A Red-Black tree implementation with copy-on-write value semantics, optionally augmented.
 /// The implementation supports augmenting the red-black tree to support positional addressing and other special effects.
 internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
     // Implementation mostly follows Cormen et al.[1], with many adjustments.
@@ -217,21 +248,33 @@ internal struct RedBlackTree<Value: RedBlackValue>: SequenceType {
         tree[index].payload.color = color
     }
 
+    private func state(index: Index?) -> Value.State {
+        guard sizeof(Value.State.self) > 0 else { return Value.zeroState }
+        if let node = tree[index] {
+            return node.payload.value.state
+        }
+        else {
+            return Value.zeroState
+        }
+    }
+
     private func compare(index: Index, key: Key, insert: Bool) -> RedBlackComparisonResult<Key> {
         let node = tree[index]
-        let result = node.payload.value.compare(key, left: { self.tree[node.left]?.payload.value }, insert: insert)
+        let result = node.payload.value.compare(key, children: StateAccessor(tree: self, left: node.left, right: node.right), insert: insert)
         return result
     }
 
     private mutating func fixup(index: Index?) -> Bool {
+        guard sizeof(Value.State.self) > 0 else { return false }
         guard let index = index else { return false }
         var node = tree[index]
-        let result = node.payload.value.fixup({ self.tree[node.left]?.payload.value }, right: { self.tree[node.right]?.payload.value })
+        let result = node.payload.value.updateState(StateAccessor(tree: self, left: node.left, right: node.right))
         tree[index].payload.value = node.payload.value
         return result
     }
 
     private mutating func fixupChain(index: Index) {
+        guard sizeof(Value.State.self) > 0 else { return }
         var index: Index? = index
         while let i = index where self.fixup(i) {
             index = tree[i].parent

@@ -10,17 +10,21 @@ import Foundation
 
 internal struct ListValue<Element>: RedBlackValue {
     typealias Key = Int
+    typealias State = Int
 
-    var count: Int // Count of children
+    static var zeroState: State { return 0 }
+    var state: Int // Size of subtree rooted at this node.
+
     var element: Element
 
     private init(element: Element) {
-        self.count = 1
+        self.state = 1
         self.element = element
     }
 
-    func compare(key: Key, @noescape left: Void->ListValue<Element>?, insert: Bool) -> RedBlackComparisonResult<Int> {
-        let leftCount = left()?.count ?? 0
+
+    func compare(key: Key, children: StateAccessor<ListValue<Element>>, insert: Bool) -> RedBlackComparisonResult<Int> {
+        let leftCount = children.left
         if !insert && key == leftCount {
             return .Found
         }
@@ -33,10 +37,10 @@ internal struct ListValue<Element>: RedBlackValue {
         }
     }
 
-    mutating func fixup(@noescape left: Void->ListValue<Element>?, @noescape right: Void->ListValue<Element>?) -> Bool {
-        let c = count
-        count = (left()?.count ?? 0) + (right()?.count ?? 0) + 1
-        return c != count
+    mutating func updateState(children: StateAccessor<ListValue<Element>>) -> Bool {
+        let old = state
+        state = children.left + children.right + 1
+        return old != state
     }
 }
 

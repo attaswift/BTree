@@ -21,16 +21,20 @@ private class FixupList {
 
 private struct Value: RedBlackValue, CustomStringConvertible {
     typealias Key = Int
+    typealias State = FixupList?
 
-    let fixups: FixupList
+    static var zeroState: State { return nil }
+    var state: State { return self.fixups }
+
     var i: Int
+    let fixups: FixupList
 
     init(_ i: Int, _ fixups: FixupList) {
         self.fixups = fixups
         self.i = i
     }
 
-    func compare(key: Key, @noescape left: Void->Value?, insert: Bool) -> RedBlackComparisonResult<Key> {
+    func compare(key: Key, children: StateAccessor<Value>, insert: Bool) -> RedBlackComparisonResult<Key> {
         if i > key {
             return .Descend(.Left, with: key)
         }
@@ -43,13 +47,12 @@ private struct Value: RedBlackValue, CustomStringConvertible {
     }
 
     /// Recalculate self's state with specified new children. Return true if this self's parent also needs to be fixed up.
-    mutating func fixup(@noescape left: Void->Value?, @noescape right: Void->Value?) -> Bool {
+    mutating func updateState(children: StateAccessor<Value>) -> Bool {
         fixups.add(i)
         return false
     }
 
     var description: String { return "\(i)" }
-
 }
 
 private func assertTreeIsValid(tree: RedBlackTree<Value>) -> Bool {
