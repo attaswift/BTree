@@ -18,7 +18,7 @@ class MapTests: XCTestCase {
         XCTAssertNil(generator.next())
     }
 
-    func testSimpleMap() {
+    func testSimpleMapFromDictionaryLiteral() {
         let map: Map<Int, Int> = [1: 20, 2: 40, 3: 60, 4: 80, 5: 100]
         let dict: [Int: Int] = [1: 20, 2: 40, 3: 60, 4: 80, 5: 100]
 
@@ -43,7 +43,6 @@ class MapTests: XCTestCase {
         for k in dict.keys {
             XCTAssertEqual(map[k], dict[k])
         }
-
     }
 
     func testMapEquality() {
@@ -57,5 +56,46 @@ class MapTests: XCTestCase {
         let d2: Dictionary<Int, Int> = [1: 20, 2: 40, 3: 60, 4: 80, 5: 100]
 
         XCTAssertTrue(d1 == d2)
+    }
+
+    func testInsertions() {
+        var m = Map<Int, Int>()
+
+        m[1] = 2
+        m[100] = 200
+        m[34] = 68
+        m[42] = 84
+
+        XCTAssertEqual(Array(m.keys), [1, 34, 42, 100])
+        XCTAssertEqual(Array(m.values), [2, 68, 84, 200])
+    }
+
+    func testRemovals() {
+        var m: Map<Int, Int> = [1: 2, 5: 10, 3: 6, 9: 18]
+
+        m[1] = nil
+        XCTAssertNil(m[1])
+        XCTAssertNil(m.removeValueForKey(1))
+
+        XCTAssertNil(m.removeValueForKey(4))
+
+        XCTAssertEqual(m.removeValueForKey(3), 6)
+
+        XCTAssertEqual(Array(m.keys), [5, 9])
+        XCTAssertEqual(Array(m.values), [10, 18])
+    }
+
+    func testReplacements() {
+        var m: Map<Int, Int> = [1: 2, 5: 10, 3: 6, 9: 18]
+
+        m[1] = 0
+        XCTAssertEqual(m[1], 0)
+
+        let old = m.updateValue(0, forKey: 3)
+        XCTAssertEqual(old, 6)
+        XCTAssertEqual(m[3], 0)
+
+        XCTAssertEqual(Array(m.keys), [1, 3, 5, 9])
+        XCTAssertEqual(Array(m.values), [0, 0, 10, 18])
     }
 }

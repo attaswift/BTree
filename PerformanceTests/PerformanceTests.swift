@@ -33,13 +33,13 @@ class Test {
 
 struct Payload: Comparable {
     let i: Int
-//    let j: Int
-//    let ref: Test
+    let j: Int
+    let ref: Test
 
     init(_ i: Int) {
         self.i = i
-//        self.j = 2 * i
-//        self.ref = foo
+        self.j = 2 * i
+        self.ref = foo
     }
 }
 func ==(a: Payload, b: Payload) -> Bool { return a.i == b.i }
