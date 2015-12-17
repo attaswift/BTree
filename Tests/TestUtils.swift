@@ -35,7 +35,13 @@ extension BinaryTree {
             return true
         }
 
-        check(self.root, under: nil)
+        guard check(self.root, under: nil) else { return false }
+
+        if count > 0 {
+            guard let first = firstIndex where self.inorderStep(first, towards: .Left) == nil else { return false }
+            guard let last = lastIndex where self.inorderStep(last, towards: .Right) == nil else { return false }
+        }
+
         return count == self.count
     }
 
@@ -96,6 +102,11 @@ extension List {
             else {
                 return 0
             }
+        }
+
+        if count > 0 {
+            guard let first = tree.firstIndex where tree.predecessor(first) == nil else { return false }
+            guard let last = tree.lastIndex where tree.successor(last) == nil else { return false }
         }
         return failedIndexes.isEmpty
     }

@@ -255,31 +255,31 @@ internal struct BinaryTree<Payload> {
         if index == firstIndex { firstIndex = inorderStep(index, towards: .Right) }
         if index == lastIndex { lastIndex = inorderStep(index, towards: .Left) }
 
-        switch (node.left, node.right) {
-        case (nil, nil):
+        let left = node.left
+        let right = node.right
+        assert(left == nil || right == nil)
+        if left == nil && right == nil {
             if case .Toward(let direction, under: let parent) = slot {
                 self[parent, direction] = nil
             }
             return _remove(index, updating: slot)
-        case (.Some(let left), nil):
-            var n = self[left]
+        }
+        else {
+            let rem: Index = left ?? right!
+            var n = self[rem]
             n.parent = node.parent
             self[index] = n
-            if left == firstIndex { firstIndex = index }
-            return _remove(left, updating: slot)
-        case (nil, .Some(let right)):
-            var n = self[right]
-            n.parent = node.parent
-            self[index] = n
-            if right == lastIndex { lastIndex = index }
-            return _remove(right, updating: slot)
-        case (.Some(_), .Some(_)):
-            fatalError("Can't remove node with two children")
+
+            if rem == firstIndex { firstIndex = index }
+            if rem == lastIndex { lastIndex = index }
+
+            return _remove(rem, updating: slot)
         }
     }
 
     // Discard the (already unlinked) node at `index`, updating its slot if its parent needed to be moved.
     private mutating func _remove(index: Index, updating slot: Slot) -> Slot {
+
         let highestIndex = Index(nodes.count - 1)
         if index.value < highestIndex.value {
             // Remove the node with the largest index instead, and then reinsert it at `i`
@@ -309,6 +309,8 @@ internal struct BinaryTree<Payload> {
 
     internal mutating func removeAll(keepCapacity keepCapacity: Bool = false) {
         self.nodes.removeAll(keepCapacity: keepCapacity)
+        self.firstIndex = nil
+        self.lastIndex = nil
     }
 
     /// Rotates the subtree rooted at `index` in the specified direction. Used when the tree implements
