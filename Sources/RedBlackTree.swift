@@ -68,7 +68,7 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
     private(set) var right: Index?
 
     private(set) var head: Head
-    private(set) var field: Reduction
+    private(set) var reduction: Reduction
 
     private(set) var payload: Payload
 
@@ -79,7 +79,7 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
         self.left = nil
         self.right = nil
         self.head = head
-        self.field = Reduction(head)
+        self.reduction = Reduction(head)
         self.payload = payload
         self.color = .Red
     }
@@ -108,7 +108,7 @@ public struct RedBlackTree<Config: RedBlackConfig, Payload> {
     public typealias Head = Reduction.Item
     public typealias Key = Config.Key
 
-    public typealias Element = (Head, Payload)
+    public typealias Element = (Key, Payload)
 
     internal typealias Node = RedBlackNode<Config, Payload>
     internal typealias Slot = RedBlackSlot<Config, Payload>
@@ -152,13 +152,20 @@ public extension RedBlackTree {
     }
 }
 
-//MARK: 
+//MARK: Count of nodes
 
 public extension RedBlackTree {
     /// The number of nodes in the tree.
     public var count: Int { return nodes.count }
     public var isEmpty: Bool { return nodes.isEmpty }
+}
 
+//MARK: Looking up an index.
+
+public extension RedBlackTree {
+
+    /// Returns or updates the node at `index`.
+    /// - Complexity: O(1)
     internal private(set) subscript(index: Index) -> Node {
         get {
             return nodes[index.index]
@@ -168,9 +175,70 @@ public extension RedBlackTree {
         }
     }
 
+    /// Returns the node at `index`, or nil if `index` is nil.
+    /// - Complexity: O(1)
     internal subscript(index: Index?) -> Node? {
         guard let index = index else { return nil }
         return self[index] as Node
+    }
+
+    /// Returns the payload of the node at `index`.
+    /// - Complexity: O(1)
+    public func payloadOf(index: Index) -> Payload {
+        return self[index].payload
+    }
+
+    /// Updates the payload of the node at `index`.
+    /// - Returns: The previous payload of the node.
+    /// - Complexity: O(1)
+    public mutating func setPayload(payload: Payload, of index: Index) -> Payload {
+        var node = self[index]
+        let old = node.payload
+        node.payload = payload
+        self[index] = node
+        return old
+    }
+
+    /// Returns the head of the node at `index`.
+    /// - Complexity: O(1)
+    public func headOf(index: Index) -> Head {
+        return self[index].head
+    }
+
+    /// Updates the head of the node at `index`. 
+    ///
+    /// It is only supported to change the head when a the new value does
+    /// not affect the order of the nodes already in the tree. New keys of nodes before or equal to `index` must match
+    /// their previous ones, but keys of nodes above `index` may be changed -- as long as the ordering stays constant.
+    ///
+    /// - Note: Being able to update the head is useful when the reduction is a summation, 
+    ///   like in a tree implementing a concatenation of arrays, where each array's index range in the resulting 
+    ///   collection is a count of elements in all arrays before it. Here, the head of node is the count of its
+    ///   payload array. When the count changes, indexes after the modified array change too, but their ordering remains
+    ///   the same. Calling `setHead` is ~3 times faster than just removing and re-adding the node.
+    ///
+    /// - Requires: The key of the old node must match the new node. `compare(key(old, prefix), new, prefix) == .Match`
+    ///
+    /// - Warning: Changing the head to a value that changes the ordering of items will break ordering in the tree. 
+    ///   In unoptimized builds, the implementation throws a fatal error if the above expression evaluates to false, 
+    ///   but this is elided from optimized builds. You should know what you're doing.
+    ///
+    /// - Returns: The previous head of the node.
+    ///
+    /// - Complexity: O(log(count))
+    ///
+    public mutating func setHead(head: Head, of index: Index) -> Head {
+        var node = self[index]
+        assert({
+            let prefix = reductionOfAllNodesBefore(index) // This is O(log(n)) -- which is why this is not in a precondition.
+            let key = Config.key(node.head, reducedPrefix: prefix)
+            return Config.compare(key, to: head, reducedPrefix: prefix) == .Matching
+            }())
+        let old = node.head
+        node.head = head
+        self[index] = node
+        updateReductionsAtAndAbove(index)
+        return old
     }
 }
 
@@ -227,12 +295,15 @@ public struct RedBlackGenerator<Config: RedBlackConfig, Payload>: GeneratorType 
     typealias Tree = RedBlackTree<Config, Payload>
     private let tree: Tree
     private var index: Tree.Index?
+    private var reduction: Tree.Reduction
 
     public mutating func next() -> Tree.Element? {
         guard let index = index else { return nil }
-        self.index = tree.successor(index)
         let node = tree[index]
-        return (node.head, node.payload)
+        let key = Config.key(node.head, reducedPrefix: reduction)
+        reduction = reduction + node.head
+        self.index = tree.successor(index)
+        return (key, node.payload)
     }
 }
 
@@ -240,7 +311,7 @@ extension RedBlackTree: SequenceType {
     public typealias Generator = RedBlackGenerator<Config, Payload>
 
     public func generate() -> Generator {
-        return RedBlackGenerator(tree: self, index: leftmost)
+        return RedBlackGenerator(tree: self, index: leftmost, reduction: Reduction())
     }
 }
 
@@ -265,7 +336,7 @@ extension RedBlackTree {
             var reduction = Reduction()
             while let i = index {
                 let node = self[i]
-                let r = reduction + self[node.left]?.field
+                let r = reduction + self[node.left]?.reduction
                 let match = Config.compare(key, to: node.head, reducedPrefix: r)
                 switch step(i, match) {
                 case .Before:
@@ -411,6 +482,95 @@ extension RedBlackTree {
     }
 }
 
+//MARK: Managing the reduction data
+
+extension RedBlackTree {
+    /// Updates the reduction cached at `index`, assuming that the children have up-to-date data.
+    /// - Complexity: O(1) - 3 lookups
+    private mutating func updateReductionAt(index: Index) {
+        guard sizeof(Reduction.self) > 0 else { return }
+        var node = self[index]
+        node.reduction = self[node.left]?.reduction + node.head + self[node.right]?.reduction
+        self[index] = node
+    }
+
+    /// Updates the reduction cached at `index` and its ancestors, assuming that all other nodes have up-to-date data.
+    /// - Complexity: O(log(count)) for nonempty reductions, O(1) when the reduction is empty.
+    private mutating func updateReductionsAtAndAbove(index: Index) {
+        guard sizeof(Reduction.self) > 0 else { return }
+        var index: Index? = index
+        while let i = index {
+            self.updateReductionAt(i)
+            index = self[i].parent
+        }
+    }
+
+    /// Returns the reduction calculated over the sequence all nodes preceding `index` in the tree.
+    /// - Complexity: O(log(count) for nonempty reductions, O(1) when the reduction is empty.
+    private func reductionOfAllNodesBefore(index: Index) -> Reduction {
+        func reductionOfLeftSubtree(index: Index) -> Reduction {
+            guard sizeof(Reduction.self) < 0 else { return Reduction() }
+            guard let left = self[index].left else { return Reduction() }
+            return self[left].reduction
+        }
+
+        guard sizeof(Reduction.self) < 0 else { return Reduction() }
+        var index = index
+        var reduction = reductionOfLeftSubtree(index)
+        while case .Toward(let direction, under: let parent) = slotOf(index) {
+            if direction == .Right {
+                reduction = reductionOfLeftSubtree(parent) + self[parent].reduction + reduction
+            }
+            index = parent
+        }
+        return reduction
+    }
+}
+
+//MARK: Rotation
+
+extension RedBlackTree {
+    /// Rotates the subtree rooted at `index` in the specified direction. Used when the tree implements
+    /// a binary search tree.
+    ///
+    /// The child towards the opposite of `direction` under `index` becomes the new root,
+    /// and the previous root becomes its child towards `dir`. The rest of the children
+    /// are linked up to preserve ordering in a binary search tree.
+    ///
+    /// - Returns: The index of the new root of the subtree.
+    internal mutating func rotate(index: Index, _ dir: RedBlackDirection) -> Index {
+        let x = index
+        let opp = dir.opposite
+        guard let y = self[index][opp] else { fatalError("Invalid rotation") }
+
+        var xn = self[x]
+        var yn = self[y]
+
+        //     x                      y
+        //  a      y    <-->     x        c
+        //       b   c        a     b
+
+        let b = yn[dir]
+
+        yn.parent = xn.parent
+        xn.parent = y
+        yn[dir] = x
+
+        xn[opp] = b
+        if let b = b { self[b].parent = x }
+
+        self[x] = xn
+        self[y] = yn
+
+        if root == x { root = y }
+
+        self.updateReductionAt(x)
+        self.updateReductionAt(y)
+
+        return y
+    }
+}
+
 //MARK: Inserting an individual element
 extension RedBlackTree {
     internal func slotOf(index: Index) -> Slot {
@@ -420,27 +580,8 @@ extension RedBlackTree {
         return .Toward(direction, under: parent)
     }
 
-    private func reducedPrefixOf(index: Index) -> Reduction {
-        func reductionOfLeftSubtree(index: Index) -> Reduction {
-            guard sizeof(Reduction.self) < 0 else { return Reduction() }
-            guard let left = self[index].left else { return Reduction() }
-            return self[left].field
-        }
-
-        guard sizeof(Reduction.self) < 0 else { return Reduction() }
-        var index = index
-        var reduction = reductionOfLeftSubtree(index)
-        while case .Toward(let direction, under: let parent) = slotOf(index) {
-            if direction == .Right {
-                reduction = reductionOfLeftSubtree(parent) + self[parent].field + reduction
-            }
-            index = parent
-        }
-        return reduction
-    }
-
     private func compare(key: Key, with index: Index) -> KeyMatchResult {
-        let reduction = reducedPrefixOf(index)
+        let reduction = reductionOfAllNodesBefore(index)
         return Config.compare(key, to: self[index].head, reducedPrefix: reduction)
     }
 
@@ -507,6 +648,7 @@ extension RedBlackTree {
             nodes.append(Node(parent: parent, head: Config.head(key), payload: payload))
             if leftmost == parent && direction == .Left { leftmost = index }
             if rightmost == parent && direction == .Right { rightmost = index }
+            updateReductionsAtAndAbove(parent)
         }
 
         if sizeof(Reduction.self) > 0 {
@@ -514,21 +656,13 @@ extension RedBlackTree {
             var parent = self[index].parent
             while let p = parent {
                 var pn = self[p]
-                pn.field = self[pn.left]?.field + pn.head + self[pn.right]?.field
+                pn.reduction = self[pn.left]?.reduction + pn.head + self[pn.right]?.reduction
                 self[p] = pn
                 parent = self[p].parent
             }
         }
 
-        return rebalanceAfterInsertion(index)
-    }
-}
-
-//MARK: Rebalancing after an insertion
-
-extension RedBlackTree {
-    func rebalanceAfterInsertion(index: Index) -> Index {
-        // TODO
+        rebalanceAfterInsertion(index)
         return index
     }
 }
@@ -546,7 +680,7 @@ extension RedBlackTree {
         guard let b1 = rightmost else { self = tree; return }
         guard let c2 = tree.leftmost else { return }
 
-        let rb = reducedPrefixOf(b1)
+        let rb = reductionOfAllNodesBefore(b1)
         let rc = rb + self[b1].head
         precondition(ordered((self, b1, rb), before: (tree, c2, rc)))
 
@@ -577,6 +711,120 @@ extension RedBlackTree {
             self.insert(key, payload: node.payload)
             index = tree.successor(i)
         }
+    }
+}
+
+//MARK: Removal of nodes
+
+extension RedBlackTree {
+    /// Remove the node at `index`. 
+    /// - Note: This operation invalidates all existing indexes. You can use the returned index to continue operating 
+    ///   on the tree without having to find your place again.
+    /// - Returns: The index of the node that used to follow the removed node in the original tree, or nil if 
+    ///   `index` was at the rightmost position.
+    /// - Complexity: O(log(count))
+    public func remove(index: Index) -> Index? {
+        // TODO
+        return nil
+    }
+
+    private mutating func deleteUnlinkedIndex(removed: Index, updating index: Index) -> Index {
+        let last = Index(nodes.count - 1)
+        if removed == last {
+            nodes.removeLast()
+            return index
+        }
+        else {
+            // Move the last node into index, and remove its original place instead.
+            let node = nodes.removeLast()
+            self[removed] = node
+            if case .Toward(let d, under: let p) = slotOf(last) { self[p][d] = removed }
+            if let l = node.left { self[l].parent = removed }
+            if let r = node.right { self[r].parent = removed }
+            if root == last { root = removed }
+            if leftmost == last { leftmost = removed }
+            if rightmost == last { rightmost = removed }
+            return index == last ? removed : index
+        }
+    }
+}
+
+//MARK: Color management
+
+extension RedBlackTree {
+    /// Only non-nil nodes may be red.
+    private func isRed(index: Index?) -> Bool {
+        guard let index = index else { return false }
+        return self[index].color == .Red
+    }
+    /// Nil nodes are considered black.
+    private func isBlack(index: Index?) -> Bool {
+        guard let index = index else { return true }
+        return self[index].color == .Black
+    }
+    /// Only non-nil nodes may be set red.
+    private mutating func setRed(index: Index) {
+        self[index].color = .Red
+    }
+    /// You can set a nil node black, but it's a noop.
+    private mutating func setBlack(index: Index?) {
+        guard let index = index else { return }
+        self[index].color = .Black
+    }
+}
+
+//MARK: Rebalancing after an insertion
+extension RedBlackTree {
+
+    private mutating func rebalanceAfterInsertion(new: Index) {
+        var child = new
+        while case .Toward(let dir, under: let parent) = slotOf(child) {
+            assert(isRed(child))
+            guard self[parent].color == .Red else { break }
+            guard case .Toward(let pdir, under: let grandparent) = slotOf(parent) else  { fatalError("Invalid tree: root is red") }
+            let popp = pdir.opposite
+
+            if let aunt = self[grandparent][popp] where isRed(aunt) {
+                //         grandparent(Black)
+                //       /             \
+                //     aunt(Red)     parent(Red)
+                //                      |
+                //                  child(Red)
+                //
+                setBlack(parent)
+                setBlack(aunt)
+                setRed(grandparent)
+                child = grandparent
+            }
+            else if dir == popp {
+                //         grandparent(Black)
+                //       /             \
+                //     aunt(Black)   parent(Red)
+                //                    /         \
+                //                  child(Red)   B
+                //                    /   \
+                //                   B     B
+                self.rotate(parent, pdir)
+                self.rotate(grandparent, popp)
+                setBlack(child)
+                setRed(grandparent)
+                break
+            }
+            else {
+                //         grandparent(Black)
+                //       /             \
+                //     aunt(Black)   parent(Red)
+                //                    /      \
+                //                   B    child(Red)
+                //                           /    \
+                //                          B      B
+                self.rotate(grandparent, popp)
+                setBlack(parent)
+                setRed(grandparent)
+                break
+            }
+        }
+        setBlack(root)
     }
 }
 
