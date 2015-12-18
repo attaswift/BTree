@@ -71,7 +71,7 @@ extension BinaryTree {
     }
 }
 
-extension RedBlackTree {
+extension RBTree {
     func dump() -> String {
         func dump(index: Index?) -> String {
             return self.tree.dump()
@@ -80,7 +80,7 @@ extension RedBlackTree {
     }
 }
 
-extension RedBlackPayload: CustomStringConvertible {
+extension RBPayload: CustomStringConvertible {
     var description: String {
         return "\(value)\(color == .Red ? "R" : "")"
     }

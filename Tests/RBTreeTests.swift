@@ -1,5 +1,5 @@
 //
-//  RedBlackTreeTests.swift
+//  RBTreeTests.swift
 //  TreeCollections
 //
 //  Created by Károly Lőrentey on 2015-12-15.
@@ -19,7 +19,7 @@ private class FixupList {
     var list: [Int] { return fixups.sort() }
 }
 
-private struct Value: RedBlackValue, CustomStringConvertible {
+private struct Value: RBValue, CustomStringConvertible {
     typealias Key = Int
     typealias State = FixupList?
 
@@ -34,7 +34,7 @@ private struct Value: RedBlackValue, CustomStringConvertible {
         self.i = i
     }
 
-    func compare(key: Key, children: StateAccessor<Value>, insert: Bool) -> RedBlackComparisonResult<Key> {
+    func compare(key: Key, children: StateAccessor<Value>, insert: Bool) -> RBComparisonResult<Key> {
         if i > key {
             return .Descend(.Left, with: key)
         }
@@ -55,52 +55,52 @@ private struct Value: RedBlackValue, CustomStringConvertible {
     var description: String { return "\(i)" }
 }
 
-private func assertTreeIsValid(tree: RedBlackTree<Value>) -> Bool {
+private func assertTreeIsValid(tree: RBTree<Value>) -> Bool {
     let info = tree.debugInfo
-    if !info.isValidRedBlackTree {
+    if !info.isValidRBTree {
         XCTFail("Tree is not a valid red-black tree: \(info)")
         return false
     }
     return true
 }
 
-class RedBlackTreeTests: XCTestCase {
+class RBTreeTests: XCTestCase {
     func testSampleInsertionsAndRemovals() {
         let fixups = FixupList()
-        var tree = RedBlackTree<Value>()
+        var tree = RBTree<Value>()
         tree.insert(Value(1, fixups), into: tree.insertionSlotFor(1).1)
 
         XCTAssertEqual(tree.dump(), "(1)")
         XCTAssertEqual(fixups.list, [])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         tree.insert(Value(4, fixups), into: tree.insertionSlotFor(4).1)
 
         XCTAssertEqual(tree.dump(), "(1 (4R))")
         XCTAssertEqual(fixups.list, [1])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         tree.insert(Value(5, fixups), into: tree.insertionSlotFor(5).1)
 
         XCTAssertEqual(tree.dump(), "((1R) 4 (5R))")
         XCTAssertEqual(fixups.list, [1, 4])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         tree.insert(Value(2, fixups), into: tree.insertionSlotFor(2).1)
 
         XCTAssertEqual(tree.dump(), "((1 (2R)) 4 (5))")
         XCTAssertEqual(fixups.list, [1])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         tree.insert(Value(3, fixups), into: tree.insertionSlotFor(3).1)
 
         XCTAssertEqual(tree.dump(), "(((1R) 2 (3R)) 4 (5))")
         XCTAssertEqual(fixups.list, [1, 2])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         XCTAssertEqual(tree[tree.find(1)]?.i, 1)
@@ -113,41 +113,41 @@ class RedBlackTreeTests: XCTestCase {
 
         XCTAssertEqual(tree.dump(), "((1) 2 ((3R) 5))")
         XCTAssertEqual(fixups.list, [2, 5])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         tree.remove(tree.find(2)!)
 
         XCTAssertEqual(tree.dump(), "((1) 3 (5))")
         XCTAssertEqual(fixups.list, [3, 5])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         tree.remove(tree.find(1)!)
 
         XCTAssertEqual(tree.dump(), "(3 (5R))")
         XCTAssertEqual(fixups.list, [3])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         tree.remove(tree.find(3)!)
 
         XCTAssertEqual(tree.dump(), "(5)")
         XCTAssertEqual(fixups.list, [])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
         tree.remove(tree.find(5)!)
 
         XCTAssertEqual(tree.dump(), "")
         XCTAssertEqual(fixups.list, [])
-        XCTAssertTrue(tree.debugInfo.isValidRedBlackTree, "\(tree.debugInfo)")
+        XCTAssertTrue(tree.debugInfo.isValidRBTree, "\(tree.debugInfo)")
         fixups.clear()
 
     }
 
     func testInsertingSequentially() {
-        var tree = RedBlackTree<Value>()
+        var tree = RBTree<Value>()
 
         let fixups = FixupList()
         for i in 1...100 {
@@ -160,7 +160,7 @@ class RedBlackTreeTests: XCTestCase {
     }
 
     func testRemovingSequentially() {
-        var tree = RedBlackTree<Value>()
+        var tree = RBTree<Value>()
 
         let fixups = FixupList()
         for i in 1...100 {
@@ -178,7 +178,7 @@ class RedBlackTreeTests: XCTestCase {
 
 
     func testInsertionInRandomOrder() {
-        var tree = RedBlackTree<Value>()
+        var tree = RBTree<Value>()
 
         let fixups = FixupList()
         let permutation = [5, 9, 10, 6, 14, 17, 7, 18, 27, 16, 23, 26, 30, 3, 2, 22, 25, 24, 13, 12, 21, 15, 1, 28, 4, 19, 8, 29, 20, 11]
@@ -192,7 +192,7 @@ class RedBlackTreeTests: XCTestCase {
         print(tree.debugInfo)
     }
     func testRemovalInRandomOrder() {
-        var tree = RedBlackTree<Value>()
+        var tree = RBTree<Value>()
 
         let fixups = FixupList()
         for i in 1...30 {
@@ -218,7 +218,7 @@ class RedBlackTreeTests: XCTestCase {
 
         let fixups = FixupList()
         for order in generatePermutations(count) {
-            var tree = RedBlackTree<Value>()
+            var tree = RBTree<Value>()
             for i in order {
                 let (v, slot) = tree.insertionSlotFor(i)
                 XCTAssertNil(v)
