@@ -616,6 +616,33 @@ extension RedBlackTree {
         return Config.compare(key, to: self[handle].head, reducedPrefix: reduction)
     }
 
+    /// - Note: This can be faster than finding the old node and inserting if not found.
+    public mutating func setPayloadOf(key: Key, to payload: Payload) -> (Handle, Payload?) {
+        var slot: Slot = .Root
+        var handle: Handle? = nil
+        self.find(key) { h, m in
+            switch m {
+            case .Before:
+                slot = .Toward(.Left, under: h)
+                return .Before
+            case .Matching:
+                handle = h
+                return .Matching
+            case .After:
+                slot = .Toward(.Right, under: h)
+                return .After
+            }
+        }
+
+        if let handle = handle {
+            let old = setPayloadAt(handle, to: payload)
+            return (handle, old)
+        }
+        else {
+            let handle = insert(key, payload: payload, into: slot)
+            return (handle, nil)
+        }
+    }
 
     public mutating func insert(key: Key, payload: Payload) -> Handle {
         func insertionSlotOf(key: Key) -> Slot {
@@ -753,7 +780,7 @@ extension RedBlackTree {
     /// - Returns: The handle of the node that used to follow the removed node in the original tree, or nil if 
     ///   `handle` was at the rightmost position.
     /// - Complexity: O(log(count))
-    public mutating func removeAndReturnSuccessor(handle: Handle) -> Handle? {
+    public mutating func removeAndReturnSuccessor(handle: Handle) -> (Handle?, Payload) {
         return _remove(handle, successor: successor(handle))
     }
 
@@ -761,13 +788,13 @@ extension RedBlackTree {
     /// - Note: You need to discard your existing handles into the tree after you call this method.
     /// - SeeAlso: `removeAndReturnSuccessor`
     /// - Complexity: O(log(count))
-    public mutating func remove(handle: Handle) {
-        _remove(handle, successor: nil)
+    public mutating func remove(handle: Handle) -> Payload {
+        return _remove(handle, successor: nil).1
     }
 
     /// Remove a node, keeping track of its successor.
     /// - Returns: The handle of `successor` after the removal.
-    private mutating func _remove(handle: Handle, successor: Handle?) -> Handle? {
+    private mutating func _remove(handle: Handle, successor: Handle?) -> (Handle?, Payload) {
         assert(handle != successor)
         // Fixme: Removing from a red-black tree is one ugly algorithm.
         let node = self[handle]
@@ -780,10 +807,12 @@ extension RedBlackTree {
             self[handle].payload = n.payload
             // Note that the above doesn't change root, leftmost, rightmost.
             // The reduction will be updated on the way up.
-            return _remove(next, keeping: handle)
+            let handle = _remove(next, keeping: handle)
+            return (handle, node.payload)
         }
         else {
-            return _remove(handle, keeping: successor)
+            let handle = _remove(handle, keeping: successor)
+            return (handle, node.payload)
         }
     }
 
