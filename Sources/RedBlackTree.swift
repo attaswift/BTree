@@ -60,15 +60,15 @@ internal func ==<Config: RedBlackConfig, Payload>(a: RedBlackSlot<Config, Payloa
 
 internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
     typealias Handle = RedBlackHandle<Config, Payload>
-    typealias Reduction = Config.Reduction
-    typealias Head = Reduction.Item
+    typealias Summary = Config.Summary
+    typealias Head = Summary.Item
 
     private(set) var parent: Handle?
     private(set) var left: Handle?
     private(set) var right: Handle?
 
     private(set) var head: Head
-    private(set) var reduction: Reduction
+    private(set) var summary: Summary
 
     private(set) var payload: Payload
 
@@ -79,7 +79,7 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
         self.left = nil
         self.right = nil
         self.head = head
-        self.reduction = Reduction(head)
+        self.summary = Summary(head)
         self.payload = payload
         self.color = .Red
     }
@@ -104,8 +104,8 @@ public struct RedBlackTree<Config: RedBlackConfig, Payload> {
     //MARK: Type aliases
 
     public typealias Handle = RedBlackHandle<Config, Payload>
-    public typealias Reduction = Config.Reduction
-    public typealias Head = Reduction.Item
+    public typealias Summary = Config.Summary
+    public typealias Head = Summary.Item
     public typealias Key = Config.Key
 
     public typealias Element = (Key, Payload)
@@ -200,19 +200,19 @@ public extension RedBlackTree {
     }
 
     /// Returns the key of the node at `handle`.
-    /// - Complexity: O(log(count)) if the reduction is non-empty; O(1) otherwise.
-    /// - Note: If you need to get the key for a range of nodes, and you have a non-empty reduction, using a generator
+    /// - Complexity: O(log(count)) if the summary is non-empty; O(1) otherwise.
+    /// - Note: If you need to get the key for a range of nodes, and you have a non-empty summary, using a generator
     ///   is faster than querying the keys of each node one by one.
     /// - SeeAlso: `generate`, `generateFrom`
     public func keyAt(handle: Handle) -> Key {
         let node = self[handle]
-        let prefix = reductionOfAllNodesBefore(handle)
-        return Config.key(node.head, reducedPrefix: prefix)
+        let prefix = summaryOfAllNodesBefore(handle)
+        return Config.key(node.head, prefix: prefix)
     }
 
     /// Returns a typle containing the key and payload of the node at `handle`.
-    /// - Complexity: O(log(count)) if the reduction is non-empty; O(1) otherwise.
-    /// - Note: If you need to get the key for a range of nodes, and you have a non-empty reduction, using a generator
+    /// - Complexity: O(log(count)) if the summary is non-empty; O(1) otherwise.
+    /// - Note: If you need to get the key for a range of nodes, and you have a non-empty summary, using a generator
     ///   is faster than querying the keys of each node one by one.
     /// - SeeAlso: `generate`, `generateFrom`
     public func elementAt(handle: Handle) -> Element {
@@ -231,7 +231,7 @@ public extension RedBlackTree {
     /// not affect the order of the nodes already in the tree. New keys of nodes before or equal to `handle` must match
     /// their previous ones, but keys of nodes above `handle` may be changed -- as long as the ordering stays constant.
     ///
-    /// - Note: Being able to update the head is useful when the reduction is a summation, 
+    /// - Note: Being able to update the head is useful when the summary is a summation, 
     ///   like in a tree implementing a concatenation of arrays, where each array's handle range in the resulting 
     ///   collection is a count of elements in all arrays before it. Here, the head of node is the count of its
     ///   payload array. When the count changes, handles after the modified array change too, but their ordering remains
@@ -250,14 +250,14 @@ public extension RedBlackTree {
     public mutating func setHeadAt(handle: Handle, to head: Head) -> Head {
         var node = self[handle]
         assert({
-            let prefix = reductionOfAllNodesBefore(handle) // This is O(log(n)) -- which is why this is not in a precondition.
-            let key = Config.key(node.head, reducedPrefix: prefix)
-            return Config.compare(key, to: head, reducedPrefix: prefix) == .Matching
+            let prefix = summaryOfAllNodesBefore(handle) // This is O(log(n)) -- which is why this is not in a precondition.
+            let key = Config.key(node.head, prefix: prefix)
+            return Config.compare(key, to: head, prefix: prefix) == .Matching
             }())
         let old = node.head
         node.head = head
         self[handle] = node
-        updateReductionsAtAndAbove(handle)
+        updateSummarysAtAndAbove(handle)
         return old
     }
 }
@@ -315,13 +315,13 @@ public struct RedBlackGenerator<Config: RedBlackConfig, Payload>: GeneratorType 
     typealias Tree = RedBlackTree<Config, Payload>
     private let tree: Tree
     private var handle: Tree.Handle?
-    private var reduction: Tree.Reduction
+    private var summary: Tree.Summary
 
     public mutating func next() -> Tree.Element? {
         guard let handle = handle else { return nil }
         let node = tree[handle]
-        let key = Config.key(node.head, reducedPrefix: reduction)
-        reduction = reduction + node.head
+        let key = Config.key(node.head, prefix: summary)
+        summary = summary + node.head
         self.handle = tree.successor(handle)
         return (key, node.payload)
     }
@@ -333,13 +333,13 @@ extension RedBlackTree: SequenceType {
     /// Return a generator that provides an ordered list of all (key, payload) pairs that are currently in the tree.
     /// - Complexity: O(1) to get the generator; O(count) to retrieve all elements.
     public func generate() -> Generator {
-        return RedBlackGenerator(tree: self, handle: leftmost, reduction: Reduction())
+        return RedBlackGenerator(tree: self, handle: leftmost, summary: Summary())
     }
 
     /// Return a generator that provides an ordered list of (key, payload) pairs that are at or after `handle`.
     /// - Complexity: O(1) to get the generator; O(count) to retrieve all elements.
     public func generateFrom(handle: Handle) -> Generator {
-        return RedBlackGenerator(tree: self, handle: handle, reduction: Reduction())
+        return RedBlackGenerator(tree: self, handle: handle, summary: Summary())
     }
 }
 
@@ -347,11 +347,11 @@ extension RedBlackTree: SequenceType {
 
 extension RedBlackTree {
     internal func find(key: Key, @noescape step: (Handle, KeyMatchResult)->KeyMatchResult) {
-        if sizeof(Reduction.self) == 0 {
+        if sizeof(Summary.self) == 0 {
             var handle = self.root
             while let h = handle {
                 let node = self[h]
-                let match = Config.compare(key, to: node.head, reducedPrefix: Reduction())
+                let match = Config.compare(key, to: node.head, prefix: Summary())
                 switch step(h, match) {
                 case .Before: handle = node.left
                 case .Matching: return
@@ -361,18 +361,18 @@ extension RedBlackTree {
         }
         else {
             var handle = self.root
-            var reduction = Reduction()
+            var summary = Summary()
             while let h = handle {
                 let node = self[h]
-                let r = reduction + self[node.left]?.reduction
-                let match = Config.compare(key, to: node.head, reducedPrefix: r)
+                let s = summary + self[node.left]?.summary
+                let match = Config.compare(key, to: node.head, prefix: s)
                 switch step(h, match) {
                 case .Before:
                     handle = node.left
                 case .Matching:
                     return
                 case .After:
-                    reduction = r + node.head
+                    summary = s + node.head
                     handle = node.right
                 }
             }
@@ -510,48 +510,48 @@ extension RedBlackTree {
     }
 }
 
-//MARK: Managing the reduction data
+//MARK: Managing the summary data
 
 extension RedBlackTree {
-    /// Updates the reduction cached at `handle`, assuming that the children have up-to-date data.
+    /// Updates the summary cached at `handle`, assuming that the children have up-to-date data.
     /// - Complexity: O(1) - 3 lookups
-    private mutating func updateReductionAt(handle: Handle) {
-        guard sizeof(Reduction.self) > 0 else { return }
+    private mutating func updateSummaryAt(handle: Handle) {
+        guard sizeof(Summary.self) > 0 else { return }
         var node = self[handle]
-        node.reduction = self[node.left]?.reduction + node.head + self[node.right]?.reduction
+        node.summary = self[node.left]?.summary + node.head + self[node.right]?.summary
         self[handle] = node
     }
 
-    /// Updates the reduction cached at `handle` and its ancestors, assuming that all other nodes have up-to-date data.
-    /// - Complexity: O(log(count)) for nonempty reductions, O(1) when the reduction is empty.
-    private mutating func updateReductionsAtAndAbove(handle: Handle?) {
-        guard sizeof(Reduction.self) > 0 else { return }
+    /// Updates the summary cached at `handle` and its ancestors, assuming that all other nodes have up-to-date data.
+    /// - Complexity: O(log(count)) for nonempty summarys, O(1) when the summary is empty.
+    private mutating func updateSummarysAtAndAbove(handle: Handle?) {
+        guard sizeof(Summary.self) > 0 else { return }
         var handle: Handle? = handle
         while let h = handle {
-            self.updateReductionAt(h)
+            self.updateSummaryAt(h)
             handle = self[h].parent
         }
     }
 
-    /// Returns the reduction calculated over the sequence all nodes preceding `handle` in the tree.
-    /// - Complexity: O(log(count) for nonempty reductions, O(1) when the reduction is empty.
-    private func reductionOfAllNodesBefore(handle: Handle) -> Reduction {
-        func reductionOfLeftSubtree(handle: Handle) -> Reduction {
-            guard sizeof(Reduction.self) > 0 else { return Reduction() }
-            guard let left = self[handle].left else { return Reduction() }
-            return self[left].reduction
+    /// Returns the summary calculated over the sequence all nodes preceding `handle` in the tree.
+    /// - Complexity: O(log(count) for nonempty summarys, O(1) when the summary is empty.
+    private func summaryOfAllNodesBefore(handle: Handle) -> Summary {
+        func summaryOfLeftSubtree(handle: Handle) -> Summary {
+            guard sizeof(Summary.self) > 0 else { return Summary() }
+            guard let left = self[handle].left else { return Summary() }
+            return self[left].summary
         }
 
-        guard sizeof(Reduction.self) > 0 else { return Reduction() }
+        guard sizeof(Summary.self) > 0 else { return Summary() }
         var handle = handle
-        var reduction = reductionOfLeftSubtree(handle)
+        var summary = summaryOfLeftSubtree(handle)
         while case .Toward(let direction, under: let parent) = slotOf(handle) {
             if direction == .Right {
-                reduction = reductionOfLeftSubtree(parent) + self[parent].reduction + reduction
+                summary = summaryOfLeftSubtree(parent) + self[parent].summary + summary
             }
             handle = parent
         }
-        return reduction
+        return summary
     }
 }
 
@@ -595,8 +595,8 @@ extension RedBlackTree {
         if root == x { root = y }
         // leftmost, rightmost are invariant under rotations
 
-        self.updateReductionAt(x)
-        self.updateReductionAt(y)
+        self.updateSummaryAt(x)
+        self.updateSummaryAt(y)
 
         return y
     }
@@ -612,8 +612,8 @@ extension RedBlackTree {
     }
 
     private func compare(key: Key, with handle: Handle) -> KeyMatchResult {
-        let reduction = reductionOfAllNodesBefore(handle)
-        return Config.compare(key, to: self[handle].head, reducedPrefix: reduction)
+        let summary = summaryOfAllNodesBefore(handle)
+        return Config.compare(key, to: self[handle].head, prefix: summary)
     }
 
     /// - Note: This can be faster than finding the old node and inserting if not found.
@@ -722,15 +722,15 @@ extension RedBlackTree {
             nodes.append(Node(parent: parent, head: Config.head(key), payload: payload))
             if leftmost == parent && direction == .Left { leftmost = handle }
             if rightmost == parent && direction == .Right { rightmost = handle }
-            updateReductionsAtAndAbove(parent)
+            updateSummarysAtAndAbove(parent)
         }
 
-        if sizeof(Reduction.self) > 0 {
-            // Update reductions
+        if sizeof(Summary.self) > 0 {
+            // Update summarys
             var parent = self[handle].parent
             while let p = parent {
                 var pn = self[p]
-                pn.reduction = self[pn.left]?.reduction + pn.head + self[pn.right]?.reduction
+                pn.summary = self[pn.left]?.summary + pn.head + self[pn.right]?.summary
                 self[p] = pn
                 parent = self[p].parent
             }
@@ -746,25 +746,25 @@ extension RedBlackTree {
 extension RedBlackTree {
 
     public mutating func append(tree: RedBlackTree<Config, Payload>) {
-        func ordered(a: (RedBlackTree<Config, Payload>, Handle, Reduction), before b: (RedBlackTree<Config, Payload>, Handle, Reduction)) -> Bool {
-            let ak = Config.key(a.0[a.1].head, reducedPrefix: a.2)
-            return Config.compare(ak, to: b.0[b.1].head, reducedPrefix: b.2) != .After
+        func ordered(a: (RedBlackTree<Config, Payload>, Handle, Summary), before b: (RedBlackTree<Config, Payload>, Handle, Summary)) -> Bool {
+            let ak = Config.key(a.0[a.1].head, prefix: a.2)
+            return Config.compare(ak, to: b.0[b.1].head, prefix: b.2) != .After
         }
 
         guard let b1 = rightmost else { self = tree; return }
         guard let c2 = tree.leftmost else { return }
 
-        let rb = reductionOfAllNodesBefore(b1)
+        let rb = summaryOfAllNodesBefore(b1)
         let rc = rb + self[b1].head
         precondition(ordered((self, b1, rb), before: (tree, c2, rc)))
 
-        var reduction = rc
+        var summary = rc
         var previous1 = b1
         var next2: Handle? = c2
         while let h2 = next2 {
             let node2 = tree[h2]
-            previous1 = self.insert(Config.key(node2.head, reducedPrefix: reduction), payload: node2.payload, after: previous1)
-            reduction = reduction + node2.head
+            previous1 = self.insert(Config.key(node2.head, prefix: summary), payload: node2.payload, after: previous1)
+            summary = summary + node2.head
             next2 = tree.successor(h2)
         }
     }
@@ -777,11 +777,11 @@ extension RedBlackTree {
             return
         }
         var handle = tree.leftmost
-        var reduction = Reduction()
+        var summary = Summary()
         while let h = handle {
             let node = tree[h]
-            let key = Config.key(node.head, reducedPrefix: reduction)
-            reduction = reduction + node.head
+            let key = Config.key(node.head, prefix: summary)
+            summary = summary + node.head
             self.insert(key, payload: node.payload)
             handle = tree.successor(h)
         }
@@ -827,7 +827,7 @@ extension RedBlackTree {
             self[handle].head = n.head
             self[handle].payload = n.payload
             // Note that the above doesn't change root, leftmost, rightmost.
-            // The reduction will be updated on the way up.
+            // The summary will be updated on the way up.
             let handle = _remove(next, keeping: handle)
             return (handle, node.payload)
         }
@@ -858,7 +858,7 @@ extension RedBlackTree {
         if leftmost == handle { leftmost = child ?? node.parent }
         if rightmost == handle { rightmost = child ?? node.parent }
 
-        updateReductionsAtAndAbove(node.parent)
+        updateSummarysAtAndAbove(node.parent)
 
         if node.color == .Black {
             rebalanceAfterRemoval(slot)
