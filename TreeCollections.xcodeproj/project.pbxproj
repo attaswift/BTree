@@ -78,7 +78,6 @@
 		BB54D0BE1C1F0357008A462B /* BinaryTreeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BinaryTreeTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB54D0C01C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB54D0C91C1F0409008A462B /* _List.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = _List.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
-		BB54D0CA1C1F0409008A462B /* _Map.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = _Map.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentedArray.swift; sourceTree = "<group>"; };
 		BB9AE4241C1F887D002C5D63 /* MapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapTests.swift; sourceTree = "<group>"; };
 		BB9AE42D1C1FB57A002C5D63 /* PerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = PerformanceTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -175,7 +174,6 @@
 				BB097FB21C236EFD00CB718A /* Map.swift */,
 				BB097FB41C236F0500CB718A /* List.swift */,
 				BB9AE46F1C203A96002C5D63 /* _SortedArray.swift */,
-				BB54D0CA1C1F0409008A462B /* _Map.swift */,
 				BB54D0C91C1F0409008A462B /* _List.swift */,
 				BB54D0B41C1F0357008A462B /* Info.plist */,
 			);
