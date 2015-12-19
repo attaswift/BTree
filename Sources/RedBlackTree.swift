@@ -330,8 +330,16 @@ public struct RedBlackGenerator<Config: RedBlackConfig, Payload>: GeneratorType 
 extension RedBlackTree: SequenceType {
     public typealias Generator = RedBlackGenerator<Config, Payload>
 
+    /// Return a generator that provides an ordered list of all (key, payload) pairs that are currently in the tree.
+    /// - Complexity: O(1) to get the generator; O(count) to retrieve all elements.
     public func generate() -> Generator {
         return RedBlackGenerator(tree: self, handle: leftmost, reduction: Reduction())
+    }
+
+    /// Return a generator that provides an ordered list of (key, payload) pairs that are at or after `handle`.
+    /// - Complexity: O(1) to get the generator; O(count) to retrieve all elements.
+    public func generateFrom(handle: Handle) -> Generator {
+        return RedBlackGenerator(tree: self, handle: handle, reduction: Reduction())
     }
 }
 
