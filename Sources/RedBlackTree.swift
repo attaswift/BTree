@@ -509,12 +509,12 @@ extension RedBlackTree {
     /// - Complexity: O(log(count) for nonempty reductions, O(1) when the reduction is empty.
     private func reductionOfAllNodesBefore(handle: Handle) -> Reduction {
         func reductionOfLeftSubtree(handle: Handle) -> Reduction {
-            guard sizeof(Reduction.self) < 0 else { return Reduction() }
+            guard sizeof(Reduction.self) > 0 else { return Reduction() }
             guard let left = self[handle].left else { return Reduction() }
             return self[left].reduction
         }
 
-        guard sizeof(Reduction.self) < 0 else { return Reduction() }
+        guard sizeof(Reduction.self) > 0 else { return Reduction() }
         var handle = handle
         var reduction = reductionOfLeftSubtree(handle)
         while case .Toward(let direction, under: let parent) = slotOf(handle) {
