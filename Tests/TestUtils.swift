@@ -22,102 +22,127 @@ public func XCTAssertEqual<T : Equatable>(@autoclosure expression1: () -> T, @au
     }
 }
 
-extension BinaryTree {
-    func checkInvariants() -> Bool {
-        var count = 0
-        func check(index: Index?, under parent: Index?) -> Bool {
-            guard let index = index else { return true }
-            count += 1
-            let node = self[index]
-            guard parent == node.parent else { return false }
-            guard check(node.left, under: index) else { return false }
-            guard check(node.right, under: index) else { return false }
-            return true
-        }
+struct RedBlackInfo<Config: RedBlackConfig, Payload> {
+    typealias Tree = RedBlackTree<Config, Payload>
+    typealias Handle = Tree.Handle
+    typealias Summary = Tree.Summary
+    typealias Key = Tree.Key
 
-        guard check(self.root, under: nil) else { return false }
+    var nodeCount: Int = 0
 
-        if count > 0 {
-            guard let first = leftmost where self.inorderStep(first, towards: .Left) == nil else { return false }
-            guard let last = rightmost where self.inorderStep(last, towards: .Right) == nil else { return false }
-        }
+    var minDepth: Int = 0
+    var maxDepth: Int = 0
 
-        return count == self.count
-    }
+    var minRank: Int = 0
+    var maxRank: Int = 0
+
+    var color: Color = .Black
+    var summary: Summary = Summary()
+    var minKey: Key? = nil
+    var maxKey: Key? = nil
+
+    var defects: [(Handle, String)] = []
+}
+
+extension RedBlackTree {
+    typealias Info = RedBlackInfo<Config, Payload>
 
     func dump() -> String {
-        func dump(index: Index?) -> String {
-            guard let index = index else { return "" }
-            let left = dump(self[index].left)
-            let right = dump(self[index].right)
-            let space1 = left.isEmpty ? "" : " "
-            let space2 = right.isEmpty ? "" : " "
-            return "(\(left)\(space1)\(self[index].payload)\(space2)\(right))"
+        func dump(handle: Handle?, prefix: Summary) -> String {
+            guard let handle = handle else { return "" }
+            let node = self[handle]
+            let p = prefix + self[node.left]?.summary
+            let left = dump(node.left, prefix: prefix)
+            let root = String(Config.key(node.head, prefix: p))
+            let right = dump(node.right, prefix: p + node.head)
+            return "(" + [left, root, right].joinWithSeparator(", ") + ")"
         }
-        return dump(root)
+        return dump(root, prefix: Summary())
     }
 
-    func lookup(directions: BinaryTreeDirection...) -> Index? {
+    var debugInfo: Info {
+        func collectInfo(handle: Handle?, parent: Handle?, prefix: Summary) -> Info {
+            if let handle = handle {
+                var info = Info()
+                let node = self[handle]
+
+                var sum = prefix
+                let li = collectInfo(node.left, parent: handle, prefix: sum)
+                sum = prefix + li.summary + node.head
+                let ri = collectInfo(node.right, parent: handle, prefix: sum)
+                info.summary = sum + ri.summary
+
+                info.nodeCount = li.nodeCount + 1 + ri.nodeCount
+                info.minDepth = min(li.minDepth, ri.minDepth) + 1
+                info.maxDepth = max(li.maxDepth, ri.maxDepth) + 1
+                info.minRank = min(li.minRank, ri.minRank) + (node.color == .Black ? 1 : 0)
+                info.maxRank = max(li.maxRank, ri.maxRank) + (node.color == .Black ? 1 : 0)
+
+                info.defects = li.defects + ri.defects
+                info.color = node.color
+
+                if node.parent != parent {
+                    info.defects.append((handle, "parent is \(node.parent), expected \(parent)"))
+                }
+                if node.color == .Red {
+                    if li.color != .Black {
+                        info.defects.append((handle, "color is red but left child(\(node.left) is also red"))
+                    }
+                    if ri.color != .Black {
+                        info.defects.append((handle, "color is red but right child(\(node.left) is also red"))
+                    }
+                }
+                if li.minRank != ri.minRank {
+                    info.defects.append((handle, "mismatching child subtree ranks: \(li.minRank) vs \(ri.minRank)"))
+                }
+                if info.summary != node.summary {
+                    info.defects.append((handle, "summary is \(node.summary), expected \(info.summary)"))
+                }
+                let key = Config.key(node.head, prefix: prefix + li.summary)
+                info.maxKey = ri.maxKey
+                info.minKey = li.minKey
+                if let lk = li.maxKey where Config.compare(lk, to: node.head, prefix: prefix + li.summary) == .After {
+                    info.defects.append((handle, "node's key is ordered before its maximum left descendant: \(key) < \(lk)"))
+                }
+                if let rk = ri.minKey where Config.compare(rk, to: node.head, prefix: prefix + li.summary) == .Before {
+                    info.defects.append((handle, "node's key is ordered after its minimum right descendant: \(key) > \(rk)"))
+                }
+                return info
+            }
+            else {
+                return RedBlackInfo()
+            }
+        }
+        var info = collectInfo(root, parent: nil, prefix: Summary())
+        if info.color == .Red {
+            info.defects.append((root!, "root is red"))
+        }
+        if info.nodeCount != count {
+            info.defects.append((root!, "count of reachable nodes is \(info.nodeCount), expected \(count)"))
+        }
+        return info
+    }
+    func assertTreeIsValid() {
+        let info = debugInfo
+        for (handle, explanation) in info.defects {
+            XCTFail("\(handle): \(explanation)")
+        }
+    }
+
+    func lookup(directions: RedBlackDirection...) -> Handle? {
         return self.lookup(directions)
     }
 
-    func lookup<S: SequenceType where S.Generator.Element == BinaryTreeDirection>(directions: S) -> Index? {
-        var index = self.root
+    func lookup<S: SequenceType where S.Generator.Element == RedBlackDirection>(directions: S) -> Handle? {
+        var handle = self.root
         for direction in directions {
-            guard let i = index else { return nil }
-            index = self[i, direction]
+            guard let h = handle else { return nil }
+            handle = self[h][direction]
         }
-        return index
+        return handle
     }
+
 }
-
-extension RBTree {
-    func dump() -> String {
-        func dump(index: Index?) -> String {
-            return self.tree.dump()
-        }
-        return dump(root)
-    }
-}
-
-extension RBPayload: CustomStringConvertible {
-    var description: String {
-        return "\(value)\(color == .Red ? "R" : "")"
-    }
-}
-
-extension List {
-    func checkCounts() -> Bool {
-        var failedIndexes: [Tree.Index] = []
-        func walk(index: Tree.Index?) -> Int {
-            if let index = index {
-                let measured = walk(tree.tree[index].left) + walk(tree.tree[index].right) + 1
-                let stored = tree[index].state
-                if measured != stored {
-                    print("Subtree at index \(index) contains \(measured) nodes, but its root says it has \(stored)")
-                    failedIndexes.append(index)
-                }
-                return measured
-            }
-            else {
-                return 0
-            }
-        }
-
-        if count > 0 {
-            guard let first = tree.firstIndex where tree.predecessor(first) == nil else { return false }
-            guard let last = tree.lastIndex where tree.successor(last) == nil else { return false }
-        }
-        return failedIndexes.isEmpty
-    }
-}
-
-extension ListValue: CustomStringConvertible {
-    var description: String {
-        return "<\(self.element)/#\(self.state)>"
-    }
-}
-
 
 func generatePermutations(count: Int) -> AnyGenerator<[Int]> {
     if count == 0 {
