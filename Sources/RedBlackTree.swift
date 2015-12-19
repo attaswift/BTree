@@ -775,6 +775,11 @@ extension RedBlackTree {
 //MARK: Removal of nodes
 
 extension RedBlackTree {
+
+    public mutating func removeAll(keepCapacity keepCapacity: Bool = false) {
+        nodes.removeAll(keepCapacity: keepCapacity)
+    }
+    
     /// Remove the node at `handle`, invalidating all existing handles.
     /// - Note: You can use the returned handle to continue operating on the tree without having to find your place again.
     /// - Returns: The handle of the node that used to follow the removed node in the original tree, or nil if 
