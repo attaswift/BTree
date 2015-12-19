@@ -54,7 +54,7 @@ public struct SimpleTreeConfig<Key: Comparable>: RedBlackConfig {
     }
 }
 
-public struct ListTreeConfig: RedBlackConfig {
+public struct IndexableTreeConfig: RedBlackConfig {
     public typealias Key = Int
     public typealias Reduction = CountingReduction<Void>
 

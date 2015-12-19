@@ -667,8 +667,16 @@ extension RedBlackTree {
         return insert(key, payload: payload, into: slot)
     }
 
-    public mutating func insert(key: Key, payload: Payload, after predecessor: Handle) -> Handle {
-        assert(predecessor == self.handleOfRightmostNodeBefore(key) || compare(key, with: predecessor) == .Matching)
+    public mutating func insert(key: Key, payload: Payload, after predecessor: Handle?) -> Handle {
+        assert(predecessor == self.handleOfRightmostNodeBefore(key) || compare(key, with: predecessor!) == .Matching)
+        guard let predecessor = predecessor else {
+            if let leftmost = leftmost {
+                return self.insert(key, payload: payload, before: leftmost)
+            }
+            else {
+                return self.insert(key, payload: payload)
+            }
+        }
         let node = self[predecessor]
         if let right = node.right {
             let next = handleOfLeftmostNodeUnder(right)
@@ -679,8 +687,16 @@ extension RedBlackTree {
         }
     }
 
-    public mutating func insert(key: Key, payload: Payload, before successor: Handle) -> Handle {
-        assert(successor == self.handleOfLeftmostNodeAfter(key) || compare(key, with: successor) == .Matching)
+    public mutating func insert(key: Key, payload: Payload, before successor: Handle?) -> Handle {
+        assert(successor == self.handleOfLeftmostNodeAfter(key) || compare(key, with: successor!) == .Matching)
+        guard let successor = successor else {
+            if let rightmost = rightmost {
+                return self.insert(key, payload: payload, after: rightmost)
+            }
+            else {
+                return self.insert(key, payload: payload)
+            }
+        }
         let node = self[successor]
         if let left = node.left {
             let previous = handleOfRightmostNodeUnder(left)
