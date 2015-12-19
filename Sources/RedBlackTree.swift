@@ -496,7 +496,7 @@ extension RedBlackTree {
 
     /// Updates the reduction cached at `index` and its ancestors, assuming that all other nodes have up-to-date data.
     /// - Complexity: O(log(count)) for nonempty reductions, O(1) when the reduction is empty.
-    private mutating func updateReductionsAtAndAbove(index: Index) {
+    private mutating func updateReductionsAtAndAbove(index: Index?) {
         guard sizeof(Reduction.self) > 0 else { return }
         var index: Index? = index
         while let i = index {
@@ -546,9 +546,11 @@ extension RedBlackTree {
         var xn = self[x]
         var yn = self[y]
 
-        //     x                      y
-        //  a      y    <-->     x        c
-        //       b   c        a     b
+        //      x                y
+        //     / \              / \
+        //    a   y    <-->    x   c
+        //       / \          / \
+        //      b   c        a   b
 
         let b = yn[dir]
 
@@ -563,6 +565,7 @@ extension RedBlackTree {
         self[y] = yn
 
         if root == x { root = y }
+        // leftmost, rightmost are invariant under rotations
 
         self.updateReductionAt(x)
         self.updateReductionAt(y)
@@ -717,22 +720,80 @@ extension RedBlackTree {
 //MARK: Removal of nodes
 
 extension RedBlackTree {
-    /// Remove the node at `index`. 
-    /// - Note: This operation invalidates all existing indexes. You can use the returned index to continue operating 
-    ///   on the tree without having to find your place again.
+    /// Remove the node at `index`, invalidating all existing indexes.
+    /// - Note: You can use the returned index to continue operating on the tree without having to find your place again.
     /// - Returns: The index of the node that used to follow the removed node in the original tree, or nil if 
     ///   `index` was at the rightmost position.
     /// - Complexity: O(log(count))
-    public func remove(index: Index) -> Index? {
-        // TODO
-        return nil
+    public mutating func removeAndReturnSuccessor(index: Index) -> Index? {
+        return _remove(index, successor: successor(index))
     }
 
-    private mutating func deleteUnlinkedIndex(removed: Index, updating index: Index) -> Index {
+    /// Remove the node at `index`, invalidating all existing indexes.
+    /// - Note: You need to discard your existing indexes into the tree after you call this method.
+    /// - SeeAlso: `removeAndReturnSuccessor`
+    /// - Complexity: O(log(count))
+    public mutating func remove(index: Index) {
+        _remove(index, successor: nil)
+    }
+
+    /// Remove a node, keeping track of its successor.
+    /// - Returns: The index of `successor` after the removal.
+    private mutating func _remove(index: Index, successor: Index?) -> Index? {
+        assert(index != successor)
+        // Fixme: Removing from a red-black tree is one ugly algorithm.
+        let node = self[index]
+        if let _ = node.left, r = node.right {
+            // We can't directly remove a node with two children, but its successor is suitable.
+            // Let's remove it instead, placing its payload into index.
+            let next = successor ?? indexOfLeftmostNodeUnder(r)
+            let n = self[next]
+            self[index].head = n.head
+            self[index].payload = n.payload
+            // Note that the above doesn't change root, leftmost, rightmost.
+            // The reduction will be updated on the way up.
+            return _remove(next, keeping: index)
+        }
+        else {
+            return _remove(index, keeping: successor)
+        }
+    }
+
+    /// Remove a node with at most one child, while keeping track of another index.
+    /// - Returns: The index of `marker` after the removal.
+    private mutating func _remove(index: Index, keeping marker: Index?) -> Index? {
+        let node = self[index]
+        let slot = slotOf(index)
+        assert(node.left == nil || node.right == nil)
+
+        let child = node.left ?? node.right
+        if let child = child {
+            var n = self[child]
+            n.parent = node.parent
+            self[child] = n
+        }
+        if case .Toward(let d, under: let p) = slot {
+            self[p][d] = child
+        }
+
+        if root == index { root = child }
+        if leftmost == index { leftmost = child ?? node.parent }
+        if rightmost == index { rightmost = child ?? node.parent }
+
+        updateReductionsAtAndAbove(node.parent)
+
+        if node.color == .Black {
+            rebalanceAfterRemoval(slot)
+        }
+
+        return deleteUnlinkedIndex(index, keeping: marker)
+    }
+
+    private mutating func deleteUnlinkedIndex(removed: Index, keeping marker: Index?) -> Index? {
         let last = Index(nodes.count - 1)
         if removed == last {
             nodes.removeLast()
-            return index
+            return marker
         }
         else {
             // Move the last node into index, and remove its original place instead.
@@ -741,10 +802,81 @@ extension RedBlackTree {
             if case .Toward(let d, under: let p) = slotOf(last) { self[p][d] = removed }
             if let l = node.left { self[l].parent = removed }
             if let r = node.right { self[r].parent = removed }
+
             if root == last { root = removed }
             if leftmost == last { leftmost = removed }
             if rightmost == last { rightmost = removed }
-            return index == last ? removed : index
+
+            return marker == last ? removed : marker
+        }
+    }
+
+    private mutating func rebalanceAfterRemoval(slot: Slot) {
+        var slot = slot
+        while case .Toward(let dir, under: let parent) = slot {
+            let opp = dir.opposite
+            let sibling = self[parent][opp]! // there's a missing black in slot, so it definitely has a sibling tree.
+            let siblingNode = self[sibling]
+            if siblingNode.color == .Red { // Case (1) in [CLRS]
+                //       parent(B)[b+1]                   label(c)[rank]
+                //      /         \                            c: R for red, B for black
+                //   slot        sibling(R)                    rank: black count in subtree
+                //   [b-1]        /      \
+                //              [b]      [b]
+                assert(isBlack(parent) && self[sibling].left != nil && self[sibling].right != nil)
+                self.rotate(parent, dir)
+                setBlack(sibling)
+                setRed(parent)
+                // Old sibling is now above the parent; new sibling is black.
+                continue
+            }
+            let farNephew = siblingNode[opp]
+            if let farNephew = farNephew where isRed(farNephew) { // Case (4) in [CLRS]
+                //       parent[b+1]
+                //       /         \
+                //   slot       sibling(B)[b]
+                //  [b-1]       /      \
+                //           [b-1]   farNephew(R)[b-1]
+                self.rotate(parent, dir)
+                self[sibling].color = self[parent].color
+                setBlack(farNephew)
+                setBlack(parent)
+                // We sacrificed nephew's red to restore the black count above slot. We're done!
+                return
+            }
+            let closeNephew = siblingNode[dir]
+            if let closeNephew = closeNephew where isRed(closeNephew) { // Case (3) in [CLRS]
+                //        parent
+                //       /      \
+                //   slot       sibling(B)
+                //  [b-1]      /          \
+                //        closeNephew(R)  farNephew(B)
+                //           [b-1]           [b-1]
+                self.rotate(sibling, opp)
+                self.rotate(parent, dir)
+                self[closeNephew].color = self[parent].color
+                setBlack(parent)
+                // We've sacrificed the close nephew's red to restore the black count above slot. We're done!
+                return
+            }
+            else { // Case (2) in [CLRS]
+                //        parent
+                //       /      \
+                //   slot       sibling(B)
+                //  [b-1]      /          \
+                //        closeNephew(B)  farNephew(B)
+                //           [b-1]           [b-1]
+
+                // We are allowed to paint the sibling red, creating a missing black.
+                setRed(sibling)
+
+                if isRed(parent) { // We can finish this right now.
+                    setBlack(parent)
+                    return
+                }
+                // Repeat one level higher.
+                slot = slotOf(parent)
+            }
         }
     }
 }
