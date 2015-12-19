@@ -31,7 +31,7 @@ public struct List<Element>: ArrayLikeCollectionType {
         self.tree = Tree()
         tree.reserveCapacity(elements.underestimateCount())
         for element in elements {
-            tree.insert(tree.count, payload: element, after: tree.rightmost)
+            tree.insert(element, forKey: tree.count, after: tree.rightmost)
         }
     }
 
@@ -67,7 +67,7 @@ public struct List<Element>: ArrayLikeCollectionType {
     }
 
     public mutating func append(newElement: Element) {
-        tree.insert(tree.count, payload: newElement, after: tree.rightmost)
+        tree.insert(newElement, forKey: tree.count, after: tree.rightmost)
     }
 
     /// Inserts a new element at position `index`.
@@ -76,13 +76,13 @@ public struct List<Element>: ArrayLikeCollectionType {
     public mutating func insert(newElement: Element, atIndex index: Int) {
         precondition(index >= 0 && index <= count)
         if index == 0 {
-            tree.insert(index, payload: newElement, before: tree.leftmost)
+            tree.insert(newElement, forKey: index, before: tree.leftmost)
         }
         else if index == count {
-            tree.insert(index, payload: newElement, after: tree.rightmost)
+            tree.insert(newElement, forKey: index, after: tree.rightmost)
         }
         else {
-            tree.insert(index, payload: newElement, before: tree.find(index)!)
+            tree.insert(newElement, forKey: index, before: tree.find(index)!)
         }
     }
 

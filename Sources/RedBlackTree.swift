@@ -143,7 +143,7 @@ public extension RedBlackTree {
         self.init()
         self.reserveCapacity(Int(elements.count.toIntMax()))
         for (key, payload) in elements {
-            self.insert(key, payload: payload)
+            self.insert(payload, forKey: key)
         }
     }
 
@@ -639,12 +639,12 @@ extension RedBlackTree {
             return (handle, old)
         }
         else {
-            let handle = insert(key, payload: payload, into: slot)
+            let handle = insert(payload, forKey: key, into: slot)
             return (handle, nil)
         }
     }
 
-    public mutating func insert(key: Key, payload: Payload) -> Handle {
+    public mutating func insert(payload: Payload, forKey key: Key) -> Handle {
         func insertionSlotOf(key: Key) -> Slot {
             var slot: Slot = .Root
             self.find(key) { handle, match in
@@ -664,50 +664,50 @@ extension RedBlackTree {
         }
 
         let slot = insertionSlotOf(key)
-        return insert(key, payload: payload, into: slot)
+        return insert(payload, forKey: key, into: slot)
     }
 
-    public mutating func insert(key: Key, payload: Payload, after predecessor: Handle?) -> Handle {
+    public mutating func insert(payload: Payload, forKey key: Key, after predecessor: Handle?) -> Handle {
         assert(predecessor == self.handleOfRightmostNodeBefore(key) || compare(key, with: predecessor!) == .Matching)
         guard let predecessor = predecessor else {
             if let leftmost = leftmost {
-                return self.insert(key, payload: payload, before: leftmost)
+                return self.insert(payload, forKey: key, before: leftmost)
             }
             else {
-                return self.insert(key, payload: payload)
+                return self.insert(payload, forKey: key)
             }
         }
         let node = self[predecessor]
         if let right = node.right {
             let next = handleOfLeftmostNodeUnder(right)
-            return insert(key, payload: payload, into: .Toward(.Left, under: next))
+            return insert(payload, forKey: key, into: .Toward(.Left, under: next))
         }
         else {
-            return insert(key, payload: payload, into: .Toward(.Right, under: predecessor))
+            return insert(payload, forKey: key, into: .Toward(.Right, under: predecessor))
         }
     }
 
-    public mutating func insert(key: Key, payload: Payload, before successor: Handle?) -> Handle {
+    public mutating func insert(payload: Payload, forKey key: Key, before successor: Handle?) -> Handle {
         assert(successor == self.handleOfLeftmostNodeAfter(key) || compare(key, with: successor!) == .Matching)
         guard let successor = successor else {
             if let rightmost = rightmost {
-                return self.insert(key, payload: payload, after: rightmost)
+                return self.insert(payload, forKey: key, after: rightmost)
             }
             else {
-                return self.insert(key, payload: payload)
+                return self.insert(payload, forKey: key)
             }
         }
         let node = self[successor]
         if let left = node.left {
             let previous = handleOfRightmostNodeUnder(left)
-            return insert(key, payload: payload, into: .Toward(.Right, under: previous))
+            return insert(payload, forKey: key, into: .Toward(.Right, under: previous))
         }
         else {
-            return insert(key, payload: payload, into: .Toward(.Left, under: successor))
+            return insert(payload, forKey: key, into: .Toward(.Left, under: successor))
         }
     }
 
-    private mutating func insert(key: Key, payload: Payload, into slot: Slot) -> Handle {
+    private mutating func insert(payload: Payload, forKey key: Key, into slot: Slot) -> Handle {
         let handle = Handle(nodes.count)
         switch slot {
         case .Root:
@@ -763,7 +763,8 @@ extension RedBlackTree {
         var next2: Handle? = c2
         while let h2 = next2 {
             let node2 = tree[h2]
-            previous1 = self.insert(Config.key(node2.head, prefix: summary), payload: node2.payload, after: previous1)
+            let key = Config.key(node2.head, prefix: summary)
+            previous1 = self.insert(node2.payload, forKey: key, after: previous1)
             summary = summary + node2.head
             next2 = tree.successor(h2)
         }
@@ -782,7 +783,7 @@ extension RedBlackTree {
             let node = tree[h]
             let key = Config.key(node.head, prefix: summary)
             summary = summary + node.head
-            self.insert(key, payload: node.payload)
+            self.insert(node.payload, forKey: key)
             handle = tree.successor(h)
         }
     }
