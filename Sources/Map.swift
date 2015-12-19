@@ -12,7 +12,7 @@ public struct Map<Key: Comparable, Value> {
     private typealias Config = SimpleTreeConfig<Key>
     private typealias Tree = RedBlackTree<Config, Value>
     private typealias Node = Tree.Node
-    private typealias Handle = Tree.Index
+    private typealias Handle = Tree.Handle
 
     private var tree: Tree
     

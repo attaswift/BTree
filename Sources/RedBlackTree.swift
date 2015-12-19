@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct RedBlackIndex<Config: RedBlackConfig, Payload>: Equatable {
+public struct RedBlackHandle<Config: RedBlackConfig, Payload>: Equatable {
     private let _index: UInt32
 
     private init(_ index: Int) {
@@ -17,7 +17,7 @@ public struct RedBlackIndex<Config: RedBlackConfig, Payload>: Equatable {
 
     private var index: Int { return Int(_index) }
 }
-public func ==<C: RedBlackConfig, P>(a: RedBlackIndex<C, P>, b: RedBlackIndex<C, P>) -> Bool {
+public func ==<C: RedBlackConfig, P>(a: RedBlackHandle<C, P>, b: RedBlackHandle<C, P>) -> Bool {
     return a._index == b._index
 }
 
@@ -45,12 +45,12 @@ public enum RedBlackDirection {
 /// A slot in the binary tree represents a place into which you can put a node.
 /// The tree's root is one slot, and so is either child of another node.
 internal enum RedBlackSlot<Config: RedBlackConfig, Payload>: Equatable {
-    internal typealias Index = RedBlackIndex<Config, Payload>
+    internal typealias Handle = RedBlackHandle<Config, Payload>
 
     /// A slot representing the place of the topmost node in the tree.
     case Root
     /// A slot representing the child towards a certain direction under a certain parent node in the tree.
-    case Toward(RedBlackDirection, under: Index)
+    case Toward(RedBlackDirection, under: Handle)
 }
 internal func ==<Config: RedBlackConfig, Payload>(a: RedBlackSlot<Config, Payload>, b: RedBlackSlot<Config, Payload>) -> Bool {
     return a == b
@@ -59,13 +59,13 @@ internal func ==<Config: RedBlackConfig, Payload>(a: RedBlackSlot<Config, Payloa
 
 
 internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
-    typealias Index = RedBlackIndex<Config, Payload>
+    typealias Handle = RedBlackHandle<Config, Payload>
     typealias Reduction = Config.Reduction
     typealias Head = Reduction.Item
 
-    private(set) var parent: Index?
-    private(set) var left: Index?
-    private(set) var right: Index?
+    private(set) var parent: Handle?
+    private(set) var left: Handle?
+    private(set) var right: Handle?
 
     private(set) var head: Head
     private(set) var reduction: Reduction
@@ -74,7 +74,7 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
 
     private(set) var color: Color
 
-    private init(parent: Index?, head: Head, payload: Payload) {
+    private init(parent: Handle?, head: Head, payload: Payload) {
         self.parent = parent
         self.left = nil
         self.right = nil
@@ -84,17 +84,17 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
         self.color = .Red
     }
 
-    internal subscript(direction: RedBlackDirection) -> Index? {
+    internal subscript(direction: RedBlackDirection) -> Handle? {
         get {
             switch direction {
             case .Left: return left
             case .Right: return right
             }
         }
-        mutating set(index) {
+        mutating set(handle) {
             switch direction {
-            case .Left: left = index
-            case .Right: right = index
+            case .Left: left = handle
+            case .Right: right = handle
             }
         }
     }
@@ -103,7 +103,7 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
 public struct RedBlackTree<Config: RedBlackConfig, Payload> {
     //MARK: Type aliases
 
-    public typealias Index = RedBlackIndex<Config, Payload>
+    public typealias Handle = RedBlackHandle<Config, Payload>
     public typealias Reduction = Config.Reduction
     public typealias Head = Reduction.Item
     public typealias Key = Config.Key
@@ -117,14 +117,14 @@ public struct RedBlackTree<Config: RedBlackConfig, Payload> {
 
     internal private(set) var nodes: ContiguousArray<Node>
 
-    /// The index of the root node of the tree, or nil if the tree is empty.
-    public private(set) var root: Index?
+    /// The handle of the root node of the tree, or nil if the tree is empty.
+    public private(set) var root: Handle?
 
-    /// The index of the leftmost node of the tree, or nil if the tree is empty.
-    public private(set) var leftmost: Index?
+    /// The handle of the leftmost node of the tree, or nil if the tree is empty.
+    public private(set) var leftmost: Handle?
 
-    /// The index of the rightmost node of the tree, or nil if the tree is empty.
-    public private(set) var rightmost: Index?
+    /// The handle of the rightmost node of the tree, or nil if the tree is empty.
+    public private(set) var rightmost: Handle?
 
     /// Initializes an empty tree.
     public init() {
@@ -160,61 +160,61 @@ public extension RedBlackTree {
     public var isEmpty: Bool { return nodes.isEmpty }
 }
 
-//MARK: Looking up an index.
+//MARK: Looking up a handle.
 
 public extension RedBlackTree {
 
-    /// Returns or updates the node at `index`.
+    /// Returns or updates the node at `handle`.
     /// - Complexity: O(1)
-    internal private(set) subscript(index: Index) -> Node {
+    internal private(set) subscript(handle: Handle) -> Node {
         get {
-            return nodes[index.index]
+            return nodes[handle.index]
         }
         set(node) {
-            nodes[index.index] = node
+            nodes[handle.index] = node
         }
     }
 
-    /// Returns the node at `index`, or nil if `index` is nil.
+    /// Returns the node at `handle`, or nil if `handle` is nil.
     /// - Complexity: O(1)
-    internal subscript(index: Index?) -> Node? {
-        guard let index = index else { return nil }
-        return self[index] as Node
+    internal subscript(handle: Handle?) -> Node? {
+        guard let handle = handle else { return nil }
+        return self[handle] as Node
     }
 
-    /// Returns the payload of the node at `index`.
+    /// Returns the payload of the node at `handle`.
     /// - Complexity: O(1)
-    public func payloadOf(index: Index) -> Payload {
-        return self[index].payload
+    public func payloadOf(handle: Handle) -> Payload {
+        return self[handle].payload
     }
 
-    /// Updates the payload of the node at `index`.
+    /// Updates the payload of the node at `handle`.
     /// - Returns: The previous payload of the node.
     /// - Complexity: O(1)
-    public mutating func setPayload(payload: Payload, of index: Index) -> Payload {
-        var node = self[index]
+    public mutating func setPayload(payload: Payload, of handle: Handle) -> Payload {
+        var node = self[handle]
         let old = node.payload
         node.payload = payload
-        self[index] = node
+        self[handle] = node
         return old
     }
 
-    /// Returns the head of the node at `index`.
+    /// Returns the head of the node at `handle`.
     /// - Complexity: O(1)
-    public func headOf(index: Index) -> Head {
-        return self[index].head
+    public func headOf(handle: Handle) -> Head {
+        return self[handle].head
     }
 
-    /// Updates the head of the node at `index`. 
+    /// Updates the head of the node at `handle`. 
     ///
     /// It is only supported to change the head when a the new value does
-    /// not affect the order of the nodes already in the tree. New keys of nodes before or equal to `index` must match
-    /// their previous ones, but keys of nodes above `index` may be changed -- as long as the ordering stays constant.
+    /// not affect the order of the nodes already in the tree. New keys of nodes before or equal to `handle` must match
+    /// their previous ones, but keys of nodes above `handle` may be changed -- as long as the ordering stays constant.
     ///
     /// - Note: Being able to update the head is useful when the reduction is a summation, 
-    ///   like in a tree implementing a concatenation of arrays, where each array's index range in the resulting 
+    ///   like in a tree implementing a concatenation of arrays, where each array's handle range in the resulting 
     ///   collection is a count of elements in all arrays before it. Here, the head of node is the count of its
-    ///   payload array. When the count changes, indexes after the modified array change too, but their ordering remains
+    ///   payload array. When the count changes, handles after the modified array change too, but their ordering remains
     ///   the same. Calling `setHead` is ~3 times faster than just removing and re-adding the node.
     ///
     /// - Requires: The key of the old node must match the new node. `compare(key(old, prefix), new, prefix) == .Match`
@@ -227,17 +227,17 @@ public extension RedBlackTree {
     ///
     /// - Complexity: O(log(count))
     ///
-    public mutating func setHead(head: Head, of index: Index) -> Head {
-        var node = self[index]
+    public mutating func setHead(head: Head, of handle: Handle) -> Head {
+        var node = self[handle]
         assert({
-            let prefix = reductionOfAllNodesBefore(index) // This is O(log(n)) -- which is why this is not in a precondition.
+            let prefix = reductionOfAllNodesBefore(handle) // This is O(log(n)) -- which is why this is not in a precondition.
             let key = Config.key(node.head, reducedPrefix: prefix)
             return Config.compare(key, to: head, reducedPrefix: prefix) == .Matching
             }())
         let old = node.head
         node.head = head
-        self[index] = node
-        updateReductionsAtAndAbove(index)
+        self[handle] = node
+        updateReductionsAtAndAbove(handle)
         return old
     }
 }
@@ -246,21 +246,21 @@ public extension RedBlackTree {
 
 extension RedBlackTree {
 
-    public func successor(index: Index) -> Index? {
-        return step(index, to: .Right)
+    public func successor(handle: Handle) -> Handle? {
+        return step(handle, to: .Right)
     }
 
-    public func predecessor(index: Index) -> Index? {
-        return step(index, to: .Left)
+    public func predecessor(handle: Handle) -> Handle? {
+        return step(handle, to: .Left)
     }
 
-    public func step(index: Index, to direction: RedBlackDirection) -> Index? {
-        let node = self[index]
+    public func step(handle: Handle, to direction: RedBlackDirection) -> Handle? {
+        let node = self[handle]
         if let next = node[direction] {
-            return indexOfFurthestNodeUnder(next, toward: direction.opposite)
+            return handleOfFurthestNodeUnder(next, toward: direction.opposite)
         }
 
-        var child = index
+        var child = handle
         var parent = node.parent
         while let p = parent {
             let n = self[p]
@@ -271,20 +271,20 @@ extension RedBlackTree {
         return nil
     }
 
-    public func indexOfLeftmostNodeUnder(index: Index) -> Index {
-        return indexOfFurthestNodeUnder(index, toward: .Left)
+    public func handleOfLeftmostNodeUnder(handle: Handle) -> Handle {
+        return handleOfFurthestNodeUnder(handle, toward: .Left)
     }
 
-    public func indexOfRightmostNodeUnder(index: Index) -> Index {
-        return indexOfFurthestNodeUnder(index, toward: .Right)
+    public func handleOfRightmostNodeUnder(handle: Handle) -> Handle {
+        return handleOfFurthestNodeUnder(handle, toward: .Right)
     }
     
-    public func indexOfFurthestNodeUnder(index: Index, toward direction: RedBlackDirection) -> Index {
-        var index = index
-        while let next = self[index][direction] {
-            index = next
+    public func handleOfFurthestNodeUnder(handle: Handle, toward direction: RedBlackDirection) -> Handle {
+        var handle = handle
+        while let next = self[handle][direction] {
+            handle = next
         }
-        return index
+        return handle
     }
 }
 
@@ -294,15 +294,15 @@ extension RedBlackTree {
 public struct RedBlackGenerator<Config: RedBlackConfig, Payload>: GeneratorType {
     typealias Tree = RedBlackTree<Config, Payload>
     private let tree: Tree
-    private var index: Tree.Index?
+    private var handle: Tree.Handle?
     private var reduction: Tree.Reduction
 
     public mutating func next() -> Tree.Element? {
-        guard let index = index else { return nil }
-        let node = tree[index]
+        guard let handle = handle else { return nil }
+        let node = tree[handle]
         let key = Config.key(node.head, reducedPrefix: reduction)
         reduction = reduction + node.head
-        self.index = tree.successor(index)
+        self.handle = tree.successor(handle)
         return (key, node.payload)
     }
 }
@@ -311,76 +311,76 @@ extension RedBlackTree: SequenceType {
     public typealias Generator = RedBlackGenerator<Config, Payload>
 
     public func generate() -> Generator {
-        return RedBlackGenerator(tree: self, index: leftmost, reduction: Reduction())
+        return RedBlackGenerator(tree: self, handle: leftmost, reduction: Reduction())
     }
 }
 
 //MARK: Searching in the tree
 
 extension RedBlackTree {
-    internal func find(key: Key, @noescape step: (Index, KeyMatchResult)->KeyMatchResult) {
+    internal func find(key: Key, @noescape step: (Handle, KeyMatchResult)->KeyMatchResult) {
         if sizeof(Reduction.self) == 0 {
-            var index = self.root
-            while let i = index {
-                let node = self[i]
+            var handle = self.root
+            while let h = handle {
+                let node = self[h]
                 let match = Config.compare(key, to: node.head, reducedPrefix: Reduction())
-                switch step(i, match) {
-                case .Before: index = node.left
+                switch step(h, match) {
+                case .Before: handle = node.left
                 case .Matching: return
-                case .After: index = node.right
+                case .After: handle = node.right
                 }
             }
         }
         else {
-            var index = self.root
+            var handle = self.root
             var reduction = Reduction()
-            while let i = index {
-                let node = self[i]
+            while let h = handle {
+                let node = self[h]
                 let r = reduction + self[node.left]?.reduction
                 let match = Config.compare(key, to: node.head, reducedPrefix: r)
-                switch step(i, match) {
+                switch step(h, match) {
                 case .Before:
-                    index = node.left
+                    handle = node.left
                 case .Matching:
                     return
                 case .After:
                     reduction = r + node.head
-                    index = node.right
+                    handle = node.right
                 }
             }
         }
     }
 
-    /// Finds and returns the index of a node that matches `key`, or nil if no such node exists.
+    /// Finds and returns the handle of a node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func find(key: Key) -> Index? {
+    public func find(key: Key) -> Handle? {
         // Topmost is the best, since it terminates on the first match.
-        return indexOfTopmostNodeMatching(key)
+        return handleOfTopmostNodeMatching(key)
     }
 
-    /// Finds and returns the index of the topmost node that matches `key`, or nil if no such node exists.
+    /// Finds and returns the handle of the topmost node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func indexOfTopmostNodeMatching(key: Key) -> Index? {
-        var result: Index? = nil
-        find(key) { index, match in
+    public func handleOfTopmostNodeMatching(key: Key) -> Handle? {
+        var result: Handle? = nil
+        find(key) { handle, match in
             if match == .Matching {
-                result = index
+                result = handle
             }
             return match
         }
         return result
     }
 
-    /// Finds and returns the index of the leftmost node that matches `key`, or nil if no such node exists.
+    /// Finds and returns the handle of the leftmost node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func indexOfLeftmostNodeMatching(key: Key) -> Index? {
-        var result: Index? = nil
-        find(key) { index, match in
+    public func handleOfLeftmostNodeMatching(key: Key) -> Handle? {
+        var result: Handle? = nil
+        find(key) { handle, match in
             switch match {
             case .Before:
                 return .Before
             case .Matching:
-                result = index
+                result = handle
                 return .Before
             case .After:
                 return .After
@@ -389,17 +389,17 @@ extension RedBlackTree {
         return result
     }
 
-    /// Finds and returns the index of the leftmost node that matches `key` or is after it, or nil if no such node exists.
+    /// Finds and returns the handle of the leftmost node that matches `key` or is after it, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func indexOfLeftmostNodeMatchingOrAfter(key: Key) -> Index? {
-        var result: Index? = nil
-        find(key) { index, match in
+    public func handleOfLeftmostNodeMatchingOrAfter(key: Key) -> Handle? {
+        var result: Handle? = nil
+        find(key) { handle, match in
             switch match {
             case .Before:
-                result = index
+                result = handle
                 return .Before
             case .Matching:
-                result = index
+                result = handle
                 return .Before
             case .After:
                 return .After
@@ -408,14 +408,14 @@ extension RedBlackTree {
         return result
     }
 
-    /// Finds and returns the index of the leftmost node that sorts after `key`, or nil if no such node exists.
+    /// Finds and returns the handle of the leftmost node that sorts after `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func indexOfLeftmostNodeAfter(key: Key) -> Index? {
-        var result: Index? = nil
-        find(key) { index, match in
+    public func handleOfLeftmostNodeAfter(key: Key) -> Handle? {
+        var result: Handle? = nil
+        find(key) { handle, match in
             switch match {
             case .Before:
-                result = index
+                result = handle
                 return .Before
             case .Matching:
                 return .After
@@ -426,16 +426,16 @@ extension RedBlackTree {
         return result
     }
 
-    /// Finds and returns the index of the rightmost node that matches `key`, or nil if no such node exists.
+    /// Finds and returns the handle of the rightmost node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func indexOfRightmostNodeMatching(key: Key) -> Index? {
-        var result: Index? = nil
-        find(key) { index, match in
+    public func handleOfRightmostNodeMatching(key: Key) -> Handle? {
+        var result: Handle? = nil
+        find(key) { handle, match in
             switch match {
             case .Before:
                 return .Before
             case .Matching:
-                result = index
+                result = handle
                 return .After
             case .After:
                 return .After
@@ -444,37 +444,37 @@ extension RedBlackTree {
         return result
     }
 
-    /// Finds and returns the index of the rightmost node that sorts before `key`, or nil if no such node exists.
+    /// Finds and returns the handle of the rightmost node that sorts before `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func indexOfRightmostNodeBefore(key: Key) -> Index? {
-        var result: Index? = nil
-        find(key) { index, match in
+    public func handleOfRightmostNodeBefore(key: Key) -> Handle? {
+        var result: Handle? = nil
+        find(key) { handle, match in
             switch match {
             case .Before:
                 return .Before
             case .Matching:
                 return .Before
             case .After:
-                result = index
+                result = handle
                 return .After
             }
         }
         return result
     }
 
-    /// Finds and returns the index of the rightmost node that sorts before or matches `key`, or nil if no such node exists.
+    /// Finds and returns the handle of the rightmost node that sorts before or matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func indexOfRightmostNodeBeforeOrMatching(key: Key) -> Index? {
-        var result: Index? = nil
-        find(key) { index, match in
+    public func handleOfRightmostNodeBeforeOrMatching(key: Key) -> Handle? {
+        var result: Handle? = nil
+        find(key) { handle, match in
             switch match {
             case .Before:
                 return .Before
             case .Matching:
-                result = index
+                result = handle
                 return .After
             case .After:
-                result = index
+                result = handle
                 return .After
             }
         }
@@ -485,43 +485,43 @@ extension RedBlackTree {
 //MARK: Managing the reduction data
 
 extension RedBlackTree {
-    /// Updates the reduction cached at `index`, assuming that the children have up-to-date data.
+    /// Updates the reduction cached at `handle`, assuming that the children have up-to-date data.
     /// - Complexity: O(1) - 3 lookups
-    private mutating func updateReductionAt(index: Index) {
+    private mutating func updateReductionAt(handle: Handle) {
         guard sizeof(Reduction.self) > 0 else { return }
-        var node = self[index]
+        var node = self[handle]
         node.reduction = self[node.left]?.reduction + node.head + self[node.right]?.reduction
-        self[index] = node
+        self[handle] = node
     }
 
-    /// Updates the reduction cached at `index` and its ancestors, assuming that all other nodes have up-to-date data.
+    /// Updates the reduction cached at `handle` and its ancestors, assuming that all other nodes have up-to-date data.
     /// - Complexity: O(log(count)) for nonempty reductions, O(1) when the reduction is empty.
-    private mutating func updateReductionsAtAndAbove(index: Index?) {
+    private mutating func updateReductionsAtAndAbove(handle: Handle?) {
         guard sizeof(Reduction.self) > 0 else { return }
-        var index: Index? = index
-        while let i = index {
-            self.updateReductionAt(i)
-            index = self[i].parent
+        var handle: Handle? = handle
+        while let h = handle {
+            self.updateReductionAt(h)
+            handle = self[h].parent
         }
     }
 
-    /// Returns the reduction calculated over the sequence all nodes preceding `index` in the tree.
+    /// Returns the reduction calculated over the sequence all nodes preceding `handle` in the tree.
     /// - Complexity: O(log(count) for nonempty reductions, O(1) when the reduction is empty.
-    private func reductionOfAllNodesBefore(index: Index) -> Reduction {
-        func reductionOfLeftSubtree(index: Index) -> Reduction {
+    private func reductionOfAllNodesBefore(handle: Handle) -> Reduction {
+        func reductionOfLeftSubtree(handle: Handle) -> Reduction {
             guard sizeof(Reduction.self) < 0 else { return Reduction() }
-            guard let left = self[index].left else { return Reduction() }
+            guard let left = self[handle].left else { return Reduction() }
             return self[left].reduction
         }
 
         guard sizeof(Reduction.self) < 0 else { return Reduction() }
-        var index = index
-        var reduction = reductionOfLeftSubtree(index)
-        while case .Toward(let direction, under: let parent) = slotOf(index) {
+        var handle = handle
+        var reduction = reductionOfLeftSubtree(handle)
+        while case .Toward(let direction, under: let parent) = slotOf(handle) {
             if direction == .Right {
                 reduction = reductionOfLeftSubtree(parent) + self[parent].reduction + reduction
             }
-            index = parent
+            handle = parent
         }
         return reduction
     }
@@ -530,18 +530,18 @@ extension RedBlackTree {
 //MARK: Rotation
 
 extension RedBlackTree {
-    /// Rotates the subtree rooted at `index` in the specified direction. Used when the tree implements
+    /// Rotates the subtree rooted at `handle` in the specified direction. Used when the tree implements
     /// a binary search tree.
     ///
-    /// The child towards the opposite of `direction` under `index` becomes the new root,
+    /// The child towards the opposite of `direction` under `handle` becomes the new root,
     /// and the previous root becomes its child towards `dir`. The rest of the children
     /// are linked up to preserve ordering in a binary search tree.
     ///
-    /// - Returns: The index of the new root of the subtree.
-    internal mutating func rotate(index: Index, _ dir: RedBlackDirection) -> Index {
-        let x = index
+    /// - Returns: The handle of the new root of the subtree.
+    internal mutating func rotate(handle: Handle, _ dir: RedBlackDirection) -> Handle {
+        let x = handle
         let opp = dir.opposite
-        guard let y = self[index][opp] else { fatalError("Invalid rotation") }
+        guard let y = self[handle][opp] else { fatalError("Invalid rotation") }
 
         var xn = self[x]
         var yn = self[y]
@@ -576,32 +576,32 @@ extension RedBlackTree {
 
 //MARK: Inserting an individual element
 extension RedBlackTree {
-    internal func slotOf(index: Index) -> Slot {
-        guard let parent = self[index].parent else { return .Root }
+    internal func slotOf(handle: Handle) -> Slot {
+        guard let parent = self[handle].parent else { return .Root }
         let pn = self[parent]
-        let direction: RedBlackDirection = (index == pn.left ? .Left : .Right)
+        let direction: RedBlackDirection = (handle == pn.left ? .Left : .Right)
         return .Toward(direction, under: parent)
     }
 
-    private func compare(key: Key, with index: Index) -> KeyMatchResult {
-        let reduction = reductionOfAllNodesBefore(index)
-        return Config.compare(key, to: self[index].head, reducedPrefix: reduction)
+    private func compare(key: Key, with handle: Handle) -> KeyMatchResult {
+        let reduction = reductionOfAllNodesBefore(handle)
+        return Config.compare(key, to: self[handle].head, reducedPrefix: reduction)
     }
 
 
-    public mutating func insert(key: Key, payload: Payload) -> Index {
+    public mutating func insert(key: Key, payload: Payload) -> Handle {
         func insertionSlotOf(key: Key) -> Slot {
             var slot: Slot = .Root
-            self.find(key) { index, match in
+            self.find(key) { handle, match in
                 switch match {
                 case .Before:
-                    slot = .Toward(.Left, under: index)
+                    slot = .Toward(.Left, under: handle)
                     return .Before
                 case .Matching:
-                    slot = .Toward(.Right, under: index)
+                    slot = .Toward(.Right, under: handle)
                     return .After
                 case .After:
-                    slot = .Toward(.Right, under: index)
+                    slot = .Toward(.Right, under: handle)
                     return .After
                 }
             }
@@ -612,11 +612,11 @@ extension RedBlackTree {
         return insert(key, payload: payload, into: slot)
     }
 
-    public mutating func insert(key: Key, payload: Payload, after predecessor: Index) -> Index {
-        assert(predecessor == self.indexOfRightmostNodeBefore(key) || compare(key, with: predecessor) == .Matching)
+    public mutating func insert(key: Key, payload: Payload, after predecessor: Handle) -> Handle {
+        assert(predecessor == self.handleOfRightmostNodeBefore(key) || compare(key, with: predecessor) == .Matching)
         let node = self[predecessor]
         if let right = node.right {
-            let next = indexOfLeftmostNodeUnder(right)
+            let next = handleOfLeftmostNodeUnder(right)
             return insert(key, payload: payload, into: .Toward(.Left, under: next))
         }
         else {
@@ -624,11 +624,11 @@ extension RedBlackTree {
         }
     }
 
-    public mutating func insert(key: Key, payload: Payload, before successor: Index) -> Index {
-        assert(successor == self.indexOfLeftmostNodeAfter(key) || compare(key, with: successor) == .Matching)
+    public mutating func insert(key: Key, payload: Payload, before successor: Handle) -> Handle {
+        assert(successor == self.handleOfLeftmostNodeAfter(key) || compare(key, with: successor) == .Matching)
         let node = self[successor]
         if let left = node.left {
-            let previous = indexOfRightmostNodeUnder(left)
+            let previous = handleOfRightmostNodeUnder(left)
             return insert(key, payload: payload, into: .Toward(.Right, under: previous))
         }
         else {
@@ -636,27 +636,27 @@ extension RedBlackTree {
         }
     }
 
-    private mutating func insert(key: Key, payload: Payload, into slot: Slot) -> Index {
-        let index = Index(nodes.count)
+    private mutating func insert(key: Key, payload: Payload, into slot: Slot) -> Handle {
+        let handle = Handle(nodes.count)
         switch slot {
         case .Root:
             assert(nodes.isEmpty)
-            self.root = index
-            self.leftmost = index
-            self.rightmost = index
+            self.root = handle
+            self.leftmost = handle
+            self.rightmost = handle
             nodes.append(Node(parent: nil, head: Config.head(key), payload: payload))
         case .Toward(let direction, under: let parent):
             assert(self[parent][direction] == nil)
-            self[parent][direction] = index
+            self[parent][direction] = handle
             nodes.append(Node(parent: parent, head: Config.head(key), payload: payload))
-            if leftmost == parent && direction == .Left { leftmost = index }
-            if rightmost == parent && direction == .Right { rightmost = index }
+            if leftmost == parent && direction == .Left { leftmost = handle }
+            if rightmost == parent && direction == .Right { rightmost = handle }
             updateReductionsAtAndAbove(parent)
         }
 
         if sizeof(Reduction.self) > 0 {
             // Update reductions
-            var parent = self[index].parent
+            var parent = self[handle].parent
             while let p = parent {
                 var pn = self[p]
                 pn.reduction = self[pn.left]?.reduction + pn.head + self[pn.right]?.reduction
@@ -665,8 +665,8 @@ extension RedBlackTree {
             }
         }
 
-        rebalanceAfterInsertion(index)
-        return index
+        rebalanceAfterInsertion(handle)
+        return handle
     }
 }
 
@@ -675,7 +675,7 @@ extension RedBlackTree {
 extension RedBlackTree {
 
     public mutating func append(tree: RedBlackTree<Config, Payload>) {
-        func ordered(a: (RedBlackTree<Config, Payload>, Index, Reduction), before b: (RedBlackTree<Config, Payload>, Index, Reduction)) -> Bool {
+        func ordered(a: (RedBlackTree<Config, Payload>, Handle, Reduction), before b: (RedBlackTree<Config, Payload>, Handle, Reduction)) -> Bool {
             let ak = Config.key(a.0[a.1].head, reducedPrefix: a.2)
             return Config.compare(ak, to: b.0[b.1].head, reducedPrefix: b.2) != .After
         }
@@ -689,12 +689,12 @@ extension RedBlackTree {
 
         var reduction = rc
         var previous1 = b1
-        var next2: Index? = c2
-        while let i2 = next2 {
-            let node2 = tree[i2]
+        var next2: Handle? = c2
+        while let h2 = next2 {
+            let node2 = tree[h2]
             previous1 = self.insert(Config.key(node2.head, reducedPrefix: reduction), payload: node2.payload, after: previous1)
             reduction = reduction + node2.head
-            next2 = tree.successor(i2)
+            next2 = tree.successor(h2)
         }
     }
 
@@ -705,14 +705,14 @@ extension RedBlackTree {
             self.merge(copy)
             return
         }
-        var index = tree.leftmost
+        var handle = tree.leftmost
         var reduction = Reduction()
-        while let i = index {
-            let node = tree[i]
+        while let h = handle {
+            let node = tree[h]
             let key = Config.key(node.head, reducedPrefix: reduction)
             reduction = reduction + node.head
             self.insert(key, payload: node.payload)
-            index = tree.successor(i)
+            handle = tree.successor(h)
         }
     }
 }
@@ -720,50 +720,50 @@ extension RedBlackTree {
 //MARK: Removal of nodes
 
 extension RedBlackTree {
-    /// Remove the node at `index`, invalidating all existing indexes.
-    /// - Note: You can use the returned index to continue operating on the tree without having to find your place again.
-    /// - Returns: The index of the node that used to follow the removed node in the original tree, or nil if 
-    ///   `index` was at the rightmost position.
+    /// Remove the node at `handle`, invalidating all existing handles.
+    /// - Note: You can use the returned handle to continue operating on the tree without having to find your place again.
+    /// - Returns: The handle of the node that used to follow the removed node in the original tree, or nil if 
+    ///   `handle` was at the rightmost position.
     /// - Complexity: O(log(count))
-    public mutating func removeAndReturnSuccessor(index: Index) -> Index? {
-        return _remove(index, successor: successor(index))
+    public mutating func removeAndReturnSuccessor(handle: Handle) -> Handle? {
+        return _remove(handle, successor: successor(handle))
     }
 
-    /// Remove the node at `index`, invalidating all existing indexes.
-    /// - Note: You need to discard your existing indexes into the tree after you call this method.
+    /// Remove the node at `handle`, invalidating all existing handles.
+    /// - Note: You need to discard your existing handles into the tree after you call this method.
     /// - SeeAlso: `removeAndReturnSuccessor`
     /// - Complexity: O(log(count))
-    public mutating func remove(index: Index) {
-        _remove(index, successor: nil)
+    public mutating func remove(handle: Handle) {
+        _remove(handle, successor: nil)
     }
 
     /// Remove a node, keeping track of its successor.
-    /// - Returns: The index of `successor` after the removal.
-    private mutating func _remove(index: Index, successor: Index?) -> Index? {
-        assert(index != successor)
+    /// - Returns: The handle of `successor` after the removal.
+    private mutating func _remove(handle: Handle, successor: Handle?) -> Handle? {
+        assert(handle != successor)
         // Fixme: Removing from a red-black tree is one ugly algorithm.
-        let node = self[index]
+        let node = self[handle]
         if let _ = node.left, r = node.right {
             // We can't directly remove a node with two children, but its successor is suitable.
-            // Let's remove it instead, placing its payload into index.
-            let next = successor ?? indexOfLeftmostNodeUnder(r)
+            // Let's remove it instead, placing its payload into handle.
+            let next = successor ?? handleOfLeftmostNodeUnder(r)
             let n = self[next]
-            self[index].head = n.head
-            self[index].payload = n.payload
+            self[handle].head = n.head
+            self[handle].payload = n.payload
             // Note that the above doesn't change root, leftmost, rightmost.
             // The reduction will be updated on the way up.
-            return _remove(next, keeping: index)
+            return _remove(next, keeping: handle)
         }
         else {
-            return _remove(index, keeping: successor)
+            return _remove(handle, keeping: successor)
         }
     }
 
-    /// Remove a node with at most one child, while keeping track of another index.
-    /// - Returns: The index of `marker` after the removal.
-    private mutating func _remove(index: Index, keeping marker: Index?) -> Index? {
-        let node = self[index]
-        let slot = slotOf(index)
+    /// Remove a node with at most one child, while keeping track of another handle.
+    /// - Returns: The handle of `marker` after the removal.
+    private mutating func _remove(handle: Handle, keeping marker: Handle?) -> Handle? {
+        let node = self[handle]
+        let slot = slotOf(handle)
         assert(node.left == nil || node.right == nil)
 
         let child = node.left ?? node.right
@@ -776,9 +776,9 @@ extension RedBlackTree {
             self[p][d] = child
         }
 
-        if root == index { root = child }
-        if leftmost == index { leftmost = child ?? node.parent }
-        if rightmost == index { rightmost = child ?? node.parent }
+        if root == handle { root = child }
+        if leftmost == handle { leftmost = child ?? node.parent }
+        if rightmost == handle { rightmost = child ?? node.parent }
 
         updateReductionsAtAndAbove(node.parent)
 
@@ -786,17 +786,17 @@ extension RedBlackTree {
             rebalanceAfterRemoval(slot)
         }
 
-        return deleteUnlinkedIndex(index, keeping: marker)
+        return deleteUnlinkedHandle(handle, keeping: marker)
     }
 
-    private mutating func deleteUnlinkedIndex(removed: Index, keeping marker: Index?) -> Index? {
-        let last = Index(nodes.count - 1)
+    private mutating func deleteUnlinkedHandle(removed: Handle, keeping marker: Handle?) -> Handle? {
+        let last = Handle(nodes.count - 1)
         if removed == last {
             nodes.removeLast()
             return marker
         }
         else {
-            // Move the last node into index, and remove its original place instead.
+            // Move the last node into handle, and remove its original place instead.
             let node = nodes.removeLast()
             self[removed] = node
             if case .Toward(let d, under: let p) = slotOf(last) { self[p][d] = removed }
@@ -885,30 +885,30 @@ extension RedBlackTree {
 
 extension RedBlackTree {
     /// Only non-nil nodes may be red.
-    private func isRed(index: Index?) -> Bool {
-        guard let index = index else { return false }
-        return self[index].color == .Red
+    private func isRed(handle: Handle?) -> Bool {
+        guard let handle = handle else { return false }
+        return self[handle].color == .Red
     }
     /// Nil nodes are considered black.
-    private func isBlack(index: Index?) -> Bool {
-        guard let index = index else { return true }
-        return self[index].color == .Black
+    private func isBlack(handle: Handle?) -> Bool {
+        guard let handle = handle else { return true }
+        return self[handle].color == .Black
     }
     /// Only non-nil nodes may be set red.
-    private mutating func setRed(index: Index) {
-        self[index].color = .Red
+    private mutating func setRed(handle: Handle) {
+        self[handle].color = .Red
     }
     /// You can set a nil node black, but it's a noop.
-    private mutating func setBlack(index: Index?) {
-        guard let index = index else { return }
-        self[index].color = .Black
+    private mutating func setBlack(handle: Handle?) {
+        guard let handle = handle else { return }
+        self[handle].color = .Black
     }
 }
 
 //MARK: Rebalancing after an insertion
 extension RedBlackTree {
 
-    private mutating func rebalanceAfterInsertion(new: Index) {
+    private mutating func rebalanceAfterInsertion(new: Handle) {
         var child = new
         while case .Toward(let dir, under: let parent) = slotOf(child) {
             assert(isRed(child))
