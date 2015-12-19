@@ -199,6 +199,26 @@ public extension RedBlackTree {
         return old
     }
 
+    /// Returns the key of the node at `handle`.
+    /// - Complexity: O(log(count)) if the reduction is non-empty; O(1) otherwise.
+    /// - Note: If you need to get the key for a range of nodes, and you have a non-empty reduction, using a generator
+    ///   is faster than querying the keys of each node one by one.
+    /// - SeeAlso: `generate`, `generateFrom`
+    public func keyAt(handle: Handle) -> Key {
+        let node = self[handle]
+        let prefix = reductionOfAllNodesBefore(handle)
+        return Config.key(node.head, reducedPrefix: prefix)
+    }
+
+    /// Returns a typle containing the key and payload of the node at `handle`.
+    /// - Complexity: O(log(count)) if the reduction is non-empty; O(1) otherwise.
+    /// - Note: If you need to get the key for a range of nodes, and you have a non-empty reduction, using a generator
+    ///   is faster than querying the keys of each node one by one.
+    /// - SeeAlso: `generate`, `generateFrom`
+    public func elementAt(handle: Handle) -> Element {
+        return (keyAt(handle), self[handle].payload)
+    }
+
     /// Returns the head of the node at `handle`.
     /// - Complexity: O(1)
     public func headAt(handle: Handle) -> Head {
