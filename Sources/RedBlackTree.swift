@@ -184,14 +184,14 @@ public extension RedBlackTree {
 
     /// Returns the payload of the node at `handle`.
     /// - Complexity: O(1)
-    public func payloadOf(handle: Handle) -> Payload {
+    public func payloadAt(handle: Handle) -> Payload {
         return self[handle].payload
     }
 
     /// Updates the payload of the node at `handle`.
     /// - Returns: The previous payload of the node.
     /// - Complexity: O(1)
-    public mutating func setPayload(payload: Payload, of handle: Handle) -> Payload {
+    public mutating func setPayloadAt(handle: Handle, to payload: Payload) -> Payload {
         var node = self[handle]
         let old = node.payload
         node.payload = payload
@@ -201,7 +201,7 @@ public extension RedBlackTree {
 
     /// Returns the head of the node at `handle`.
     /// - Complexity: O(1)
-    public func headOf(handle: Handle) -> Head {
+    public func headAt(handle: Handle) -> Head {
         return self[handle].head
     }
 
@@ -227,7 +227,7 @@ public extension RedBlackTree {
     ///
     /// - Complexity: O(log(count))
     ///
-    public mutating func setHead(head: Head, of handle: Handle) -> Head {
+    public mutating func setHeadAt(handle: Handle, to head: Head) -> Head {
         var node = self[handle]
         assert({
             let prefix = reductionOfAllNodesBefore(handle) // This is O(log(n)) -- which is why this is not in a precondition.
@@ -247,14 +247,14 @@ public extension RedBlackTree {
 extension RedBlackTree {
 
     public func successor(handle: Handle) -> Handle? {
-        return step(handle, to: .Right)
+        return step(handle, toward: .Right)
     }
 
     public func predecessor(handle: Handle) -> Handle? {
-        return step(handle, to: .Left)
+        return step(handle, toward: .Left)
     }
 
-    public func step(handle: Handle, to direction: RedBlackDirection) -> Handle? {
+    public func step(handle: Handle, toward direction: RedBlackDirection) -> Handle? {
         let node = self[handle]
         if let next = node[direction] {
             return handleOfFurthestNodeUnder(next, toward: direction.opposite)
