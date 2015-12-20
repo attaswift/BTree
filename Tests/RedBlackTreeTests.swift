@@ -10,9 +10,11 @@
 import XCTest
 @testable import TreeCollections
 
-public struct MockHead<Key: Comparable>: Equatable {
+public struct MockHead<Key: Comparable>: Equatable, CustomStringConvertible {
     let key: Key
     let weight: Int
+
+    public var description: String { return "(key: \(key), weight: \(weight))" }
 }
 public func ==<Key: Comparable>(a: MockHead<Key>, b: MockHead<Key>) -> Bool {
     return a.key == b.key && a.weight == b.weight
