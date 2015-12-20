@@ -9,8 +9,8 @@
 import Foundation
 
 public enum KeyMatchResult {
-    case Matching
     case Before
+    case Matching
     case After
 }
 
