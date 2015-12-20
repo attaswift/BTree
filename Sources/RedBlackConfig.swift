@@ -14,6 +14,9 @@ public enum KeyMatchResult {
     case After
 }
 
+// TODO: Remove this; user should simply supply a comparison block when searching.
+// The idea was that you would use enums as keys when you want to search in the tree in multiple ways, but that's too cumbersome in practice.
+// We may still keep a single comparable type for canonical keys (prefix + head) -- to ensure ordering remains well-defined and verifiable in the tree.
 public protocol RedBlackConfig {
     typealias Key
     typealias Summary: SummaryProtocol
