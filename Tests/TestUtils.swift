@@ -41,7 +41,17 @@ struct RedBlackInfo<Config: RedBlackConfig, Payload> {
     var minKey: Key? = nil
     var maxKey: Key? = nil
 
-    var defects: [(Handle, String)] = []
+    var defects: [(Handle, String, String, UInt)] = []
+
+    mutating func addDefect(handle: Handle, _ description: String, file: String = __FILE__, line: UInt = __LINE__) {
+        defects.append((handle, description, file, line))
+    }
+}
+
+func *(i: Int, s: String) -> String {
+    var result = ""
+    (0..<i).forEach { _ in result += s }
+    return result
 }
 
 extension RedBlackTree {
@@ -51,81 +61,174 @@ extension RedBlackTree {
         func dump(handle: Handle?, prefix: Summary) -> String {
             guard let handle = handle else { return "" }
             let node = self[handle]
-            let p = prefix + self[node.left]?.summary
-            let left = dump(node.left, prefix: prefix)
-            let root = String(Config.key(node.head, prefix: p))
-            let right = dump(node.right, prefix: p + node.head)
-            return "(" + [left, root, right].joinWithSeparator(", ") + ")"
+
+            var s = prefix
+            let left = dump(node.left, prefix: s)
+
+            s += self[node.left]?.summary
+            let root = String(Config.key(node.head, prefix: s))
+
+            s += node.head
+            let right = dump(node.right, prefix: s)
+            return "(" + [left, root, right].filter { !$0.isEmpty }.joinWithSeparator(" ") + ")"
         }
         return dump(root, prefix: Summary())
     }
 
-    var debugInfo: Info {
-        func collectInfo(handle: Handle?, parent: Handle?, prefix: Summary) -> Info {
-            if let handle = handle {
-                var info = Info()
-                let node = self[handle]
+    func dumpNode(handle: Handle) -> String {
+        let node = self[handle]
+        return "\(handle): \(node.summary) ⟼ \(node.payload)"
+    }
+    func dumpNode(i: Int) -> String {
+        let node = nodes[i]
+        return "#\(i): \(node.summary) ⟼ \(node.payload)"
+    }
 
-                var sum = prefix
-                let li = collectInfo(node.left, parent: handle, prefix: sum)
-                sum = prefix + li.summary + node.head
-                let ri = collectInfo(node.right, parent: handle, prefix: sum)
-                info.summary = sum + ri.summary
 
-                info.nodeCount = li.nodeCount + 1 + ri.nodeCount
-                info.minDepth = min(li.minDepth, ri.minDepth) + 1
-                info.maxDepth = max(li.maxDepth, ri.maxDepth) + 1
-                info.minRank = min(li.minRank, ri.minRank) + (node.color == .Black ? 1 : 0)
-                info.maxRank = max(li.maxRank, ri.maxRank) + (node.color == .Black ? 1 : 0)
+    func printDump() {
+        func dump(handle: Handle?, prefix: Summary) -> (Int, [(KeyMatchResult, String, [String])]) {
+            guard let handle = handle else { return (0, []) }
+            let node = self[handle]
+            let (leftTabs, leftLines) = dump(node.left, prefix: prefix)
+            let p = prefix + self[node.left]?.summary
+            let (rightTabs, rightLines) = dump(node.right, prefix: p + node.head)
 
-                info.defects = li.defects + ri.defects
-                info.color = node.color
+            let tabs = max(leftTabs, rightTabs)
 
-                if node.parent != parent {
-                    info.defects.append((handle, "parent is \(node.parent), expected \(parent)"))
-                }
-                if node.color == .Red {
-                    if li.color != .Black {
-                        info.defects.append((handle, "color is red but left child(\(node.left) is also red"))
-                    }
-                    if ri.color != .Black {
-                        info.defects.append((handle, "color is red but right child(\(node.left) is also red"))
-                    }
-                }
-                if li.minRank != ri.minRank {
-                    info.defects.append((handle, "mismatching child subtree ranks: \(li.minRank) vs \(ri.minRank)"))
-                }
-                if info.summary != node.summary {
-                    info.defects.append((handle, "summary is \(node.summary), expected \(info.summary)"))
-                }
-                let key = Config.key(node.head, prefix: prefix + li.summary)
-                info.maxKey = ri.maxKey
-                info.minKey = li.minKey
-                if let lk = li.maxKey where Config.compare(lk, to: node.head, prefix: prefix + li.summary) == .After {
-                    info.defects.append((handle, "node's key is ordered before its maximum left descendant: \(key) < \(lk)"))
-                }
-                if let rk = ri.minKey where Config.compare(rk, to: node.head, prefix: prefix + li.summary) == .Before {
-                    info.defects.append((handle, "node's key is ordered after its minimum right descendant: \(key) > \(rk)"))
-                }
-                return info
+            let dot = (node.color == .Black ? "●" : "○")
+            let root = ["\(handle):","    \(Config.key(node.head, prefix: p))", "⟼ \(node.payload)", "\t☺:\(node.head)", "\t∑:\(node.summary)"]
+
+            if leftLines.isEmpty && rightLines.isEmpty {
+                return (tabs, [(.Matching, "\(dot)\t", root)])
+            }
+
+            var lines: [(KeyMatchResult, String, [String])] = []
+
+            let rightIndent = (tabs - rightTabs) * "\t"
+            if rightLines.isEmpty {
+                lines.append((.After, "┏━\t" + "\t" + rightIndent, ["nil"]))
             }
             else {
-                return RedBlackInfo()
+                for (m, graphic, text) in rightLines {
+                    switch m {
+                    case .After:
+                        lines.append((.After, "\t" + graphic + rightIndent, text))
+                    case .Matching:
+                        lines.append((.After, "┏━\t" + graphic + rightIndent, text))
+                    case .Before:
+                        lines.append((.After, "┃\t" + graphic + rightIndent, text))
+                    }
+                }
+            }
+
+            lines.append((.Matching, "\(dot)\t\t" + tabs * "\t", root))
+
+            let leftIndent = (tabs - leftTabs) * "\t"
+            if leftLines.isEmpty {
+                lines.append((.Before, "┗━\t" + "\t" + leftIndent, ["nil"]))
+            }
+            else {
+                for (m, graphic, text) in leftLines {
+                    switch m {
+                    case .After:
+                        lines.append((.Before, "┃\t" + graphic + leftIndent, text))
+                    case .Matching:
+                        lines.append((.Before, "┗━\t" + graphic + leftIndent, text))
+                    case .Before:
+                        lines.append((.Before, "\t" + graphic + leftIndent, text))
+                    }
+                }
+            }
+            return (tabs + 1, lines)
+        }
+
+
+        let lines = dump(root, prefix: Summary()).1
+
+        let columnCount = lines.reduce(0) { a, l in max(a, l.2.count) }
+        var columnWidths = [Int](count: columnCount, repeatedValue: 0)
+        lines.lazy.flatMap { $0.2.enumerate() }.forEach { i, c in
+            columnWidths[i] = max(columnWidths[i], c.characters.count)
+        }
+
+        for (_, graphic, columns) in lines {
+            var line = graphic
+            columns.enumerate().forEach { i, c in
+                line += c
+                line += String(count: columnWidths[i] - c.characters.count + 1, repeatedValue: " " as Character)
+            }
+            print(line)
+        }
+    }
+
+    private func collectInfo(blacklist: Set<Handle>, handle: Handle?, parent: Handle?, prefix: Summary) -> Info {
+        guard let handle = handle else { return Info() }
+        var info = Info()
+        let node = self[handle]
+
+        if blacklist.contains(handle) {
+            info.addDefect(handle, "node is linked more than once")
+            return info
+        }
+        var blacklist = blacklist
+        blacklist.insert(handle)
+
+        let li = collectInfo(blacklist, handle: node.left, parent: handle, prefix: prefix)
+        let ri = collectInfo(blacklist, handle: node.right, parent: handle, prefix: prefix + li.summary + node.head)
+        info.summary = li.summary + node.head + ri.summary
+
+        info.nodeCount = li.nodeCount + 1 + ri.nodeCount
+        info.minDepth = min(li.minDepth, ri.minDepth) + 1
+        info.maxDepth = max(li.maxDepth, ri.maxDepth) + 1
+        info.minRank = min(li.minRank, ri.minRank) + (node.color == .Black ? 1 : 0)
+        info.maxRank = max(li.maxRank, ri.maxRank) + (node.color == .Black ? 1 : 0)
+
+        info.defects = li.defects + ri.defects
+        info.color = node.color
+
+        if node.parent != parent {
+            info.addDefect(handle, "parent is \(node.parent), expected \(parent)")
+        }
+        if node.color == .Red {
+            if li.color != .Black {
+                info.addDefect(handle, "color is red but left child(\(node.left) is also red")
+            }
+            if ri.color != .Black {
+                info.addDefect(handle, "color is red but right child(\(node.left) is also red")
             }
         }
-        var info = collectInfo(root, parent: nil, prefix: Summary())
+        if li.minRank != ri.minRank {
+            info.addDefect(handle, "mismatching child subtree ranks: \(li.minRank) vs \(ri.minRank)")
+        }
+        if info.summary != node.summary {
+            info.addDefect(handle, "summary is \(node.summary), expected \(info.summary)")
+        }
+        let key = Config.key(node.head, prefix: prefix + li.summary)
+        info.maxKey = ri.maxKey
+        info.minKey = li.minKey
+        if let lk = li.maxKey where Config.compare(lk, to: node.head, prefix: prefix + li.summary) == .After {
+            info.addDefect(handle, "node's key is ordered before its maximum left descendant: \(key) < \(lk)")
+        }
+        if let rk = ri.minKey where Config.compare(rk, to: node.head, prefix: prefix + li.summary) == .Before {
+            info.addDefect(handle, "node's key is ordered after its minimum right descendant: \(key) > \(rk)")
+        }
+        return info
+    }
+
+    var debugInfo: Info {
+        var info = collectInfo([], handle: root, parent: nil, prefix: Summary())
         if info.color == .Red {
-            info.defects.append((root!, "root is red"))
+            info.addDefect(root!, "root is red")
         }
         if info.nodeCount != count {
-            info.defects.append((root!, "count of reachable nodes is \(info.nodeCount), expected \(count)"))
+            info.addDefect(root!, "count of reachable nodes is \(info.nodeCount), expected \(count)")
         }
         return info
     }
     func assertTreeIsValid() {
         let info = debugInfo
-        for (handle, explanation) in info.defects {
-            XCTFail("\(handle): \(explanation)")
+        for (handle, explanation, file, line) in info.defects {
+            XCTFail("\(handle): \(explanation)", file: file, line: line)
         }
     }
 
