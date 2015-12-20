@@ -16,6 +16,8 @@ struct RedBlackInfo<Config: RedBlackConfig, Payload> {
     typealias Key = Tree.Key
 
     var nodeCount: Int = 0
+    var leftmost: Handle? = nil
+    var rightmost: Handle? = nil
 
     var minDepth: Int = 0
     var maxDepth: Int = 0
@@ -55,6 +57,9 @@ extension RedBlackTree {
         info.summary = li.summary + node.head + ri.summary
 
         info.nodeCount = li.nodeCount + 1 + ri.nodeCount
+
+        info.leftmost = li.leftmost ?? handle
+        info.rightmost = ri.rightmost ?? handle
 
         info.minDepth = min(li.minDepth, ri.minDepth) + 1
         info.maxDepth = max(li.maxDepth, ri.maxDepth) + 1
@@ -100,6 +105,12 @@ extension RedBlackTree {
         }
         if info.nodeCount != count {
             info.addDefect(root!, "count of reachable nodes is \(count), expected \(info.nodeCount)")
+        }
+        if info.leftmost != leftmost {
+            info.addDefect(leftmost ?? info.leftmost!, "leftmost node is \(leftmost), expected \(info.leftmost)")
+        }
+        if info.rightmost != rightmost {
+            info.addDefect(rightmost ?? info.rightmost!, "rightmost node is \(rightmost), expected \(info.rightmost)")
         }
         return info
     }
