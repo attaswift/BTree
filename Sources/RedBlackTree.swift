@@ -592,15 +592,14 @@ extension RedBlackTree {
         let opp = dir.opposite
         guard let y = self[handle][opp] else { fatalError("Invalid rotation") }
 
-        var xn = self[x]
-        var yn = self[y]
-
         //      x                y
         //     / \              / \
         //    a   y    <-->    x   c
         //       / \          / \
         //      b   c        a   b
 
+        var xn = self[x]
+        var yn = self[y]
         let b = yn[dir]
 
         yn.parent = xn.parent
@@ -739,23 +738,13 @@ extension RedBlackTree {
             nodes.append(Node(parent: nil, head: Config.head(key), payload: payload))
         case .Toward(let direction, under: let parent):
             assert(self[parent][direction] == nil)
-            self[parent][direction] = handle
             nodes.append(Node(parent: parent, head: Config.head(key), payload: payload))
+            self[parent][direction] = handle
             if leftmost == parent && direction == .Left { leftmost = handle }
             if rightmost == parent && direction == .Right { rightmost = handle }
-            updateSummarysAtAndAbove(parent)
         }
 
-        if sizeof(Summary.self) > 0 {
-            // Update summarys
-            var parent = self[handle].parent
-            while let p = parent {
-                var pn = self[p]
-                pn.summary = self[pn.left]?.summary + pn.head + self[pn.right]?.summary
-                self[p] = pn
-                parent = self[p].parent
-            }
-        }
+        updateSummarysAtAndAbove(handle)
 
         rebalanceAfterInsertion(handle)
         return handle
