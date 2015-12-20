@@ -22,102 +22,57 @@ public func XCTAssertEqual<T : Equatable>(@autoclosure expression1: () -> T, @au
     }
 }
 
-extension BinaryTree {
-    func checkInvariants() -> Bool {
-        var count = 0
-        func check(index: Index?, under parent: Index?) -> Bool {
-            guard let index = index else { return true }
-            count += 1
-            let node = self[index]
-            guard parent == node.parent else { return false }
-            guard check(node.left, under: index) else { return false }
-            guard check(node.right, under: index) else { return false }
-            return true
-        }
 
-        guard check(self.root, under: nil) else { return false }
-
-        if count > 0 {
-            guard let first = leftmost where self.inorderStep(first, towards: .Left) == nil else { return false }
-            guard let last = rightmost where self.inorderStep(last, towards: .Right) == nil else { return false }
-        }
-
-        return count == self.count
-    }
-
-    func dump() -> String {
-        func dump(index: Index?) -> String {
-            guard let index = index else { return "" }
-            let left = dump(self[index].left)
-            let right = dump(self[index].right)
-            let space1 = left.isEmpty ? "" : " "
-            let space2 = right.isEmpty ? "" : " "
-            return "(\(left)\(space1)\(self[index].payload)\(space2)\(right))"
-        }
-        return dump(root)
-    }
-
-    func lookup(directions: BinaryTreeDirection...) -> Index? {
-        return self.lookup(directions)
-    }
-
-    func lookup<S: SequenceType where S.Generator.Element == BinaryTreeDirection>(directions: S) -> Index? {
-        var index = self.root
-        for direction in directions {
-            guard let i = index else { return nil }
-            index = self[i, direction]
-        }
-        return index
-    }
+func *(i: Int, s: String) -> String {
+    var result = ""
+    (0..<i).forEach { _ in result += s }
+    return result
 }
 
 extension RedBlackTree {
-    func dump() -> String {
-        func dump(index: Index?) -> String {
-            return self.tree.dump()
+    typealias Info = RedBlackInfo<Config, Payload>
+
+    func show() -> String {
+        func show(handle: Handle?, prefix: Summary) -> String {
+            guard let handle = handle else { return "" }
+            let node = self[handle]
+
+            var s = prefix
+            let left = show(node.left, prefix: s)
+
+            s += self[node.left]?.summary
+            let root = String(Config.key(node.head, prefix: s))
+
+            s += node.head
+            let right = show(node.right, prefix: s)
+            return "(" + [left, root, right].filter { !$0.isEmpty }.joinWithSeparator(" ") + ")"
         }
-        return dump(root)
+        return show(root, prefix: Summary())
     }
-}
 
-extension RedBlackPayload: CustomStringConvertible {
-    var description: String {
-        return "\(value)\(color == .Red ? "R" : "")"
+    func showNode(handle: Handle) -> String {
+        let node = self[handle]
+        return "\(handle): \(node.summary) ⟼ \(node.payload)"
     }
-}
+    func showNode(i: Int) -> String {
+        let node = nodes[i]
+        return "#\(i): \(node.summary) ⟼ \(node.payload)"
+    }
 
-extension List {
-    func checkCounts() -> Bool {
-        var failedIndexes: [Tree.Index] = []
-        func walk(index: Tree.Index?) -> Int {
-            if let index = index {
-                let measured = walk(tree.tree[index].left) + walk(tree.tree[index].right) + 1
-                let stored = tree[index].state
-                if measured != stored {
-                    print("Subtree at index \(index) contains \(measured) nodes, but its root says it has \(stored)")
-                    failedIndexes.append(index)
-                }
-                return measured
-            }
-            else {
-                return 0
-            }
+    func lookup(directions: RedBlackDirection...) -> Handle? {
+        return self.lookup(directions)
+    }
+
+    func lookup<S: SequenceType where S.Generator.Element == RedBlackDirection>(directions: S) -> Handle? {
+        var handle = self.root
+        for direction in directions {
+            guard let h = handle else { return nil }
+            handle = self[h][direction]
         }
-
-        if count > 0 {
-            guard let first = tree.firstIndex where tree.predecessor(first) == nil else { return false }
-            guard let last = tree.lastIndex where tree.successor(last) == nil else { return false }
-        }
-        return failedIndexes.isEmpty
+        return handle
     }
-}
 
-extension ListValue: CustomStringConvertible {
-    var description: String {
-        return "<\(self.element)/#\(self.state)>"
-    }
 }
-
 
 func generatePermutations(count: Int) -> AnyGenerator<[Int]> {
     if count == 0 {

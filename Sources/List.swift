@@ -1,59 +1,23 @@
 //
-//  List.swift
-//  GlueKit
+//  List2.swift
+//  TreeCollections
 //
-//  Created by Károly Lőrentey on 2015-12-14.
+//  Created by Károly Lőrentey on 2015-12-17.
 //  Copyright © 2015 Károly Lőrentey. All rights reserved.
 //
 
 import Foundation
 
-internal struct ListValue<Element>: RedBlackValue {
-    typealias Key = Int
-    typealias State = Int
-
-    static var zeroState: State { return 0 }
-    var state: Int // Size of subtree rooted at this node.
-
-    var element: Element
-
-    private init(element: Element) {
-        self.state = 1
-        self.element = element
-    }
-
-
-    func compare(key: Key, children: StateAccessor<ListValue<Element>>, insert: Bool) -> RedBlackComparisonResult<Int> {
-        let leftCount = children.left
-        if !insert && key == leftCount {
-            return .Found
-        }
-        else if key > leftCount {
-            return .Descend(.Right, with: key - leftCount - 1)
-        }
-        else {
-            // This also gets returned on a match when insert = true
-            return .Descend(.Left, with: key)
-        }
-    }
-
-    mutating func updateState(children: StateAccessor<ListValue<Element>>) -> Bool {
-        let old = state
-        state = children.left + children.right + 1
-        return old != state
-    }
-}
-
 public struct List<Element>: ArrayLikeCollectionType {
     public typealias Index = Int
-    public typealias Generator = IndexingGenerator<List<Element>>
+    public typealias Generator = ListGenerator<Element>
 
-    internal typealias TreeValue = ListValue<Element>
-    internal typealias Tree = RedBlackTree<TreeValue>
+    internal typealias Config = IndexableTreeConfig
+    internal typealias Tree = RedBlackTree<Config, Element>
 
-    internal private(set) var tree: Tree
+    internal var tree: Tree
 
-    // Initializers.
+    // Initializers
 
     public init() {
         self.tree = Tree()
@@ -65,62 +29,61 @@ public struct List<Element>: ArrayLikeCollectionType {
 
     public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
         self.tree = Tree()
+        tree.reserveCapacity(elements.underestimateCount())
         for element in elements {
-            self.append(element)
+            tree.insert(element, forKey: tree.count, after: tree.rightmost)
         }
     }
 
-    // Variables.
+    // Subscripting
+
+    public subscript(index: Index) -> Element {
+        get {
+            let handle = tree.find(index)!
+            return tree.payloadAt(handle)
+        }
+        set(element) {
+            let handle = tree.find(index)!
+            tree.setPayloadAt(handle, to: element)
+        }
+    }
+
+    // Properties
 
     public var count: Int {
         return tree.count
     }
 
-    // Methods.
+    // Methods
 
-    public subscript(index: Index) -> Element {
-        get {
-            let i = tree.find(index)!
-            return tree[i].element
-        }
-        set {
-            let i = tree.find(index)!
-            tree[i].element = newValue
-        }
+    public func generate() -> Generator {
+        return Generator(tree: tree, direction: .Right, handle: tree.leftmost)
     }
+
+    // Mutators
 
     public mutating func reserveCapacity(minimumCapacity: Int) {
         self.tree.reserveCapacity(minimumCapacity)
     }
 
-
     public mutating func append(newElement: Element) {
-        let v = ListValue(element: newElement)
-        if let last = tree.lastIndex {
-            tree.insert(v, into: .Toward(.Right, under: last))
-        }
-        else {
-            tree.insert(v, into: .Root)
-        }
+        tree.insert(newElement, forKey: tree.count, after: tree.rightmost)
     }
-    
+
     /// Inserts a new element at position `index`.
     /// - Requires: i < count
     /// - Complexity: O(log(count))
     public mutating func insert(newElement: Element, atIndex index: Int) {
-        let slot: Tree.Slot
-        if let first = tree.firstIndex where index == 0 {
-            slot = .Toward(.Left, under: first)
+        precondition(index >= 0 && index <= count)
+        if index == 0 {
+            tree.insert(newElement, forKey: index, before: tree.leftmost)
         }
-        else if let last = tree.lastIndex where index == count {
-            slot = .Toward(.Right, under: last)
+        else if index == count {
+            tree.insert(newElement, forKey: index, after: tree.rightmost)
         }
         else {
-            let (i, s) = tree.insertionSlotFor(index)
-            assert(i == nil)
-            slot = s
+            tree.insert(newElement, forKey: index, before: tree.find(index)!)
         }
-        tree.insert(ListValue(element: newElement), into: slot)
     }
 
     public mutating func removeAll(keepCapacity keepCapacity: Bool) {
@@ -131,9 +94,21 @@ public struct List<Element>: ArrayLikeCollectionType {
     /// - Requires: i >= 0 && i < count
     /// - Complexity: O(log(count))
     public mutating func removeAtIndex(index: Int) -> Element {
-        let index = tree.find(index)!
-        let result = tree[index].element
-        tree.remove(index)
-        return result
+        return tree.remove(tree.find(index)!)
+    }
+}
+
+public struct ListGenerator<Element>: GeneratorType {
+    internal typealias Config = IndexableTreeConfig
+    internal typealias Tree = RedBlackTree<Config, Element>
+
+    private let tree: Tree
+    private let direction: RedBlackDirection
+    private var handle: Tree.Handle?
+
+    public mutating func next() -> Element? {
+        guard let handle = handle else { return nil }
+        self.handle = tree.step(handle, toward: direction)
+        return tree.payloadAt(handle)
     }
 }
