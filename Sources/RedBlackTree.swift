@@ -278,7 +278,7 @@ public extension RedBlackTree {
         let old = node.head
         node.head = head
         self[handle] = node
-        updateSummarysAtAndAbove(handle)
+        updateSummariesAtAndAbove(handle)
         return old
     }
 }
@@ -545,8 +545,8 @@ extension RedBlackTree {
     }
 
     /// Updates the summary cached at `handle` and its ancestors, assuming that all other nodes have up-to-date data.
-    /// - Complexity: O(log(count)) for nonempty summarys, O(1) when the summary is empty.
-    private mutating func updateSummarysAtAndAbove(handle: Handle?) {
+    /// - Complexity: O(log(count)) for nonempty summaries, O(1) when the summary is empty.
+    private mutating func updateSummariesAtAndAbove(handle: Handle?) {
         guard sizeof(Summary.self) > 0 else { return }
         var handle: Handle? = handle
         while let h = handle {
@@ -555,7 +555,7 @@ extension RedBlackTree {
     }
 
     /// Returns the summary calculated over the sequence all nodes preceding `handle` in the tree.
-    /// - Complexity: O(log(count) for nonempty summarys, O(1) when the summary is empty.
+    /// - Complexity: O(log(count) for nonempty summaries, O(1) when the summary is empty.
     public func summaryOfAllNodesBefore(handle: Handle) -> Summary {
         func summaryOfLeftSubtree(handle: Handle) -> Summary {
             guard sizeof(Summary.self) > 0 else { return Summary() }
@@ -770,7 +770,7 @@ extension RedBlackTree {
             if rightmost == parent && direction == .Right { rightmost = handle }
         }
 
-        updateSummarysAtAndAbove(handle)
+        updateSummariesAtAndAbove(handle)
 
         rebalanceAfterInsertion(handle)
         return handle
@@ -951,7 +951,7 @@ extension RedBlackTree {
         if leftmost == handle { leftmost = child ?? node.parent }
         if rightmost == handle { rightmost = child ?? node.parent }
 
-        updateSummarysAtAndAbove(node.parent)
+        updateSummariesAtAndAbove(node.parent)
 
         if node.color == .Black {
             rebalanceAfterRemoval(slot)
