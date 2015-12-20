@@ -15,7 +15,7 @@ public struct List<Element>: ArrayLikeCollectionType {
     internal typealias Config = IndexableTreeConfig
     internal typealias Tree = RedBlackTree<Config, Element>
 
-    internal var tree: Tree
+    internal private(set) var tree: Tree
 
     // Initializers
 

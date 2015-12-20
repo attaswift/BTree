@@ -11,10 +11,10 @@ import Foundation
 public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     // Typealiases
 
-    private typealias Config = SimpleTreeConfig<Key>
-    private typealias Tree = RedBlackTree<Config, Value>
-    private typealias Node = Tree.Node
-    private typealias Handle = Tree.Handle
+    internal typealias Config = SimpleTreeConfig<Key>
+    internal typealias Tree = RedBlackTree<Config, Value>
+    internal typealias Node = Tree.Node
+    internal typealias Handle = Tree.Handle
 
     public typealias Index = MapIndex<Key, Value>
     public typealias Generator = MapGenerator<Key, Value>
@@ -22,7 +22,7 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
 
     // Stored properties
 
-    private var tree: Tree
+    internal private(set) var tree: Tree
 
     // Initalizer 
 
