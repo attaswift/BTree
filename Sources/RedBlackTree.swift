@@ -544,7 +544,7 @@ extension RedBlackTree {
 
     /// Returns the summary calculated over the sequence all nodes preceding `handle` in the tree.
     /// - Complexity: O(log(count) for nonempty summarys, O(1) when the summary is empty.
-    private func summaryOfAllNodesBefore(handle: Handle) -> Summary {
+    public func summaryOfAllNodesBefore(handle: Handle) -> Summary {
         func summaryOfLeftSubtree(handle: Handle) -> Summary {
             guard sizeof(Summary.self) > 0 else { return Summary() }
             guard let left = self[handle].left else { return Summary() }
@@ -807,20 +807,20 @@ extension RedBlackTree {
     }
     
     /// Remove the node at `handle`, invalidating all existing handles.
+    /// - Note: You need to discard your existing handles into the tree after you call this method.
+    /// - SeeAlso: `removeAndReturnSuccessor`
+    /// - Complexity: O(log(count))
+    public mutating func remove(handle: Handle) -> Payload {
+        return _remove(handle, successor: nil).1
+    }
+
+    /// Remove the node at `handle`, invalidating all existing handles.
     /// - Note: You can use the returned handle to continue operating on the tree without having to find your place again.
     /// - Returns: The handle of the node that used to follow the removed node in the original tree, or nil if 
     ///   `handle` was at the rightmost position.
     /// - Complexity: O(log(count))
     public mutating func removeAndReturnSuccessor(handle: Handle) -> (Handle?, Payload) {
         return _remove(handle, successor: successor(handle))
-    }
-
-    /// Remove the node at `handle`, invalidating all existing handles.
-    /// - Note: You need to discard your existing handles into the tree after you call this method.
-    /// - SeeAlso: `removeAndReturnSuccessor`
-    /// - Complexity: O(log(count))
-    public mutating func remove(handle: Handle) -> Payload {
-        return _remove(handle, successor: nil).1
     }
 
     /// Remove a node, keeping track of its successor.

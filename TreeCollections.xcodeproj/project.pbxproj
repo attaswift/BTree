@@ -26,6 +26,9 @@
 		BB097FC41C25C58600CB718A /* SortedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE46F1C203A96002C5D63 /* SortedArray.swift */; };
 		BB097FC51C25C58700CB718A /* SortedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE46F1C203A96002C5D63 /* SortedArray.swift */; };
 		BB097FC71C25DDA700CB718A /* RedBlackTree descriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FC61C25DDA700CB718A /* RedBlackTree descriptions.swift */; };
+		BB097FC91C25E65500CB718A /* RedBlackTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */; };
+		BB097FCA1C25E65500CB718A /* RedBlackTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */; };
+		BB097FCB1C25F58400CB718A /* RedBlackTree descriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FC61C25DDA700CB718A /* RedBlackTree descriptions.swift */; };
 		BB54D0BA1C1F0357008A462B /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* TreeCollections.framework */; };
 		BB9AE4231C1F38B9002C5D63 /* SegmentedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */; };
 		BB9AE4431C1FCD09002C5D63 /* SegmentedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */; };
@@ -67,6 +70,7 @@
 		BB097FB61C236F1E00CB718A /* RedBlackConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RedBlackConfig.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB097FBB1C23A16700CB718A /* Summary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Summary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB097FC61C25DDA700CB718A /* RedBlackTree descriptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RedBlackTree descriptions.swift"; sourceTree = "<group>"; };
+		BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedBlackTreeTests.swift; sourceTree = "<group>"; };
 		BB0D75D91C1F045C00538080 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
 		BB54D0AF1C1F0357008A462B /* TreeCollections.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TreeCollections.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0B41C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -179,6 +183,7 @@
 			isa = PBXGroup;
 			children = (
 				BB9AE4831C20875D002C5D63 /* TestUtils.swift */,
+				BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */,
 				BB54D0BE1C1F0357008A462B /* BinaryTreeTests.swift */,
 				BB9AE4801C20801E002C5D63 /* RBTreeTests.swift */,
 				BB9AE4241C1F887D002C5D63 /* MapTests.swift */,
@@ -417,6 +422,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */,
+				BB097FC91C25E65500CB718A /* RedBlackTreeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,6 +437,7 @@
 				BB097FB11C236BAC00CB718A /* RedBlackTree.swift in Sources */,
 				BB097FB81C236F2200CB718A /* RedBlackConfig.swift in Sources */,
 				BB097FC01C25A58500CB718A /* ArrayLikeCollectionType.swift in Sources */,
+				BB097FCB1C25F58400CB718A /* RedBlackTree descriptions.swift in Sources */,
 				BB097FBE1C25A58500CB718A /* AssociativeCollectionType.swift in Sources */,
 				BB097FBD1C23A1A400CB718A /* Summary.swift in Sources */,
 				BB097FBA1C236F2200CB718A /* List.swift in Sources */,
@@ -442,6 +449,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */,
+				BB097FCA1C25E65500CB718A /* RedBlackTreeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
