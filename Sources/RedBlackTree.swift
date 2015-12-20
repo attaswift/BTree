@@ -526,11 +526,12 @@ extension RedBlackTree {
 extension RedBlackTree {
     /// Updates the summary cached at `handle`, assuming that the children have up-to-date data.
     /// - Complexity: O(1) - 3 lookups
-    private mutating func updateSummaryAt(handle: Handle) {
-        guard sizeof(Summary.self) > 0 else { return }
+    private mutating func updateSummaryAt(handle: Handle) -> Handle? {
+        guard sizeof(Summary.self) > 0 else { return nil }
         var node = self[handle]
         node.summary = self[node.left]?.summary + node.head + self[node.right]?.summary
         self[handle] = node
+        return node.parent
     }
 
     /// Updates the summary cached at `handle` and its ancestors, assuming that all other nodes have up-to-date data.
@@ -539,8 +540,7 @@ extension RedBlackTree {
         guard sizeof(Summary.self) > 0 else { return }
         var handle: Handle? = handle
         while let h = handle {
-            self.updateSummaryAt(h)
-            handle = self[h].parent
+            handle = self.updateSummaryAt(h)
         }
     }
 
