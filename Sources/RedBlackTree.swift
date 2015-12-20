@@ -909,9 +909,11 @@ extension RedBlackTree {
             let sibling = self[parent][opp]! // there's a missing black in slot, so it definitely has a sibling tree.
             let siblingNode = self[sibling]
             if siblingNode.color == .Red { // Case (1) in [CLRS]
-                //       parent(B)[b+1]                   label(c)[rank]
-                //      /         \                            c: R for red, B for black
-                //   slot        sibling(R)                    rank: black count in subtree
+                // legend: label(color)[rank]
+                //
+                //       parent(B)[b+1]
+                //      /         \
+                //   slot        sibling(R)
                 //   [b-1]        /      \
                 //              [b]      [b]
                 assert(isBlack(parent) && self[sibling].left != nil && self[sibling].right != nil)
