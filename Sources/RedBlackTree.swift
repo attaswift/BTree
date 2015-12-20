@@ -568,7 +568,7 @@ extension RedBlackTree {
         var summary = summaryOfLeftSubtree(handle)
         while case .Toward(let direction, under: let parent) = slotOf(handle) {
             if direction == .Right {
-                summary = summaryOfLeftSubtree(parent) + self[parent].summary + summary
+                summary = summaryOfLeftSubtree(parent) + self[parent].head + summary
             }
             handle = parent
         }
@@ -602,6 +602,7 @@ extension RedBlackTree {
         var yn = self[y]
         let b = yn[dir]
 
+        if let p = xn.parent { self[p].replaceChild(x, with: y) }
         yn.parent = xn.parent
         xn.parent = y
         yn[dir] = x
@@ -768,6 +769,7 @@ extension RedBlackTree {
         let sc = sb + self[b1].head
         precondition(ordered((self, b1, sb), before: (tree, c2, sc)))
 
+        self.reserveCapacity(self.count + tree.count)
         var summary = sc
         var previous1 = b1
         var next2: Handle? = c2
@@ -781,12 +783,7 @@ extension RedBlackTree {
     }
 
     public mutating func merge(tree: RedBlackTree<Config, Payload>) {
-        if tree.count > self.count {
-            let copy = self
-            self = tree
-            self.merge(copy)
-            return
-        }
+        self.reserveCapacity(self.count + tree.count)
         var handle = tree.leftmost
         var summary = Summary()
         while let h = handle {
@@ -807,6 +804,9 @@ extension RedBlackTree {
 
     public mutating func removeAll(keepCapacity keepCapacity: Bool = false) {
         nodes.removeAll(keepCapacity: keepCapacity)
+        root = nil
+        leftmost = nil
+        rightmost = nil
     }
     
     /// Remove the node at `handle`, invalidating all existing handles.
