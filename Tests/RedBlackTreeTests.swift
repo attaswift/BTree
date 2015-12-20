@@ -187,12 +187,12 @@ class RedBlackTreeSimpleQueryTests: XCTestCase {
         tree.insert("nine", forKey: .Key(9))
         tree.insert("seven", forKey: .Key(7))
 
-        tree.printDump()
-        tree.assertTreeIsValid()
+        tree.dump()
+        tree.assertValid()
     }
 
     func testTreeIsValid() {
-        tree.assertTreeIsValid()
+        tree.assertValid()
     }
 
     func testLeftMost() {
@@ -434,10 +434,10 @@ class RedBlackTreeSimpleMutatorTests: XCTestCase {
         tree.insert("seven", forKey: .Key(7))
 
 
-        tree.printDump()
+        tree.dump()
         XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
         XCTAssertEqual(tree.map { $0.0 }, [IndexingKey.Key(1), .Key(2), .Key(3), .Key(4), .Key(5), .Key(6), .Key(7), .Key(8), .Key(9), .Key(10)])
-        tree.assertTreeIsValid()
+        tree.assertValid()
     }
 
     func testSetPayloadAt() {
@@ -445,7 +445,7 @@ class RedBlackTreeSimpleMutatorTests: XCTestCase {
 
         let old = tree.setPayloadAt(handle, to: "FOUR")
         XCTAssertEqual(old, "four")
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
         XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "FOUR", "five", "six", "seven", "eight", "nine", "ten"])
     }
@@ -463,7 +463,7 @@ class RedBlackTreeSimpleMutatorTests: XCTestCase {
         guard let handle = tree.find(.Key(4)) else { XCTFail(); return }
         let old = tree.setHeadAt(handle, to: MockHead(key: 4, weight: 30))
         XCTAssertEqual(old, MockHead(key: 4, weight: 10))
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
         XCTAssertEqual(tree.find(.WeightIndex(29)), tree.find(.Key(3)))
         XCTAssertEqual(tree.find(.WeightIndex(30)), tree.find(.Key(4)))
@@ -478,67 +478,62 @@ class RedBlackTreeSimpleMutatorTests: XCTestCase {
     }
 
     func testSetPayloadOf() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         let (h1, p1) = tree.setPayloadOf(.Key(5), to: "FIVE")
         XCTAssertEqual(h1, tree.find(.Key(5)))
         XCTAssertEqual(p1, "five")
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
         let (h2, p2) = tree.setPayloadOf(.Index(2), to: "second")
         XCTAssertEqual(h2, tree.find(.Key(3)))
         XCTAssertEqual(p2, "three")
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
         let (h3, p3) = tree.setPayloadOf(.Key(0), to: "zero")
         XCTAssertEqual(h3, tree.find(.Key(0)))
         XCTAssertNil(p3)
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
         XCTAssertEqual(tree.map { $0.1 }, ["zero", "one", "two", "second", "four", "FIVE", "six", "seven", "eight", "nine", "ten"])
     }
 
     func testInsert() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         for i in (20...25).reverse() {
             let h = tree.insert("\(i)", forKey: .Key(i))
             XCTAssertEqual(h, tree.find(.Key(i)))
-            tree.assertTreeIsValid()
+            tree.assertValid()
         }
         XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "20", "21", "22", "23", "24", "25"])
     }
 
     func testInsertAfter() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         var prev = tree.rightmost
         for i in 20...25 {
             let h = tree.insert("\(i)", forKey: .Key(i), after: prev)
             XCTAssertEqual(h, tree.find(.Key(i)))
-            tree.assertTreeIsValid()
+            tree.assertValid()
             prev = h
         }
         XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "20", "21", "22", "23", "24", "25"])
-        tree.printDump()
+        tree.dump()
     }
 
     func testInsertBefore() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         var prev: TestTree.Handle? = nil
         for i in (20...25).reverse() {
             let h = tree.insert("\(i)", forKey: .Key(i), before: prev)
             XCTAssertEqual(h, tree.find(.Key(i)))
-            tree.assertTreeIsValid()
+            tree.assertValid()
             prev = h
         }
         XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "20", "21", "22", "23", "24", "25"])
-        tree.printDump()
+        tree.dump()
     }
 
     func testAppend() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         var tree2 = TestTree()
         for i in (20...25).reverse() {
@@ -546,38 +541,35 @@ class RedBlackTreeSimpleMutatorTests: XCTestCase {
         }
 
         tree.append(tree2)
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
         XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "20", "21", "22", "23", "24", "25"])
-        tree.printDump()
+        tree.dump()
     }
 
     func testMerge() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         var tree2 = TestTree()
         for i in (5..<15).reverse() {
             tree2.insert("\(i)", forKey: .Key(i))
         }
         tree.merge(tree2)
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
         XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "5", "six", "6", "seven", "7", "eight", "8", "nine", "9", "ten", "10", "11", "12", "13", "14"])
-        tree.printDump()
+        tree.dump()
     }
 
     func testRemoveAll() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         tree.removeAll()
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
         XCTAssertEqual(tree.map { $0.1 }, [])
-        tree.printDump()
+        tree.dump()
     }
 
     func testRemove() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         XCTAssertEqual(tree.remove(tree.find(.Key(9))!), "nine")
         XCTAssertNil(tree.find(.Key(9)))
@@ -591,13 +583,12 @@ class RedBlackTreeSimpleMutatorTests: XCTestCase {
         XCTAssertNil(tree.find(.Key(8)))
 
         XCTAssertEqual(tree.map { $0.1 }, ["two", "four", "five", "six", "seven", "ten"])
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
-        tree.printDump()
+        tree.dump()
     }
 
     func testRemoveAndReturnSuccessor() {
-        XCTAssertEqual(tree.map { $0.1 }, ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"])
 
         let (h9, p9) = tree.removeAndReturnSuccessor(tree.find(.Key(9))!)
         XCTAssertEqual(h9, tree.find(.Key(10)))
@@ -620,9 +611,9 @@ class RedBlackTreeSimpleMutatorTests: XCTestCase {
         XCTAssertNil(tree.find(.Key(8)))
 
         XCTAssertEqual(tree.map { $0.1 }, ["two", "four", "five", "six", "seven", "ten"])
-        tree.assertTreeIsValid()
+        tree.assertValid()
 
-        tree.printDump()
+        tree.dump()
     }
 
 }

@@ -115,7 +115,7 @@ extension RedBlackTree {
         return info
     }
 
-    func assertTreeIsValid() {
+    func assertValid() {
         let info = debugInfo
         for (handle, explanation, file, line) in info.defects {
             XCTFail("\(handle): \(explanation)", file: file, line: line)

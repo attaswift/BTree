@@ -32,29 +32,29 @@ func *(i: Int, s: String) -> String {
 extension RedBlackTree {
     typealias Info = RedBlackInfo<Config, Payload>
 
-    func dump() -> String {
-        func dump(handle: Handle?, prefix: Summary) -> String {
+    func show() -> String {
+        func show(handle: Handle?, prefix: Summary) -> String {
             guard let handle = handle else { return "" }
             let node = self[handle]
 
             var s = prefix
-            let left = dump(node.left, prefix: s)
+            let left = show(node.left, prefix: s)
 
             s += self[node.left]?.summary
             let root = String(Config.key(node.head, prefix: s))
 
             s += node.head
-            let right = dump(node.right, prefix: s)
+            let right = show(node.right, prefix: s)
             return "(" + [left, root, right].filter { !$0.isEmpty }.joinWithSeparator(" ") + ")"
         }
-        return dump(root, prefix: Summary())
+        return show(root, prefix: Summary())
     }
 
-    func dumpNode(handle: Handle) -> String {
+    func showNode(handle: Handle) -> String {
         let node = self[handle]
         return "\(handle): \(node.summary) ⟼ \(node.payload)"
     }
-    func dumpNode(i: Int) -> String {
+    func showNode(i: Int) -> String {
         let node = nodes[i]
         return "#\(i): \(node.summary) ⟼ \(node.payload)"
     }

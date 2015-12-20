@@ -11,7 +11,7 @@ import Foundation
 
 extension RedBlackTree {
 
-    func printDump() {
+    func dump() {
         /// - Returns: (tab level, lines), where each line is (matchkind, graphic, columns)
         func dump(handle: Handle?, prefix: Summary) -> (Int, [(KeyMatchResult, String, [String])]) {
             guard let handle = handle else { return (0, []) }
