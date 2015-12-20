@@ -576,6 +576,31 @@ extension RedBlackTree {
     }
 }
 
+
+//MARK: Color management
+
+extension RedBlackTree {
+    /// Only non-nil nodes may be red.
+    private func isRed(handle: Handle?) -> Bool {
+        guard let handle = handle else { return false }
+        return self[handle].color == .Red
+    }
+    /// Nil nodes are considered black.
+    private func isBlack(handle: Handle?) -> Bool {
+        guard let handle = handle else { return true }
+        return self[handle].color == .Black
+    }
+    /// Only non-nil nodes may be set red.
+    private mutating func setRed(handle: Handle) {
+        self[handle].color = .Red
+    }
+    /// You can set a nil node black, but it's a noop.
+    private mutating func setBlack(handle: Handle?) {
+        guard let handle = handle else { return }
+        self[handle].color = .Black
+    }
+}
+
 //MARK: Rotation
 
 extension RedBlackTree {
@@ -618,7 +643,7 @@ extension RedBlackTree {
 
         self.updateSummaryAt(x)
         self.updateSummaryAt(y)
-
+        
         return y
     }
 }
@@ -749,6 +774,61 @@ extension RedBlackTree {
 
         rebalanceAfterInsertion(handle)
         return handle
+    }
+}
+
+//MARK: Rebalancing after an insertion
+extension RedBlackTree {
+
+    private mutating func rebalanceAfterInsertion(new: Handle) {
+        var child = new
+        while case .Toward(let dir, under: let parent) = slotOf(child) {
+            assert(isRed(child))
+            guard self[parent].color == .Red else { break }
+            guard case .Toward(let pdir, under: let grandparent) = slotOf(parent) else  { fatalError("Invalid tree: root is red") }
+            let popp = pdir.opposite
+
+            if let aunt = self[grandparent][popp] where isRed(aunt) {
+                //         grandparent(Black)
+                //       /             \
+                //     aunt(Red)     parent(Red)
+                //                      |
+                //                  child(Red)
+                //
+                setBlack(parent)
+                setBlack(aunt)
+                setRed(grandparent)
+                child = grandparent
+            }
+            else if dir == popp {
+                //         grandparent(Black)
+                //       /             \
+                //     aunt(Black)   parent(Red)
+                //                    /         \
+                //                  child(Red)   B
+                //                    /   \
+                //                   B     B
+                self.rotate(parent, pdir)
+                self.rotate(grandparent, popp)
+                setBlack(child)
+                setRed(grandparent)
+                break
+            }
+            else {
+                //         grandparent(Black)
+                //       /             \
+                //     aunt(Black)   parent(Red)
+                //                    /      \
+                //                   B    child(Red)
+                //                           /    \
+                //                          B      B
+                self.rotate(grandparent, popp)
+                setBlack(parent)
+                setRed(grandparent)
+                break
+            }
+        }
+        setBlack(root)
     }
 }
 
@@ -973,83 +1053,3 @@ extension RedBlackTree {
         }
     }
 }
-
-//MARK: Color management
-
-extension RedBlackTree {
-    /// Only non-nil nodes may be red.
-    private func isRed(handle: Handle?) -> Bool {
-        guard let handle = handle else { return false }
-        return self[handle].color == .Red
-    }
-    /// Nil nodes are considered black.
-    private func isBlack(handle: Handle?) -> Bool {
-        guard let handle = handle else { return true }
-        return self[handle].color == .Black
-    }
-    /// Only non-nil nodes may be set red.
-    private mutating func setRed(handle: Handle) {
-        self[handle].color = .Red
-    }
-    /// You can set a nil node black, but it's a noop.
-    private mutating func setBlack(handle: Handle?) {
-        guard let handle = handle else { return }
-        self[handle].color = .Black
-    }
-}
-
-//MARK: Rebalancing after an insertion
-extension RedBlackTree {
-
-    private mutating func rebalanceAfterInsertion(new: Handle) {
-        var child = new
-        while case .Toward(let dir, under: let parent) = slotOf(child) {
-            assert(isRed(child))
-            guard self[parent].color == .Red else { break }
-            guard case .Toward(let pdir, under: let grandparent) = slotOf(parent) else  { fatalError("Invalid tree: root is red") }
-            let popp = pdir.opposite
-
-            if let aunt = self[grandparent][popp] where isRed(aunt) {
-                //         grandparent(Black)
-                //       /             \
-                //     aunt(Red)     parent(Red)
-                //                      |
-                //                  child(Red)
-                //
-                setBlack(parent)
-                setBlack(aunt)
-                setRed(grandparent)
-                child = grandparent
-            }
-            else if dir == popp {
-                //         grandparent(Black)
-                //       /             \
-                //     aunt(Black)   parent(Red)
-                //                    /         \
-                //                  child(Red)   B
-                //                    /   \
-                //                   B     B
-                self.rotate(parent, pdir)
-                self.rotate(grandparent, popp)
-                setBlack(child)
-                setRed(grandparent)
-                break
-            }
-            else {
-                //         grandparent(Black)
-                //       /             \
-                //     aunt(Black)   parent(Red)
-                //                    /      \
-                //                   B    child(Red)
-                //                           /    \
-                //                          B      B
-                self.rotate(grandparent, popp)
-                setBlack(parent)
-                setRed(grandparent)
-                break
-            }
-        }
-        setBlack(root)
-    }
-}
-
