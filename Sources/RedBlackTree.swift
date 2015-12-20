@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct RedBlackHandle<Config: RedBlackConfig, Payload>: Equatable {
+public struct RedBlackHandle<Config: RedBlackConfig, Payload>: Hashable {
     private let _index: UInt32
 
     private init(_ index: Int) {
@@ -16,7 +16,9 @@ public struct RedBlackHandle<Config: RedBlackConfig, Payload>: Equatable {
     }
 
     private var index: Int { return Int(_index) }
+    public var hashValue: Int { return _index.hashValue }
 }
+
 public func ==<C: RedBlackConfig, P>(a: RedBlackHandle<C, P>, b: RedBlackHandle<C, P>) -> Bool {
     return a._index == b._index
 }
