@@ -332,7 +332,7 @@ public struct RedBlackGenerator<Config: RedBlackConfig, Payload>: GeneratorType 
         guard let handle = handle else { return nil }
         let node = tree[handle]
         let key = Config.key(node.head, prefix: summary)
-        summary = summary + node.head
+        summary += node.head
         self.handle = tree.successor(handle)
         return (key, node.payload)
     }
@@ -765,18 +765,18 @@ extension RedBlackTree {
         guard let b1 = rightmost else { self = tree; return }
         guard let c2 = tree.leftmost else { return }
 
-        let rb = summaryOfAllNodesBefore(b1)
-        let rc = rb + self[b1].head
-        precondition(ordered((self, b1, rb), before: (tree, c2, rc)))
+        let sb = summaryOfAllNodesBefore(b1)
+        let sc = sb + self[b1].head
+        precondition(ordered((self, b1, sb), before: (tree, c2, sc)))
 
-        var summary = rc
+        var summary = sc
         var previous1 = b1
         var next2: Handle? = c2
         while let h2 = next2 {
             let node2 = tree[h2]
             let key = Config.key(node2.head, prefix: summary)
             previous1 = self.insert(node2.payload, forKey: key, after: previous1)
-            summary = summary + node2.head
+            summary += node2.head
             next2 = tree.successor(h2)
         }
     }
@@ -792,9 +792,11 @@ extension RedBlackTree {
         var summary = Summary()
         while let h = handle {
             let node = tree[h]
+
             let key = Config.key(node.head, prefix: summary)
-            summary = summary + node.head
             self.insert(node.payload, forKey: key)
+
+            summary += node.head
             handle = tree.successor(h)
         }
     }
