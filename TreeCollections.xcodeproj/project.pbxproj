@@ -29,6 +29,10 @@
 		BB097FC91C25E65500CB718A /* RedBlackTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */; };
 		BB097FCA1C25E65500CB718A /* RedBlackTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */; };
 		BB097FCB1C25F58400CB718A /* RedBlackTree descriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FC61C25DDA700CB718A /* RedBlackTree descriptions.swift */; };
+		BB3EAAC91C26F6F10028E5A7 /* TreeDumper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */; };
+		BB3EAACA1C26F6F10028E5A7 /* TreeDumper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */; };
+		BB3EAACC1C26F7F40028E5A7 /* TreeChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */; };
+		BB3EAACD1C26F7F40028E5A7 /* TreeChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */; };
 		BB54D0BA1C1F0357008A462B /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* TreeCollections.framework */; };
 		BB9AE4231C1F38B9002C5D63 /* SegmentedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */; };
 		BB9AE4431C1FCD09002C5D63 /* SegmentedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */; };
@@ -72,6 +76,8 @@
 		BB097FC61C25DDA700CB718A /* RedBlackTree descriptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RedBlackTree descriptions.swift"; sourceTree = "<group>"; };
 		BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedBlackTreeTests.swift; sourceTree = "<group>"; };
 		BB0D75D91C1F045C00538080 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
+		BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TreeDumper.swift; sourceTree = "<group>"; };
+		BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TreeChecker.swift; sourceTree = "<group>"; };
 		BB54D0AF1C1F0357008A462B /* TreeCollections.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TreeCollections.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0B41C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB54D0B91C1F0357008A462B /* TreeCollectionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TreeCollectionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -183,6 +189,8 @@
 			isa = PBXGroup;
 			children = (
 				BB9AE4831C20875D002C5D63 /* TestUtils.swift */,
+				BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */,
+				BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */,
 				BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */,
 				BB54D0BE1C1F0357008A462B /* BinaryTreeTests.swift */,
 				BB9AE4801C20801E002C5D63 /* RBTreeTests.swift */,
@@ -422,7 +430,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */,
+				BB3EAACC1C26F7F40028E5A7 /* TreeChecker.swift in Sources */,
 				BB097FC91C25E65500CB718A /* RedBlackTreeTests.swift in Sources */,
+				BB3EAAC91C26F6F10028E5A7 /* TreeDumper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -449,7 +459,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */,
+				BB3EAACD1C26F7F40028E5A7 /* TreeChecker.swift in Sources */,
 				BB097FCA1C25E65500CB718A /* RedBlackTreeTests.swift in Sources */,
+				BB3EAACA1C26F6F10028E5A7 /* TreeDumper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
