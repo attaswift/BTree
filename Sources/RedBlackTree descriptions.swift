@@ -8,14 +8,8 @@
 
 import Foundation
 
-extension RedBlackHandle: CustomStringConvertible {
-    var description: String {
-        return "#\(index)"
-    }
-}
-
 extension RedBlackTree: CustomStringConvertible {
-    var description: String {
-        return "RedBlackTree with \(count) elements"
+    public var description: String {
+        return "RedBlackTree with \(count) nodes"
     }
 }

@@ -21,6 +21,15 @@ public func ==<C: RedBlackConfig, P>(a: RedBlackHandle<C, P>, b: RedBlackHandle<
     return a._index == b._index
 }
 
+extension RedBlackHandle: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String {
+        return "#\(self.index)"
+    }
+    public var debugDescription: String {
+        return "#\(self.index)"
+    }
+}
+
 internal enum Color {
     case Red
     case Black
