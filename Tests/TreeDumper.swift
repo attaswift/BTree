@@ -12,6 +12,10 @@ import Foundation
 extension RedBlackTree {
 
     func dump() {
+        dump(root)
+    }
+
+    func dump(top: Handle?) {
         /// - Returns: (tab level, lines), where each line is (matchkind, graphic, columns)
         func dump(handle: Handle?, prefix: Summary) -> (Int, [(KeyMatchResult, String, [String])]) {
             guard let handle = handle else { return (0, []) }
@@ -77,8 +81,10 @@ extension RedBlackTree {
             return (tabs + 1, lines)
         }
 
+        guard let top = top else { print("nil"); return }
 
-        let lines = dump(root, prefix: Summary()).1
+        let prefix = summaryOfAllNodesBefore(self.handleOfLeftmostNodeUnder(top))
+        let lines = dump(top, prefix: prefix).1
 
         let columnCount = lines.reduce(0) { a, l in max(a, l.2.count) }
         var columnWidths = [Int](count: columnCount, repeatedValue: 0)
