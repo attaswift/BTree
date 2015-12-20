@@ -109,6 +109,16 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
             }
         }
     }
+
+    private mutating func replaceChild(old: Handle, with new: Handle) {
+        if left == old {
+            left = new
+        }
+        else {
+            assert(right == old)
+            right = new
+        }
+    }
 }
 
 public struct RedBlackTree<Config: RedBlackConfig, Payload> {
@@ -891,7 +901,7 @@ extension RedBlackTree {
             // Move the last node into handle, and remove its original place instead.
             let node = nodes.removeLast()
             self[removed] = node
-            if case .Toward(let d, under: let p) = slotOf(last) { self[p][d] = removed }
+            if let p = node.parent { self[p].replaceChild(last, with: removed) }
             if let l = node.left { self[l].parent = removed }
             if let r = node.right { self[r].parent = removed }
 
