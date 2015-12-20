@@ -1,5 +1,5 @@
 //
-//  RedBlackTree2.swift
+//  RedBlackTree.swift
 //  TreeCollections
 //
 //  Created by Károly Lőrentey on 2015-12-17.
