@@ -9,6 +9,14 @@
 import Foundation
 @testable import TreeCollections
 
+private func *(i: Int, s: String) -> String {
+    var result = ""
+    result.reserveCapacity(i * s.unicodeScalars.count)
+    (0..<i).forEach { _ in result += s }
+    return result
+}
+
+
 extension RedBlackTree {
 
     func dump() {

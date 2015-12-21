@@ -197,7 +197,7 @@ class RedBlackTrivialTests: XCTestCase {
         XCTAssertEqual(tree.root, ten)
         XCTAssertEqual(tree.leftmost, ten)
         XCTAssertEqual(tree.rightmost, ten)
-        XCTAssertEqual(tree.show(), "(10)")
+        XCTAssertEqual(tree.show(), "(Key(10))")
 
         var generator = tree.generate()
         guard let first = generator.next() else { XCTFail(); return }
@@ -702,5 +702,48 @@ class RedBlackTreeHasValueSemanticsTests: XCTestCase {
 
         XCTAssertNil(copy.find(.Key(5)))
         XCTAssertNotNil(tree.find(.Key(5)))
+    }
+}
+
+class RedBlackTreeSystematicChanges: XCTestCase {
+
+    func testInsertingSequentially() {
+        var tree = TestTree()
+
+        for i in 1...100 {
+            let handle = tree.insert(String(i * 100), forKey: .Key(i))
+            XCTAssertEqual(tree.find(.Key(i)), handle)
+            tree.assertValid()
+        }
+    }
+
+    func testRemovingSequentially() {
+        var tree = TestTree()
+
+        for i in 1...100 {
+            tree.insert(String(i * 100), forKey: .Key(i))
+        }
+        tree.assertValid()
+
+        for i in 1...100 {
+            guard let handle = tree.find(.Key(i)) else { XCTFail(); continue }
+            tree.remove(handle)
+            XCTAssertNil(tree.find(.Key(i)))
+            tree.assertValid()
+        }
+    }
+
+    func testInsertionAndRemovalInRandomOrder() {
+        var tree = TestTree()
+
+        let permutation = Array(1...30).shuffle()
+        print("Testing permutation \(permutation)")
+        for i in permutation {
+            let handle = tree.insert(String(i * 100), forKey: .Key(i))
+            XCTAssertEqual(tree.find(.Key(i)), handle)
+            tree.assertValid()
+        }
+
+
     }
 }

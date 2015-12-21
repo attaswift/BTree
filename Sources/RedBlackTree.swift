@@ -77,13 +77,13 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
     private(set) var parent: Handle?
     private(set) var left: Handle?
     private(set) var right: Handle?
+    private(set) var color: Color
 
     private(set) var head: Head
     private(set) var summary: Summary
 
     private(set) var payload: Payload
 
-    private(set) var color: Color
 
     private init(parent: Handle?, head: Head, payload: Payload) {
         self.parent = parent
@@ -207,6 +207,13 @@ public extension RedBlackTree {
     /// - Complexity: O(1)
     public func payloadAt(handle: Handle) -> Payload {
         return self[handle].payload
+    }
+
+    /// Returns the payload of the topmost node matching `key`, if any.
+    /// - Complexity: O(log(count))
+    public func payloadOf(key: Key) -> Payload? {
+        guard let handle = find(key) else { return nil }
+        return self.payloadAt(handle)
     }
 
     /// Updates the payload of the node at `handle`.

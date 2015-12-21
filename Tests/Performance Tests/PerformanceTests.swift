@@ -9,19 +9,6 @@
 import XCTest
 @testable import TreeCollections
 
-func random(limit: Int) -> Int {
-    return Int(arc4random_uniform(UInt32(limit)))
-}
-
-extension Array {
-    mutating func shuffleInPlace() {
-        let count = self.count
-        for i in 0..<count {
-            let j = random(count)
-            (self[i], self[j]) = (self[j], self[i])
-        }
-    }
-}
 
 class Test {
     var i: Int
