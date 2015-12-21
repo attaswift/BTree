@@ -734,14 +734,55 @@ class RedBlackTreeSystematicChanges: XCTestCase {
     }
 
     func testInsertionAndRemovalInRandomOrder() {
-        var tree = TestTree()
+        for round in 1...10 {
+            print("Round \(round)")
 
-        let permutation = Array(1...30).shuffle()
-        print("Testing permutation \(permutation)")
-        for i in permutation {
-            let handle = tree.insert(String(i * 100), forKey: .Key(i))
-            XCTAssertEqual(tree.find(.Key(i)), handle)
-            tree.assertValid()
+            var tree = TestTree()
+
+            let insertions = Array(1...30).shuffle()
+            print("Testing insertion permutation \(insertions)")
+            for i in insertions {
+                let handle = tree.insert(String(i * 100), forKey: .Key(i))
+                XCTAssertEqual(tree.find(.Key(i)), handle)
+                tree.assertValid()
+            }
+
+            let removals = Array(1...30).shuffle()
+            print("Testing removal permutation \(removals)")
+            for i in removals {
+                guard let handle = tree.find(.Key(i)) else { XCTFail(); continue }
+                tree.remove(handle)
+                XCTAssertNil(tree.find(.Key(i)))
+                tree.assertValid()
+            }
+        }
+    }
+
+    func testInsertionsAndRemovalsExhaustively() {
+        // Increase this to really exercise the tree. (It will take much longer.)
+        let count = 4
+
+        // Insert keys from 1 to count in all possible permutations, then remove them, again in every possible order.
+        // Verify that red-black properties hold at every step.
+        for order in generatePermutations(count) {
+            var tree = TestTree()
+            for i in order {
+                tree.insert("\(i)", forKey: .Key(i))
+                tree.assertValid()
+            }
+
+            XCTAssertEqual(tree.count, count)
+
+            for removals in generatePermutations(count) {
+                var t = tree
+                for i in removals {
+                    guard let handle = t.find(.Key(i)) else { XCTFail(); continue }
+                    t.remove(handle)
+                    t.assertValid()
+                }
+
+                XCTAssertEqual(t.count, 0)
+            }
         }
 
 
