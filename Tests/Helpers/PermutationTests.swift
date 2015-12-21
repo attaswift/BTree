@@ -22,4 +22,18 @@ class PermutationTests: XCTestCase {
         }
         XCTAssertEqual(count, 6 * 5 * 4 * 3 * 2)
     }
+
+    func testInversions() {
+        XCTAssertEqual(Array(generateInversions(0)), [])
+        XCTAssertEqual(Array(generateInversions(1)), [[0]])
+        XCTAssertEqual(Array(generateInversions(2)), [[0, 0], [0, 1]])
+        XCTAssertEqual(Array(generateInversions(3)), [[0, 0, 0], [0, 0, 1], [0, 0, 2], [0, 1, 0], [0, 1, 1], [0, 1, 2]])
+
+        var count = 0
+        for inv in generateInversions(6) {
+            XCTAssertEqual(inv.enumerate().filter { $0.index < $0.element }.count, 0)
+            count += 1
+        }
+        XCTAssertEqual(count, 6 * 5 * 4 * 3 * 2)
+    }
 }

@@ -36,3 +36,29 @@ func generatePermutations(count: Int) -> AnyGenerator<[Int]> {
     }
 }
 
+/// Generates all inversion vectors of length `count`. The vectors returned all have an extra '0' element prepended for convenience.
+func generateInversions(count: Int) -> AnyGenerator<[Int]> {
+    if count == 0 {
+        return anyGenerator(EmptyCollection<[Int]>().generate())
+    }
+    if count == 1 {
+        return anyGenerator(CollectionOfOne([0]).generate())
+    }
+    if count == 2 {
+        return anyGenerator([[0, 0], [0, 1]].generate())
+    }
+    let generator = generateInversions(count - 1)
+    var inv: [Int] = []
+    var next = 1
+    return anyGenerator {
+        if next > inv.count {
+            guard let i = generator.next() else { return nil }
+            inv = i
+            next = 0
+        }
+        var i = inv
+        i.append(next)
+        next += 1
+        return i
+    }
+}
