@@ -100,3 +100,7 @@ public struct CountingSummary<Item>: SummaryProtocol {
     public init(_ a: CountingSummary<Item>, _ b: CountingSummary<Item>) { count = a.count + b.count }
 }
 public func == <I>(a: CountingSummary<I>, b: CountingSummary<I>) -> Bool { return a.count == b.count }
+
+extension CountingSummary: CustomStringConvertible {
+    public var description: String { return "\(count) descendants" }
+}
