@@ -9,23 +9,18 @@
 import XCTest
 @testable import TreeCollections
 
-class ListTests: XCTestCase {
-
-    func testInsertingItems() {
-        var list = List<Int>()
-
-        list.insert(0, atIndex: 0)
-        XCTAssertTrue(list.checkCounts())
-        XCTAssertEqual(Array(list), [0])
-
-        list.insert(1, atIndex: 1)
-        XCTAssertTrue(list.checkCounts())
-        XCTAssertEqual(Array(list), [0, 1])
-
-        list.insert(2, atIndex: 2)
-        XCTAssertTrue(list.checkCounts())
-        XCTAssertEqual(Array(list), [0, 1, 2])
+extension List {
+    func assertValid() {
+        tree.assertValid()
+        var i = 0
+        for (key, _) in tree {
+            XCTAssertEqual(key, i)
+            i += 1
+        }
     }
+}
+
+class ListTests: XCTestCase {
 
     func testAppendingItemsToList() {
         let values = 1...10
@@ -34,12 +29,47 @@ class ListTests: XCTestCase {
         for v in values {
             list.append(v)
             print(list)
-            XCTAssertTrue(list.checkCounts())
+            list.assertValid()
         }
 
         XCTAssertEqual(list.count, values.count)
         XCTAssertTrue(list.elementsEqual(values))
     }
 
+    func testInsertingItems() {
+        let count = 6
+        for inversion in generateInversions(count) {
+            print("Inversion vector = \(inversion)")
+            var list = List<Int>()
+            var referenceArray: [Int] = []
+            for i in inversion {
+                list.insert(i, atIndex: i)
+                referenceArray.insert(i, atIndex: i)
+            }
+            list.assertValid()
+            XCTAssertEqual(referenceArray, Array(list))
+        }
+    }
+    
+    func testRemovingItems() {
+        let count = 6
+        let list = List<Int>(1...count)
+        let referenceArray = Array<Int>(1...count)
+
+        for inversion in generateInversions(count) {
+            print("Inversion vector = \(inversion)")
+            var l = list
+            var r = referenceArray
+
+            for i in inversion.reverse() {
+                let li = l.removeAtIndex(i)
+                let ai = r.removeAtIndex(i)
+                XCTAssertEqual(li, ai)
+            }
+            l.assertValid()
+            XCTAssertEqual(r.count, 0)
+            XCTAssertEqual(l.count, 0)
+        }
+    }
 
 }

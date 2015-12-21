@@ -64,6 +64,8 @@
 		BB1747871C289A12002C929C /* InsertionBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17477C1C289948002C929C /* InsertionBenchmark.swift */; };
 		BB1747881C289A13002C929C /* InsertionBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17477C1C289948002C929C /* InsertionBenchmark.swift */; };
 		BB1747891C289A15002C929C /* Benchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17477B1C289948002C929C /* Benchmark.swift */; };
+		BB17478C1C289DDF002C929C /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747501C289539002C929C /* ListTests.swift */; };
+		BB17478D1C289DDF002C929C /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747501C289539002C929C /* ListTests.swift */; };
 		BB3EAAC91C26F6F10028E5A7 /* TreeDumper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */; };
 		BB3EAACA1C26F6F10028E5A7 /* TreeDumper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */; };
 		BB3EAACC1C26F7F40028E5A7 /* TreeChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */; };
@@ -577,6 +579,7 @@
 				BB17475A1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */,
 				BB1747661C289539002C929C /* MapTests.swift in Sources */,
+				BB17478C1C289DDF002C929C /* ListTests.swift in Sources */,
 				BB3EAACC1C26F7F40028E5A7 /* TreeChecker.swift in Sources */,
 				BB3EAAC91C26F6F10028E5A7 /* TreeDumper.swift in Sources */,
 				BB1747571C289539002C929C /* Permutations.swift in Sources */,
@@ -613,6 +616,7 @@
 				BB17475B1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */,
 				BB1747671C289539002C929C /* MapTests.swift in Sources */,
+				BB17478D1C289DDF002C929C /* ListTests.swift in Sources */,
 				BB3EAACD1C26F7F40028E5A7 /* TreeChecker.swift in Sources */,
 				BB3EAACA1C26F6F10028E5A7 /* TreeDumper.swift in Sources */,
 				BB1747581C289539002C929C /* Permutations.swift in Sources */,
