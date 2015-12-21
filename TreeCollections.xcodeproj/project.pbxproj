@@ -84,7 +84,6 @@
 		BB54D0AF1C1F0357008A462B /* TreeCollections.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TreeCollections.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0B41C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB54D0B91C1F0357008A462B /* TreeCollectionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TreeCollectionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BB54D0BE1C1F0357008A462B /* BinaryTreeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BinaryTreeTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB54D0C01C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentedArray.swift; sourceTree = "<group>"; };
 		BB9AE4241C1F887D002C5D63 /* MapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapTests.swift; sourceTree = "<group>"; };
@@ -195,7 +194,6 @@
 				BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */,
 				BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */,
 				BB097FC81C25E65500CB718A /* RedBlackTreeTests.swift */,
-				BB54D0BE1C1F0357008A462B /* BinaryTreeTests.swift */,
 				BB9AE4801C20801E002C5D63 /* RBTreeTests.swift */,
 				BB9AE4241C1F887D002C5D63 /* MapTests.swift */,
 				BB9AE4881C20D243002C5D63 /* ListTests.swift */,

@@ -171,6 +171,41 @@ internal struct MockConfig<_Key: Comparable>: RedBlackConfig {
 
 typealias TestTree = RedBlackTree<MockConfig<Int>, String>
 
+class RedBlackTrivialTests: XCTestCase {
+    func testPropertiesOfEmptyTree() {
+        let tree = TestTree()
+
+        tree.assertValid()
+        XCTAssertEqual(tree.count, 0)
+        XCTAssertTrue(tree.isEmpty)
+        XCTAssertNil(tree.root)
+        XCTAssertNil(tree.leftmost)
+        XCTAssertNil(tree.rightmost)
+        XCTAssertEqual(tree.show(), "")
+        XCTAssertNil(tree.find(.Key(42)))
+        var generator = tree.generate()
+        XCTAssertNil(generator.next())
+    }
+
+    func testPropertiesOfTreeWithOneNode() {
+        let tree = TestTree([(.Key(10), "root")])
+
+        tree.assertValid()
+        XCTAssertEqual(tree.count, 1)
+        XCTAssertFalse(tree.isEmpty)
+        guard let ten = tree.find(.Key(10)) else { XCTFail(); return }
+        XCTAssertEqual(tree.root, ten)
+        XCTAssertEqual(tree.leftmost, ten)
+        XCTAssertEqual(tree.rightmost, ten)
+        XCTAssertEqual(tree.show(), "(10)")
+
+        var generator = tree.generate()
+        guard let first = generator.next() else { XCTFail(); return }
+        XCTAssertEqual(first.0, .Key(10))
+        XCTAssertEqual(first.1, "root")
+    }
+}
+
 class RedBlackTreeSimpleQueryTests: XCTestCase {
     var tree = TestTree()
     override func setUp() {
@@ -616,4 +651,56 @@ class RedBlackTreeSimpleMutatorTests: XCTestCase {
         tree.dump()
     }
 
+}
+
+class RedBlackTreeHasValueSemanticsTests: XCTestCase {
+    let originalKeys = [IndexingKey.Key(1), .Key(2), .Key(3), .Key(4), .Key(5), .Key(6), .Key(7), .Key(8), .Key(9), .Key(10)]
+    let originalPayloads = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
+
+    func sampleTree() -> TestTree {
+        return TestTree([(IndexingKey.Key(1), "one"), (.Key(2), "two"), (.Key(3), "three"), (.Key(4), "four"), (.Key(5), "five"), (.Key(6), "six"), (.Key(7), "seven"), (.Key(8), "eight"), (.Key(9), "nine"), (.Key(10), "ten")])
+    }
+
+    func testSetPayloadAtHasValueSemantics() {
+        let tree = sampleTree()
+
+        var copy = tree
+        guard let handle = copy.find(.Key(5)) else { XCTFail(); return }
+        copy.setPayloadAt(handle, to: "FIVE")
+
+        XCTAssertEqual(copy.payloadAt(handle), "FIVE")
+        XCTAssertEqual(tree.payloadAt(handle), "five")
+    }
+
+    func testSetHeadAtHasValueSemantics() {
+        let tree = sampleTree()
+
+        var copy = tree
+        guard let handle = copy.find(.Key(5)) else { XCTFail(); return }
+        copy.setHeadAt(handle, to: MockHead(key: 5, weight: 100))
+
+        XCTAssertEqual(copy.headAt(handle), MockHead(key: 5, weight: 100))
+        XCTAssertEqual(tree.headAt(handle), MockHead(key: 5, weight: 10))
+    }
+
+    func testInsertHasValueSemantics() {
+        let tree = sampleTree()
+
+        var copy = tree
+        copy.insert("eleven", forKey:.Key(11))
+
+        XCTAssertNotNil(copy.find(.Key(11)))
+        XCTAssertNil(tree.find(.Key(11)))
+    }
+
+    func testRemoveHasValueSemantics() {
+        let tree = sampleTree()
+
+        var copy = tree
+        guard let handle = tree.find(.Key(5)) else { XCTFail(); return }
+        copy.remove(handle)
+
+        XCTAssertNil(copy.find(.Key(5)))
+        XCTAssertNotNil(tree.find(.Key(5)))
+    }
 }
