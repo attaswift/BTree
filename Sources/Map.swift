@@ -78,6 +78,10 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
 
     // Mutators
 
+    public mutating func reserveCapacity(minimumCapacity: Int) {
+        tree.reserveCapacity(minimumCapacity)
+    }
+
     public mutating func updateValue(value: Value, forKey key: Key) -> Value? {
         return tree.setPayloadOf(key, to: value).1
     }
