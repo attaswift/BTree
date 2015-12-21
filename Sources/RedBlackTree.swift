@@ -110,7 +110,7 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
         }
     }
 
-    private mutating func replaceChild(old: Handle, with new: Handle) {
+    private mutating func replaceChild(old: Handle, with new: Handle?) {
         if left == old {
             left = new
         }
@@ -941,17 +941,22 @@ extension RedBlackTree {
     /// - Returns: The handle of `marker` after the removal.
     private mutating func _remove(handle: Handle, keeping marker: Handle?) -> Handle? {
         let node = self[handle]
+        var rebalance = node.color == .Black
         let slot = slotOf(handle)
         assert(node.left == nil || node.right == nil)
 
         let child = node.left ?? node.right
         if let child = child {
-            var n = self[child]
-            n.parent = node.parent
-            self[child] = n
+            var childNode = self[child]
+            childNode.parent = node.parent
+            if node.color == .Black && childNode.color == .Red {
+                childNode.color = .Black
+                rebalance = false
+            }
+            self[child] = childNode
         }
-        if case .Toward(let d, under: let p) = slot {
-            self[p][d] = child
+        if let parent = node.parent {
+            self[parent].replaceChild(handle, with: child)
         }
 
         if root == handle { root = child }
@@ -960,7 +965,7 @@ extension RedBlackTree {
 
         updateSummariesAtAndAbove(node.parent)
 
-        if node.color == .Black {
+        if rebalance {
             rebalanceAfterRemoval(slot)
         }
 
