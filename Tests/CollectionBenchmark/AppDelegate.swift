@@ -34,8 +34,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let fm = NSFileManager.defaultManager()
         let ws = NSWorkspace.sharedWorkspace()
         do {
+            let formatter = NSDateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd HH.mm.ss" // Can't use ISO8601 because filesystems :-(
+            let startDate = formatter.stringFromDate(result.start)
+
             let desktop = try fm.URLForDirectory(.DesktopDirectory, inDomain: .UserDomainMask, appropriateForURL: nil, create: true)
-            let outputfile = desktop.URLByAppendingPathComponent("benchmark.tsv", isDirectory: false)
+            let filename = "benchmark - \(startDate) - \(result.name).tsv"
+            let outputfile = desktop.URLByAppendingPathComponent(filename, isDirectory: false)
             try (file as NSString).writeToURL(outputfile, atomically: true, encoding: NSUTF8StringEncoding)
             ws.openURL(outputfile)
             
@@ -58,7 +63,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             let b1 = insertionBenchmark("small", sizes: sizes) { i in i }
             let object = NSObject()
-            let b2 = insertionBenchmark("bigger", sizes: sizes) { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) }
+            let b2 = insertionBenchmark("bigger", sizes: [50000]) { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) }
+            let b3 = lookupBenchmark("bigger", count: 100000, sizes: [10000], factory: { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) })
 
             let results = b2.run(10)
             dispatch_async(dispatch_get_main_queue()) {
