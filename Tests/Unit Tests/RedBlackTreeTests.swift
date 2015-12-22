@@ -342,13 +342,13 @@ class RedBlackTreeSimpleQueryTests: XCTestCase {
     }
 
     func testHandleOfLeftmostNodeUnder() {
-        XCTAssertEqual(tree.handleOfLeftmostNodeUnder(tree.root!), tree.leftmost)
+        XCTAssertEqual(tree.leftmostUnder(tree.root!), tree.leftmost)
 
         let handles = (1...10).flatMap { tree.find(.Key($0)) }
 
         for handle in handles {
             let key = tree.keyAt(handle)
-            let minHandle = tree.handleOfLeftmostNodeUnder(handle)
+            let minHandle = tree.leftmostUnder(handle)
             let minKey = tree.keyAt(minHandle)
 
             XCTAssertLessThanOrEqual(minKey, key)
@@ -356,13 +356,13 @@ class RedBlackTreeSimpleQueryTests: XCTestCase {
     }
 
     func testHandleOfRightmostNodeUnder() {
-        XCTAssertEqual(tree.handleOfRightmostNodeUnder(tree.root!), tree.rightmost)
+        XCTAssertEqual(tree.rightmostUnder(tree.root!), tree.rightmost)
 
         let handles = (1...10).flatMap { tree.find(.Key($0)) }
 
         for handle in handles {
             let key = tree.keyAt(handle)
-            let maxHandle = tree.handleOfRightmostNodeUnder(handle)
+            let maxHandle = tree.rightmostUnder(handle)
             let maxKey = tree.keyAt(maxHandle)
 
             XCTAssertGreaterThanOrEqual(maxKey, key)
@@ -373,10 +373,10 @@ class RedBlackTreeSimpleQueryTests: XCTestCase {
         let handles = (1...10).flatMap { tree.find(.Key($0)) }
 
         for handle in handles {
-            let min = tree.handleOfLeftmostNodeUnder(handle)
-            let max = tree.handleOfRightmostNodeUnder(handle)
-            XCTAssertEqual(tree.handleOfFurthestNodeUnder(handle, toward: .Left), min)
-            XCTAssertEqual(tree.handleOfFurthestNodeUnder(handle, toward: .Right), max)
+            let min = tree.leftmostUnder(handle)
+            let max = tree.rightmostUnder(handle)
+            XCTAssertEqual(tree.furthestUnder(handle, toward: .Left), min)
+            XCTAssertEqual(tree.furthestUnder(handle, toward: .Right), max)
         }
     }
 
@@ -422,25 +422,25 @@ class RedBlackTreeSimpleQueryTests: XCTestCase {
         for i in 1...10 {
             guard let handle = tree.find(.Key(i)) else { XCTFail(); continue }
 
-            let topmostMatching = tree.handleOfTopmostNodeMatching(.Key(i))
+            let topmostMatching = tree.topmostMatching(.Key(i))
             XCTAssertEqual(handle, topmostMatching)
 
-            let leftmostMatching = tree.handleOfLeftmostNodeMatching(.Key(i))
+            let leftmostMatching = tree.leftmostMatching(.Key(i))
             XCTAssertEqual(leftmostMatching, handle)
 
-            let leftmostMatchingOrAfter = tree.handleOfLeftmostNodeMatchingOrAfter(.Key(i))
+            let leftmostMatchingOrAfter = tree.leftmostMatchingOrAfter(.Key(i))
             XCTAssertEqual(leftmostMatchingOrAfter, handle)
 
-            let leftmostAfter = tree.handleOfLeftmostNodeAfter(.Key(i))
+            let leftmostAfter = tree.leftmostAfter(.Key(i))
             XCTAssertEqual(leftmostAfter, tree.successor(handle))
 
-            let rightmostBefore = tree.handleOfRightmostNodeBefore(.Key(i))
+            let rightmostBefore = tree.rightmostBefore(.Key(i))
             XCTAssertEqual(rightmostBefore, tree.predecessor(handle))
 
-            let rightmostBeforeOrMatching = tree.handleOfRightmostNodeBeforeOrMatching(.Key(i))
+            let rightmostBeforeOrMatching = tree.rightmostBeforeOrMatching(.Key(i))
             XCTAssertEqual(rightmostBeforeOrMatching, handle)
 
-            let rightmostMatching = tree.handleOfRightmostNodeMatching(.Key(i))
+            let rightmostMatching = tree.rightmostMatching(.Key(i))
             XCTAssertEqual(rightmostMatching, handle)
         }
     }

@@ -91,7 +91,7 @@ extension RedBlackTree {
 
         guard let top = top else { print("nil"); return }
 
-        let prefix = summaryOfAllNodesBefore(self.handleOfLeftmostNodeUnder(top))
+        let prefix = summaryOfAllNodesBefore(self.leftmostUnder(top))
         let lines = dump(top, prefix: prefix).1
 
         let columnCount = lines.reduce(0) { a, l in max(a, l.2.count) }

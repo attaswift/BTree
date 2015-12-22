@@ -305,7 +305,7 @@ extension RedBlackTree {
     public func step(handle: Handle, toward direction: RedBlackDirection) -> Handle? {
         let node = self[handle]
         if let next = node[direction] {
-            return handleOfFurthestNodeUnder(next, toward: direction.opposite)
+            return furthestUnder(next, toward: direction.opposite)
         }
 
         var child = handle
@@ -319,15 +319,15 @@ extension RedBlackTree {
         return nil
     }
 
-    public func handleOfLeftmostNodeUnder(handle: Handle) -> Handle {
-        return handleOfFurthestNodeUnder(handle, toward: .Left)
+    public func leftmostUnder(handle: Handle) -> Handle {
+        return furthestUnder(handle, toward: .Left)
     }
 
-    public func handleOfRightmostNodeUnder(handle: Handle) -> Handle {
-        return handleOfFurthestNodeUnder(handle, toward: .Right)
+    public func rightmostUnder(handle: Handle) -> Handle {
+        return furthestUnder(handle, toward: .Right)
     }
     
-    public func handleOfFurthestNodeUnder(handle: Handle, toward direction: RedBlackDirection) -> Handle {
+    public func furthestUnder(handle: Handle, toward direction: RedBlackDirection) -> Handle {
         var handle = handle
         while let next = self[handle][direction] {
             handle = next
@@ -411,12 +411,12 @@ extension RedBlackTree {
     /// - Complexity: O(log(count))
     public func find(key: Key) -> Handle? {
         // Topmost is the best, since it terminates on the first match.
-        return handleOfTopmostNodeMatching(key)
+        return topmostMatching(key)
     }
 
     /// Finds and returns the handle of the topmost node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func handleOfTopmostNodeMatching(key: Key) -> Handle? {
+    public func topmostMatching(key: Key) -> Handle? {
         var result: Handle? = nil
         find(key) { handle, match in
             if match == .Matching {
@@ -429,7 +429,7 @@ extension RedBlackTree {
 
     /// Finds and returns the handle of the leftmost node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func handleOfLeftmostNodeMatching(key: Key) -> Handle? {
+    public func leftmostMatching(key: Key) -> Handle? {
         var result: Handle? = nil
         find(key) { handle, match in
             switch match {
@@ -447,7 +447,7 @@ extension RedBlackTree {
 
     /// Finds and returns the handle of the leftmost node that matches `key` or is after it, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func handleOfLeftmostNodeMatchingOrAfter(key: Key) -> Handle? {
+    public func leftmostMatchingOrAfter(key: Key) -> Handle? {
         var result: Handle? = nil
         find(key) { handle, match in
             switch match {
@@ -466,7 +466,7 @@ extension RedBlackTree {
 
     /// Finds and returns the handle of the leftmost node that sorts after `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func handleOfLeftmostNodeAfter(key: Key) -> Handle? {
+    public func leftmostAfter(key: Key) -> Handle? {
         var result: Handle? = nil
         find(key) { handle, match in
             switch match {
@@ -484,7 +484,7 @@ extension RedBlackTree {
 
     /// Finds and returns the handle of the rightmost node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func handleOfRightmostNodeMatching(key: Key) -> Handle? {
+    public func rightmostMatching(key: Key) -> Handle? {
         var result: Handle? = nil
         find(key) { handle, match in
             switch match {
@@ -502,7 +502,7 @@ extension RedBlackTree {
 
     /// Finds and returns the handle of the rightmost node that sorts before `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func handleOfRightmostNodeBefore(key: Key) -> Handle? {
+    public func rightmostBefore(key: Key) -> Handle? {
         var result: Handle? = nil
         find(key) { handle, match in
             switch match {
@@ -520,7 +520,7 @@ extension RedBlackTree {
 
     /// Finds and returns the handle of the rightmost node that sorts before or matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func handleOfRightmostNodeBeforeOrMatching(key: Key) -> Handle? {
+    public func rightmostBeforeOrMatching(key: Key) -> Handle? {
         var result: Handle? = nil
         find(key) { handle, match in
             switch match {
@@ -721,7 +721,7 @@ extension RedBlackTree {
     }
 
     public mutating func insert(payload: Payload, forKey key: Key, after predecessor: Handle?) -> Handle {
-        assert(predecessor == self.handleOfRightmostNodeBefore(key) || compare(key, with: predecessor!) == .Matching)
+        assert(predecessor == self.rightmostBefore(key) || compare(key, with: predecessor!) == .Matching)
         guard let predecessor = predecessor else {
             if let leftmost = leftmost {
                 return self.insert(payload, forKey: key, before: leftmost)
@@ -732,7 +732,7 @@ extension RedBlackTree {
         }
         let node = self[predecessor]
         if let right = node.right {
-            let next = handleOfLeftmostNodeUnder(right)
+            let next = leftmostUnder(right)
             return insert(payload, forKey: key, into: .Toward(.Left, under: next))
         }
         else {
@@ -741,7 +741,7 @@ extension RedBlackTree {
     }
 
     public mutating func insert(payload: Payload, forKey key: Key, before successor: Handle?) -> Handle {
-        assert(successor == self.handleOfLeftmostNodeAfter(key) || compare(key, with: successor!) == .Matching)
+        assert(successor == self.leftmostAfter(key) || compare(key, with: successor!) == .Matching)
         guard let successor = successor else {
             if let rightmost = rightmost {
                 return self.insert(payload, forKey: key, after: rightmost)
@@ -752,7 +752,7 @@ extension RedBlackTree {
         }
         let node = self[successor]
         if let left = node.left {
-            let previous = handleOfRightmostNodeUnder(left)
+            let previous = rightmostUnder(left)
             return insert(payload, forKey: key, into: .Toward(.Right, under: previous))
         }
         else {
@@ -922,7 +922,7 @@ extension RedBlackTree {
         if let _ = node.left, r = node.right {
             // We can't directly remove a node with two children, but its successor is suitable.
             // Let's remove it instead, placing its payload into handle.
-            let next = successor ?? handleOfLeftmostNodeUnder(r)
+            let next = successor ?? leftmostUnder(r)
             let n = self[next]
             self[handle].head = n.head
             self[handle].payload = n.payload
