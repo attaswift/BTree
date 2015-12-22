@@ -66,6 +66,10 @@
 		BB1747891C289A15002C929C /* Benchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17477B1C289948002C929C /* Benchmark.swift */; };
 		BB17478C1C289DDF002C929C /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747501C289539002C929C /* ListTests.swift */; };
 		BB17478D1C289DDF002C929C /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747501C289539002C929C /* ListTests.swift */; };
+		BB17478F1C28BB49002C929C /* LookupBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17478E1C28BB49002C929C /* LookupBenchmark.swift */; };
+		BB1747901C28BB49002C929C /* LookupBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17478E1C28BB49002C929C /* LookupBenchmark.swift */; };
+		BB1747911C28BB49002C929C /* LookupBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17478E1C28BB49002C929C /* LookupBenchmark.swift */; };
+		BB1747921C28BB4C002C929C /* LookupBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17478E1C28BB49002C929C /* LookupBenchmark.swift */; };
 		BB3EAAC91C26F6F10028E5A7 /* TreeDumper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */; };
 		BB3EAACA1C26F6F10028E5A7 /* TreeDumper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */; };
 		BB3EAACC1C26F7F40028E5A7 /* TreeChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */; };
@@ -138,6 +142,7 @@
 		BB17477B1C289948002C929C /* Benchmark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Benchmark.swift; sourceTree = "<group>"; };
 		BB17477C1C289948002C929C /* InsertionBenchmark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InsertionBenchmark.swift; sourceTree = "<group>"; };
 		BB17477D1C289948002C929C /* PerformanceTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerformanceTests.swift; sourceTree = "<group>"; };
+		BB17478E1C28BB49002C929C /* LookupBenchmark.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LookupBenchmark.swift; sourceTree = "<group>"; };
 		BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TreeDumper.swift; sourceTree = "<group>"; };
 		BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TreeChecker.swift; sourceTree = "<group>"; };
 		BB54D0AF1C1F0357008A462B /* TreeCollections.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TreeCollections.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -236,6 +241,7 @@
 			children = (
 				BB17477B1C289948002C929C /* Benchmark.swift */,
 				BB17477C1C289948002C929C /* InsertionBenchmark.swift */,
+				BB17478E1C28BB49002C929C /* LookupBenchmark.swift */,
 				BB17477D1C289948002C929C /* PerformanceTests.swift */,
 			);
 			path = "Performance Tests";
@@ -547,6 +553,7 @@
 				BB1747701C289544002C929C /* Permutations.swift in Sources */,
 				BB1747881C289A13002C929C /* InsertionBenchmark.swift in Sources */,
 				BB1747891C289A15002C929C /* Benchmark.swift in Sources */,
+				BB1747921C28BB4C002C929C /* LookupBenchmark.swift in Sources */,
 				BB17476F1C289544002C929C /* Duration.swift in Sources */,
 				BB1747721C289544002C929C /* Random.swift in Sources */,
 			);
@@ -586,6 +593,7 @@
 				BB1747541C289539002C929C /* Duration.swift in Sources */,
 				BB17476C1C289539002C929C /* RedBlackTreeTests.swift in Sources */,
 				BB17475D1C289539002C929C /* Random.swift in Sources */,
+				BB17478F1C28BB49002C929C /* LookupBenchmark.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -623,6 +631,7 @@
 				BB1747551C289539002C929C /* Duration.swift in Sources */,
 				BB17476D1C289539002C929C /* RedBlackTreeTests.swift in Sources */,
 				BB17475E1C289539002C929C /* Random.swift in Sources */,
+				BB1747901C28BB49002C929C /* LookupBenchmark.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -633,6 +642,7 @@
 				BB17475C1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB1747561C289539002C929C /* Duration.swift in Sources */,
 				BB17477A1C2897F8002C929C /* XCTest extensions.swift in Sources */,
+				BB1747911C28BB49002C929C /* LookupBenchmark.swift in Sources */,
 				BB3EAAD01C2703890028E5A7 /* TreeChecker.swift in Sources */,
 				BB17475F1C289539002C929C /* Random.swift in Sources */,
 				BB3EAACE1C2703820028E5A7 /* TestUtils.swift in Sources */,
@@ -857,7 +867,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = PerformanceTests/Info.plist;
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.lorentey.TreeCollections.PerformanceTests-Mac";
@@ -1089,7 +1099,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = PerformanceTests/Info.plist;
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.lorentey.TreeCollections.PerformanceTests-Mac";
@@ -1103,7 +1113,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = PerformanceTests/Info.plist;
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.lorentey.TreeCollections.PerformanceTests-Mac";
@@ -1224,7 +1234,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = PerformanceTests/Info.plist;
+				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.github.lorentey.TreeCollections.PerformanceTests-Mac";

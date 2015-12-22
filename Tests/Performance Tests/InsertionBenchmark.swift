@@ -36,7 +36,7 @@ public struct PayloadArray<Payload>: BenchmarkParameter, CustomStringConvertible
 }
 
 public func insertionBenchmark<P>(name: String, sizes: [Int], factory: Int->P) -> Benchmark<PayloadArray<P>> {
-    var benchmark = Benchmark<PayloadArray<P>>()
+    var benchmark = Benchmark<PayloadArray<P>>(name: "insertions")
 
     for size in sizes {
         benchmark.add(PayloadArray<P>(name: name, size: size, factory: factory))

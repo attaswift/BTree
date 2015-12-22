@@ -55,7 +55,7 @@ public struct Measurement<P: BenchmarkParameter> {
     public let output: MeasurementOutput<P.Output>
 }
 
-public class Experiment<P: BenchmarkParameter> {
+public struct Experiment<P: BenchmarkParameter> {
     public typealias Block = MeasurementEnvironment<P.Input> -> P.Output
 
     public let name: String
@@ -86,11 +86,15 @@ public class Experiment<P: BenchmarkParameter> {
 
 
 public struct Benchmark<P: BenchmarkParameter> {
+    public let name: String
     public private(set) var experiments: [String: Experiment<P>] = [:]
     public private(set) var params: [P] = []
 
-    public init() {}
-    public init(experiments: [Experiment<P>], params: [P]) {
+    public init(name: String) {
+        self.name = name
+    }
+    public init(name: String, experiments: [Experiment<P>], params: [P]) {
+        self.name = name
         for p in params { add(p) }
         for e in experiments { add(e) }
     }
@@ -118,7 +122,7 @@ public struct Benchmark<P: BenchmarkParameter> {
             }
         }
 
-        var results = BenchmarkResult()
+        var results = BenchmarkResult(name: self.name, start: NSDate())
 
         let formatter = NSDateFormatter()
         formatter.dateFormat = "HH:mm:ss"
@@ -142,7 +146,7 @@ public struct Benchmark<P: BenchmarkParameter> {
                     print("\(percent)%, ETA ~\(finish): Failed '\(experiment.name)' on '\(param.name)', size \(param.size): \(explanation)")
                 }
                 else {
-                    print("\(percent)%, ETA ~\(finish): \(param.name)\t\(experiment.name)\t\(param.size)\t\(measurement.duration.timeInterval * 1000)ms")
+                    print("\(percent)%, ETA ~\(finish): Finished \(param.size) - \(experiment.name) - \(param.name) - \(measurement.duration.timeInterval * 1000)ms")
                 }
                 results.addDuration(measurement.duration, experiment: experiment.name, param: param.name, size: param.size)
                 progress += 1
@@ -171,7 +175,15 @@ public func <(a: BenchmarkResultKey, b: BenchmarkResultKey) -> Bool {
 public struct BenchmarkResult {
     public typealias Key = BenchmarkResultKey
 
+    public let name: String
+    public let start: NSDate
+
     private var _data: Dictionary<Key, DurationSample> = [:]
+
+    public init(name: String, start: NSDate) {
+        self.name = name
+        self.start = start
+    }
 
     public mutating func addDuration(duration: Duration, experiment: String, param: String, size: Int) {
         let key = Key(param: param, experiment: experiment, size: size)
