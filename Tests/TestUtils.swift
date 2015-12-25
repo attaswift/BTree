@@ -11,7 +11,6 @@ import XCTest
 
 
 extension RedBlackTree {
-    typealias Info = RedBlackInfo<Config, Payload>
 
     func show() -> String {
         func show(handle: Handle?, prefix: Summary) -> String {
@@ -22,7 +21,7 @@ extension RedBlackTree {
             let left = show(node.left, prefix: s)
 
             s += self[node.left]?.summary
-            let root = String(Config.key(node.head, prefix: s))
+            let root = String(InsertionKey(summary: s, head: node.head))
 
             s += node.head
             let right = show(node.right, prefix: s)

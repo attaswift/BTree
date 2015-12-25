@@ -11,8 +11,8 @@
 		BB097FB11C236BAC00CB718A /* RedBlackTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FAF1C23668600CB718A /* RedBlackTree.swift */; };
 		BB097FB31C236EFD00CB718A /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FB21C236EFD00CB718A /* Map.swift */; };
 		BB097FB51C236F0500CB718A /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FB41C236F0500CB718A /* List.swift */; };
-		BB097FB71C236F1E00CB718A /* RedBlackConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FB61C236F1E00CB718A /* RedBlackConfig.swift */; };
-		BB097FB81C236F2200CB718A /* RedBlackConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FB61C236F1E00CB718A /* RedBlackConfig.swift */; };
+		BB097FB71C236F1E00CB718A /* RedBlackKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FB61C236F1E00CB718A /* RedBlackKey.swift */; };
+		BB097FB81C236F2200CB718A /* RedBlackKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FB61C236F1E00CB718A /* RedBlackKey.swift */; };
 		BB097FB91C236F2200CB718A /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FB21C236EFD00CB718A /* Map.swift */; };
 		BB097FBA1C236F2200CB718A /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FB41C236F0500CB718A /* List.swift */; };
 		BB097FBC1C23A16700CB718A /* Summary.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB097FBB1C23A16700CB718A /* Summary.swift */; };
@@ -66,9 +66,6 @@
 		BB1747891C289A15002C929C /* Benchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17477B1C289948002C929C /* Benchmark.swift */; };
 		BB17478C1C289DDF002C929C /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747501C289539002C929C /* ListTests.swift */; };
 		BB17478D1C289DDF002C929C /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747501C289539002C929C /* ListTests.swift */; };
-		BB17478F1C28BB49002C929C /* LookupBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17478E1C28BB49002C929C /* LookupBenchmark.swift */; };
-		BB1747901C28BB49002C929C /* LookupBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17478E1C28BB49002C929C /* LookupBenchmark.swift */; };
-		BB1747911C28BB49002C929C /* LookupBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17478E1C28BB49002C929C /* LookupBenchmark.swift */; };
 		BB1747921C28BB4C002C929C /* LookupBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17478E1C28BB49002C929C /* LookupBenchmark.swift */; };
 		BB3EAAC91C26F6F10028E5A7 /* TreeDumper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */; };
 		BB3EAACA1C26F6F10028E5A7 /* TreeDumper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAAC81C26F6F10028E5A7 /* TreeDumper.swift */; };
@@ -121,7 +118,7 @@
 		BB097FAF1C23668600CB718A /* RedBlackTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RedBlackTree.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB097FB21C236EFD00CB718A /* Map.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Map.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB097FB41C236F0500CB718A /* List.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
-		BB097FB61C236F1E00CB718A /* RedBlackConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RedBlackConfig.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		BB097FB61C236F1E00CB718A /* RedBlackKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = RedBlackKey.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB097FBB1C23A16700CB718A /* Summary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = Summary.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB097FC61C25DDA700CB718A /* RedBlackTree descriptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RedBlackTree descriptions.swift"; sourceTree = "<group>"; };
 		BB0D75D91C1F045C00538080 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; lineEnding = 0; path = README.md; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.markdown; };
@@ -289,7 +286,7 @@
 				BB9AE47A1C20543A002C5D63 /* ArrayLikeCollectionType.swift */,
 				BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */,
 				BB097FBB1C23A16700CB718A /* Summary.swift */,
-				BB097FB61C236F1E00CB718A /* RedBlackConfig.swift */,
+				BB097FB61C236F1E00CB718A /* RedBlackKey.swift */,
 				BB097FAF1C23668600CB718A /* RedBlackTree.swift */,
 				BB097FC61C25DDA700CB718A /* RedBlackTree descriptions.swift */,
 				BB097FB21C236EFD00CB718A /* Map.swift */,
@@ -573,7 +570,7 @@
 				BB097FC71C25DDA700CB718A /* RedBlackTree descriptions.swift in Sources */,
 				BB097FC11C25A58600CB718A /* AssociativeCollectionType.swift in Sources */,
 				BB097FBC1C23A16700CB718A /* Summary.swift in Sources */,
-				BB097FB71C236F1E00CB718A /* RedBlackConfig.swift in Sources */,
+				BB097FB71C236F1E00CB718A /* RedBlackKey.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -593,7 +590,6 @@
 				BB1747541C289539002C929C /* Duration.swift in Sources */,
 				BB17476C1C289539002C929C /* RedBlackTreeTests.swift in Sources */,
 				BB17475D1C289539002C929C /* Random.swift in Sources */,
-				BB17478F1C28BB49002C929C /* LookupBenchmark.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -606,7 +602,7 @@
 				BB097FC51C25C58700CB718A /* SortedArray.swift in Sources */,
 				BB097FBF1C25A58500CB718A /* SortedAssociativeCollectionType.swift in Sources */,
 				BB097FB11C236BAC00CB718A /* RedBlackTree.swift in Sources */,
-				BB097FB81C236F2200CB718A /* RedBlackConfig.swift in Sources */,
+				BB097FB81C236F2200CB718A /* RedBlackKey.swift in Sources */,
 				BB097FC01C25A58500CB718A /* ArrayLikeCollectionType.swift in Sources */,
 				BB097FCB1C25F58400CB718A /* RedBlackTree descriptions.swift in Sources */,
 				BB097FBE1C25A58500CB718A /* AssociativeCollectionType.swift in Sources */,
@@ -631,7 +627,6 @@
 				BB1747551C289539002C929C /* Duration.swift in Sources */,
 				BB17476D1C289539002C929C /* RedBlackTreeTests.swift in Sources */,
 				BB17475E1C289539002C929C /* Random.swift in Sources */,
-				BB1747901C28BB49002C929C /* LookupBenchmark.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,7 +637,6 @@
 				BB17475C1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB1747561C289539002C929C /* Duration.swift in Sources */,
 				BB17477A1C2897F8002C929C /* XCTest extensions.swift in Sources */,
-				BB1747911C28BB49002C929C /* LookupBenchmark.swift in Sources */,
 				BB3EAAD01C2703890028E5A7 /* TreeChecker.swift in Sources */,
 				BB17475F1C289539002C929C /* Random.swift in Sources */,
 				BB3EAACE1C2703820028E5A7 /* TestUtils.swift in Sources */,
@@ -1255,6 +1249,7 @@
 				BB1747341C276CFB002C929C /* Unchecked */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BB54D0A91C1F0357008A462B /* Build configuration list for PBXProject "TreeCollections" */ = {
 			isa = XCConfigurationList;

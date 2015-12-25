@@ -16,6 +16,12 @@ private func *(i: Int, s: String) -> String {
     return result
 }
 
+private enum LineType {
+    case LeftSubtree
+    case Root
+    case RightSubtree
+}
+
 
 extension RedBlackTree {
 
@@ -25,7 +31,7 @@ extension RedBlackTree {
 
     func dump(top: Handle?) {
         /// - Returns: (tab level, lines), where each line is (matchkind, graphic, columns)
-        func dump(handle: Handle?, prefix: Summary) -> (Int, [(KeyMatchResult, String, [String])]) {
+        func dump(handle: Handle?, prefix: Summary) -> (Int, [(LineType, String, [String])]) {
             guard let handle = handle else { return (0, []) }
 
             let node = self[handle]
@@ -40,49 +46,49 @@ extension RedBlackTree {
 
             let root = [
                 "\(handle):",
-                "    \(Config.key(node.head, prefix: p))",
+                "    \(InsertionKey(summary: p, head: node.head))",
                 "⟼ \(node.payload)",
                 "\t☺:\(node.head)",
                 "\t∑:\(node.summary)"]
 
             if leftLines.isEmpty && rightLines.isEmpty {
-                return (tabs, [(.Matching, "\(dot)\t", root)])
+                return (tabs, [(.Root, "\(dot)\t", root)])
             }
 
-            var lines: [(KeyMatchResult, String, [String])] = []
+            var lines: [(LineType, String, [String])] = []
 
             let rightIndent = (tabs - rightTabs) * "\t"
             if rightLines.isEmpty {
-                lines.append((.After, "┏━\t" + "\t" + rightIndent, ["nil"]))
+                lines.append((.RightSubtree, "┏━\t" + "\t" + rightIndent, ["nil"]))
             }
             else {
                 for (m, graphic, text) in rightLines {
                     switch m {
-                    case .After:
-                        lines.append((.After, "\t" + graphic + rightIndent, text))
-                    case .Matching:
-                        lines.append((.After, "┏━\t" + graphic + rightIndent, text))
-                    case .Before:
-                        lines.append((.After, "┃\t" + graphic + rightIndent, text))
+                    case .RightSubtree:
+                        lines.append((.RightSubtree, "\t" + graphic + rightIndent, text))
+                    case .Root:
+                        lines.append((.RightSubtree, "┏━\t" + graphic + rightIndent, text))
+                    case .LeftSubtree:
+                        lines.append((.RightSubtree, "┃\t" + graphic + rightIndent, text))
                     }
                 }
             }
 
-            lines.append((.Matching, "\(dot)\t\t" + tabs * "\t", root))
+            lines.append((.Root, "\(dot)\t\t" + tabs * "\t", root))
 
             let leftIndent = (tabs - leftTabs) * "\t"
             if leftLines.isEmpty {
-                lines.append((.Before, "┗━\t" + "\t" + leftIndent, ["nil"]))
+                lines.append((.LeftSubtree, "┗━\t" + "\t" + leftIndent, ["nil"]))
             }
             else {
                 for (m, graphic, text) in leftLines {
                     switch m {
-                    case .After:
-                        lines.append((.Before, "┃\t" + graphic + leftIndent, text))
-                    case .Matching:
-                        lines.append((.Before, "┗━\t" + graphic + leftIndent, text))
-                    case .Before:
-                        lines.append((.Before, "\t" + graphic + leftIndent, text))
+                    case .RightSubtree:
+                        lines.append((.LeftSubtree, "┃\t" + graphic + leftIndent, text))
+                    case .Root:
+                        lines.append((.LeftSubtree, "┗━\t" + graphic + leftIndent, text))
+                    case .LeftSubtree:
+                        lines.append((.LeftSubtree, "\t" + graphic + leftIndent, text))
                     }
                 }
             }
@@ -91,7 +97,7 @@ extension RedBlackTree {
 
         guard let top = top else { print("nil"); return }
 
-        let prefix = summaryOfAllNodesBefore(self.leftmostUnder(top))
+        let prefix = summaryBefore(self.leftmostUnder(top))
         let lines = dump(top, prefix: prefix).1
 
         let columnCount = lines.reduce(0) { a, l in max(a, l.2.count) }

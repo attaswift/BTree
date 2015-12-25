@@ -9,11 +9,10 @@
 import XCTest
 @testable import TreeCollections
 
-struct RedBlackInfo<Config: RedBlackConfig, Payload> {
-    typealias Tree = RedBlackTree<Config, Payload>
+struct RedBlackInfo<Key: RedBlackInsertionKey, Payload> {
+    typealias Tree = RedBlackTree<Key, Payload>
     typealias Handle = Tree.Handle
     typealias Summary = Tree.Summary
-    typealias Key = Tree.Key
 
     var nodeCount: Int = 0
     var leftmost: Handle? = nil
@@ -38,6 +37,8 @@ struct RedBlackInfo<Config: RedBlackConfig, Payload> {
 }
 
 extension RedBlackTree {
+    typealias Info = RedBlackInfo<InsertionKey, Payload>
+
     private func collectInfo(blacklist: Set<Handle>, handle: Handle?, parent: Handle?, prefix: Summary) -> Info {
 
         guard let handle = handle else { return Info() }
@@ -86,13 +87,13 @@ extension RedBlackTree {
         if info.summary != node.summary {
             info.addDefect(handle, "summary is \(node.summary), expected \(info.summary)")
         }
-        let key = Config.key(node.head, prefix: prefix + li.summary)
+        let key = InsertionKey(summary: prefix + li.summary, head: node.head)
         info.maxKey = ri.maxKey
         info.minKey = li.minKey
-        if let lk = li.maxKey where Config.compare(lk, to: node.head, prefix: prefix + li.summary) == .After {
+        if let lk = li.maxKey where lk > key {
             info.addDefect(handle, "node's key is ordered before its maximum left descendant: \(key) < \(lk)")
         }
-        if let rk = ri.minKey where Config.compare(rk, to: node.head, prefix: prefix + li.summary) == .Before {
+        if let rk = ri.minKey where rk < key {
             info.addDefect(handle, "node's key is ordered after its minimum right descendant: \(key) > \(rk)")
         }
         return info

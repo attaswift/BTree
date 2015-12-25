@@ -12,8 +12,9 @@ public struct List<Element>: ArrayLikeCollectionType {
     public typealias Index = Int
     public typealias Generator = ListGenerator<Element>
 
-    internal typealias Config = IndexableTreeConfig
-    internal typealias Tree = RedBlackTree<Config, Element>
+    internal typealias TreeKey = PositionalKey
+    internal typealias Summary = TreeKey.Summary
+    internal typealias Tree = RedBlackTree<TreeKey, Element>
 
     internal private(set) var tree: Tree
 
@@ -31,7 +32,7 @@ public struct List<Element>: ArrayLikeCollectionType {
         self.tree = Tree()
         tree.reserveCapacity(elements.underestimateCount())
         for element in elements {
-            tree.insert(element, forKey: tree.count, after: tree.rightmost)
+            tree.insert(element, forKey: TreeKey(tree.count), after: tree.rightmost)
         }
     }
 
@@ -39,11 +40,11 @@ public struct List<Element>: ArrayLikeCollectionType {
 
     public subscript(index: Index) -> Element {
         get {
-            let handle = tree.find(index)!
+            let handle = tree.find(TreeKey(index))!
             return tree.payloadAt(handle)
         }
         set(element) {
-            let handle = tree.find(index)!
+            let handle = tree.find(TreeKey(index))!
             tree.setPayloadAt(handle, to: element)
         }
     }
@@ -67,7 +68,7 @@ public struct List<Element>: ArrayLikeCollectionType {
     }
 
     public mutating func append(newElement: Element) {
-        tree.insert(newElement, forKey: tree.count, after: tree.rightmost)
+        tree.insert(newElement, forKey: TreeKey(tree.count), after: tree.rightmost)
     }
 
     /// Inserts a new element at position `index`.
@@ -76,13 +77,13 @@ public struct List<Element>: ArrayLikeCollectionType {
     public mutating func insert(newElement: Element, atIndex index: Int) {
         precondition(index >= 0 && index <= count)
         if index == 0 {
-            tree.insert(newElement, forKey: index, before: tree.leftmost)
+            tree.insert(newElement, forKey: TreeKey(index), before: tree.leftmost)
         }
         else if index == count {
-            tree.insert(newElement, forKey: index, after: tree.rightmost)
+            tree.insert(newElement, forKey: TreeKey(index), after: tree.rightmost)
         }
         else {
-            tree.insert(newElement, forKey: index, before: tree.find(index)!)
+            tree.insert(newElement, forKey: TreeKey(index), before: tree.find(TreeKey(index))!)
         }
     }
 
@@ -94,13 +95,14 @@ public struct List<Element>: ArrayLikeCollectionType {
     /// - Requires: i >= 0 && i < count
     /// - Complexity: O(log(count))
     public mutating func removeAtIndex(index: Int) -> Element {
-        return tree.remove(tree.find(index)!)
+        return tree.remove(tree.find(TreeKey(index))!)
     }
 }
 
 public struct ListGenerator<Element>: GeneratorType {
-    internal typealias Config = IndexableTreeConfig
-    internal typealias Tree = RedBlackTree<Config, Element>
+    internal typealias TreeKey = PositionalKey
+    internal typealias Summary = TreeKey.Summary
+    internal typealias Tree = RedBlackTree<TreeKey, Element>
 
     private let tree: Tree
     private let direction: RedBlackDirection

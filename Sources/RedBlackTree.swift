@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct RedBlackHandle<Config: RedBlackConfig, Payload>: Hashable {
+public struct RedBlackHandle<Key: RedBlackInsertionKey, Payload>: Hashable {
     private let _index: UInt32
 
     private init(_ index: Int) {
@@ -19,7 +19,7 @@ public struct RedBlackHandle<Config: RedBlackConfig, Payload>: Hashable {
     public var hashValue: Int { return _index.hashValue }
 }
 
-public func ==<C: RedBlackConfig, P>(a: RedBlackHandle<C, P>, b: RedBlackHandle<C, P>) -> Bool {
+public func ==<K: RedBlackKey, P>(a: RedBlackHandle<K, P>, b: RedBlackHandle<K, P>) -> Bool {
     return a._index == b._index
 }
 
@@ -35,6 +35,12 @@ extension RedBlackHandle: CustomStringConvertible, CustomDebugStringConvertible 
 internal enum Color {
     case Red
     case Black
+}
+
+private enum KeyMatchResult {
+    case Before
+    case Matching
+    case After
 }
 
 /// A direction represents a choice between a left and right child in a binary tree.
@@ -55,23 +61,23 @@ public enum RedBlackDirection {
 
 /// A slot in the binary tree represents a place into which you can put a node.
 /// The tree's root is one slot, and so is either child of another node.
-internal enum RedBlackSlot<Config: RedBlackConfig, Payload>: Equatable {
-    internal typealias Handle = RedBlackHandle<Config, Payload>
+internal enum RedBlackSlot<Key: RedBlackInsertionKey, Payload>: Equatable {
+    internal typealias Handle = RedBlackHandle<Key, Payload>
 
     /// A slot representing the place of the topmost node in the tree.
     case Root
     /// A slot representing the child towards a certain direction under a certain parent node in the tree.
     case Toward(RedBlackDirection, under: Handle)
 }
-internal func ==<Config: RedBlackConfig, Payload>(a: RedBlackSlot<Config, Payload>, b: RedBlackSlot<Config, Payload>) -> Bool {
+internal func ==<Key: RedBlackKey, Payload>(a: RedBlackSlot<Key, Payload>, b: RedBlackSlot<Key, Payload>) -> Bool {
     return a == b
 }
 
 
 
-internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
-    typealias Handle = RedBlackHandle<Config, Payload>
-    typealias Summary = Config.Summary
+internal struct RedBlackNode<Key: RedBlackInsertionKey, Payload> {
+    typealias Handle = RedBlackHandle<Key, Payload>
+    typealias Summary = Key.Summary
     typealias Head = Summary.Item
 
     private(set) var parent: Handle?
@@ -121,18 +127,16 @@ internal struct RedBlackNode<Config: RedBlackConfig, Payload> {
     }
 }
 
-public struct RedBlackTree<Config: RedBlackConfig, Payload> {
+public struct RedBlackTree<InsertionKey: RedBlackInsertionKey, Payload> {
     //MARK: Type aliases
 
-    public typealias Handle = RedBlackHandle<Config, Payload>
-    public typealias Summary = Config.Summary
+    public typealias Handle = RedBlackHandle<InsertionKey, Payload>
+    public typealias Summary = InsertionKey.Summary
     public typealias Head = Summary.Item
-    public typealias Key = Config.Key
+    public typealias Element = (InsertionKey, Payload)
 
-    public typealias Element = (Key, Payload)
-
-    internal typealias Node = RedBlackNode<Config, Payload>
-    internal typealias Slot = RedBlackSlot<Config, Payload>
+    internal typealias Node = RedBlackNode<InsertionKey, Payload>
+    internal typealias Slot = RedBlackSlot<InsertionKey, Payload>
 
     //MARK: Stored properties
 
@@ -160,7 +164,7 @@ public struct RedBlackTree<Config: RedBlackConfig, Payload> {
 
 public extension RedBlackTree {
 
-    public init<C: CollectionType where C.Generator.Element == (Key, Payload)>(_ elements: C) {
+    public init<C: CollectionType where C.Generator.Element == (InsertionKey, Payload)>(_ elements: C) {
         self.init()
         self.reserveCapacity(Int(elements.count.toIntMax()))
         for (key, payload) in elements {
@@ -211,7 +215,7 @@ public extension RedBlackTree {
 
     /// Returns the payload of the topmost node matching `key`, if any.
     /// - Complexity: O(log(count))
-    public func payloadOf(key: Key) -> Payload? {
+    public func payloadOf<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Payload? {
         guard let handle = find(key) else { return nil }
         return self.payloadAt(handle)
     }
@@ -232,10 +236,10 @@ public extension RedBlackTree {
     /// - Note: If you need to get the key for a range of nodes, and you have a non-empty summary, using a generator
     ///   is faster than querying the keys of each node one by one.
     /// - SeeAlso: `generate`, `generateFrom`
-    public func keyAt(handle: Handle) -> Key {
+    public func keyAt(handle: Handle) -> InsertionKey {
+        let prefix = summaryBefore(handle)
         let node = self[handle]
-        let prefix = summaryOfAllNodesBefore(handle)
-        return Config.key(node.head, prefix: prefix)
+        return InsertionKey(summary: prefix, head: node.head)
     }
 
     /// Returns a typle containing the key and payload of the node at `handle`.
@@ -244,7 +248,10 @@ public extension RedBlackTree {
     ///   is faster than querying the keys of each node one by one.
     /// - SeeAlso: `generate`, `generateFrom`
     public func elementAt(handle: Handle) -> Element {
-        return (keyAt(handle), self[handle].payload)
+        let prefix = summaryBefore(handle)
+        let node = self[handle]
+        let key = InsertionKey(summary: prefix, head: node.head)
+        return (key, node.payload)
     }
 
     /// Returns the head of the node at `handle`.
@@ -278,9 +285,10 @@ public extension RedBlackTree {
     public mutating func setHeadAt(handle: Handle, to head: Head) -> Head {
         var node = self[handle]
         assert({
-            let prefix = summaryOfAllNodesBefore(handle) // This is O(log(n)) -- which is why this is not in a precondition.
-            let key = Config.key(node.head, prefix: prefix)
-            return Config.compare(key, to: head, prefix: prefix) == .Matching
+            let prefix = summaryBefore(handle) // This is O(log(n)) -- which is why this is not in a precondition.
+            let oldKey = InsertionKey(summary: prefix, head: node.head)
+            let newKey = InsertionKey(summary: prefix, head: head)
+            return oldKey == newKey
             }())
         let old = node.head
         node.head = head
@@ -326,7 +334,11 @@ extension RedBlackTree {
     public func rightmostUnder(handle: Handle) -> Handle {
         return furthestUnder(handle, toward: .Right)
     }
-    
+
+    public func furthestToward(direction: RedBlackDirection) -> Handle? {
+        return (direction == .Left ? leftmost : rightmost)
+    }
+
     public func furthestUnder(handle: Handle, toward direction: RedBlackDirection) -> Handle {
         var handle = handle
         while let next = self[handle][direction] {
@@ -339,8 +351,8 @@ extension RedBlackTree {
 
 //MARK: Generating all items in the tree
 
-public struct RedBlackGenerator<Config: RedBlackConfig, Payload>: GeneratorType {
-    typealias Tree = RedBlackTree<Config, Payload>
+public struct RedBlackGenerator<Key: RedBlackInsertionKey, Payload>: GeneratorType {
+    typealias Tree = RedBlackTree<Key, Payload>
     private let tree: Tree
     private var handle: Tree.Handle?
     private var summary: Tree.Summary
@@ -348,7 +360,7 @@ public struct RedBlackGenerator<Config: RedBlackConfig, Payload>: GeneratorType 
     public mutating func next() -> Tree.Element? {
         guard let handle = handle else { return nil }
         let node = tree[handle]
-        let key = Config.key(node.head, prefix: summary)
+        let key = Key(summary: summary, head: node.head)
         summary += node.head
         self.handle = tree.successor(handle)
         return (key, node.payload)
@@ -356,7 +368,7 @@ public struct RedBlackGenerator<Config: RedBlackConfig, Payload>: GeneratorType 
 }
 
 extension RedBlackTree: SequenceType {
-    public typealias Generator = RedBlackGenerator<Config, Payload>
+    public typealias Generator = RedBlackGenerator<InsertionKey, Payload>
 
     /// Return a generator that provides an ordered list of all (key, payload) pairs that are currently in the tree.
     /// - Complexity: O(1) to get the generator; O(count) to retrieve all elements.
@@ -374,167 +386,93 @@ extension RedBlackTree: SequenceType {
 //MARK: Searching in the tree
 
 extension RedBlackTree {
-    internal func find(key: Key, @noescape step: (Handle, KeyMatchResult)->KeyMatchResult) {
-        if sizeof(Summary.self) == 0 {
-            var handle = self.root
-            while let h = handle {
-                let node = self[h]
-                let match = Config.compare(key, to: node.head, prefix: Summary())
-                switch step(h, match) {
-                case .Before: handle = node.left
-                case .Matching: return
-                case .After: handle = node.right
-                }
-            }
-        }
-        else {
-            var handle = self.root
-            var summary = Summary()
-            while let h = handle {
-                let node = self[h]
-                let s = summary + self[node.left]?.summary
-                let match = Config.compare(key, to: node.head, prefix: s)
-                switch step(h, match) {
-                case .Before:
-                    handle = node.left
-                case .Matching:
-                    return
-                case .After:
-                    summary = s + node.head
-                    handle = node.right
-                }
+    private func find<Key: RedBlackKey where Key.Summary == Summary>(key: Key, @noescape step: (KeyMatchResult, Handle) -> KeyMatchResult) {
+        var handle = self.root
+        var summary = Summary()
+        while let h = handle {
+            let node = self[h]
+            let s = summary + self[node.left]?.summary
+            let k = Key(summary: s, head: node.head)
+            let match: KeyMatchResult = (key < k ? .Before : key > k ? .After : .Matching)
+            let next = step(match, h)
+            switch next {
+            case .Before:
+                handle = node.left
+            case .Matching:
+                return
+            case .After:
+                summary = s + node.head
+                handle = node.right
             }
         }
     }
 
-    /// Finds and returns the handle of a node that matches `key`, or nil if no such node exists.
+    private func find<Key: RedBlackKey where Key.Summary == Summary>(key: Key, winding: RedBlackDirection) -> (hit: Handle?, miss: Handle?) {
+        var hit: Handle? = nil
+        var miss: Handle? = nil
+        var handle = self.root
+        var summary = Summary()
+        while let h = handle {
+            let node = self[h]
+            let s = summary + self[node.left]?.summary
+            let k = Key(summary: s, head: node.head)
+            if key < k {
+                if winding == .Right { miss = h }
+                handle = node.left
+            }
+            else if key > k {
+                if winding == .Left { miss = h }
+                summary = s + node.head
+                handle = node.right
+            }
+            else {
+                hit = h
+                handle = (winding == .Left ? node.left : node.right)
+            }
+        }
+        return (hit, miss)
+    }
+
+    /// Finds and returns the handle of a node which matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func find(key: Key) -> Handle? {
+    public func find<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
         // Topmost is the best, since it terminates on the first match.
         return topmostMatching(key)
     }
 
     /// Finds and returns the handle of the topmost node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func topmostMatching(key: Key) -> Handle? {
+    public func topmostMatching<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
         var result: Handle? = nil
-        find(key) { handle, match in
-            if match == .Matching {
-                result = handle
-            }
+        find(key) { match, handle in
+            if match == .Matching { result = handle }
             return match
-        }
-        return result
-    }
-
-    /// Finds and returns the handle of the leftmost node that matches `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
-    public func leftmostMatching(key: Key) -> Handle? {
-        var result: Handle? = nil
-        find(key) { handle, match in
-            switch match {
-            case .Before:
-                return .Before
-            case .Matching:
-                result = handle
-                return .Before
-            case .After:
-                return .After
-            }
-        }
-        return result
-    }
-
-    /// Finds and returns the handle of the leftmost node that matches `key` or is after it, or nil if no such node exists.
-    /// - Complexity: O(log(count))
-    public func leftmostMatchingOrAfter(key: Key) -> Handle? {
-        var result: Handle? = nil
-        find(key) { handle, match in
-            switch match {
-            case .Before:
-                result = handle
-                return .Before
-            case .Matching:
-                result = handle
-                return .Before
-            case .After:
-                return .After
-            }
-        }
-        return result
-    }
-
-    /// Finds and returns the handle of the leftmost node that sorts after `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
-    public func leftmostAfter(key: Key) -> Handle? {
-        var result: Handle? = nil
-        find(key) { handle, match in
-            switch match {
-            case .Before:
-                result = handle
-                return .Before
-            case .Matching:
-                return .After
-            case .After:
-                return .After
-            }
-        }
-        return result
-    }
-
-    /// Finds and returns the handle of the rightmost node that matches `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
-    public func rightmostMatching(key: Key) -> Handle? {
-        var result: Handle? = nil
-        find(key) { handle, match in
-            switch match {
-            case .Before:
-                return .Before
-            case .Matching:
-                result = handle
-                return .After
-            case .After:
-                return .After
-            }
         }
         return result
     }
 
     /// Finds and returns the handle of the rightmost node that sorts before `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func rightmostBefore(key: Key) -> Handle? {
-        var result: Handle? = nil
-        find(key) { handle, match in
-            switch match {
-            case .Before:
-                return .Before
-            case .Matching:
-                return .Before
-            case .After:
-                result = handle
-                return .After
-            }
-        }
-        return result
+    public func rightmostBefore<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
+        return find(key, winding: .Left).miss
     }
 
-    /// Finds and returns the handle of the rightmost node that sorts before or matches `key`, or nil if no such node exists.
+    /// Finds and returns the handle of the leftmost node that matches `key`, or nil if no such node exists.
     /// - Complexity: O(log(count))
-    public func rightmostBeforeOrMatching(key: Key) -> Handle? {
-        var result: Handle? = nil
-        find(key) { handle, match in
-            switch match {
-            case .Before:
-                return .Before
-            case .Matching:
-                result = handle
-                return .After
-            case .After:
-                result = handle
-                return .After
-            }
-        }
-        return result
+    public func leftmostMatching<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
+        return find(key, winding: .Left).hit
+    }
+
+    /// Finds and returns the handle of the rightmost node that matches `key`, or nil if no such node exists.
+    /// - Complexity: O(log(count))
+    public func rightmostMatching<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
+        return find(key, winding: .Right).hit
+    }
+
+    /// Finds and returns the handle of the leftmost node that sorts after `key`, or nil if no such node exists.
+    /// - Complexity: O(log(count))
+    public func leftmostAfter<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
+        return find(key, winding: .Right).miss
     }
 }
 
@@ -561,21 +499,48 @@ extension RedBlackTree {
         }
     }
 
+    /// Returns the summary calculated over the sequence of all nodes below `handle`, including the top.
+    /// - Complexity: O(1)
+    public func summaryUnder(handle: Handle?) -> Summary {
+        guard sizeof(Summary.self) > 0 else { return Summary() }
+        guard let handle = handle else { return Summary() }
+        return self[handle].summary
+    }
+
     /// Returns the summary calculated over the sequence all nodes preceding `handle` in the tree.
     /// - Complexity: O(log(count) for nonempty summaries, O(1) when the summary is empty.
-    public func summaryOfAllNodesBefore(handle: Handle) -> Summary {
+    public func summaryBefore(handle: Handle) -> Summary {
+        guard sizeof(Summary.self) > 0 else { return Summary() }
+
         func summaryOfLeftSubtree(handle: Handle) -> Summary {
-            guard sizeof(Summary.self) > 0 else { return Summary() }
-            guard let left = self[handle].left else { return Summary() }
-            return self[left].summary
+            return summaryUnder(self[handle].left)
         }
 
-        guard sizeof(Summary.self) > 0 else { return Summary() }
         var handle = handle
         var summary = summaryOfLeftSubtree(handle)
         while case .Toward(let direction, under: let parent) = slotOf(handle) {
             if direction == .Right {
                 summary = summaryOfLeftSubtree(parent) + self[parent].head + summary
+            }
+            handle = parent
+        }
+        return summary
+    }
+
+    /// Returns the summary calculated over the sequence all nodes succeeding `handle` in the tree.
+    /// - Complexity: O(log(count) for nonempty summaries, O(1) when the summary is empty.
+    public func summaryAfter(handle: Handle) -> Summary {
+        guard sizeof(Summary.self) > 0 else { return Summary() }
+
+        func summaryOfRightSubtree(handle: Handle) -> Summary {
+            return summaryUnder(self[handle].right)
+        }
+
+        var handle = handle
+        var summary = summaryOfRightSubtree(handle)
+        while case .Toward(let direction, under: let parent) = slotOf(handle) {
+            if direction == .Left {
+                summary = summary + self[parent].head + summaryOfRightSubtree(parent)
             }
             handle = parent
         }
@@ -664,16 +629,11 @@ extension RedBlackTree {
         return .Toward(direction, under: parent)
     }
 
-    private func compare(key: Key, with handle: Handle) -> KeyMatchResult {
-        let summary = summaryOfAllNodesBefore(handle)
-        return Config.compare(key, to: self[handle].head, prefix: summary)
-    }
-
     /// - Note: This can be faster than finding the old node and inserting if not found.
-    public mutating func setPayloadOf(key: Key, to payload: Payload) -> (Handle, Payload?) {
+    public mutating func setPayloadOf<Key: RedBlackInsertionKey where Key.Summary == Summary>(key: Key, to payload: Payload) -> (Handle, Payload?) {
         var slot: Slot = .Root
         var handle: Handle? = nil
-        self.find(key) { h, m in
+        self.find(key) { m, h in
             switch m {
             case .Before:
                 slot = .Toward(.Left, under: h)
@@ -692,15 +652,15 @@ extension RedBlackTree {
             return (handle, old)
         }
         else {
-            let handle = insert(payload, forKey: key, into: slot)
+            let handle = insert(payload, head: key.head, into: slot)
             return (handle, nil)
         }
     }
 
-    public mutating func insert(payload: Payload, forKey key: Key) -> Handle {
-        func insertionSlotOf(key: Key) -> Slot {
+    public mutating func insert(payload: Payload, forKey key: InsertionKey) -> Handle {
+        func insertionSlotOf(key: InsertionKey) -> Slot {
             var slot: Slot = .Root
-            self.find(key) { handle, match in
+            self.find(key) { match, handle in
                 switch match {
                 case .Before:
                     slot = .Toward(.Left, under: handle)
@@ -717,50 +677,38 @@ extension RedBlackTree {
         }
 
         let slot = insertionSlotOf(key)
-        return insert(payload, forKey: key, into: slot)
+        return insert(payload, head: key.head, into: slot)
     }
 
-    public mutating func insert(payload: Payload, forKey key: Key, after predecessor: Handle?) -> Handle {
-        assert(predecessor == self.rightmostBefore(key) || compare(key, with: predecessor!) == .Matching)
-        guard let predecessor = predecessor else {
-            if let leftmost = leftmost {
-                return self.insert(payload, forKey: key, before: leftmost)
+    public mutating func insert(payload: Payload, forKey key: InsertionKey, after predecessor: Handle?) -> Handle {
+        assert(predecessor == self.rightmostBefore(key) || key == self.keyAt(predecessor!))
+        return insert(payload, head: key.head, toward:.Right, from:predecessor)
+    }
+
+    public mutating func insert(payload: Payload, forKey key: InsertionKey, before successor: Handle?) -> Handle {
+        assert(successor == self.leftmostAfter(key) || key == self.keyAt(successor!))
+        return insert(payload, head: key.head, toward:.Left, from:successor)
+    }
+
+    private mutating func insert(payload: Payload, head: Head, toward direction: RedBlackDirection, from neighbor: Handle?) -> Handle {
+        if let neighbor: Handle = neighbor {
+            if let child = self[neighbor][direction] {
+                let next = furthestUnder(child, toward: direction.opposite)
+                return insert(payload, head: head, into: .Toward(direction.opposite, under: next))
             }
             else {
-                return self.insert(payload, forKey: key)
+                return insert(payload, head: head, into: .Toward(direction, under: neighbor))
             }
         }
-        let node = self[predecessor]
-        if let right = node.right {
-            let next = leftmostUnder(right)
-            return insert(payload, forKey: key, into: .Toward(.Left, under: next))
+        else if let furthest = furthestToward(direction.opposite) {
+            return self.insert(payload, head: head, into: .Toward(direction.opposite, under: furthest))
         }
         else {
-            return insert(payload, forKey: key, into: .Toward(.Right, under: predecessor))
+            return self.insert(payload, head: head, into: .Root)
         }
     }
 
-    public mutating func insert(payload: Payload, forKey key: Key, before successor: Handle?) -> Handle {
-        assert(successor == self.leftmostAfter(key) || compare(key, with: successor!) == .Matching)
-        guard let successor = successor else {
-            if let rightmost = rightmost {
-                return self.insert(payload, forKey: key, after: rightmost)
-            }
-            else {
-                return self.insert(payload, forKey: key)
-            }
-        }
-        let node = self[successor]
-        if let left = node.left {
-            let previous = rightmostUnder(left)
-            return insert(payload, forKey: key, into: .Toward(.Right, under: previous))
-        }
-        else {
-            return insert(payload, forKey: key, into: .Toward(.Left, under: successor))
-        }
-    }
-
-    private mutating func insert(payload: Payload, forKey key: Key, into slot: Slot) -> Handle {
+    private mutating func insert(payload: Payload, head: Head, into slot: Slot) -> Handle {
         let handle = Handle(nodes.count)
         switch slot {
         case .Root:
@@ -768,10 +716,10 @@ extension RedBlackTree {
             self.root = handle
             self.leftmost = handle
             self.rightmost = handle
-            nodes.append(Node(parent: nil, head: Config.head(key), payload: payload))
+            nodes.append(Node(parent: nil, head: head, payload: payload))
         case .Toward(let direction, under: let parent):
             assert(self[parent][direction] == nil)
-            nodes.append(Node(parent: parent, head: Config.head(key), payload: payload))
+            nodes.append(Node(parent: parent, head: head, payload: payload))
             self[parent][direction] = handle
             if leftmost == parent && direction == .Left { leftmost = handle }
             if rightmost == parent && direction == .Right { rightmost = handle }
@@ -843,18 +791,13 @@ extension RedBlackTree {
 
 extension RedBlackTree {
 
-    public mutating func append(tree: RedBlackTree<Config, Payload>) {
-        func ordered(a: (RedBlackTree<Config, Payload>, Handle, Summary), before b: (RedBlackTree<Config, Payload>, Handle, Summary)) -> Bool {
-            let ak = Config.key(a.0[a.1].head, prefix: a.2)
-            return Config.compare(ak, to: b.0[b.1].head, prefix: b.2) != .After
-        }
-
+    public mutating func append(tree: RedBlackTree<InsertionKey, Payload>) {
         guard let b1 = rightmost else { self = tree; return }
         guard let c2 = tree.leftmost else { return }
 
-        let sb = summaryOfAllNodesBefore(b1)
+        let sb = self.summaryBefore(b1)
         let sc = sb + self[b1].head
-        precondition(ordered((self, b1, sb), before: (tree, c2, sc)))
+        precondition(InsertionKey(summary: sb, head: self[b1].head) <= InsertionKey(summary: sc, head: tree[c2].head))
 
         self.reserveCapacity(self.count + tree.count)
         var summary = sc
@@ -862,25 +805,17 @@ extension RedBlackTree {
         var next2: Handle? = c2
         while let h2 = next2 {
             let node2 = tree[h2]
-            let key = Config.key(node2.head, prefix: summary)
-            previous1 = self.insert(node2.payload, forKey: key, after: previous1)
+            previous1 = self.insert(node2.payload, head: node2.head, toward: .Right, from: previous1)
             summary += node2.head
             next2 = tree.successor(h2)
         }
     }
 
-    public mutating func merge(tree: RedBlackTree<Config, Payload>) {
+    public mutating func merge(tree: RedBlackTree<InsertionKey, Payload>) {
         self.reserveCapacity(self.count + tree.count)
-        var handle = tree.leftmost
-        var summary = Summary()
-        while let h = handle {
-            let node = tree[h]
 
-            let key = Config.key(node.head, prefix: summary)
-            self.insert(node.payload, forKey: key)
-
-            summary += node.head
-            handle = tree.successor(h)
+        for (key, payload) in tree {
+            self.insert(payload, forKey: key)
         }
     }
 }

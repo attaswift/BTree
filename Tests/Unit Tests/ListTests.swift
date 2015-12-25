@@ -14,7 +14,7 @@ extension List {
         tree.assertValid()
         var i = 0
         for (key, _) in tree {
-            XCTAssertEqual(key, i)
+            XCTAssertEqual(key.index, i)
             i += 1
         }
     }

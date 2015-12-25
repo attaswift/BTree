@@ -11,9 +11,9 @@ import Foundation
 public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     // Typealiases
 
-    internal typealias Config = SimpleTreeConfig<Key>
-    internal typealias Tree = RedBlackTree<Config, Value>
-    internal typealias Node = Tree.Node
+    internal typealias Summary = EmptySummary<Key>
+    internal typealias TreeKey = StoredKey<Summary>
+    internal typealias Tree = RedBlackTree<TreeKey, Value>
     internal typealias Handle = Tree.Handle
 
     public typealias Index = MapIndex<Key, Value>
@@ -47,19 +47,20 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     // Subscripts
 
     public subscript(index: Index) -> Element {
-        return tree.elementAt(index.handle!)
+        let (key, payload) = tree.elementAt(index.handle!)
+        return (key.head, payload)
     }
 
     public subscript(key: Key) -> Value? {
         get {
-            guard let handle = tree.find(key) else { return nil }
+            guard let handle = tree.find(TreeKey(key)) else { return nil }
             return tree.payloadAt(handle)
         }
         set(value) {
             if let value = value {
-                tree.setPayloadOf(key, to: value)
+                tree.setPayloadOf(TreeKey(key), to: value)
             }
-            else if let handle = tree.find(key) {
+            else if let handle = tree.find(TreeKey(key)) {
                 tree.remove(handle)
             }
         }
@@ -72,7 +73,7 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     }
 
     public func indexForKey(key: Key) -> Index? {
-        guard let handle = tree.find(key) else { return nil }
+        guard let handle = tree.find(TreeKey(key)) else { return nil }
         return Index(tree: tree, handle: handle)
     }
 
@@ -83,7 +84,7 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     }
 
     public mutating func updateValue(value: Value, forKey key: Key) -> Value? {
-        return tree.setPayloadOf(key, to: value).1
+        return tree.setPayloadOf(TreeKey(key), to: value).1
     }
 
     public mutating func removeAtIndex(index: Index) -> (Key, Value) {
@@ -94,7 +95,7 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     }
 
     public mutating func removeValueForKey(key: Key) -> Value? {
-        guard let handle = tree.find(key) else { return nil }
+        guard let handle = tree.find(TreeKey(key)) else { return nil }
         return tree.remove(handle)
     }
 
@@ -104,8 +105,9 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
 }
 
 public struct MapIndex<Key: Comparable, Value>: BidirectionalIndexType {
-    private typealias Config = SimpleTreeConfig<Key>
-    private typealias Tree = RedBlackTree<Config, Value>
+    private typealias Summary = EmptySummary<Key>
+    private typealias TreeKey = StoredKey<Summary>
+    private typealias Tree = RedBlackTree<TreeKey, Value>
     private typealias Handle = Tree.Handle
 
     private let tree: Tree
@@ -132,8 +134,9 @@ public func ==<Key: Comparable, Value>(a: MapIndex<Key, Value>, b: MapIndex<Key,
 public struct MapGenerator<Key: Comparable, Value>: GeneratorType {
     public typealias Element = (Key, Value)
 
-    private typealias Config = SimpleTreeConfig<Key>
-    private typealias Tree = RedBlackTree<Config, Value>
+    private typealias Summary = EmptySummary<Key>
+    private typealias TreeKey = StoredKey<Summary>
+    private typealias Tree = RedBlackTree<TreeKey, Value>
     private typealias Handle = Tree.Handle
 
     private let tree: Tree
@@ -152,7 +155,8 @@ public struct MapGenerator<Key: Comparable, Value>: GeneratorType {
     public mutating func next() -> Element? {
         guard let handle = handle else { return nil }
         self.handle = tree.successor(handle)
-        return tree.elementAt(handle)
+        let (key, payload) = tree.elementAt(handle)
+        return (key.head, payload)
     }
 }
 
