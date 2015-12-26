@@ -9,18 +9,17 @@
 import Foundation
 
 public struct RedBlackHandle<Key: RedBlackInsertionKey, Payload>: Hashable {
-    private let _index: UInt32
+    private let index: Int
 
     private init(_ index: Int) {
-        self._index = UInt32(index)
+        self.index = index
     }
 
-    private var index: Int { return Int(_index) }
-    public var hashValue: Int { return _index.hashValue }
+    public var hashValue: Int { return index.hashValue }
 }
 
 public func ==<K: RedBlackKey, P>(a: RedBlackHandle<K, P>, b: RedBlackHandle<K, P>) -> Bool {
-    return a._index == b._index
+    return a.index == b.index
 }
 
 extension RedBlackHandle: CustomStringConvertible, CustomDebugStringConvertible {
@@ -73,6 +72,26 @@ internal func ==<Key: RedBlackKey, Payload>(a: RedBlackSlot<Key, Payload>, b: Re
     return a == b
 }
 
+private struct _Handle<Key: RedBlackInsertionKey, Payload> {
+    typealias Handle = RedBlackHandle<Key, Payload>
+
+    var _index: UInt32
+
+    init(_ handle: Handle?) {
+        if let handle = handle { _index = UInt32(handle.index) }
+        else { _index = UInt32.max }
+    }
+
+    var handle: Handle? {
+        get {
+            return (_index == UInt32.max ? nil : Handle(Int(_index)))
+        }
+        set(handle) {
+            if let handle = handle { _index = UInt32(handle.index) }
+            else { _index = UInt32.max }
+        }
+    }
+}
 
 
 internal struct RedBlackNode<Key: RedBlackInsertionKey, Payload> {
@@ -80,9 +99,9 @@ internal struct RedBlackNode<Key: RedBlackInsertionKey, Payload> {
     typealias Summary = Key.Summary
     typealias Head = Summary.Item
 
-    private(set) var parent: Handle?
-    private(set) var left: Handle?
-    private(set) var right: Handle?
+    private var _parent: _Handle<Key, Payload>
+    private var _left: _Handle<Key, Payload>
+    private var _right: _Handle<Key, Payload>
     private(set) var color: Color
 
     private(set) var head: Head
@@ -92,9 +111,9 @@ internal struct RedBlackNode<Key: RedBlackInsertionKey, Payload> {
 
 
     private init(parent: Handle?, head: Head, payload: Payload) {
-        self.parent = parent
-        self.left = nil
-        self.right = nil
+        self._parent = _Handle(parent)
+        self._left = _Handle(nil)
+        self._right = _Handle(nil)
         self.head = head
         self.summary = Summary(head)
         self.payload = payload
@@ -114,6 +133,19 @@ internal struct RedBlackNode<Key: RedBlackInsertionKey, Payload> {
             case .Right: right = handle
             }
         }
+    }
+
+    internal private(set) var parent: Handle? {
+        get { return _parent.handle }
+        set(h) { _parent.handle = h }
+    }
+    internal private(set) var left: Handle? {
+        get { return _left.handle }
+        set(h) { _left.handle = h }
+    }
+    internal private(set) var right: Handle? {
+        get { return _right.handle }
+        set(h) { _right.handle = h }
     }
 
     private mutating func replaceChild(old: Handle, with new: Handle?) {
