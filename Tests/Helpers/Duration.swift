@@ -22,6 +22,12 @@ public struct Duration: Comparable, Hashable, FloatLiteralConvertible, CustomStr
     public var nanoseconds: Int64 {
         return value
     }
+    public var milliseconds: Double {
+        return Double(value) / Double(NSEC_PER_MSEC)
+    }
+    public var microseconds: Double {
+        return Double(value) / Double(NSEC_PER_USEC)
+    }
     public var timeInterval: NSTimeInterval {
         return Double(value) / Double(NSEC_PER_SEC)
     }
@@ -64,7 +70,9 @@ public struct DurationSample {
             let ns = d.nanoseconds - average
             return a + ns * ns
         }
-        return Duration(nanoseconds: Int64(sqrt(Double(sum / (n - 1)))))
+        let sigma2 = sum / (n - 1)
+        let sigma = sqrt(Double(sigma2))
+        return Duration(nanoseconds: Int64(sigma))
     }
 
     var relativeStandardDeviation: Double {
