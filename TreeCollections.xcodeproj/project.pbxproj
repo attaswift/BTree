@@ -81,6 +81,10 @@
 		BB9AE4621C1FCEB3002C5D63 /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9AE43B1C1FCC35002C5D63 /* TreeCollections.framework */; };
 		BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4831C20875D002C5D63 /* TestUtils.swift */; };
 		BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4831C20875D002C5D63 /* TestUtils.swift */; };
+		BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
+		BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
+		BBCABF9E1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
+		BBCABF9F1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -156,6 +160,7 @@
 		BB9AE47A1C20543A002C5D63 /* ArrayLikeCollectionType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ArrayLikeCollectionType.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB9AE47D1C207303002C5D63 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		BB9AE4831C20875D002C5D63 /* TestUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestUtils.swift; sourceTree = "<group>"; };
+		BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String Manipulation.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -227,6 +232,7 @@
 				BB1747491C289539002C929C /* Duration.swift */,
 				BB17474A1C289539002C929C /* Permutations.swift */,
 				BB17474B1C289539002C929C /* PermutationTests.swift */,
+				BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */,
 				BB1747771C2897F8002C929C /* XCTest extensions.swift */,
 			);
 			name = "Reusable Test Helpers";
@@ -552,6 +558,7 @@
 				BB1747891C289A15002C929C /* Benchmark.swift in Sources */,
 				BB1747921C28BB4C002C929C /* LookupBenchmark.swift in Sources */,
 				BB17476F1C289544002C929C /* Duration.swift in Sources */,
+				BBCABF9F1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB1747721C289544002C929C /* Random.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -583,6 +590,7 @@
 				BB17475A1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */,
 				BB1747661C289539002C929C /* MapTests.swift in Sources */,
+				BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB17478C1C289DDF002C929C /* ListTests.swift in Sources */,
 				BB3EAACC1C26F7F40028E5A7 /* TreeChecker.swift in Sources */,
 				BB3EAAC91C26F6F10028E5A7 /* TreeDumper.swift in Sources */,
@@ -620,6 +628,7 @@
 				BB17475B1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */,
 				BB1747671C289539002C929C /* MapTests.swift in Sources */,
+				BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB17478D1C289DDF002C929C /* ListTests.swift in Sources */,
 				BB3EAACD1C26F7F40028E5A7 /* TreeChecker.swift in Sources */,
 				BB3EAACA1C26F6F10028E5A7 /* TreeDumper.swift in Sources */,
@@ -642,6 +651,7 @@
 				BB3EAACE1C2703820028E5A7 /* TestUtils.swift in Sources */,
 				BB1747801C289948002C929C /* Benchmark.swift in Sources */,
 				BB1747861C289948002C929C /* PerformanceTests.swift in Sources */,
+				BBCABF9E1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB17476E1C289539002C929C /* RedBlackTreeTests.swift in Sources */,
 				BB1747591C289539002C929C /* Permutations.swift in Sources */,
 				BB1747621C289539002C929C /* Time.swift in Sources */,

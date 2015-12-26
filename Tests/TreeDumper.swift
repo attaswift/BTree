@@ -22,7 +22,6 @@ private enum LineType {
     case RightSubtree
 }
 
-
 extension RedBlackTree {
 
     func dump() {
@@ -98,21 +97,12 @@ extension RedBlackTree {
         guard let top = top else { print("nil"); return }
 
         let prefix = summaryBefore(self.leftmostUnder(top))
-        let lines = dump(top, prefix: prefix).1
+        let data = dump(top, prefix: prefix).1
+        let lines = layoutColumns(data.map { $0.2 })
+        let graphics = data.map { $0.1 }
 
-        let columnCount = lines.reduce(0) { a, l in max(a, l.2.count) }
-        var columnWidths = [Int](count: columnCount, repeatedValue: 0)
-        lines.lazy.flatMap { $0.2.enumerate() }.forEach { i, c in
-            columnWidths[i] = max(columnWidths[i], c.characters.count)
-        }
-
-        for (_, graphic, columns) in lines {
-            var line = graphic
-            columns.enumerate().forEach { i, c in
-                line += c
-                line += String(count: columnWidths[i] - c.characters.count + 1, repeatedValue: " " as Character)
-            }
-            print(line)
+        for (graphic, line) in zip(graphics, lines) {
+            print(graphic + line)
         }
     }
 }

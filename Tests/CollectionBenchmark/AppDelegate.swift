@@ -31,6 +31,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 file += "\n"
             }
         }
+
         let fm = NSFileManager.defaultManager()
         let ws = NSWorkspace.sharedWorkspace()
         do {
@@ -49,6 +50,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSAlert(error: error as NSError).beginSheetModalForWindow(self.window) { response in
                 print("Well OK then")
             }
+        }
+
+
+        var lines: [[String]] = []
+        lines.append(["Parameter", "Experiment", "Size", "Average", "RSD"])
+        for (key, data) in result.data {
+            lines.append([key.param, key.experiment, String(key.size), String(data.average.milliseconds) + "ms", String(data.relativeStandardDeviation)])
+        }
+        layoutColumns(lines).forEach { print($0) }
+
+        let columnCount = lines.reduce(0) { a, l in max(a, l.count) }
+        var columnWidths = [Int](count: columnCount, repeatedValue: 0)
+        lines.lazy.flatMap { $0.enumerate() }.forEach { i, c in
+            columnWidths[i] = max(columnWidths[i], c.characters.count)
         }
     }
 
