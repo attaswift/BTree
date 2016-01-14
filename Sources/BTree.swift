@@ -8,15 +8,15 @@
 
 import Foundation
 
-internal let bTreeOrder = 10
+internal let bTreeOrder = 7
 
 private let maxChildren = bTreeOrder
 private let minChildren = (bTreeOrder + 1) / 2
 private let maxKeys = bTreeOrder - 1
 private let minKeys = (bTreeOrder - 1) / 2
-
 public struct BTree<Key: Comparable, Payload>: SequenceType {
     public typealias Generator = BTreeGenerator<Key, Payload>
+    public typealias Element = Generator.Element
 
     /// A sorted array of keys.
     internal var keys: Array<Key>
@@ -25,7 +25,7 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
     /// An empty array (when this is a leaf), or `keys.count + 1` child nodes (when this is an internal node).
     internal var children: Array<BTree>
 
-    public private(set) var count: Int
+    public internal(set) var count: Int
 
     internal init(keys: Array<Key>, payloads: Array<Payload>, children: Array<BTree>) {
         self.keys = keys
@@ -41,6 +41,55 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
         self.count = 0
     }
 
+    private static func bulkLoad<S: SequenceType where S.Generator.Element == Element>(elements: S) -> BTree<Key, Payload> {
+        typealias Tree = BTree<Key, Payload>
+        var path: [Tree] = [Tree()]
+        var lastKey: Key? = nil
+        for (key, payload) in elements {
+            precondition(lastKey <= key)
+            lastKey = key
+            path[0].keys.append(key)
+            path[0].payloads.append(payload)
+            path[0].count += 1
+            var i = 0
+            while path[i].isTooLarge {
+                var left = path[i]
+                if i > 0 {
+                    let prev = path[i - 1]
+                    left.children.append(prev)
+                    left.count += prev.count
+                }
+                let (sep, right) = left.split()
+                path[i] = right
+                if i > 0 {
+                    let prev = path[i].children.removeLast()
+                    path[i].count -= prev.count
+                }
+                if i == path.count - 1 {
+                    path.append(Tree())
+                }
+                path[i + 1].keys.append(sep.0)
+                path[i + 1].payloads.append(sep.1)
+                path[i + 1].children.append(left)
+                path[i + 1].count += 1 + left.count
+                i += 1
+            }
+        }
+        for i in 1 ..< path.count {
+            let previous = path[i - 1]
+            path[i].children.append(previous)
+            path[i].count += previous.count
+        }
+        return path.last!
+    }
+    
+    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
+        self = .bulkLoad(elements.sort { $0.0 < $1.0 })
+    }
+    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements: S) {
+        self = .bulkLoad(sortedElements)
+    }
+
     public var isEmpty: Bool { return count == 0 }
 
     public func generate() -> Generator {
@@ -48,18 +97,11 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
     }
 
     internal var isLeaf: Bool { return children.isEmpty }
+    internal var isTooSmall: Bool { return keys.count < minKeys }
+    internal var isTooLarge: Bool { return keys.count > maxKeys }
+    internal var isBalanced: Bool { return keys.count >= minKeys && keys.count <= maxKeys }
 
-    internal var level: Int {
-        var level = 0
-        var node = self
-        while !node.isLeaf {
-            level += 1
-            node = node.children[0]
-        }
-        return level
-    }
-
-    internal func slotOf(key: Key) -> Int {
+    internal func slotOf(key: Key) -> (index: Int, match: Bool) {
         var start = 0
         var end = keys.count
         while start < end {
@@ -71,25 +113,25 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
                 end = mid
             }
         }
-        return start
+        return (start, start < keys.count && keys[start] == key)
     }
 
     public func payloadOf(key: Key) -> Payload? {
         var node = self
-        while true {
+        while !node.isLeaf {
             let slot = node.slotOf(key)
-            if slot != node.keys.count && node.keys[slot] == key {
-                return node.payloads[slot]
+            if slot.match {
+                return node.payloads[slot.index]
             }
-            if node.children.isEmpty {
-                return nil
-            }
-            node = node.children[slot]
+            node = node.children[slot.index]
         }
+        let slot = node.slotOf(key)
+        guard slot.match else { return nil }
+        return node.payloads[slot.index]
     }
 
     private mutating func split() -> (separator: (Key, Payload), splinter: BTree<Key, Payload>) {
-        assert(keys.count > maxKeys)
+        assert(isTooLarge)
         let count = keys.count
         let median = count / 2
 
@@ -97,16 +139,22 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
         let splinter = BTree(
             keys: Array(keys[median + 1 ..< count]),
             payloads: Array(payloads[median + 1 ..< count]),
-            children: isLeaf ? [] : Array(children[median + 1...count + 1]))
+            children: isLeaf ? [] : Array(children[median + 1 ..< count + 1]))
         keys.removeRange(Range(start: median, end: count))
         payloads.removeRange(Range(start: median, end: count))
-        children.removeRange(Range(start: median + 1, end: count + 1))
+        if isLeaf {
+            self.count = median
+        }
+        else {
+            children.removeRange(Range(start: median + 1, end: count + 1))
+            self.count = median + children.reduce(0, combine: { $0 + $1.count })
+        }
         return (separator, splinter)
     }
 
     private mutating func insertAndSplit(key: Key, _ payload: Payload) -> (separator: (Key, Payload), splinter: BTree<Key, Payload>)? {
         count += 1
-        let slot = slotOf(key)
+        let slot = slotOf(key).index
         if isLeaf {
             keys.insert(key, atIndex: slot)
             payloads.insert(payload, atIndex: slot)
@@ -115,9 +163,9 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
             guard let (separator, splinter) = children[slot].insertAndSplit(key, payload) else { return nil }
             keys.insert(separator.0, atIndex: slot)
             payloads.insert(separator.1, atIndex: slot)
-            children.insert(splinter, atIndex: slot)
+            children.insert(splinter, atIndex: slot + 1)
         }
-        return keys.count <= maxKeys ? nil : split()
+        return isTooLarge ? split() : nil
     }
 
     public mutating func insert(key: Key, _ payload: Payload) {
@@ -130,6 +178,7 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
         payloads.append(separator.1)
         children.append(left)
         children.append(right)
+        count = left.count + right.count + 1
     }
 
     internal func maxKey() -> Key {
@@ -139,10 +188,6 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
         }
         return node.keys.last!
     }
-
-    private var isTooSmall: Bool { return keys.count < minKeys }
-    private var isTooLarge: Bool { return keys.count > maxKeys }
-    private var isBalanced: Bool { return keys.count >= minKeys && keys.count <= maxKeys }
 
     private mutating func rotateLeft(slot: Int) {
         children[slot].keys.append(keys[slot])
@@ -162,8 +207,9 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
     }
 
     private mutating func rotateRight(slot: Int) {
-        children[slot].keys.insert(keys[slot], atIndex: 0)
-        children[slot].payloads.insert(payloads[slot], atIndex: 0)
+        assert(slot > 0)
+        children[slot].keys.insert(keys[slot - 1], atIndex: 0)
+        children[slot].payloads.insert(payloads[slot - 1], atIndex: 0)
         if !children[slot].isLeaf {
             let lastGrandChildBeforeSlot = children[slot - 1].children.removeLast()
             children[slot].children.insert(lastGrandChildBeforeSlot, atIndex: 0)
@@ -171,8 +217,8 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
             children[slot - 1].count -= lastGrandChildBeforeSlot.count
             children[slot].count += lastGrandChildBeforeSlot.count
         }
-        keys[slot] = children[slot - 1].keys.removeLast()
-        payloads[slot] = children[slot - 1].payloads.removeLast()
+        keys[slot - 1] = children[slot - 1].keys.removeLast()
+        payloads[slot - 1] = children[slot - 1].payloads.removeLast()
 
         children[slot - 1].count -= 1
         children[slot].count += 1
@@ -181,15 +227,15 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
     private mutating func collapse(slot: Int) {
         assert(slot < children.count - 1)
         let next = children.removeAtIndex(slot + 1)
-        children[slot].keys.append(keys.removeAtIndex(slot + 1))
-        children[slot].payloads.append(payloads.removeAtIndex(slot + 1))
+        children[slot].keys.append(keys.removeAtIndex(slot))
+        children[slot].payloads.append(payloads.removeAtIndex(slot))
         children[slot].count += 1
 
         children[slot].keys.appendContentsOf(next.keys)
         children[slot].payloads.appendContentsOf(next.payloads)
+        children[slot].count += next.count
         if !next.isLeaf {
             children[slot].children.appendContentsOf(next.children)
-            children[slot].count += next.count
         }
         assert(children[slot].isBalanced)
     }
@@ -199,7 +245,7 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
         if slot > 0 && children[slot - 1].keys.count > minKeys {
             rotateRight(slot)
         }
-        else if slot < children.count && children[slot + 1].keys.count > minKeys {
+        else if slot < children.count - 1 && children[slot + 1].keys.count > minKeys {
             rotateLeft(slot)
         }
         else if slot > 0 {
@@ -215,32 +261,32 @@ public struct BTree<Key: Comparable, Payload>: SequenceType {
     private mutating func removeAndCollapse(key: Key) -> Payload? {
         let slot = self.slotOf(key)
         if isLeaf {
-            if slot != keys.count && keys[slot] == key {
-                // In leaf nodes, we can just directly remove the key.
-                keys.removeAtIndex(slot)
-                count -= 1
-                return payloads.removeAtIndex(slot)
-            }
-            return nil
+            guard slot.match else { return nil }
+            // In leaf nodes, we can just directly remove the key.
+            keys.removeAtIndex(slot.index)
+            count -= 1
+            return payloads.removeAtIndex(slot.index)
         }
 
         let payload: Payload
-        if slot != keys.count && keys[slot] == key {
+        if slot.match {
             // For internal nodes, we move the previous item in place of the removed one,
             // and remove its original slot instead. (The previous item is always in a leaf node.)
-            payload = payloads[slot]
-            let previousKey = children[slot].maxKey()
-            let previousPayload = removeAndCollapse(previousKey)
-            keys[slot] = previousKey
-            payloads[slot] = previousPayload!
+            payload = payloads[slot.index]
+            let previousKey = children[slot.index].maxKey()
+            let previousPayload = children[slot.index].removeAndCollapse(previousKey)
+            keys[slot.index] = previousKey
+            payloads[slot.index] = previousPayload!
             count -= 1
         }
         else {
-            guard let p = children[slot].removeAndCollapse(key) else { return nil }
+            guard let p = children[slot.index].removeAndCollapse(key) else { return nil }
             count -= 1
             payload = p
         }
-        if children[slot].isTooSmall { fixDeficiency(slot) }
+        if children[slot.index].isTooSmall {
+            fixDeficiency(slot.index)
+        }
         return payload
     }
 
@@ -286,7 +332,9 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
         if !node.isLeaf {
             // Descend
             indexPath[level - 1] = index + 1
-            var n = node
+            var n = node.children[index + 1]
+            nodePath.append(n)
+            indexPath.append(0)
             while !n.isLeaf {
                 n = n.children.first!
                 nodePath.append(n)

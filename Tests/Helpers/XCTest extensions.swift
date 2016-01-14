@@ -21,7 +21,7 @@ public func XCTAssertEqual<T: Equatable>(@autoclosure expression1: () -> T, @aut
     }
 }
 
-public func XCTAssertEqual<T1: Equatable, T2: Equatable, S: SequenceType where S.Generator.Element == (T1, T2)>(a: S, _ b: [(T1, T2)], file: String = __FILE__, line: UInt = __LINE__) {
+public func XCTAssertElementsEqual<T1: Equatable, T2: Equatable, S: SequenceType where S.Generator.Element == (T1, T2)>(a: S, _ b: [(T1, T2)], file: String = __FILE__, line: UInt = __LINE__) {
     let aa = Array(a)
     if !aa.elementsEqual(b, isEquivalent: { a, b in a.0 == b.0 && a.1 == b.1 }) {
         XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(b)\"", file: file, line: line)
