@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal let bTreeOrder = 7
+internal let bTreeOrder = 1536
 
 private let maxChildren = bTreeOrder
 private let minChildren = (bTreeOrder + 1) / 2
