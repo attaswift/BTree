@@ -1,5 +1,8 @@
 # Logarithmic Collections for Swift
 
+[![Build Status](https://travis-ci.org/lorentey/TreeCollections.svg?branch=master)](https://travis-ci.org/lorentey/TreeCollections)
+[![codecov.io](https://codecov.io/github/lorentey/TreeCollections/coverage.svg?branch=master)](https://codecov.io/github/lorentey/TreeCollections?branch=master)
+
 This project implements two collection types in pure Swift that use red-black trees as the underlying data structure:
 
 - `Map<Key, Value>` implements a tree-based mapping from `Key` to `Value` instances. 
