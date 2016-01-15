@@ -77,6 +77,26 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
         if c != count { env.fail("Count is \(c), expected \(count)") }
     }
 
+    benchmark.addExperiment("lookup in B-tree") { env in
+        var tree = BTree<Int, P>()
+        for (key, payload) in env.input {
+            tree.insert(key, payload)
+        }
+
+        let keys = (0..<count).map { _ in random(env.input.count) }
+
+        var c = 0
+        env.startMeasuring()
+        for key in keys {
+            if let _ = tree.payloadOf(key) {
+                c += 1
+            }
+        }
+        env.stopMeasuring()
+
+        if c != count { env.fail("Count is \(c), expected \(count)") }
+    }
+
     benchmark.addExperiment("lookup in Dictionary") { env in
         var dict: Dictionary<Int, P> = [:]
         for (key, payload) in env.input {

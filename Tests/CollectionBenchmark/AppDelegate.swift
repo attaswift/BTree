@@ -76,13 +76,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 last = i
                 return true
             }
-            let b1 = insertionBenchmark("small", sizes: sizes) { i in i }
+            let smallInsert = insertionBenchmark("small", sizes: sizes) { i in i }
             let object = NSObject()
-            let b2 = insertionBenchmark("bigger", sizes: [50000]) { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) }
-            let b3 = lookupBenchmark("bigger", count: 100000, sizes: [10000], factory: { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) })
-            let b4 = removalBenchmark("bigger", sizes: [10000], factory: { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) })
+            let bigInsert = insertionBenchmark("bigger", sizes: [50000]) { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) }
+            let lookup = lookupBenchmark("bigger", count: 100000, sizes: [10000], factory: { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) })
+            let removal = removalBenchmark("bigger", sizes: [10000], factory: { i in (i, Double(i), "\(i)", [i, 2 * i, 3 * i], object) })
 
-            let results = b4.run(10)
+            let results = smallInsert.run(6)
+
             dispatch_async(dispatch_get_main_queue()) {
                 self.benchmarkDidFinish("Insertion", result: results)
             }
