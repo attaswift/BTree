@@ -39,11 +39,11 @@ extension BTree {
 
             // Check leaf node
             if node.isLeaf {
-                if node.keys.count > bTreeOrder - 1 {
-                    defects.append("Oversize leaf node: \(node.keys.count) > \(bTreeOrder - 1)")
+                if node.keys.count > node.order - 1 {
+                    defects.append("Oversize leaf node: \(node.keys.count) > \(node.order - 1)")
                 }
-                if level > 0 && node.keys.count < (bTreeOrder - 1) / 2 {
-                    defects.append("Undersize leaf node: \(node.keys.count) < \((bTreeOrder - 1) / 2)")
+                if level > 0 && node.keys.count < (node.order - 1) / 2 {
+                    defects.append("Undersize leaf node: \(node.keys.count) < \((node.order - 1) / 2)")
                 }
                 if node.payloads.count != node.keys.count {
                     defects.append("Mismatching item counts in leaf node (keys.count: \(node.keys.count), payloads.count: \(node.payloads.count)")
@@ -55,11 +55,11 @@ extension BTree {
             }
 
             // Check child count
-            if node.children.count > bTreeOrder {
-                defects.append("Oversize internal node: \(node.children.count) > \(bTreeOrder)")
+            if node.children.count > node.order {
+                defects.append("Oversize internal node: \(node.children.count) > \(node.order)")
             }
-            if level > 0 && node.children.count < (bTreeOrder + 1) / 2 {
-                defects.append("Undersize internal node: \(node.children.count) < \((bTreeOrder + 1) / 2)")
+            if level > 0 && node.children.count < (node.order + 1) / 2 {
+                defects.append("Undersize internal node: \(node.children.count) < \((node.order + 1) / 2)")
             }
             if level == 0 && node.children.count < 2 {
                 defects.append("Undersize root node: \(node.children.count) < 2")
@@ -102,21 +102,21 @@ extension BTree {
 }
 
 
-func maximalTreeOfDepth(depth: Int) -> BTree<Int, String> {
+func maximalTreeOfDepth(depth: Int, order: Int) -> BTree<Int, String> {
     func maximalTreeOfDepth(depth: Int, inout key: Int) -> BTree<Int, String> {
-        var tree = BTree<Int, String>()
+        var tree = BTree<Int, String>(order: order)
         if depth == 0 {
-            for _ in 0 ..< bTreeOrder - 1 {
+            for _ in 0 ..< tree.order - 1 {
                 tree.insert(key, String(key))
                 key += 1
             }
         }
         else {
-            for i in 0 ..< bTreeOrder {
+            for i in 0 ..< tree.order {
                 let child = maximalTreeOfDepth(depth - 1, key: &key)
                 tree.children.append(child)
                 tree.count += child.count
-                if i < bTreeOrder - 1 {
+                if i < tree.order - 1 {
                     tree.keys.append(key)
                     tree.payloads.append(String(key))
                     tree.count += 1
@@ -132,9 +132,10 @@ func maximalTreeOfDepth(depth: Int) -> BTree<Int, String> {
 }
 
 class BTreeTests: XCTestCase {
+    let order = 7
 
     func testEmptyTree() {
-        let tree = BTree<Int, String>()
+        let tree = BTree<Int, String>(order: order)
         tree.assertValid()
         XCTAssertTrue(tree.isEmpty)
         XCTAssertEqual(tree.count, 0)
@@ -144,7 +145,7 @@ class BTreeTests: XCTestCase {
     }
 
     func testInsertingASingleKey() {
-        var tree = BTree<Int, String>()
+        var tree = BTree<Int, String>(order: order)
         tree.insert(1, "One")
         tree.assertValid()
         XCTAssertFalse(tree.isEmpty)
@@ -156,7 +157,7 @@ class BTreeTests: XCTestCase {
     }
 
     func testRemovingTheSingleKey() {
-        var tree = BTree<Int, String>()
+        var tree = BTree<Int, String>(order: order)
         tree.insert(1, "One")
         XCTAssertEqual(tree.remove(1), "One")
         tree.assertValid()
@@ -168,7 +169,7 @@ class BTreeTests: XCTestCase {
     }
 
     func testInsertingAndRemovingTwoKeys() {
-        var tree = BTree<Int, String>()
+        var tree = BTree<Int, String>(order: order)
         tree.insert(1, "One")
         tree.insert(2, "Two")
         tree.assertValid()
@@ -197,16 +198,16 @@ class BTreeTests: XCTestCase {
     }
 
     func testSplittingRoot() {
-        var tree = BTree<Int, String>()
+        var tree = BTree<Int, String>(order: order)
         var reference = Array<(Int, String)>()
-        for i in 0..<bTreeOrder {
+        for i in 0..<tree.order {
             tree.insert(i, "\(i)")
             tree.assertValid()
             reference.append((i, "\(i)"))
         }
 
         XCTAssertFalse(tree.isEmpty)
-        XCTAssertEqual(tree.count, bTreeOrder)
+        XCTAssertEqual(tree.count, tree.order)
         XCTAssertElementsEqual(tree, reference)
 
         XCTAssertEqual(tree.keys.count, 1)
@@ -215,20 +216,20 @@ class BTreeTests: XCTestCase {
     }
 
     func testRemovingNonexitentKeys() {
-        var tree = BTree<Int, String>()
-        for i in 0..<bTreeOrder {
+        var tree = BTree<Int, String>(order: order)
+        for i in 0..<tree.order {
             tree.insert(2 * i, "\(2 * i)")
             tree.assertValid()
         }
-        for i in 0..<bTreeOrder {
+        for i in 0..<tree.order {
             XCTAssertNil(tree.remove(2 * i + 1))
         }
     }
 
     func testCollapsingRoot() {
-        var tree = BTree<Int, String>()
+        var tree = BTree<Int, String>(order: order)
         var reference = Array<(Int, String)>()
-        for i in 0..<bTreeOrder {
+        for i in 0..<tree.order {
             tree.insert(i, "\(i)")
             tree.assertValid()
             reference.append((i, "\(i)"))
@@ -237,7 +238,7 @@ class BTreeTests: XCTestCase {
         tree.assertValid()
         reference.removeAtIndex(0)
 
-        XCTAssertEqual(tree.count, bTreeOrder - 1)
+        XCTAssertEqual(tree.count, tree.order - 1)
         XCTAssertElementsEqual(tree, reference)
 
         XCTAssertEqual(tree.keys.count, tree.count)
@@ -246,9 +247,9 @@ class BTreeTests: XCTestCase {
     }
 
     func testSplittingInternalNode() {
-        var tree = BTree<Int, String>()
+        var tree = BTree<Int, String>(order: order)
         var reference = Array<(Int, String)>()
-        let c = (3 * bTreeOrder + 1) / 2
+        let c = (3 * tree.order + 1) / 2
         for i in 0 ..< c {
             tree.insert(i, "\(i)")
             tree.assertValid()
@@ -264,9 +265,9 @@ class BTreeTests: XCTestCase {
     }
 
     func testCreatingMinimalTreeWithThreeLevels() {
-        var tree = BTree<Int, String>()
+        var tree = BTree<Int, String>(order: order)
         var reference = Array<(Int, String)>()
-        let c = (bTreeOrder * bTreeOrder - 1) / 2 + bTreeOrder
+        let c = (tree.order * tree.order - 1) / 2 + tree.order
         for i in 0 ..< c {
             tree.insert(i, "\(i)")
             tree.assertValid()
@@ -283,8 +284,8 @@ class BTreeTests: XCTestCase {
     }
 
     func testRemovingKeysFromMinimalTreeWithThreeLevels() {
-        var tree = BTree<Int, String>()
-        let c = (bTreeOrder * bTreeOrder - 1) / 2 + bTreeOrder
+        var tree = BTree<Int, String>(order: order)
+        let c = (tree.order * tree.order - 1) / 2 + tree.order
         for i in 0 ..< c {
             tree.insert(i, "\(i)")
             tree.assertValid()
@@ -298,8 +299,8 @@ class BTreeTests: XCTestCase {
     }
 
     func testRemovingRootFromMinimalTreeWithThreeLevels() {
-        var tree = BTree<Int, String>()
-        let c = (bTreeOrder * bTreeOrder - 1) / 2 + bTreeOrder
+        var tree = BTree<Int, String>(order: order)
+        let c = (tree.order * tree.order - 1) / 2 + tree.order
         for i in 0 ..< c {
             tree.insert(i, "\(i)")
             tree.assertValid()
@@ -311,16 +312,16 @@ class BTreeTests: XCTestCase {
 
     func testMaximalTreeOfDepth() {
         for depth in 0..<3 {
-            let tree = maximalTreeOfDepth(depth)
+            let tree = maximalTreeOfDepth(depth, order: order)
             tree.assertValid()
             XCTAssertEqual(tree.depth, depth)
-            XCTAssertEqual(tree.count, (0...depth).reduce(1, combine: { p, _ in p * bTreeOrder }) - 1)
+            XCTAssertEqual(tree.count, (0...depth).reduce(1, combine: { p, _ in p * tree.order }) - 1)
         }
     }
 
     func testRemovingFromBeginningOfMaximalTreeWithThreeLevels() {
         // This test exercises left rotations.
-        var tree = maximalTreeOfDepth(2)
+        var tree = maximalTreeOfDepth(2, order: order)
         for key in 0..<tree.count {
             XCTAssertEqual(tree.remove(key), String(key))
             tree.assertValid()
@@ -329,7 +330,7 @@ class BTreeTests: XCTestCase {
     }
     func testRemovingFromEndOfMaximalTreeWithThreeLevels() {
         // This test exercises right rotations.
-        var tree = maximalTreeOfDepth(2)
+        var tree = maximalTreeOfDepth(2, order: order)
         for key in (0..<tree.count).reverse() {
             XCTAssertEqual(tree.remove(key), String(key))
             tree.assertValid()
@@ -338,28 +339,31 @@ class BTreeTests: XCTestCase {
     }
 
     func testBulkLoadingOneFullNode() {
-        let elements = (0 ..< bTreeOrder - 1).map { ($0, String($0)) }
-        let tree = BTree<Int, String>(elements)
+        let elements = (0 ..< order - 1).map { ($0, String($0)) }
+        var tree = BTree<Int, String>(order: order)
+        tree.appendContentsOf(elements)
         tree.assertValid()
         XCTAssertElementsEqual(tree, elements)
     }
 
     func testBulkLoadingOneFullNodePlusOne() {
-        let elements = (0 ..< bTreeOrder).map { ($0, String($0)) }
-        let tree = BTree<Int, String>(elements)
+        let elements = (0 ..< order).map { ($0, String($0)) }
+        var tree = BTree<Int, String>(order: order)
+        tree.appendContentsOf(elements)
         tree.assertValid()
         XCTAssertElementsEqual(tree, elements)
     }
 
     func testSortedBulkLoadingFullLevels() {
-        let maxKeys = bTreeOrder - 1
+        let maxKeys = order - 1
         let minKeys = maxKeys / 2
 
         var n = maxKeys
         var sum = n
         for i in 0..<3 {
             let elements = (0 ..< sum).map { ($0, String($0)) }
-            var tree = BTree<Int, String>(sortedElements: elements)
+            var tree = BTree<Int, String>(order: order)
+            tree.appendContentsOf(elements)
             tree.assertValid()
             XCTAssertElementsEqual(tree, elements)
             XCTAssertEqual(tree.depth, i)
