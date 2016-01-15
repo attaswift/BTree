@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 
 /// Represents elapsed time between two `Timestamp`s.
 public struct Duration: Comparable, Hashable, FloatLiteralConvertible, CustomStringConvertible {
@@ -63,16 +64,17 @@ public struct DurationSample {
     }
 
     var standardDeviation: Duration {
-        let n = Int64(durations.count)
-        guard n > 1 else { return Duration() }
+        guard durations.count > 1 else { return Duration() }
         let average = self.average.nanoseconds
-        let sum: Int64 = durations.reduce(0) { a, d in
-            let ns = d.nanoseconds - average
-            return a + ns * ns
+        var sum2: BigUInt = 0
+        for d in durations {
+            let ns = BigInt(d.nanoseconds - average)
+            sum2 += ns.abs * ns.abs
         }
-        let sigma2 = sum / (n - 1)
-        let sigma = sqrt(Double(sigma2))
-        return Duration(nanoseconds: Int64(sigma))
+        let sigma2 = sum2.divideByDigit(UInt64(durations.count - 1)).div
+        let sigma = sqrt(sigma2)
+        if sigma.count > 1 { fatalError("Integer overflow") }
+        return Duration(nanoseconds: Int64(sigma[0]))
     }
 
     var relativeStandardDeviation: Double {
