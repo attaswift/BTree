@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "BB1747251C276CFB002C929C"
-               BuildableName = "CollectionBenchmark.app"
-               BlueprintName = "CollectionBenchmark"
+               BuildableName = "CollectionBench-Mac.app"
+               BlueprintName = "CollectionBench-Mac"
                ReferencedContainer = "container:TreeCollections.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -34,8 +34,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BB1747251C276CFB002C929C"
-            BuildableName = "CollectionBenchmark.app"
-            BlueprintName = "CollectionBenchmark"
+            BuildableName = "CollectionBench-Mac.app"
+            BlueprintName = "CollectionBench-Mac"
             ReferencedContainer = "container:TreeCollections.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -43,7 +43,7 @@
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Profile"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -57,8 +57,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BB1747251C276CFB002C929C"
-            BuildableName = "CollectionBenchmark.app"
-            BlueprintName = "CollectionBenchmark"
+            BuildableName = "CollectionBench-Mac.app"
+            BlueprintName = "CollectionBench-Mac"
             ReferencedContainer = "container:TreeCollections.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -76,8 +76,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BB1747251C276CFB002C929C"
-            BuildableName = "CollectionBenchmark.app"
-            BlueprintName = "CollectionBenchmark"
+            BuildableName = "CollectionBench-Mac.app"
+            BlueprintName = "CollectionBench-Mac"
             ReferencedContainer = "container:TreeCollections.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

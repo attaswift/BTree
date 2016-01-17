@@ -84,8 +84,15 @@ public struct Experiment<P: BenchmarkParameter> {
     }
 }
 
+public protocol BenchmarkProtocol {
+    var name: String { get }
+    func run(iterations: Int) -> BenchmarkResult
+}
+extension BenchmarkProtocol {
+    func run() -> BenchmarkResult { return run(10) }
+}
 
-public struct Benchmark<P: BenchmarkParameter> {
+public struct Benchmark<P: BenchmarkParameter>: BenchmarkProtocol {
     public let name: String
     public private(set) var experiments: [String: Experiment<P>] = [:]
     public private(set) var params: [P] = []

@@ -8,7 +8,7 @@
 
 import Foundation
 
-// This is the size (in bytes) of all the keys that we want to store inside a single, fully loaded b-tree node.
+// `bTreeNodeSize` is the maximum size (in bytes) of the keys in a single, fully loaded b-tree node.
 // This is related to the order of the b-tree, i.e., the maximum number of children of an internal node.
 //
 // Common sense indicates (and benchmarking verifies) that the fastest b-tree order depends on `strideof(key)`:
@@ -16,7 +16,12 @@ import Foundation
 // is independent of the key; this value is supposed to be that size.
 //
 // Obviously, the optimal node size depends on the hardware we're running on.
-internal var bTreeNodeSize = 12288 // == 0.75 * 16kiB
+// Benchmarks performed on various systems (iOS A5X, A8X, A9; Mac Intel Core i7 Ivy Bridge) indicate that 8KiB is a good overall choice.
+// (This may be related to the size of the L1 cache, which is frequently 16kiB or 32kiB.)
+//
+// It is not a good idea to use powers of two as the b-tree order, as that would lead to Array reallocation just before
+// before a node is split. A node size that's just below 2^n seems like a good choice.
+internal let bTreeNodeSize = 8191
 
 //MARK: BTree definition
 
@@ -57,7 +62,7 @@ extension BTree {
         self.init(order: BTree<Key, Payload>.defaultOrder)
     }
 
-    internal init(order: Int) {
+    public init(order: Int) { // TODO: This should be internal
         self.init(order: order, keys: [], payloads: [], children: [])
     }
 }
