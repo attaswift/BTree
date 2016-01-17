@@ -16,11 +16,12 @@ import Foundation
 // is independent of the key; this value is supposed to be that size.
 //
 // Obviously, the optimal node size depends on the hardware we're running on.
-// Benchmarks performed on various systems (iOS A5X, A8X, A9; Mac Intel Core i7 Ivy Bridge) indicate that 8KiB is a good overall choice.
+// Benchmarks performed on various systems (Apple A5X, A8X, A9; Intel Core i5 Sandy Bridge, Core i7 Ivy Bridge) 
+// indicate that 8KiB is a good overall choice.
 // (This may be related to the size of the L1 cache, which is frequently 16kiB or 32kiB.)
 //
-// It is not a good idea to use powers of two as the b-tree order, as that would lead to Array reallocation just before
-// before a node is split. A node size that's just below 2^n seems like a good choice.
+// It is not a good idea to use powers of two as the b-tree order, as that would lead to Array reallocations just before
+// a node is split. A node size that's just below 2^n seems like a good choice.
 internal let bTreeNodeSize = 8191
 
 //MARK: BTree definition
