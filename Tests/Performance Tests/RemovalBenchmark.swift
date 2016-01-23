@@ -33,6 +33,23 @@ public func removalBenchmark<P>(name: String, sizes: [Int], factory: Int->P) -> 
         env.stopMeasuring()
     }
 
+    benchmark.addExperiment("removal from unsorted Deque") { env in
+        var deque: Deque<(Int, P)> = []
+        for (key, payload) in env.input {
+            deque.append((key, payload))
+        }
+
+        let shuffledKeys = env.input.map { $0.0 }.shuffle()
+
+        env.startMeasuring()
+        for key in shuffledKeys { // O(n^2)
+            let index = deque.indexOf { $0.0 == key } // O(n)
+            deque.removeAtIndex(index!) // O(n)
+        }
+        env.stopMeasuring()
+    }
+
+
     benchmark.addExperiment("removal from SortedArray") { env in
         var array: SortedArray<Int, P> = [:]
         for (key, payload) in env.input {
