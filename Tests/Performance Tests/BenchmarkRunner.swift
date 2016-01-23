@@ -12,7 +12,7 @@ extension BenchmarkResult {
     func summary() -> [String] {
         var lines: [[String]] = []
         lines.append(["Parameter", "Experiment", "Size", "Average", "RSD"])
-        for (key, data) in self.data {
+        for (key, data) in self.data.sort({ $0.1.average < $1.1.average }) {
             lines.append([key.param, key.experiment, String(key.size), String(data.average.milliseconds) + "ms", String(data.relativeStandardDeviation)])
         }
         return layoutColumns(lines)
