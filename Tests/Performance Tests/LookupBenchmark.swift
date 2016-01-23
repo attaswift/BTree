@@ -103,7 +103,7 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
     benchmark.addExperiment("lookup in B-tree") { env in
         var tree = BTree<Int, P>()
         for (key, payload) in env.input {
-            tree.insert(key, payload)
+            tree.insert(payload, at: key)
         }
 
         let keys = (0..<count).map { _ in random(env.input.count) }

@@ -46,7 +46,7 @@ func orderOptimizerBenchmark<P>(name: String, orders: [Int], inputSizes: [Int], 
         var tree = BTree<Int, P>(order: env.input.order)
         env.startMeasuring()
         for (key, payload) in env.input.values {
-            tree.insert(key, payload)
+            tree.insert(payload, at: key)
         }
         env.stopMeasuring()
     }

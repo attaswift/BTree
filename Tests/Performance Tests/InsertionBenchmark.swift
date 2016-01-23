@@ -129,7 +129,7 @@ public func insertionBenchmark<P>(name: String, sizes: [Int], factory: Int->P) -
         var tree = BTree<Int, P>()
         env.startMeasuring()
         for (key, payload) in env.input {
-            tree.insert(key, payload)
+            tree.insert(payload, at: key)
         }
         env.stopMeasuring()
     }

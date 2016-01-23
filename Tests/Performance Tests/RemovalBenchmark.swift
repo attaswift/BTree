@@ -104,7 +104,7 @@ public func removalBenchmark<P>(name: String, sizes: [Int], factory: Int->P) -> 
     benchmark.addExperiment("removal from B-tree") { env in
         var tree = BTree<Int, P>()
         for (key, payload) in env.input {
-            tree.insert(key, payload)
+            tree.insert(payload, at: key)
         }
 
         let shuffledKeys = env.input.map { $0.0 }.shuffle()

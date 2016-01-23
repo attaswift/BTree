@@ -107,7 +107,7 @@ func maximalTreeOfDepth(depth: Int, order: Int) -> BTree<Int, String> {
         var tree = BTree<Int, String>(order: order)
         if depth == 0 {
             for _ in 0 ..< tree.order - 1 {
-                tree.insert(key, String(key))
+                tree.insert(String(key), at: key)
                 key += 1
             }
         }
@@ -146,7 +146,7 @@ class BTreeTests: XCTestCase {
 
     func testInsertingASingleKey() {
         var tree = BTree<Int, String>(order: order)
-        tree.insert(1, "One")
+        tree.insert("One", at: 1)
         tree.assertValid()
         XCTAssertFalse(tree.isEmpty)
         XCTAssertEqual(tree.count, 1)
@@ -158,7 +158,7 @@ class BTreeTests: XCTestCase {
 
     func testRemovingTheSingleKey() {
         var tree = BTree<Int, String>(order: order)
-        tree.insert(1, "One")
+        tree.insert("One", at: 1)
         XCTAssertEqual(tree.remove(1), "One")
         tree.assertValid()
 
@@ -170,8 +170,8 @@ class BTreeTests: XCTestCase {
 
     func testInsertingAndRemovingTwoKeys() {
         var tree = BTree<Int, String>(order: order)
-        tree.insert(1, "One")
-        tree.insert(2, "Two")
+        tree.insert("One", at: 1)
+        tree.insert("Two", at: 2)
         tree.assertValid()
 
         XCTAssertFalse(tree.isEmpty)
@@ -201,7 +201,7 @@ class BTreeTests: XCTestCase {
         var tree = BTree<Int, String>(order: order)
         var reference = Array<(Int, String)>()
         for i in 0..<tree.order {
-            tree.insert(i, "\(i)")
+            tree.insert("\(i)", at: i)
             tree.assertValid()
             reference.append((i, "\(i)"))
         }
@@ -218,7 +218,7 @@ class BTreeTests: XCTestCase {
     func testRemovingNonexitentKeys() {
         var tree = BTree<Int, String>(order: order)
         for i in 0..<tree.order {
-            tree.insert(2 * i, "\(2 * i)")
+            tree.insert("\(2 * i)", at: 2 * i)
             tree.assertValid()
         }
         for i in 0..<tree.order {
@@ -230,7 +230,7 @@ class BTreeTests: XCTestCase {
         var tree = BTree<Int, String>(order: order)
         var reference = Array<(Int, String)>()
         for i in 0..<tree.order {
-            tree.insert(i, "\(i)")
+            tree.insert("\(i)", at: i)
             tree.assertValid()
             reference.append((i, "\(i)"))
         }
@@ -251,7 +251,7 @@ class BTreeTests: XCTestCase {
         var reference = Array<(Int, String)>()
         let c = (3 * tree.order + 1) / 2
         for i in 0 ..< c {
-            tree.insert(i, "\(i)")
+            tree.insert("\(i)", at: i)
             tree.assertValid()
             reference.append((i, "\(i)"))
         }
@@ -269,7 +269,7 @@ class BTreeTests: XCTestCase {
         var reference = Array<(Int, String)>()
         let c = (tree.order * tree.order - 1) / 2 + tree.order
         for i in 0 ..< c {
-            tree.insert(i, "\(i)")
+            tree.insert("\(i)", at: i)
             tree.assertValid()
             reference.append((i, "\(i)"))
         }
@@ -287,7 +287,7 @@ class BTreeTests: XCTestCase {
         var tree = BTree<Int, String>(order: order)
         let c = (tree.order * tree.order - 1) / 2 + tree.order
         for i in 0 ..< c {
-            tree.insert(i, "\(i)")
+            tree.insert("\(i)", at: i)
             tree.assertValid()
         }
 
@@ -302,7 +302,7 @@ class BTreeTests: XCTestCase {
         var tree = BTree<Int, String>(order: order)
         let c = (tree.order * tree.order - 1) / 2 + tree.order
         for i in 0 ..< c {
-            tree.insert(i, "\(i)")
+            tree.insert("\(i)", at: i)
             tree.assertValid()
         }
         XCTAssertEqual(tree.remove(c / 2), "\(c/2)")
@@ -369,7 +369,7 @@ class BTreeTests: XCTestCase {
             XCTAssertEqual(tree.depth, i)
 
             let extra = (sum + 1, String(sum + 1))
-            tree.insert(extra.0, extra.1)
+            tree.insert(extra.1, at: extra.0)
             tree.assertValid()
             XCTAssertElementsEqual(tree, elements + [extra])
             XCTAssertEqual(tree.depth, i + 1)
