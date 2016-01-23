@@ -25,7 +25,7 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
 
         var c = 0
         env.startMeasuring()
-        foo: for key in keys {
+        for key in keys {
             for (k, _) in array {
                 if k == key {
                     c += 1
@@ -36,6 +36,29 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
 
         if c != count { env.fail("Count is \(c), expected \(count)") }
     }
+    
+    benchmark.addExperiment("search in unsorted Deque") { env in
+        var deque: Deque<(Int, P)> = []
+        for (key, payload) in env.input {
+            deque.append((key, payload))
+        }
+
+        let keys = (0..<count).map { _ in random(env.input.count) }
+
+        var c = 0
+        env.startMeasuring()
+        for key in keys {
+            for (k, _) in deque {
+                if k == key {
+                    c += 1
+                }
+            }
+        }
+        env.stopMeasuring()
+
+        if c != count { env.fail("Count is \(c), expected \(count)") }
+    }
+
 
     benchmark.addExperiment("lookup in SortedArray") { env in
         var array: SortedArray<Int, P> = [:]
@@ -47,7 +70,7 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
 
         var c = 0
         env.startMeasuring()
-        foo: for key in keys {
+        for key in keys {
             if let _ = array[key] {
                 c += 1
             }
@@ -67,7 +90,7 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
 
         var c = 0
         env.startMeasuring()
-        foo: for key in keys {
+        for key in keys {
             if let _ = map[key] {
                 c += 1
             }
@@ -107,7 +130,7 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
 
         var c = 0
         env.startMeasuring()
-        foo: for key in keys {
+        for key in keys {
             if let _ = dict[key] {
                 c += 1
             }
