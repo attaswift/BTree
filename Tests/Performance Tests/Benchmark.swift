@@ -154,8 +154,8 @@ public struct Benchmark<P: BenchmarkParameter>: BenchmarkProtocol {
                 }
                 else {
                     print("\(percent)%, ETA ~\(finish): Finished \(param.size) - \(experiment.name) - \(param.name) - \(measurement.duration.timeInterval * 1000)ms")
+                    results.addDuration(measurement.duration, experiment: experiment.name, param: param.name, size: param.size)
                 }
-                results.addDuration(measurement.duration, experiment: experiment.name, param: param.name, size: param.size)
                 progress += 1
             }
         }
