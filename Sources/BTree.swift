@@ -81,6 +81,25 @@ extension BTree: SequenceType {
     public func generate() -> Generator {
         return BTreeGenerator(self)
     }
+
+    public func _copyToNativeArrayBuffer() -> _ContiguousArrayBuffer<Element> {
+        // This is a hidden method in SequenceType. It is used by Array's initializer that takes a sequence.
+        // In Swift 2.1.1, the standard implementation of this for collections (_copyCollectionToNativeArrayBuffer)
+        // uses subscripting to iterate over the elements of the collection. 
+        // Subscripting takes O(log(n)) time for b-trees, so using it for iteration is much slower than
+        // our O(n) generator. Thus, we supply a custom implementation that just uses a for-in loop.
+
+        if count == 0 {
+            return _ContiguousArrayBuffer()
+        }
+        let result = _ContiguousArrayBuffer<Element>(count: count, minimumCapacity: 0)
+        var p = result.firstElementAddress
+        for element in self {
+            p.initialize(element)
+            p += 1
+        }
+        return result
+    }
 }
 
 public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
