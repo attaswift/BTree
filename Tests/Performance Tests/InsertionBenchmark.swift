@@ -41,7 +41,7 @@ public func insertionBenchmark<P>(name: String, sizes: [Int], factory: Int->P) -
     for size in sizes {
         benchmark.add(PayloadArray<P>(name: name, size: size, factory: factory))
     }
-    benchmark.addExperiment("appending to unsorted array") { env in
+    benchmark.addExperiment("appending to unsorted Array") { env in
         var array: [(Int, P)] = []
         env.startMeasuring()
         for (key, payload) in env.input {
@@ -49,7 +49,32 @@ public func insertionBenchmark<P>(name: String, sizes: [Int], factory: Int->P) -
         }
         env.stopMeasuring()
     }
-    benchmark.addExperiment("inserting to inlined sorted array") { env in
+    benchmark.addExperiment("appending to unsorted Deque") { env in
+        var deque: Deque<(Int, P)> = []
+        env.startMeasuring()
+        for (key, payload) in env.input {
+            deque.append((key, payload))
+        }
+        env.stopMeasuring()
+    }
+    benchmark.addExperiment("prepending to unsorted Array") { env in
+        var array: [(Int, P)] = []
+        env.startMeasuring()
+        for (key, payload) in env.input {
+            array.insert((key, payload), atIndex: 0)
+        }
+        env.stopMeasuring()
+    }
+    benchmark.addExperiment("prepending to unsorted Deque") { env in
+        var deque: Deque<(Int, P)> = []
+        env.startMeasuring()
+        for (key, payload) in env.input {
+            deque.prepend((key, payload))
+        }
+        env.stopMeasuring()
+    }
+
+    benchmark.addExperiment("inserting to inlined SortedArray") { env in
         var array: [(Int, P)] = []
         env.startMeasuring()
         for (key, payload) in env.input {
