@@ -77,6 +77,10 @@
 		BB54D0BA1C1F0357008A462B /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* TreeCollections.framework */; };
 		BB56634F1C46969400F5A118 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTree.swift */; };
 		BB5663501C46969400F5A118 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTree.swift */; };
+		BB6A54BD1C51CFE70036B50E /* Deque.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB952DE41C501A0400AF8294 /* Deque.swift */; };
+		BB6A54BE1C51CFE80036B50E /* Deque.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB952DE41C501A0400AF8294 /* Deque.swift */; };
+		BB6A54BF1C51CFF30036B50E /* DequeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6A54BA1C51A7AA0036B50E /* DequeTests.swift */; };
+		BB6A54C01C51CFF30036B50E /* DequeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB6A54BA1C51A7AA0036B50E /* DequeTests.swift */; };
 		BB96CA681C46BFB000576711 /* BTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB96CA671C46BFB000576711 /* BTreeTests.swift */; };
 		BB96CA691C46BFB000576711 /* BTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB96CA671C46BFB000576711 /* BTreeTests.swift */; };
 		BB9AE4231C1F38B9002C5D63 /* SegmentedArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */; };
@@ -232,6 +236,8 @@
 		BB54D0B91C1F0357008A462B /* TreeCollectionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TreeCollectionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0C01C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB56634E1C46969400F5A118 /* BTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTree.swift; sourceTree = "<group>"; };
+		BB6A54BA1C51A7AA0036B50E /* DequeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DequeTests.swift; sourceTree = "<group>"; };
+		BB952DE41C501A0400AF8294 /* Deque.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Deque.swift; sourceTree = "<group>"; };
 		BB96CA671C46BFB000576711 /* BTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeTests.swift; sourceTree = "<group>"; };
 		BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegmentedArray.swift; sourceTree = "<group>"; };
 		BB9AE43B1C1FCC35002C5D63 /* TreeCollections.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TreeCollections.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -364,10 +370,11 @@
 		BB17474F1C289539002C929C /* Unit Tests */ = {
 			isa = PBXGroup;
 			children = (
-				BB1747531C289539002C929C /* RedBlackTreeTests.swift */,
+				BB6A54BA1C51A7AA0036B50E /* DequeTests.swift */,
 				BB96CA671C46BFB000576711 /* BTreeTests.swift */,
 				BB1747511C289539002C929C /* MapTests.swift */,
 				BB1747501C289539002C929C /* ListTests.swift */,
+				BB1747531C289539002C929C /* RedBlackTreeTests.swift */,
 			);
 			path = "Unit Tests";
 			sourceTree = "<group>";
@@ -406,14 +413,15 @@
 				BB9AE4721C2041AC002C5D63 /* AssociativeCollectionType.swift */,
 				BB9AE4771C2052E2002C5D63 /* SortedAssociativeCollectionType.swift */,
 				BB9AE47A1C20543A002C5D63 /* ArrayLikeCollectionType.swift */,
+				BB952DE41C501A0400AF8294 /* Deque.swift */,
+				BB56634E1C46969400F5A118 /* BTree.swift */,
+				BB097FB21C236EFD00CB718A /* Map.swift */,
+				BB097FB41C236F0500CB718A /* List.swift */,
 				BB9AE4221C1F38B9002C5D63 /* SegmentedArray.swift */,
 				BB097FBB1C23A16700CB718A /* Summary.swift */,
 				BB097FB61C236F1E00CB718A /* RedBlackKey.swift */,
 				BB097FAF1C23668600CB718A /* RedBlackTree.swift */,
 				BB097FC61C25DDA700CB718A /* RedBlackTree descriptions.swift */,
-				BB56634E1C46969400F5A118 /* BTree.swift */,
-				BB097FB21C236EFD00CB718A /* Map.swift */,
-				BB097FB41C236F0500CB718A /* List.swift */,
 				BB9AE46F1C203A96002C5D63 /* SortedArray.swift */,
 				BB54D0B41C1F0357008A462B /* Info.plist */,
 			);
@@ -756,6 +764,7 @@
 				BB097FC71C25DDA700CB718A /* RedBlackTree descriptions.swift in Sources */,
 				BB56634F1C46969400F5A118 /* BTree.swift in Sources */,
 				BB097FC11C25A58600CB718A /* AssociativeCollectionType.swift in Sources */,
+				BB6A54BD1C51CFE70036B50E /* Deque.swift in Sources */,
 				BB097FBC1C23A16700CB718A /* Summary.swift in Sources */,
 				BB097FB71C236F1E00CB718A /* RedBlackKey.swift in Sources */,
 			);
@@ -770,6 +779,7 @@
 				BB17475A1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */,
 				BB96CA681C46BFB000576711 /* BTreeTests.swift in Sources */,
+				BB6A54C01C51CFF30036B50E /* DequeTests.swift in Sources */,
 				BB1747661C289539002C929C /* MapTests.swift in Sources */,
 				BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB17478C1C289DDF002C929C /* ListTests.swift in Sources */,
@@ -796,6 +806,7 @@
 				BB097FCB1C25F58400CB718A /* RedBlackTree descriptions.swift in Sources */,
 				BB5663501C46969400F5A118 /* BTree.swift in Sources */,
 				BB097FBE1C25A58500CB718A /* AssociativeCollectionType.swift in Sources */,
+				BB6A54BE1C51CFE80036B50E /* Deque.swift in Sources */,
 				BB097FBD1C23A1A400CB718A /* Summary.swift in Sources */,
 				BB097FBA1C236F2200CB718A /* List.swift in Sources */,
 			);
@@ -810,6 +821,7 @@
 				BB17475B1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */,
 				BB96CA691C46BFB000576711 /* BTreeTests.swift in Sources */,
+				BB6A54BF1C51CFF30036B50E /* DequeTests.swift in Sources */,
 				BB1747671C289539002C929C /* MapTests.swift in Sources */,
 				BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB17478D1C289DDF002C929C /* ListTests.swift in Sources */,
@@ -1690,6 +1702,7 @@
 				BBBA307A1C4A8C000019830F /* Unchecked */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
