@@ -26,6 +26,8 @@ internal let bTreeNodeSize = 8191
 
 //MARK: BTree definition
 
+/// An in-memory b-tree data structure, efficiently mapping `Comparable` keys to arbitrary payloads.
+/// Iterating over the elements in a b-tree returns them in ascending order of their keys.
 public struct BTree<Key: Comparable, Payload> {
 
     /// A sorted array of keys.
@@ -139,6 +141,69 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
     }
 }
 
+//MARK: CollectionType
+extension BTree: CollectionType {
+    public typealias Index = TreeIndex<Key, Payload>
+
+    public var startIndex: Index { return Index(0) }
+    public var endIndex: Index { return Index(count) }
+
+    public subscript(index: Index) -> (Key, Payload) {
+        get {
+            precondition(index.value >= 0 && index.value < self.count)
+            var index = index.value
+            var node = self
+            while !node.isLeaf {
+                var count = 0
+                for (i, child) in node.children.enumerate() {
+                    let c = count + child.count
+                    if index < c {
+                        node = child
+                        index -= count
+                        break
+                    }
+                    if index == c {
+                        return (node.keys[i], node.payloads[i])
+                    }
+                    count = c + 1
+                }
+            }
+            return (node.keys[index], node.payloads[index])
+        }
+    }
+}
+
+// This is a trivial wrapper around an Int index. It exists for two reasons:
+public struct TreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
+    public typealias Distance = Int.Distance
+
+    internal let value: Int
+
+    internal init(_ value: Int) { self.value = value }
+
+    public func successor() -> TreeIndex<Key, Payload> {
+        return TreeIndex(value.successor())
+    }
+    public func predecessor() -> TreeIndex<Key, Payload> {
+        return TreeIndex(value.predecessor())
+    }
+    public func advancedBy(n: Distance) -> TreeIndex<Key, Payload> {
+        return TreeIndex(value.advancedBy(n))
+    }
+    public func advancedBy(n: Distance, limit: TreeIndex<Key, Payload>) -> TreeIndex<Key, Payload> {
+        return TreeIndex(value.advancedBy(n, limit: limit.value))
+    }
+    public func distanceTo(end: TreeIndex<Key, Payload>) -> Distance {
+        return value.distanceTo(end.value)
+    }
+}
+public func == <Key: Comparable, Payload>(a: TreeIndex<Key, Payload>, b: TreeIndex<Key, Payload>) -> Bool {
+    return a.value == b.value
+}
+public func < <Key: Comparable, Payload>(a: TreeIndex<Key, Payload>, b: TreeIndex<Key, Payload>) -> Bool {
+    return a.value < b.value
+}
+
 //MARK: Internal limits and properties
 
 extension BTree {
@@ -151,6 +216,16 @@ extension BTree {
     internal var isTooSmall: Bool { return keys.count < minKeys }
     internal var isTooLarge: Bool { return keys.count > maxKeys }
     internal var isBalanced: Bool { return keys.count >= minKeys && keys.count <= maxKeys }
+
+    internal var depth: Int {
+        var depth = 0
+        var node = self
+        while !node.isLeaf {
+            node = node.children[0]
+            depth += 1
+        }
+        return depth
+    }
 }
 
 //MARK: Lookup
@@ -184,13 +259,37 @@ extension BTree {
         guard slot.match else { return nil }
         return node.payloads[slot.index]
     }
+
+    public func indexOf(key: Key) -> Int? {
+        var node = self
+        var index = 0
+        while !node.isLeaf {
+            let slot = node.slotOf(key)
+            index += node.children[0 ..< slot.index].reduce(0, combine: { $0 + $1.count })
+            if slot.match {
+                return index
+            }
+            node = node.children[slot.index]
+        }
+        let slot = node.slotOf(key)
+        guard slot.match else { return nil }
+        return index + slot.index
+    }
 }
 
 //MARK: Insertion
 
 extension BTree {
-    public mutating func insert(key: Key, _ payload: Payload) {
-        guard let (separator, right) = self.insertAndSplit(key, payload) else { return }
+    public mutating func set(key: Key, to payload: Payload) -> Payload? {
+        return self.insert(payload, at: key, replacingExisting: true)
+    }
+    public mutating func insert(payload: Payload, at key: Key) {
+        self.insert(payload, at: key, replacingExisting: false)
+    }
+
+    private mutating func insert(payload: Payload, at key: Key, replacingExisting replace: Bool) -> Payload? {
+        let (old, splinter) = self.insertAndSplit(key, payload, replace: replace)
+        guard let (separator, right) = splinter else { return old }
         let left = self
         keys.removeAll()
         payloads.removeAll()
@@ -200,22 +299,33 @@ extension BTree {
         children.append(left)
         children.append(right)
         count = left.count + right.count + 1
+        return old
     }
 
-    private mutating func insertAndSplit(key: Key, _ payload: Payload) -> (separator: (Key, Payload), splinter: BTree<Key, Payload>)? {
-        count += 1
-        let slot = slotOf(key).index
+    private mutating func insertAndSplit(key: Key, _ payload: Payload, replace: Bool) -> (old: Payload?, (separator: (Key, Payload), splinter: BTree<Key, Payload>)?) {
+        let slot = slotOf(key)
+        if slot.match && replace {
+            let old = payloads[slot.index]
+            keys[slot.index] = key
+            payloads[slot.index] = payload
+            return (old, nil)
+        }
         if isLeaf {
-            keys.insert(key, atIndex: slot)
-            payloads.insert(payload, atIndex: slot)
+            keys.insert(key, atIndex: slot.index)
+            payloads.insert(payload, atIndex: slot.index)
+            count += 1
+            return (nil, (isTooLarge ? split() : nil))
         }
-        else {
-            guard let (separator, splinter) = children[slot].insertAndSplit(key, payload) else { return nil }
-            keys.insert(separator.0, atIndex: slot)
-            payloads.insert(separator.1, atIndex: slot)
-            children.insert(splinter, atIndex: slot + 1)
+
+        let (old, splinter) = children[slot.index].insertAndSplit(key, payload, replace: replace)
+        if old == nil {
+            count += 1
         }
-        return isTooLarge ? split() : nil
+        guard let (separator, right) = splinter else { return (old, nil) }
+        keys.insert(separator.0, atIndex: slot.index)
+        payloads.insert(separator.1, atIndex: slot.index)
+        children.insert(right, atIndex: slot.index + 1)
+        return (old, (isTooLarge ? split() : nil))
     }
 
     private mutating func split() -> (separator: (Key, Payload), splinter: BTree<Key, Payload>) {
@@ -251,6 +361,11 @@ extension BTree {
             self = children[0]
         }
         return payload
+    }
+
+    public mutating func removeAt(index: Index) -> (Key, Payload) {
+        let key = self[index].0
+        return (key, remove(key)!)
     }
 
     private mutating func removeAndCollapse(key: Key) -> Payload? {
