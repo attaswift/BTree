@@ -9,9 +9,9 @@ in pure Swift that aren't provided by the standard library:
 - `Deque<Element>` implements a double-ended queue type. It's an `Array`-like random-access collection of arbitrary elements
   that provides efficient O(1) insertion and deletion at both ends.
 
-- `Map<Key, Value>` implements a tree-based mapping from `Key` to `Value` instances. 
+- `Map<Key, Value>` implements an ordered, tree-based mapping from `Key` to `Value` instances. 
   It is like `Dictionary<Key, Value>` in the standard library, but it uses `Comparable` keys and provides 
-  logarithmic time complexity for lookup, removal and insertion. `Map`'s generator returns items in  
+  logarithmic time complexity for lookup, removal and insertion. `Map`'s generator returns items in 
   increasing key order. While individual lookup is logarithmic, iterating over all elements of the map 
   has linear time complexity.
 
