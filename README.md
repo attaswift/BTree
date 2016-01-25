@@ -11,15 +11,16 @@ in pure Swift that aren't provided by the standard library:
 
 - `Map<Key, Value>` implements a tree-based mapping from `Key` to `Value` instances. 
   It is like `Dictionary<Key, Value>` in the standard library, but it uses `Comparable` keys and provides 
-  logarithmic time complexity for lookup, removal and insertion. `Map`'s generator returns items in order of 
-  increasing key. Walking over all elements of the map this way has linear time complexity.
+  logarithmic time complexity for lookup, removal and insertion. `Map`'s generator returns items in  
+  increasing key order. While individual lookup is logarithmic, iterating over all elements of the map 
+  has linear time complexity.
 
 - `List<Element>` implements a tree-based collection of arbitrary elements. It is like `Array<Element>` in the standard
   library, but it supports insertion and removal of individual elements at any index in the list in O(log(n)) time. 
   In exchange, looking up an arbitrary index also costs O(log(n)).
 
 All collections are structs and implement the same copy-on-write value semantics as standard collection types like 
-`Array` and `Dictionary`.
+`Array` and `Dictionary`. (Tree-based collections actually use Arrays for their underlying node storage.)
 
 The module includes implementations of red-black trees and in-memory b-trees that might be reusable elsewhere.
 
