@@ -13,7 +13,9 @@ extension BenchmarkResult {
         var lines: [[String]] = []
         lines.append(["Parameter", "Experiment", "Size", "Average", "RSD"])
         for (key, data) in self.data.sort({ $0.1.average < $1.1.average }) {
-            lines.append([key.param, key.experiment, String(key.size), String(data.average.milliseconds) + "ms", String(data.relativeStandardDeviation)])
+            var average = data.average.milliseconds
+            if average >= 10 { average = round(average) }
+            lines.append([key.param, key.experiment, String(key.size), String(average) + "ms", String(data.relativeStandardDeviation)])
         }
         return layoutColumns(lines)
     }
