@@ -52,10 +52,6 @@ internal final class BTreeNode<Key: Comparable, Payload>: NonObjectiveCBase {
         self.children = children
         self.count = self.keys.count + children.reduce(0) { $0 + $1.count }
     }
-
-    deinit {
-        print("\(self) deinit")
-    }
 }
 
 //MARK: Convenience initializers
