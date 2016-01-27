@@ -8,6 +8,8 @@
 
 import Foundation
 
+/// A tree-based mapping from `Key` to `Value` instances.
+/// Also a collection of key-value pairs with a well-defined ordering.
 public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
     // Typealiases
     internal typealias Node = BTreeNode<Key, Value>
