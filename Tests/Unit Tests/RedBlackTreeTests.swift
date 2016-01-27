@@ -143,7 +143,7 @@ internal struct ByIndexRange<Key: Comparable>: RedBlackKey {
     internal let range: Range<Int>
 
     internal init(_ range: Range<Int>) { self.range = range }
-    internal init(summary: Summary, head: Head) { self.range = Range(start: summary.count, end: summary.count + 1) }
+    internal init(summary: Summary, head: Head) { self.range = summary.count ..< summary.count + 1 }
 }
 internal func ==<Key: Comparable>(a: ByIndexRange<Key>, b: ByIndexRange<Key>) -> Bool {
     return a.range.intersects(b.range)
@@ -158,8 +158,8 @@ internal struct ByWeightIndex<Key: Comparable>: RedBlackKey {
 
     internal let weightIndexRange: Range<Int>
 
-    internal init(_ weightIndex: Int) { self.weightIndexRange = Range(start: weightIndex, end: weightIndex + 1) }
-    internal init(summary: Summary, head: Head) { self.weightIndexRange = Range(start: summary.weight, end: summary.weight + head.weight)}
+    internal init(_ weightIndex: Int) { self.weightIndexRange = weightIndex ..< weightIndex + 1 }
+    internal init(summary: Summary, head: Head) { self.weightIndexRange = summary.weight ..< summary.weight + head.weight }
 }
 internal func ==<Key: Comparable>(a: ByWeightIndex<Key>, b: ByWeightIndex<Key>) -> Bool {
     return a.weightIndexRange.intersects(b.weightIndexRange)

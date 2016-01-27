@@ -29,9 +29,9 @@ struct RedBlackInfo<Key: RedBlackInsertionKey, Payload> {
     var minKey: Key? = nil
     var maxKey: Key? = nil
 
-    var defects: [(Handle, String, String, UInt)] = []
+    var defects: [(Handle, String, FileString, UInt)] = []
 
-    mutating func addDefect(handle: Handle, _ description: String, file: String = __FILE__, line: UInt = __LINE__) {
+    mutating func addDefect(handle: Handle, _ description: String, file: FileString = __FILE__, line: UInt = __LINE__) {
         defects.append((handle, description, file, line))
     }
 }

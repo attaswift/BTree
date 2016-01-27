@@ -399,7 +399,7 @@ class DequeTests: XCTestCase {
     }
 
     func testInsertionCases() {
-        func testInsert(elements elements: [T], wrappedAt wrap: Int, insertionIndex: Int, insertedElements: [T], file: String = __FILE__, line: UInt = __LINE__) {
+        func testInsert(elements elements: [T], wrappedAt wrap: Int, insertionIndex: Int, insertedElements: [T], file: FileString = __FILE__, line: UInt = __LINE__) {
             var deque = dequeWithElements(elements, wrappedAt: wrap)
             var expected = elements
             expected.insertContentsOf(insertedElements, at: insertionIndex)
@@ -423,7 +423,7 @@ class DequeTests: XCTestCase {
 
 
     func testRemovalCases() {
-        func testRemove(elements elements: [T], wrappedAt wrap: Int, range: Range<Int>, file: String = __FILE__, line: UInt = __LINE__) {
+        func testRemove(elements elements: [T], wrappedAt wrap: Int, range: Range<Int>, file: FileString = __FILE__, line: UInt = __LINE__) {
             var deque = dequeWithElements(elements, wrappedAt: wrap)
             var expected = elements
             expected.removeRange(range)

@@ -52,11 +52,11 @@ extension AssociativeCollectionType {
 extension AssociativeCollectionType where Generator.Element == (Key, Value) {
 
     public var keys: LazyMapCollection<Self, Key> {
-        return LazyMapCollection(self) { key, _ in key }
+        return self.lazy.map { key, _ in key }
     }
 
     public var values: LazyMapCollection<Self, Value> {
-        return LazyMapCollection(self) { _, value in value }
+        return self.lazy.map { _, value in value }
     }
 
     public var description: String {
