@@ -29,6 +29,7 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
             for (k, _) in array {
                 if k == key {
                     c += 1
+                    break
                 }
             }
         }
@@ -51,6 +52,7 @@ public func lookupBenchmark<P>(name: String, count: Int, sizes: [Int], factory: 
             for (k, _) in deque {
                 if k == key {
                     c += 1
+                    break
                 }
             }
         }
