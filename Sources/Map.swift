@@ -1,5 +1,5 @@
 //
-//  Map2.swift
+//  Map.swift
 //  TreeCollections
 //
 //  Created by Károly Lőrentey on 2015-12-17.
@@ -10,50 +10,62 @@ import Foundation
 
 public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     // Typealiases
-    internal typealias Tree = BTree<Key, Value>
+    internal typealias Node = BTreeNode<Key, Value>
 
-    public typealias Index = TreeIndex<Key, Value>
-    public typealias Generator = MapGenerator<Key, Value>
+    public typealias Index = BTreeIndex<Key, Value>
+    public typealias Generator = BTreeGenerator<Key, Value>
     public typealias Element = (Key, Value)
 
     // Stored properties
 
-    internal private(set) var tree: Tree
+    internal private(set) var root: Node
 
     // Initalizer 
     public init() {
-        self.tree = Tree()
+        self.root = Node()
+    }
+
+    // Uniqueness
+
+    private var isUnique: Bool {
+        mutating get { return isUniquelyReferenced(&root) }
+    }
+
+    private mutating func makeUnique() {
+        guard !isUnique else { return }
+        root = root.clone()
     }
 
     // Properties
     public var startIndex: Index {
-        return tree.startIndex
+        return root.startIndex
     }
 
     public var endIndex: Index {
-        return tree.endIndex
+        return root.endIndex
     }
 
     public var count: Int {
-        return tree.count
+        return root.count
     }
 
     // Subscripts
 
     public subscript(index: Index) -> Element {
-        return tree[index]
+        return root[index]
     }
 
     public subscript(key: Key) -> Value? {
         get {
-            return tree.payloadOf(key)
+            return root.payloadOf(key)
         }
         set(value) {
+            makeUnique()
             if let value = value {
-                tree.set(key, to: value)
+                root.set(key, to: value)
             }
             else {
-                tree.remove(key)
+                self.removeValueForKey(key)
             }
         }
     }
@@ -61,49 +73,31 @@ public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
     // Methods
 
     public func generate() -> Generator {
-        return Generator(tree.generate())
-    }
-
-    public func _copyToNativeArrayBuffer() -> _ContiguousArrayBuffer<Element> {
-        // The comment in BTree._copyToNativeArrayBuffer explains what this is.
-        return tree._copyToNativeArrayBuffer()
+        return root.generate()
     }
 
     public func indexForKey(key: Key) -> Index? {
-        guard let i = tree.indexOf(key) else { return nil }
-        return Index(i)
+        return root.indexOf(key)
     }
 
     // Mutators
 
     public mutating func updateValue(value: Value, forKey key: Key) -> Value? {
-        return tree.set(key, to: value)
+        makeUnique()
+        return root.set(key, to: value)
     }
 
     public mutating func removeAtIndex(index: Index) -> (Key, Value) {
-        return tree.removeAt(index)
+        makeUnique()
+        return root.removeAt(index)
     }
 
     public mutating func removeValueForKey(key: Key) -> Value? {
-        return tree.remove(key)
+        makeUnique()
+        return root.remove(key)
     }
 
     public mutating func removeAll() {
-        tree = Tree()
+        root = Node()
     }
 }
-
-public struct MapGenerator<Key: Comparable, Value>: GeneratorType {
-    public typealias Element = (Key, Value)
-
-    private var generator: BTreeGenerator<Key, Value>
-
-    private init(_ generator: BTreeGenerator<Key, Value>) {
-        self.generator = generator
-    }
-
-    public mutating func next() -> Element? {
-        return generator.next()
-    }
-}
-
