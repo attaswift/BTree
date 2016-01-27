@@ -9,6 +9,8 @@
 import Foundation
 import TreeCollections
 
+// Note that you'll need to make BTreeNode public to run this test.
+
 struct BTreeOrderParam<Payload>: BenchmarkParameter, CustomStringConvertible {
     typealias Input = (order: Int, values: [(Int, Payload)])
     typealias Output = Void
@@ -43,7 +45,7 @@ func orderOptimizerBenchmark<P>(name: String, orders: [Int], inputSizes: [Int], 
     }
 
     benchmark.addExperiment("insertion") { env in
-        var tree = BTree<Int, P>(order: env.input.order)
+        let tree = BTreeNode<Int, P>(order: env.input.order)
         env.startMeasuring()
         for (key, payload) in env.input.values {
             tree.insert(payload, at: key)

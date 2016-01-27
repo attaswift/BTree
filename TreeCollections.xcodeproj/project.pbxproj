@@ -96,8 +96,6 @@
 		BBBA308B1C4A96640019830F /* CollectionBenchmarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBA30891C4A96640019830F /* CollectionBenchmarks.swift */; };
 		BBBA308D1C4A9CD60019830F /* BigInt.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBBA308C1C4A9CD60019830F /* BigInt.framework */; };
 		BBBA308E1C4A9CD60019830F /* BigInt.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BBBA308C1C4A9CD60019830F /* BigInt.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		BBBA30921C4AA06D0019830F /* OrderOptimizerBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBA30911C4AA06D0019830F /* OrderOptimizerBenchmark.swift */; };
-		BBBA30931C4AA06D0019830F /* OrderOptimizerBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBA30911C4AA06D0019830F /* OrderOptimizerBenchmark.swift */; };
 		BBBA30981C4AA2A50019830F /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* TreeCollections.framework */; };
 		BBBA30991C4AA2A50019830F /* TreeCollections.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* TreeCollections.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BBBA309C1C4BEC5E0019830F /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9AE43B1C1FCC35002C5D63 /* TreeCollections.framework */; };
@@ -680,7 +678,6 @@
 				BB17476F1C289544002C929C /* Duration.swift in Sources */,
 				BBBA308A1C4A96640019830F /* CollectionBenchmarks.swift in Sources */,
 				BB1747891C289A15002C929C /* Benchmark.swift in Sources */,
-				BBBA30921C4AA06D0019830F /* OrderOptimizerBenchmark.swift in Sources */,
 				BB1747881C289A13002C929C /* InsertionBenchmark.swift in Sources */,
 				BB1747921C28BB4C002C929C /* LookupBenchmark.swift in Sources */,
 				BB1747A11C2EC424002C929C /* RemovalBenchmark.swift in Sources */,
@@ -777,7 +774,6 @@
 			files = (
 				BBBA306B1C4A8C000019830F /* AppDelegate.swift in Sources */,
 				BBBA306D1C4A8C000019830F /* ViewController.swift in Sources */,
-				BBBA30931C4AA06D0019830F /* OrderOptimizerBenchmark.swift in Sources */,
 				BBBA30851C4A8DA40019830F /* String Manipulation.swift in Sources */,
 				BBBA30841C4A8D830019830F /* Random.swift in Sources */,
 				BBBA30831C4A8D800019830F /* Permutations.swift in Sources */,
