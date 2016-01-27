@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct Map<Key: Comparable, Value>: SortedAssociativeCollectionType {
+public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
     // Typealiases
     internal typealias Node = BTreeNode<Key, Value>
 
