@@ -22,11 +22,11 @@ public struct Deque<Element> {
 
     /// Initializes an empty deque.
     public init() {
-        buffer = DequeBuffer.create()
+        buffer = DequeBuffer()
     }
     /// Initializes an empty deque that is able to store at least `minimumCapacity` items without reallocating its storage.
     public init(minimumCapacity: Int) {
-        buffer = DequeBuffer.create(capacity: minimumCapacity)
+        buffer = DequeBuffer(capacity: minimumCapacity)
     }
 
     /// Initialize a new deque from the elements of any sequence.
@@ -37,15 +37,7 @@ public struct Deque<Element> {
 
     /// Initialize a deque of `count` elements, each initialized to `repeatedValue`.
     public init(count: Int, repeatedValue: Element) {
-        self.init(minimumCapacity: count)
-        buffer.manager.withUnsafeMutablePointers { hp, p in
-            hp.memory.count = count
-            var q = p
-            for _ in 0..<count {
-                q.initialize(repeatedValue)
-                q += 1
-            }
-        }
+        buffer = DequeBuffer(count: count, repeatedValue: repeatedValue)
     }
 }
 
@@ -67,7 +59,7 @@ extension Deque {
             buffer = buffer.realloc(minimumCapacity)
         }
         else {
-            let new = DequeBuffer<Element>.create(capacity: minimumCapacity)
+            let new = DequeBuffer<Element>(capacity: minimumCapacity)
             new.insertContentsOf(buffer, at: 0)
             buffer = new
         }
@@ -81,7 +73,7 @@ extension Deque {
 
     private mutating func makeUniqueWithCapacity(capacity: Int) {
         guard !isUnique || buffer.capacity < capacity else { return }
-        let copy = DequeBuffer<Element>.create(capacity: capacity)
+        let copy = DequeBuffer<Element>(capacity: capacity)
         copy.insertContentsOf(buffer, at: 0)
         buffer = copy
     }
@@ -126,7 +118,7 @@ extension Deque: MutableCollectionType {
 
 extension Deque: ArrayLiteralConvertible {
     public init(arrayLiteral elements: Element...) {
-        self.buffer = DequeBuffer.create(capacity: elements.count)
+        self.buffer = DequeBuffer(capacity: elements.count)
         buffer.insertContentsOf(elements, at: 0)
     }
 }
@@ -178,7 +170,7 @@ extension Deque: RangeReplaceableCollectionType {
             buffer.replaceRange(range, with: newElements)
         }
         else {
-            let b = DequeBuffer<Element>.create(capacity: grow(count + delta))
+            let b = DequeBuffer<Element>(capacity: grow(count + delta))
             b.insertContentsOf(self.buffer, subRange: 0 ..< range.startIndex, at: 0)
             b.insertContentsOf(newElements, at: b.count)
             b.insertContentsOf(self.buffer, subRange: range.endIndex ..< count, at: b.count)
@@ -206,15 +198,14 @@ extension Deque: RangeReplaceableCollectionType {
                 reserveCapacity(grow(count + 1))
                 capacity = buffer.capacity
             }
-            var i = buffer.manager.value.bufferIndexForDequeIndex(count)
-            buffer.manager.withUnsafeMutablePointerToElements { p in
-                while let element = next where count < capacity {
-                    p.advancedBy(i).initialize(element)
-                    i += 1
-                    if i == capacity { i = 0 }
-                    count += 1
-                    next = generator.next()
-                }
+            var i = buffer.bufferIndexForDequeIndex(count)
+            let p = buffer.elements
+            while let element = next where count < capacity {
+                p.advancedBy(i).initialize(element)
+                i += 1
+                if i == capacity { i = 0 }
+                count += 1
+                next = generator.next()
             }
             buffer.count = count
         }
@@ -282,7 +273,7 @@ extension Deque: RangeReplaceableCollectionType {
             buffer.removeRange(0..<count)
         }
         else {
-            buffer = DequeBuffer.create()
+            buffer = DequeBuffer()
         }
     }
 }
@@ -353,16 +344,72 @@ func != <Element: Equatable>(a: Deque<Element>, b: Deque<Element>) -> Bool {
     return !(a == b)
 }
 
-//MARK: DequeBufferHeader
+//MARK: DequeBuffer
 
-/// Storage buffer header for deques.
-private struct DequeBufferHeader {
+/// Storage buffer for a deque.
+final class DequeBuffer<Element>: NonObjectiveCBase {
+    /// Pointer to allocated storage.
+    internal private(set) var elements: UnsafeMutablePointer<Element>
     /// The capacity of this storage buffer.
-    var capacity: Int
+    internal let capacity: Int
     /// The number of items currently in this deque.
-    var count: Int
+    internal private(set) var count: Int
     /// The index of the first item.
-    var start: Int
+    internal private(set) var start: Int
+
+    internal init(capacity: Int = 16) {
+        // TODO: It would be nicer if element storage was tail-allocated after this instance.
+        // ManagedBuffer is supposed to do that, but ManagedBuffer is surprisingly slow. :-/
+        self.elements = UnsafeMutablePointer.alloc(capacity)
+        self.capacity = capacity
+        self.count = 0
+        self.start = 0
+    }
+
+    internal convenience init(count: Int, repeatedValue: Element) {
+        self.init(capacity: count)
+        let p = elements
+        self.count = count
+        var q = p
+        let limit = p + count
+        while q != limit {
+            q.initialize(repeatedValue)
+            q += 1
+        }
+    }
+
+    deinit {
+        let p = self.elements
+        if start + count <= capacity {
+            p.advancedBy(start).destroy(count)
+        }
+        else {
+            let c = capacity - start
+            p.advancedBy(start).destroy(c)
+            p.destroy(count - c)
+        }
+        p.dealloc(capacity)
+    }
+
+    @warn_unused_result
+    internal func realloc(capacity: Int) -> DequeBuffer {
+        if capacity <= self.capacity { return self }
+        let buffer = DequeBuffer(capacity: capacity)
+        buffer.count = self.count
+        let dst = buffer.elements
+        let src = self.elements
+        if start + count <= capacity {
+            dst.moveInitializeFrom(src.advancedBy(start), count: count)
+        }
+        else {
+            let c = capacity - start
+            dst.moveInitializeFrom(src.advancedBy(start), count: c)
+            dst.advancedBy(c).moveInitializeFrom(src, count: count - c)
+        }
+        self.count = 0
+        return buffer
+    }
+
 
     /// Returns the storage buffer index for a deque index.
     private func bufferIndexForDequeIndex(index: Int) -> Int {
@@ -378,138 +425,49 @@ private struct DequeBufferHeader {
         }
         return capacity - start + i
     }
-}
 
-//MARK: DequeBuffer
-
-class DequeBufferBase: NonObjectiveCBase {
-    private override init() {
-        fatalError("")
-    }
-}
-
-/// Storage buffer for a deque.
-final class DequeBuffer<Element>: DequeBufferBase {
-    private typealias Manager = ManagedBufferPointer<DequeBufferHeader, Element>
-
-    private override init() {
-        fatalError("")
-    }
-
-    @warn_unused_result
-    internal static func create(capacity capacity: Int = 16) -> DequeBuffer<Element> {
-        let manager = Manager(
-            bufferClass: self,
-            minimumCapacity: capacity,
-            initialValue: { buffer, allocatedCount in
-                DequeBufferHeader(capacity: allocatedCount(buffer), count: 0, start: 0)
-            })
-        return unsafeDowncast(manager.buffer)
-    }
-
-    @warn_unused_result
-    internal func realloc(capacity: Int) -> DequeBuffer {
-        if capacity <= self.capacity { return self }
-        let buffer = DequeBuffer.create(capacity: capacity)
-        buffer.count = self.count
-        buffer.manager.withUnsafeMutablePointerToElements { dst in
-            self.manager.withUnsafeMutablePointerToElements { src in
-                let h = self.manager.value
-                if h.start + h.count <= h.capacity {
-                    dst.moveInitializeFrom(src.advancedBy(h.start), count: h.count)
-                }
-                else {
-                    let c = h.capacity - h.start
-                    dst.moveInitializeFrom(src.advancedBy(h.start), count: c)
-                    dst.advancedBy(c).moveInitializeFrom(src, count: h.count - c)
-                }
-            }
-        }
-        self.count = 0
-        return buffer
-    }
-
-    deinit {
-        self.manager.withUnsafeMutablePointers { header, elements in
-            let rest = header.memory.capacity - header.memory.start
-            let count = header.memory.count
-
-            elements.advancedBy(header.memory.start).destroy(min(rest, count))
-            if rest < count {
-                elements.destroy(count - rest)
-            }
-            header.destroy()
-        }
-    }
-
-    private var manager: Manager { return Manager(unsafeBufferObject: self) }
-
-    internal private(set) var count: Int {
-        get { return manager.value.count }
-        set { manager.withUnsafeMutablePointerToValue { $0.memory.count = newValue } }
-    }
-
-    internal var capacity: Int { return manager.value.capacity }
     internal var isFull: Bool { return count == capacity }
-
-    internal private(set) var start: Int {
-        get { return manager.value.start }
-        set { manager.withUnsafeMutablePointerToValue { $0.memory.start = newValue } }
-    }
 
     internal subscript(index: Int) -> Element {
         get {
             assert(index >= 0 && index < count)
-            return manager.withUnsafeMutablePointers { hp, p in
-                let i = hp.memory.bufferIndexForDequeIndex(index)
-                return p.advancedBy(i).memory
-            }
+            let i = bufferIndexForDequeIndex(index)
+            return elements.advancedBy(i).memory
         }
         set {
             assert(index >= 0 && index < count)
-            manager.withUnsafeMutablePointers { hp, p in
-                let i = hp.memory.bufferIndexForDequeIndex(index)
-                p.advancedBy(i).memory = newValue
-            }
+            let i = bufferIndexForDequeIndex(index)
+            elements.advancedBy(i).memory = newValue
         }
     }
 
     internal func prepend(element: Element) {
         precondition(count < capacity)
         let i = start == 0 ? capacity - 1 : start - 1
-        manager.withUnsafeMutablePointerToElements { elements in
-            elements.advancedBy(i).initialize(element)
-        }
+        elements.advancedBy(i).initialize(element)
         self.start = i
         self.count += 1
     }
 
     internal func popFirst() -> Element? {
         guard count > 0 else { return nil }
-        let index = self.start
-        let first = manager.withUnsafeMutablePointerToElements { elements in
-            return elements.advancedBy(index).move()
-        }
-        self.start = manager.value.bufferIndexForDequeIndex(1)
+        let first = elements.advancedBy(start).move()
+        self.start = bufferIndexForDequeIndex(1)
         self.count -= 1
         return first
     }
 
     internal func append(element: Element) {
         precondition(count < capacity)
-        let i = manager.value.bufferIndexForDequeIndex(count)
-        manager.withUnsafeMutablePointerToElements { elements in
-            elements.advancedBy(i).initialize(element)
-        }
+        let endIndex = bufferIndexForDequeIndex(count)
+        elements.advancedBy(endIndex).initialize(element)
         self.count += 1
     }
 
     internal func popLast() -> Element? {
         guard count > 0 else { return nil }
-        let index = manager.value.bufferIndexForDequeIndex(count - 1)
-        let last = manager.withUnsafeMutablePointerToElements { elements in
-            return elements.advancedBy(index).move()
-        }
+        let lastIndex = bufferIndexForDequeIndex(count - 1)
+        let last = elements.advancedBy(lastIndex).move()
         self.count -= 1
         return last
     }
@@ -518,111 +476,106 @@ final class DequeBuffer<Element>: DequeBufferBase {
     /// Existing elements are moved out of the way.
     /// You are expected to fill the gap by initializing all slots in it after calling this method.
     /// Note that all previously calculated buffer indexes are invalidated by this method.
-    private func openGapAt(index: Int, length count: Int) {
+    private func openGapAt(index: Int, length: Int) {
         assert(index >= 0 && index <= self.count)
-        assert(self.count + count <= capacity)
-        guard count > 0 else { return }
-        manager.withUnsafeMutablePointers { hp, p in
-            let h = hp.memory
-            let i = h.bufferIndexForDequeIndex(index)
-            if index >= (h.count + 1) / 2 {
-                // Make room by sliding elements at/after index to the right
-                let end = h.start + h.count <= h.capacity ? h.start + h.count : h.start + h.count - h.capacity
-                if i <= end { // Elements after index are not yet wrapped
-                    if end + count <= h.capacity { // Neither gap nor elements after it will be wrapped
-                        // ....ABCD̲EF......
-                        p.advancedBy(i + count).moveInitializeBackwardFrom(p.advancedBy(i), count: end - i)
-                        // ....ABC.̲..DEF...
-                    }
-                    else if i + count <= h.capacity { // Elements after gap will be wrapped
-                        // .........ABCD̲EF. (count = 3)
-                        p.moveInitializeFrom(p.advancedBy(h.capacity - count), count: end + count - h.capacity)
-                        // EF.......ABCD̲...
-                        p.advancedBy(i + count).moveInitializeBackwardFrom(p.advancedBy(i), count: h.capacity - i - count)
-                        // EF.......ABC.̲..D
-                    }
-                    else { // Gap will be wrapped
-                        // .........ABCD̲EF. (count = 5)
-                        p.advancedBy(i + count - h.capacity).moveInitializeFrom(p.advancedBy(i), count: end - i)
-                        // .DEF.....ABC.̲...
-                    }
+        assert(count + length <= capacity)
+        guard length > 0 else { return }
+        let i = bufferIndexForDequeIndex(index)
+        if index >= (count + 1) / 2 {
+            // Make room by sliding elements at/after index to the right
+            let end = start + count <= capacity ? start + count : start + count - capacity
+            if i <= end { // Elements after index are not yet wrapped
+                if end + length <= capacity { // Neither gap nor elements after it will be wrapped
+                    // ....ABCD̲EF......
+                    elements.advancedBy(i + length).moveInitializeBackwardFrom(elements.advancedBy(i), count: end - i)
+                    // ....ABC.̲..DEF...
                 }
-                else { // Elements after index are already wrapped
-                    if i + count <= h.capacity { // Gap will not be wrapped
-                        // F.......ABCD̲E (count = 1)
-                        p.advancedBy(count).moveInitializeBackwardFrom(p, count: end)
-                        // .F......ABCD̲E
-                        p.moveInitializeFrom(p.advancedBy(h.capacity - count), count: count)
-                        // EF......ABCD̲.
-                        p.advancedBy(i + count).moveInitializeBackwardFrom(p.advancedBy(i), count: h.capacity - i - count)
-                        // EF......ABC.̲D
-                    }
-                    else { // Gap will be wrapped
-                        // F.......ABCD̲E (count = 3)
-                        p.advancedBy(count).moveInitializeBackwardFrom(p, count: end)
-                        // ...F....ABCD̲E
-                        p.advancedBy(i + count - h.capacity).moveInitializeFrom(p.advancedBy(i), count: h.capacity - i)
-                        // .DEF....ABC.̲.
-                    }
+                else if i + length <= capacity { // Elements after gap will be wrapped
+                    // .........ABCD̲EF. (count = 3)
+                    elements.moveInitializeFrom(elements.advancedBy(capacity - length), count: end + length - capacity)
+                    // EF.......ABCD̲...
+                    elements.advancedBy(i + length).moveInitializeBackwardFrom(elements.advancedBy(i), count: capacity - i - length)
+                    // EF.......ABC.̲..D
                 }
-                hp.memory.count += count
+                else { // Gap will be wrapped
+                    // .........ABCD̲EF. (count = 5)
+                    elements.advancedBy(i + length - capacity).moveInitializeFrom(elements.advancedBy(i), count: end - i)
+                    // .DEF.....ABC.̲...
+                }
             }
-            else {
-                // Make room by sliding elements before index to the left, updating `start`.
-                if i >= h.start { // Elements before index are not yet wrapped.
-                    if h.start >= count { // Neither gap nor elements before it will be wrapped.
-                        // ....ABCD̲EF...
-                        p.advancedBy(h.start - count).moveInitializeFrom(p.advancedBy(h.start), count: i - h.start)
-                        // .ABC...D̲EF...
-                    }
-                    else if i >= count { // Elements before the gap will be wrapped.
-                        // ..ABCD̲EF....
-                        p.advancedBy(h.capacity + h.start - count).moveInitializeFrom(p.advancedBy(h.start), count: count - h.start)
-                        // ...BCD̲EF...A
-                        p.moveInitializeFrom(p.advancedBy(count), count: i - count)
-                        // BC...D̲EF...A
-                    }
-                    else { // Gap will be wrapped
-                        // .ABCD̲EF....... (count = 5)
-                        p.advancedBy(h.capacity + h.start - count).moveInitializeFrom(p.advancedBy(h.start), count: i - h.start)
-                        // ....D̲EF...ABC.
-                    }
+            else { // Elements after index are already wrapped
+                if i + length <= capacity { // Gap will not be wrapped
+                    // F.......ABCD̲E (count = 1)
+                    elements.advancedBy(length).moveInitializeBackwardFrom(elements, count: end)
+                    // .F......ABCD̲E
+                    elements.moveInitializeFrom(elements.advancedBy(capacity - length), count: length)
+                    // EF......ABCD̲.
+                    elements.advancedBy(i + length).moveInitializeBackwardFrom(elements.advancedBy(i), count: capacity - i - length)
+                    // EF......ABC.̲D
                 }
-                else { // Elements before index are already wrapped.
-                    if i >= count { // Gap will not be wrapped.
-                        // BCD̲EF......A (count = 1)
-                        p.advancedBy(h.start - count).moveInitializeFrom(p.advancedBy(h.start), count: h.capacity - h.start)
-                        // BCD̲EF.....A.
-                        p.advancedBy(h.capacity - count).moveInitializeFrom(p, count: count)
-                        // .CD̲EF.....AB
-                        p.moveInitializeFrom(p.advancedBy(i - count), count: i - count)
-                        // C.D̲EF.....AB
-                    }
-                    else { // Gap will be wrapped.
-                        // CD̲EF......AB
-                        p.advancedBy(h.start - count).moveInitializeFrom(p.advancedBy(h.start), count: h.capacity - h.start)
-                        // CD̲EF...AB...
-                        p.advancedBy(h.capacity - count).moveInitializeFrom(p, count: i)
-                        // .D̲EF...ABC..
-                    }
+                else { // Gap will be wrapped
+                    // F.......ABCD̲E (count = 3)
+                    elements.advancedBy(length).moveInitializeBackwardFrom(elements, count: end)
+                    // ...F....ABCD̲E
+                    elements.advancedBy(i + length - capacity).moveInitializeFrom(elements.advancedBy(i), count: capacity - i)
+                    // .DEF....ABC.̲.
                 }
-                hp.memory.start = h.start < count ? h.capacity + h.start - count : h.start - count
-                hp.memory.count += count
             }
+            count += length
+        }
+        else {
+            // Make room by sliding elements before index to the left, updating `start`.
+            if i >= start { // Elements before index are not yet wrapped.
+                if start >= length { // Neither gap nor elements before it will be wrapped.
+                    // ....ABCD̲EF...
+                    elements.advancedBy(start - length).moveInitializeFrom(elements.advancedBy(start), count: i - start)
+                    // .ABC...D̲EF...
+                }
+                else if i >= length { // Elements before the gap will be wrapped.
+                    // ..ABCD̲EF....
+                    elements.advancedBy(capacity + start - length).moveInitializeFrom(elements.advancedBy(start), count: length - start)
+                    // ...BCD̲EF...A
+                    elements.moveInitializeFrom(elements.advancedBy(length), count: i - length)
+                    // BC...D̲EF...A
+                }
+                else { // Gap will be wrapped
+                    // .ABCD̲EF....... (count = 5)
+                    elements.advancedBy(capacity + start - length).moveInitializeFrom(elements.advancedBy(start), count: i - start)
+                    // ....D̲EF...ABC.
+                }
+            }
+            else { // Elements before index are already wrapped.
+                if i >= length { // Gap will not be wrapped.
+                    // BCD̲EF......A (count = 1)
+                    elements.advancedBy(start - length).moveInitializeFrom(elements.advancedBy(start), count: capacity - start)
+                    // BCD̲EF.....A.
+                    elements.advancedBy(capacity - length).moveInitializeFrom(elements, count: length)
+                    // .CD̲EF.....AB
+                    elements.moveInitializeFrom(elements.advancedBy(i - length), count: i - length)
+                    // C.D̲EF.....AB
+                }
+                else { // Gap will be wrapped.
+                    // CD̲EF......AB
+                    elements.advancedBy(start - length).moveInitializeFrom(elements.advancedBy(start), count: capacity - start)
+                    // CD̲EF...AB...
+                    elements.advancedBy(capacity - length).moveInitializeFrom(elements, count: i)
+                    // .D̲EF...ABC..
+                }
+            }
+            start = start < length ? capacity + start - length : start - length
+            count += length
         }
     }
 
     internal func insert(element: Element, at index: Int) {
         precondition(index >= 0 && index <= count && !isFull)
         openGapAt(index, length: 1)
-        let i = manager.value.bufferIndexForDequeIndex(index)
-        manager.withUnsafeMutablePointerToElements { p in
-            p.advancedBy(i).initialize(element)
-        }
+        let i = bufferIndexForDequeIndex(index)
+        elements.advancedBy(i).initialize(element)
     }
 
     internal func insertContentsOf(buffer: DequeBuffer, at index: Int) {
-        self.insertContentsOf(buffer, subRange: Range(start: 0, end: buffer.count), at: index)
+        self.insertContentsOf(buffer, subRange: 0 ..< buffer.count, at: index)
     }
 
     internal func insertContentsOf(buffer: DequeBuffer, subRange: Range<Int>, at index: Int) {
@@ -631,52 +584,48 @@ final class DequeBuffer<Element>: DequeBufferBase {
         assert(subRange.startIndex >= 0 && subRange.endIndex <= buffer.count)
         guard subRange.count > 0 else { return }
         openGapAt(index, length: subRange.count)
-        self.manager.withUnsafeMutablePointers { dhp, dp in
-            buffer.manager.withUnsafeMutablePointers { shp, sp in
-                let dh = dhp.memory
-                let sh = shp.memory
 
-                let dstStart = dh.bufferIndexForDequeIndex(index)
-                let srcStart = sh.bufferIndexForDequeIndex(subRange.startIndex)
+        let dp = self.elements
+        let sp = buffer.elements
 
-                let srcCount = subRange.count
+        let dstStart = self.bufferIndexForDequeIndex(index)
+        let srcStart = buffer.bufferIndexForDequeIndex(subRange.startIndex)
 
-                let dstEnd = dh.bufferIndexForDequeIndex(index + srcCount)
-                let srcEnd = sh.bufferIndexForDequeIndex(subRange.endIndex)
+        let srcCount = subRange.count
 
+        let dstEnd = self.bufferIndexForDequeIndex(index + srcCount)
+        let srcEnd = buffer.bufferIndexForDequeIndex(subRange.endIndex)
 
-                if srcStart < srcEnd && dstStart < dstEnd {
-                    dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: srcCount)
-                }
-                else if srcStart < srcEnd {
-                    let t = dh.capacity - dstStart
-                    dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: t)
-                    dp.initializeFrom(sp.advancedBy(srcStart + t), count: srcCount - t)
-                }
-                else if dstStart < dstEnd {
-                    let t = sh.capacity - srcStart
-                    dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: t)
-                    dp.advancedBy(dstStart + t).initializeFrom(sp, count: srcCount - t)
-                }
-                else {
-                    let st = sh.capacity - srcStart
-                    let dt = dh.capacity - dstStart
+        if srcStart < srcEnd && dstStart < dstEnd {
+            dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: srcCount)
+        }
+        else if srcStart < srcEnd {
+            let t = self.capacity - dstStart
+            dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: t)
+            dp.initializeFrom(sp.advancedBy(srcStart + t), count: srcCount - t)
+        }
+        else if dstStart < dstEnd {
+            let t = buffer.capacity - srcStart
+            dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: t)
+            dp.advancedBy(dstStart + t).initializeFrom(sp, count: srcCount - t)
+        }
+        else {
+            let st = buffer.capacity - srcStart
+            let dt = self.capacity - dstStart
 
-                    if dt < st {
-                        dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: dt)
-                        dp.initializeFrom(sp.advancedBy(srcStart + dt), count: st - dt)
-                        dp.advancedBy(st - dt).initializeFrom(sp, count: srcCount - st)
-                    }
-                    else if dt > st {
-                        dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: st)
-                        dp.advancedBy(dstStart + st).initializeFrom(sp, count: dt - st)
-                        dp.initializeFrom(sp.advancedBy(dt - st), count: srcCount - dt)
-                    }
-                    else {
-                        dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: st)
-                        dp.initializeFrom(sp, count: srcCount - st)
-                    }
-                }
+            if dt < st {
+                dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: dt)
+                dp.initializeFrom(sp.advancedBy(srcStart + dt), count: st - dt)
+                dp.advancedBy(st - dt).initializeFrom(sp, count: srcCount - st)
+            }
+            else if dt > st {
+                dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: st)
+                dp.advancedBy(dstStart + st).initializeFrom(sp, count: dt - st)
+                dp.initializeFrom(sp.advancedBy(dt - st), count: srcCount - dt)
+            }
+            else {
+                dp.advancedBy(dstStart).initializeFrom(sp.advancedBy(srcStart), count: st)
+                dp.initializeFrom(sp, count: srcCount - st)
             }
         }
     }
@@ -687,16 +636,13 @@ final class DequeBuffer<Element>: DequeBufferBase {
         assert(count + c <= capacity)
         guard c > 0 else { return }
         openGapAt(index, length: c)
-        manager.withUnsafeMutablePointers { hp, p in
-            let h = hp.memory
-            var q = p.advancedBy(h.bufferIndexForDequeIndex(index))
-            let limit = p.advancedBy(h.capacity)
-            for element in collection {
-                q.initialize(element)
-                q = q.successor()
-                if q == limit {
-                    q = p
-                }
+        var q = elements.advancedBy(bufferIndexForDequeIndex(index))
+        let limit = elements.advancedBy(capacity)
+        for element in collection {
+            q.initialize(element)
+            q = q.successor()
+            if q == limit {
+                q = elements
             }
         }
     }
@@ -704,153 +650,147 @@ final class DequeBuffer<Element>: DequeBufferBase {
     /// Destroy elements in the range (index ..< index + count) and collapse the gap by moving remaining elements.
     /// Note that all previously calculated buffer indexes are invalidated by this method.
     private func removeRange(range: Range<Int>) {
-        let index = range.startIndex
-        let count = range.count
         assert(range.startIndex >= 0)
         assert(range.endIndex <= self.count)
         guard range.count > 0 else { return }
-        manager.withUnsafeMutablePointers { hp, p in
-            let h = hp.memory
-            let i = h.bufferIndexForDequeIndex(index)
-            let j = i + count <= h.capacity ? i + count : i + count - h.capacity
+        let rc = range.count
+        let p = elements
+        let i = bufferIndexForDequeIndex(range.startIndex)
+        let j = i + rc <= capacity ? i + rc : i + rc - capacity
 
-            // Destroy items in collapsed range
-            if i <= j {
-                // ....ABC̲D̲E̲FG...
-                p.advancedBy(i).destroy(count)
-                // ....AB...FG...
-            }
-            else {
-                // D̲E̲FG.......ABC̲
-                p.advancedBy(i).destroy(h.capacity - i)
-                // D̲E̲FG.......AB.
-                p.destroy(j)
-                // ..FG.......AB.
-            }
+        // Destroy items in collapsed range
+        if i <= j {
+            // ....ABC̲D̲E̲FG...
+            p.advancedBy(i).destroy(rc)
+            // ....AB...FG...
+        }
+        else {
+            // D̲E̲FG.......ABC̲
+            p.advancedBy(i).destroy(capacity - i)
+            // D̲E̲FG.......AB.
+            p.destroy(j)
+            // ..FG.......AB.
+        }
 
-            if h.count - index - count < index {
-                let end = h.start + h.count < h.capacity ? h.start + h.count : h.start + h.count - h.capacity
+        if count - range.startIndex - rc < range.startIndex {
+            let end = start + count < capacity ? start + count : start + count - capacity
 
-                // Slide trailing items to the left
-                if i <= end { // No wrap anywhere after start of collapsed range
-                    // ....AB.̲..CD...
-                    p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + count), count: end - i - count)
-                    // ....ABC̲D......
-                }
-                else if i + count > h.capacity { // Collapsed range is wrapped
-                    if end <= count { // Result will not be wrapped
-                        // .CD......AB.̲..
-                        p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + count - h.capacity), count: h.capacity + end - i - count)
-                        // .........ABC̲D.
-                    }
-                    else { // Result will remain wrapped
-                        // .CDEFG...AB.̲..
-                        p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + count - h.capacity), count: h.capacity - i)
-                        // ....FG...ABC̲DE
-                        p.moveInitializeFrom(p.advancedBy(count), count: end - count)
-                        // FG.......ABC̲DE
-                    }
-                }
-                else { // Wrap is after collapsed range
-                    if end <= count { // Result will not be wrapped
-                        // D.......AB.̲..C
-                        p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + count), count: h.capacity - i - count)
-                        // D.......ABC̲...
-                        p.advancedBy(h.capacity - count).moveInitializeFrom(p, count: end)
-                        // ........ABC̲D..
-                    }
-                    else { // Result will remain wrapped
-                        // DEFG....AB.̲..C
-                        p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + count), count: h.capacity - i - count)
-                        // DEFG....ABC̲...
-                        p.advancedBy(h.capacity - count).moveInitializeFrom(p, count: count)
-                        // ...G....ABC̲DEF
-                        p.moveInitializeFrom(p.advancedBy(count), count: end - count)
-                        // G.......ABC̲DEF
-                    }
-                }
-                hp.memory.count -= count
+            // Slide trailing items to the left
+            if i <= end { // No wrap anywhere after start of collapsed range
+                // ....AB.̲..CD...
+                p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + rc), count: end - i - rc)
+                // ....ABC̲D......
             }
-            else {
-                // Slide preceding items to the right
-                if j >= h.start { // No wrap anywhere before end of collapsed range
-                    // ...AB...C̲D...
-                    p.advancedBy(h.start + count).moveInitializeBackwardFrom(p.advancedBy(h.start), count: j - h.start - count)
-                    // ......ABC̲D...
+            else if i + rc > capacity { // Collapsed range is wrapped
+                if end <= rc { // Result will not be wrapped
+                    // .CD......AB.̲..
+                    p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + rc - capacity), count: capacity + end - i - rc)
+                    // .........ABC̲D.
                 }
-                else if j < count { // Collapsed range is wrapped
-                    if  h.start + count >= h.capacity  { // Result will not be wrapped
-                        // ...C̲D.....AB..
-                        p.advancedBy(h.start + count - h.capacity).moveInitializeFrom(p.advancedBy(h.start), count: h.capacity + j - h.start - count)
-                        // .ABC̲D.........
-                    }
-                    else { // Result will remain wrapped
-                        // ..E̲F.....ABCD..
-                        p.moveInitializeFrom(p.advancedBy(h.capacity - count), count: j)
-                        // CDE̲F.....AB....
-                        p.advancedBy(h.start + count).moveInitializeBackwardFrom(p.advancedBy(h.start), count: h.capacity - h.start - count)
-                        // CDE̲F.........AB
-                    }
+                else { // Result will remain wrapped
+                    // .CDEFG...AB.̲..
+                    p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + rc - capacity), count: capacity - i)
+                    // ....FG...ABC̲DE
+                    p.moveInitializeFrom(p.advancedBy(rc), count: end - rc)
+                    // FG.......ABC̲DE
                 }
-                else { // Wrap is before collapsed range
-                    if h.capacity - h.start <= count { // Result will not be wrapped
-                        // CD...E̲F.....AB
-                        p.advancedBy(count).moveInitializeBackwardFrom(p, count: j - count)
-                        // ...CDE̲F.....AB
-                        p.advancedBy(h.start + count - h.capacity).moveInitializeFrom(p.advancedBy(h.start), count: h.capacity - h.start)
-                        // .ABCDE̲F.......
-                    }
-                    else { // Result will remain wrapped
-                        // EF...G̲H...ABCD
-                        p.advancedBy(count).moveInitializeBackwardFrom(p, count: j - count)
-                        // ...EFG̲H...ABCD
-                        p.moveInitializeFrom(p.advancedBy(h.capacity) - count, count: count)
-                        // BCDEFG̲H...A...
-                        p.advancedBy(h.start + count).moveInitializeBackwardFrom(p.advancedBy(h.start), count: h.capacity - h.start - count)
-                        // BCDEFG̲H......A
-                    }
-                }
-                hp.memory.start = (h.start + count < h.capacity ? h.start + count : h.start + count - h.capacity)
-                hp.memory.count -= count
             }
+            else { // Wrap is after collapsed range
+                if end <= rc { // Result will not be wrapped
+                    // D.......AB.̲..C
+                    p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + rc), count: capacity - i - rc)
+                    // D.......ABC̲...
+                    p.advancedBy(capacity - rc).moveInitializeFrom(p, count: end)
+                    // ........ABC̲D..
+                }
+                else { // Result will remain wrapped
+                    // DEFG....AB.̲..C
+                    p.advancedBy(i).moveInitializeFrom(p.advancedBy(i + rc), count: capacity - i - rc)
+                    // DEFG....ABC̲...
+                    p.advancedBy(capacity - rc).moveInitializeFrom(p, count: rc)
+                    // ...G....ABC̲DEF
+                    p.moveInitializeFrom(p.advancedBy(rc), count: end - rc)
+                    // G.......ABC̲DEF
+                }
+            }
+            count -= rc
+        }
+        else {
+            // Slide preceding items to the right
+            if j >= start { // No wrap anywhere before end of collapsed range
+                // ...AB...C̲D...
+                p.advancedBy(start + rc).moveInitializeBackwardFrom(p.advancedBy(start), count: j - start - rc)
+                // ......ABC̲D...
+            }
+            else if j < rc { // Collapsed range is wrapped
+                if  start + rc >= capacity  { // Result will not be wrapped
+                    // ...C̲D.....AB..
+                    p.advancedBy(start + rc - capacity).moveInitializeFrom(p.advancedBy(start), count: capacity + j - start - rc)
+                    // .ABC̲D.........
+                }
+                else { // Result will remain wrapped
+                    // ..E̲F.....ABCD..
+                    p.moveInitializeFrom(p.advancedBy(capacity - rc), count: j)
+                    // CDE̲F.....AB....
+                    p.advancedBy(start + rc).moveInitializeBackwardFrom(p.advancedBy(start), count: capacity - start - rc)
+                    // CDE̲F.........AB
+                }
+            }
+            else { // Wrap is before collapsed range
+                if capacity - start <= rc { // Result will not be wrapped
+                    // CD...E̲F.....AB
+                    p.advancedBy(rc).moveInitializeBackwardFrom(p, count: j - rc)
+                    // ...CDE̲F.....AB
+                    p.advancedBy(start + rc - capacity).moveInitializeFrom(p.advancedBy(start), count: capacity - start)
+                    // .ABCDE̲F.......
+                }
+                else { // Result will remain wrapped
+                    // EF...G̲H...ABCD
+                    p.advancedBy(rc).moveInitializeBackwardFrom(p, count: j - rc)
+                    // ...EFG̲H...ABCD
+                    p.moveInitializeFrom(p.advancedBy(capacity) - rc, count: rc)
+                    // BCDEFG̲H...A...
+                    p.advancedBy(start + rc).moveInitializeBackwardFrom(p.advancedBy(start), count: capacity - start - rc)
+                    // BCDEFG̲H......A
+                }
+            }
+            start = (start + rc < capacity ? start + rc : start + rc - capacity)
+            count -= rc
         }
     }
 
     internal func replaceRange<C: CollectionType where C.Generator.Element == Element>(range: Range<Int>, with newElements: C) {
-        let h = manager.value
         let newCount: Int = numericCast(newElements.count)
         let delta = newCount - range.count
-        assert(h.count + delta < h.capacity)
+        assert(count + delta < capacity)
         let common = min(range.count, newCount)
         if common > 0 {
-            manager.withUnsafeMutablePointerToElements { p in
-                var q = p.advancedBy(h.bufferIndexForDequeIndex(range.startIndex))
-                let limit = p.advancedBy(h.capacity)
-                var i = common
-                for element in newElements {
-                    q.memory = element
-                    q = q.successor()
-                    if q == limit { q = p }
-                    i -= 1
-                    if i == 0 { break }
-                }
+            let p = elements
+            var q = p.advancedBy(bufferIndexForDequeIndex(range.startIndex))
+            let limit = p.advancedBy(capacity)
+            var i = common
+            for element in newElements {
+                q.memory = element
+                q = q.successor()
+                if q == limit { q = p }
+                i -= 1
+                if i == 0 { break }
             }
         }
         if range.count > common {
-            removeRange(Range(start: range.startIndex + common, end: range.endIndex))
+            removeRange(range.startIndex + common ..< range.endIndex)
         }
         else if newCount > common {
             openGapAt(range.startIndex + common, length: newCount - common)
-            manager.withUnsafeMutablePointerToElements { p in
-                var q = p.advancedBy(h.bufferIndexForDequeIndex(range.startIndex + common))
-                let limit = p.advancedBy(h.capacity)
-                var i = newElements.startIndex.advancedBy(numericCast(common))
-                while i != newElements.endIndex {
-                    q.initialize(newElements[i])
-                    i = i.successor()
-                    q = q.successor()
-                    if q == limit { q = p }
-                }
+            let p = elements
+            var q = p.advancedBy(bufferIndexForDequeIndex(range.startIndex + common))
+            let limit = p.advancedBy(capacity)
+            var i = newElements.startIndex.advancedBy(numericCast(common))
+            while i != newElements.endIndex {
+                q.initialize(newElements[i])
+                i = i.successor()
+                q = q.successor()
+                if q == limit { q = p }
             }
         }
     }
