@@ -76,8 +76,10 @@ public func removalBenchmark<P>(name: String, sizes: [Int], factory: Int->P) -> 
 
         env.startMeasuring()
         for key in shuffledKeys { // O(n)
-            let index = dict.indexForKey(key) // O(1)
-            dict.removeAtIndex(index!) // O(1)
+            guard let _ = dict.removeValueForKey(key) else {
+                env.fail("Couldn't find key \(key)")
+                break
+            }
         }
         env.stopMeasuring()
     }
@@ -91,33 +93,13 @@ public func removalBenchmark<P>(name: String, sizes: [Int], factory: Int->P) -> 
         let shuffledKeys = env.input.map { $0.0 }.shuffle()
 
         env.startMeasuring()
-        for key in shuffledKeys { // O(n * log(n))
-            guard let index = map.indexForKey(key) else {
-                env.fail("Couldn't find key \(key)")
-                break
-            }
-            map.removeAtIndex(index) // O(log(n))
-        }
-        env.stopMeasuring()
-    }
-    
-    benchmark.addExperiment("removal from B-tree") { env in
-        var tree = BTree<Int, P>()
-        for (key, payload) in env.input {
-            tree.insert(payload, at: key)
-        }
-
-        let shuffledKeys = env.input.map { $0.0 }.shuffle()
-
-        env.startMeasuring()
         for key in shuffledKeys {
-            guard let _ = tree.remove(key) else {
+            guard let _ = map.removeValueForKey(key) else {
                 env.fail("Couldn't find key \(key)")
                 break
             }
         }
         env.stopMeasuring()
     }
-
     return benchmark
 }

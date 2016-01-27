@@ -8,7 +8,7 @@
 
 import Cocoa
 
-let benchmark = CollectionBenchmarks.orderOptimizer
+let benchmark = CollectionBenchmarks.removal
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {

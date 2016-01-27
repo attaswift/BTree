@@ -35,5 +35,5 @@ struct CollectionBenchmarks {
     static let bigInsertion = insertionBenchmark("bigger", sizes: [50000], factory: largePayloadFactory)
     static let lookup = lookupBenchmark("bigger", count: 100000, sizes: [10000], factory: largePayloadFactory)
     static let removal = removalBenchmark("bigger", sizes: [10000], factory: largePayloadFactory)
-    static let orderOptimizer = orderOptimizerBenchmark("order optimizer", orders: [511, 1023, 1535, 2047, 2559, 3071, 3583, 4095], inputSizes: [128, 1024, 16384, 131072, 524288], factory: voidPayloadFactory)
+//    static let orderOptimizer = orderOptimizerBenchmark("order optimizer", orders: [511, 1023, 1535, 2047, 2559, 3071, 3583, 4095], inputSizes: [128, 1024, 16384, 131072, 524288], factory: voidPayloadFactory)
 }
