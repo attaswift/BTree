@@ -514,3 +514,15 @@ extension List {
         }
     }
 }
+
+@warn_unused_result
+public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
+    guard a.count == b.count else { return false }
+    return a.elementsEqual(b)
+}
+
+@warn_unused_result
+public func !=<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
+    return !(a == b)
+}
+
