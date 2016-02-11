@@ -11,6 +11,7 @@ private enum WalkDirection {
     case Backward
 }
 
+/// An index into a collection that uses a b-tree for storage.
 public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     public typealias Distance = Int
     typealias Node = BTreeNode<Key, Payload>
@@ -130,12 +131,20 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
         }
     }
 
+    /// Return the next index after `self` in its collection.
+    ///
+    /// - Requires: self is valid and not the end index.
+    /// - Complexity: Amortized O(1).
     public func successor() -> BTreeIndex<Key, Payload> {
         var result = self
         result.successorInPlace()
         return result
     }
 
+    /// Return the index preceding `self` in its collection.
+    ///
+    /// - Requires: self is valid and not the start index.
+    /// - Complexity: Amortized O(1).
     public func predecessor() -> BTreeIndex<Key, Payload> {
         var result = self
         result.predecessorInPlace()

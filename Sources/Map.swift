@@ -8,18 +8,23 @@
 
 import Foundation
 
-/// A tree-based mapping from `Key` to `Value` instances.
-/// Also a collection of key-value pairs with a well-defined ordering.
-public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
+/// An ordered mapping from comparable keys to arbitrary values. 
+/// Works like `Dictionary`, but provides a well-defined ordering for its elements.
+///
+/// `Map` stores its elements in an in-memory b-tree. 
+/// Lookup, insertion and removal of individual elements have logarithmic complexity.
 public struct Map<Key: Comparable, Value> {
     // Typealiases
     internal typealias Node = BTreeNode<Key, Value>
 
     // Stored properties
 
+    /// The root node.
     internal private(set) var root: Node
 
     // Initalizer 
+
+    /// Initialize an empty map.
     public init() {
         self.root = Node()
     }
@@ -28,10 +33,12 @@ public struct Map<Key: Comparable, Value> {
 //MARK: Uniqueness
 
 extension Map {
+    /// True iff this map holds the only reference to its root node.
     private var isUnique: Bool {
         mutating get { return isUniquelyReferenced(&root) }
     }
 
+    /// Ensure that this map holds the only reference to its root node, cloning it when necessary.
     private mutating func makeUnique() {
         guard !isUnique else { return }
         root = root.clone()
@@ -53,6 +60,9 @@ extension Map: CollectionType {
         return root.endIndex
     }
 
+    /// The number of (key, value) pairs in this map.
+    ///
+    /// - Complexity: O(1)
     public var count: Int {
         return root.count
     }
@@ -62,10 +72,15 @@ extension Map: CollectionType {
         return count == 0
     }
 
+    /// Returns the (key, value) pair at the given index.
+    ///
+    /// - Requires: `index` originated from an unmutated copy of this map.
+    /// - Complexity: O(1)
     public subscript(index: Index) -> Element {
         return root[index]
     }
 
+    /// Return a generator over all (key, value) pairs in this map, in ascending key order.
     @warn_unused_result
     public func generate() -> Generator {
         return root.generate()
@@ -75,10 +90,17 @@ extension Map: CollectionType {
 //MARK: Algorithms
 
 extension Map {
+    /// Call `body` on each element in `self` in ascending key order.
+    ///
+    /// - Complexity: O(`count`)
     public func forEach(@noescape body: (Element) throws -> ()) rethrows {
         try root.forEach(body)
     }
 
+    /// Return an `Array` containing the results of mapping `transform` over all elements in `self`.
+    /// The elements are transformed in ascending key order.
+    ///
+    /// - Complexity: O(`count`)
     @warn_unused_result
     public func map<T>(@noescape transform: (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
@@ -123,14 +145,17 @@ extension Map {
 
 extension Map {
 
+    /// A collection containing just the keys in this map, in ascending order.
     public var keys: LazyMapCollection<Map<Key, Value>, Key> {
         return self.lazy.map { $0.0 }
     }
 
+    /// A collection containing just the values in this map, in order of ascending keys.
     public var values: LazyMapCollection<Map<Key, Value>, Value> {
         return self.lazy.map { $0.1 }
     }
 
+    /// Provides access to the value for a given key. Nonexistent values are represented as `nil`.
     public subscript(key: Key) -> Value? {
         get {
             return root.payloadOf(key)
@@ -145,11 +170,18 @@ extension Map {
         }
     }
 
+    /// Returns the index for the given key, or `nil` if the key is not present in this map.
     @warn_unused_result
     public func indexForKey(key: Key) -> Index? {
         return root.indexOf(key)
     }
 
+    /// Update the value stored in the map for the given key, or, if they key does not exist, add a new key-value pair to the map.
+    /// Returns the value that was replaced, or `nil` if a new key-value pair was added.
+    ///
+    /// This method invalidates all existing indexes into `self`.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func updateValue(value: Value, forKey key: Key) -> Value? {
         makeUnique()
         var replaced = false
@@ -189,6 +221,11 @@ extension Map {
         return result
     }
 
+    /// Remove the key-value pair at `index` from this map.
+    ///
+    /// This method invalidates all existing indexes into `self`.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func removeAtIndex(index: Index) -> (Key, Value) {
         let key = self[index].0
         makeUnique()
@@ -231,6 +268,12 @@ extension Map {
         return result
     }
 
+    /// Remove a given key and the associated value from this map.
+    /// Returns the value that was removed, or `nil` if the key was not present in the map.
+    ///
+    /// This method invalidates all existing indexes into `self`.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func removeValueForKey(key: Key) -> Value? {
         makeUnique()
         let result = removeValueForKey(key, under: root)
@@ -240,12 +283,18 @@ extension Map {
         return result
     }
 
+    /// Remove all elements from this map.
+    ///
+    /// This method invalidates all existing indexes into `self`.
+    ///
+    /// - Complexity: O(`count`)
     public mutating func removeAll() {
         root = Node()
     }
 }
 
 extension Map: DictionaryLiteralConvertible {
+    /// Initialize a new map from the given elements.
     public init(dictionaryLiteral elements: (Key, Value)...) {
         self.init()
         for (key, value) in elements {
@@ -255,6 +304,7 @@ extension Map: DictionaryLiteralConvertible {
 }
 
 extension Map: CustomStringConvertible {
+    /// A textual representation of this map.
     public var description: String {
         let contents = self.map { (key, value) -> String in
             let ks = String(key)
@@ -266,6 +316,7 @@ extension Map: CustomStringConvertible {
 }
 
 extension Map: CustomDebugStringConvertible {
+    /// A textual representation of this map, suitable for debugging.
     public var debugDescription: String {
         let contents = self.map { (key, value) -> String in
             let ks = String(reflecting: key)
