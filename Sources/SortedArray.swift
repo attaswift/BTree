@@ -37,7 +37,7 @@ public struct SortedArrayIndex: RandomAccessIndexType {
 }
 
 /// A sorted associative container with copy-on-write value semantics that uses a sorted array as the backing store.
-public struct SortedArray<Key: Comparable, Value>: OrderedAssociativeCollectionType {
+public struct SortedArray<Key: Comparable, Value>: CollectionType {
     public typealias Element = (Key, Value)
     public typealias Index = SortedArrayIndex
     public typealias Generator = IndexingGenerator<SortedArray<Key, Value>>

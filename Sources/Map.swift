@@ -11,12 +11,9 @@ import Foundation
 /// A tree-based mapping from `Key` to `Value` instances.
 /// Also a collection of key-value pairs with a well-defined ordering.
 public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
+public struct Map<Key: Comparable, Value> {
     // Typealiases
     internal typealias Node = BTreeNode<Key, Value>
-
-    public typealias Index = BTreeIndex<Key, Value>
-    public typealias Generator = BTreeGenerator<Key, Value>
-    public typealias Element = (Key, Value)
 
     // Stored properties
 
@@ -26,9 +23,11 @@ public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
     public init() {
         self.root = Node()
     }
+}
 
-    // Uniqueness
+//MARK: Uniqueness
 
+extension Map {
     private var isUnique: Bool {
         mutating get { return isUniquelyReferenced(&root) }
     }
@@ -37,8 +36,15 @@ public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
         guard !isUnique else { return }
         root = root.clone()
     }
+}
 
-    // Properties
+//MARK: CollectionType
+
+extension Map: CollectionType {
+    public typealias Index = BTreeIndex<Key, Value>
+    public typealias Generator = BTreeGenerator<Key, Value>
+    public typealias Element = (Key, Value)
+
     public var startIndex: Index {
         return root.startIndex
     }
@@ -51,10 +57,78 @@ public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
         return root.count
     }
 
-    // Subscripts
+    /// True iff this collection has no elements.
+    public var isEmpty: Bool {
+        return count == 0
+    }
 
     public subscript(index: Index) -> Element {
         return root[index]
+    }
+
+    @warn_unused_result
+    public func generate() -> Generator {
+        return root.generate()
+    }
+}
+
+//MARK: Algorithms
+
+extension Map {
+    public func forEach(@noescape body: (Element) throws -> ()) rethrows {
+        try root.forEach(body)
+    }
+
+    @warn_unused_result
+    public func map<T>(@noescape transform: (Element) throws -> T) rethrows -> [T] {
+        var result: [T] = []
+        result.reserveCapacity(self.count)
+        try self.forEach {
+            result.append(try transform($0))
+        }
+        return result
+    }
+
+    @warn_unused_result
+    public func flatMap<S : SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
+        var result: [S.Generator.Element] = []
+        try self.forEach { element in
+            result.appendContentsOf(try transform(element))
+        }
+        return result
+    }
+
+    @warn_unused_result
+    public func flatMap<T>(@noescape transform: (Element) throws -> T?) rethrows -> [T] {
+        var result: [T] = []
+        try self.forEach { element in
+            if let t = try transform(element) {
+                result.append(t)
+            }
+        }
+        return result
+    }
+
+    @warn_unused_result
+    public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
+        var result = initial
+        try self.forEach {
+            result = try combine(result, $0)
+        }
+        return result
+    }
+}
+
+//MARK: Dictionary methods
+
+extension Map {
+
+    public var keys: LazyMapCollection<Map<Key, Value>, Key> {
+        return self.lazy.map { $0.0 }
+    }
+
+    public var values: LazyMapCollection<Map<Key, Value>, Value> {
+        return self.lazy.map { $0.1 }
     }
 
     public subscript(key: Key) -> Value? {
@@ -71,56 +145,10 @@ public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
         }
     }
 
-    // Methods
-
-    public func generate() -> Generator {
-        return root.generate()
-    }
-
+    @warn_unused_result
     public func indexForKey(key: Key) -> Index? {
         return root.indexOf(key)
     }
-
-    public func forEach(@noescape body: (Element) throws -> ()) rethrows {
-        try root.forEach(body)
-    }
-
-    public func map<T>(@noescape transform: (Element) throws -> T) rethrows -> [T] {
-        var result: [T] = []
-        result.reserveCapacity(self.count)
-        try self.forEach {
-            result.append(try transform($0))
-        }
-        return result
-    }
-
-    public func flatMap<S : SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
-        var result: [S.Generator.Element] = []
-        try self.forEach { element in
-            result.appendContentsOf(try transform(element))
-        }
-        return result
-    }
-
-    public func flatMap<T>(@noescape transform: (Element) throws -> T?) rethrows -> [T] {
-        var result: [T] = []
-        try self.forEach { element in
-            if let t = try transform(element) {
-                result.append(t)
-            }
-        }
-        return result
-    }
-
-    public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
-        var result = initial
-        try self.forEach {
-            result = try combine(result, $0)
-        }
-        return result
-    }
-
-    // Mutators
 
     public mutating func updateValue(value: Value, forKey key: Key) -> Value? {
         makeUnique()
@@ -216,3 +244,46 @@ public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
         root = Node()
     }
 }
+
+extension Map: DictionaryLiteralConvertible {
+    public init(dictionaryLiteral elements: (Key, Value)...) {
+        self.init()
+        for (key, value) in elements {
+            self[key] = value
+        }
+    }
+}
+
+extension Map: CustomStringConvertible {
+    public var description: String {
+        let contents = self.map { (key, value) -> String in
+            let ks = String(key)
+            let vs = String(value)
+            return "\(ks): \(vs)"
+        }
+        return "[" + contents.joinWithSeparator(", ") + "]"
+    }
+}
+
+extension Map: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        let contents = self.map { (key, value) -> String in
+            let ks = String(reflecting: key)
+            let vs = String(reflecting: value)
+            return "\(ks): \(vs)"
+        }
+        return "[" + contents.joinWithSeparator(", ") + "]"
+    }
+}
+
+@warn_unused_result
+public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
+    guard a.count == b.count else { return false }
+    return a.elementsEqual(b, isEquivalent: { ae, be in ae.0 == be.0 && ae.1 == be.1 })
+}
+
+@warn_unused_result
+public func !=<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
+    return !(a == b)
+}
+
