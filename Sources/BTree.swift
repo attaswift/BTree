@@ -116,64 +116,6 @@ extension BTreeNode: SequenceType {
     }
 }
 
-public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
-    public typealias Element = (Key, Payload)
-    typealias Node = BTreeNode<Key, Payload>
-
-    var nodePath: [Node]
-    var indexPath: [Int]
-
-    init(_ root: Node) {
-        if root.count == 0 {
-            self.nodePath = []
-            self.indexPath = []
-        }
-        else {
-            var node = root
-            var path: Array<Node> = [root]
-            while !node.isLeaf {
-                node = node.children.first!
-                path.append(node)
-            }
-            self.nodePath = path
-            self.indexPath = Array(count: path.count, repeatedValue: 0)
-        }
-    }
-
-    public mutating func next() -> Element? {
-        let level = nodePath.count
-        guard level > 0 else { return nil }
-        let node = nodePath[level - 1]
-        let index = indexPath[level - 1]
-        let result = (node.keys[index], node.payloads[index])
-        if !node.isLeaf {
-            // Descend
-            indexPath[level - 1] = index + 1
-            var n = node.children[index + 1]
-            nodePath.append(n)
-            indexPath.append(0)
-            while !n.isLeaf {
-                n = n.children.first!
-                nodePath.append(n)
-                indexPath.append(0)
-            }
-        }
-        else if index < node.keys.count - 1 {
-            indexPath[level - 1] = index + 1
-        }
-        else {
-            // Ascend
-            nodePath.removeLast()
-            indexPath.removeLast()
-            while !nodePath.isEmpty && indexPath.last == nodePath.last!.keys.count {
-                nodePath.removeLast()
-                indexPath.removeLast()
-            }
-        }
-        return result
-    }
-}
-
 //MARK: CollectionType
 extension BTreeNode: CollectionType {
     typealias Index = BTreeIndex<Key, Payload>
@@ -195,143 +137,10 @@ extension BTreeNode: CollectionType {
     }
 }
 
-private struct Weak<T: AnyObject> {
-    weak var value: T?
-
-    init(_ value: T) {
-        self.value = value
-    }
-}
-
-private enum WalkDirection {
-    case Forward
-    case Backward
-}
-
-public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
-    public typealias Distance = Int
-    typealias Node = BTreeNode<Key, Payload>
-
-    private var path: [Weak<Node>]
-    private var slot: Int
-
-    internal init() {
-        self.path = []
-        self.slot = 0
-    }
-
-    internal init(startIndexOf root: Node) {
-        var node = root
-        var path = [Weak(root)]
-        while !node.isLeaf {
-            node = node.children[0]
-            path.append(Weak(node))
-        }
-        self.path = path
-        self.slot = 0
-    }
-    
-    internal init(path: [Node], slot: Int) {
-        self.path = path.map { Weak($0) }
-        self.slot = slot
-    }
-    private init(path: [Weak<Node>], slot: Int) {
-        self.path = path
-        self.slot = slot
-    }
-
-    private mutating func invalidate() {
-        self.path = []
-        self.slot = 0
-    }
-
-    private mutating func ascend(direction: WalkDirection) {
-        while let node = path.removeLast().value, parent = self.path.last?.value {
-            guard let i = parent.slotOf(node) else {
-                break
-            }
-            if direction == .Forward && i < parent.keys.count {
-                slot = i
-                return
-            }
-            else if direction == .Backward && i > 0 {
-                slot = i - 1
-                return
-            }
-        }
-        invalidate()
-    }
-
-    private mutating func descend(direction: WalkDirection) {
-        guard let n = self.path.last?.value else { invalidate(); return }
-        assert(!n.isLeaf)
-        var node = n.children[direction == .Forward ? slot + 1 : slot]
-        path.append(Weak(node))
-        while !node.isLeaf {
-            node = node.children[direction == .Forward ? 0 : node.children.count - 1]
-            path.append(Weak(node))
-        }
-        slot = direction == .Forward ? 0 : node.keys.count - 1
-    }
-
-    private mutating func successorInPlace() {
-        guard let node = self.path.last?.value else { return }
-        if node.isLeaf {
-            if slot < node.keys.count - 1 {
-                slot += 1
-            }
-            else {
-                ascend(.Forward)
-            }
-        }
-        else {
-            descend(.Forward)
-        }
-    }
-    private mutating func predecessorInPlace() {
-        guard let node = self.path.last?.value else { return }
-        if node.isLeaf {
-            if slot > 0 {
-                slot -= 1
-            }
-            else {
-                ascend(.Backward)
-            }
-        }
-        else {
-            descend(.Backward)
-        }
-    }
-
-    public func successor() -> BTreeIndex<Key, Payload> {
-        var result = self
-        result.successorInPlace()
-        return result
-    }
-
-    public func predecessor() -> BTreeIndex<Key, Payload> {
-        var result = self
-        result.predecessorInPlace()
-        return result
-    }
-}
-
-public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
-    // TODO: Invalid indexes may compare unequal under this definition.
-    guard a.slot == b.slot else { return false }
-    guard a.path.count == b.path.count else { return false }
-    for i in 0 ..< a.path.count {
-        if a.path[i].value !== b.path[i].value{
-            return false
-        }
-    }
-    return true
-}
-
 //MARK: Lookup
 
 extension BTreeNode {
-    private func slotOf(key: Key) -> (index: Int, match: Bool) {
+    internal func slotOf(key: Key) -> (index: Int, match: Bool) {
         var start = 0
         var end = keys.count
         while start < end {
@@ -346,7 +155,7 @@ extension BTreeNode {
         return (start, start < keys.count && keys[start] == key)
     }
 
-    private func slotOf(child: BTreeNode) -> Int? {
+    internal func slotOf(child: BTreeNode) -> Int? {
         guard !isLeaf else { return nil }
         return self.children.indexOf { $0 === child }
     }
