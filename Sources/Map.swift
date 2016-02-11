@@ -11,18 +11,21 @@ import Foundation
 /// An ordered mapping from comparable keys to arbitrary values. 
 /// Works like `Dictionary`, but provides a well-defined ordering for its elements.
 ///
-/// `Map` stores its elements in an in-memory b-tree. 
-/// Lookup, insertion and removal of individual elements have logarithmic complexity.
+/// Lookup, insertion and removal of individual key-value pairs in a map have logarithmic complexity.
+/// This is in contrast to `Dictionary`'s O(1) implementations of the same operations;
+/// the increased complexity is due to the requirement of keeping elements sorted.
+///
+/// `Map` is a struct with copy-on-write value semantics.
+/// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other maps.
+/// Mutating a map whose storage is (partially or completely) shared requires copying of O(log(`count`)) elements.
+/// (Thus, mutation of shared maps may be cheaper than dictionaries, which need to copy all elements.
+/// Unfortunately, this advantage is often overshadowed by the increased cost of element access.)
 public struct Map<Key: Comparable, Value> {
     // Typealiases
     internal typealias Node = BTreeNode<Key, Value>
 
-    // Stored properties
-
     /// The root node.
     internal private(set) var root: Node
-
-    // Initalizer 
 
     /// Initialize an empty map.
     public init() {
@@ -52,10 +55,12 @@ extension Map: CollectionType {
     public typealias Generator = BTreeGenerator<Key, Value>
     public typealias Element = (Key, Value)
 
+    /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
     public var startIndex: Index {
         return root.startIndex
     }
 
+    /// The "past-the-end" element index; the successor of the last valid subscript argument.
     public var endIndex: Index {
         return root.endIndex
     }
@@ -215,9 +220,7 @@ extension Map {
             else {
                 node.count += 1
                 if let s = splinter {
-                    node.keys.insert(s.separator.0, atIndex: slot)
-                    node.payloads.insert(s.separator.1, atIndex: slot)
-                    node.children.insert(s.node, atIndex: slot + 1)
+                    node.insert(s, inSlot: slot)
                     splinter = (node.isTooLarge ? node.split() : nil)
                 }
             }
@@ -239,7 +242,7 @@ extension Map {
         return (key, self.removeValueForKey(key)!)
     }
 
-    internal mutating func removeValueForKey(key: Key, under top: Node) -> Value? {
+    internal static func removeValueForKey(key: Key, under top: Node) -> Value? {
         var found: Bool = false
         var result: Value? = nil
         top.editAtKey(key) { node, slot, match in
@@ -283,7 +286,7 @@ extension Map {
     /// - Complexity: O(log(`count`))
     public mutating func removeValueForKey(key: Key) -> Value? {
         makeUnique()
-        let result = removeValueForKey(key, under: root)
+        let result = Map.removeValueForKey(key, under: root)
         if root.keys.isEmpty && root.children.count == 1 {
             root = root.children[0]
         }
@@ -344,4 +347,3 @@ public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key
 public func !=<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
     return !(a == b)
 }
-

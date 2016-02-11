@@ -11,12 +11,7 @@ import XCTest
 
 extension List {
     func assertValid() {
-        tree.assertValid()
-        var i = 0
-        for (key, _) in tree {
-            XCTAssertEqual(key.index, i)
-            i += 1
-        }
+        root.assertValid()
     }
 }
 
@@ -71,5 +66,50 @@ class ListTests: XCTestCase {
             XCTAssertEqual(l.count, 0)
         }
     }
+
+    #if false
+
+    func testBulkLoadingOneFullNode() {
+        let elements = (0 ..< order - 1).map { ($0, String($0)) }
+        let tree = Node(order: order)
+        tree.appendContentsOf(elements)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, elements)
+    }
+
+    func testBulkLoadingOneFullNodePlusOne() {
+        let elements = (0 ..< order).map { ($0, String($0)) }
+        let tree = Node(order: order)
+        tree.appendContentsOf(elements)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, elements)
+    }
+
+    func testSortedBulkLoadingFullLevels() {
+        let maxKeys = order - 1
+        let minKeys = maxKeys / 2
+
+        var n = maxKeys
+        var sum = n
+        for i in 0..<3 {
+            let elements = (0 ..< sum).map { ($0, String($0)) }
+            let tree = Node(order: order)
+            tree.appendContentsOf(elements)
+            tree.assertValid()
+            XCTAssertElementsEqual(tree, elements)
+            XCTAssertEqual(tree.depth, i)
+
+            let extra = (sum + 1, String(sum + 1))
+            tree.insert(extra.1, at: extra.0)
+            tree.assertValid()
+            XCTAssertElementsEqual(tree, elements + [extra])
+            XCTAssertEqual(tree.depth, i + 1)
+
+            n = n * (minKeys + 1)
+            sum += n
+        }
+    }
+
+    #endif
 
 }

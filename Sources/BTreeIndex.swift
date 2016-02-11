@@ -92,7 +92,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
         slot = direction == .Forward ? 0 : node.keys.count - 1
     }
 
-    private mutating func successorInPlace() {
+    internal mutating func successorInPlace() {
         guard let node = self.path.last?.value else { return }
         if node.isLeaf {
             if slot < node.keys.count - 1 {
@@ -107,7 +107,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
         }
     }
     
-    private mutating func predecessorInPlace() {
+    internal mutating func predecessorInPlace() {
         guard let node = self.path.last?.value else {
             var node = root.value!
             path.append(root)

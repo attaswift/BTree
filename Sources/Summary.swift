@@ -9,6 +9,7 @@
 import Foundation
 
 // Alternative names:
+// - Fold
 // - Statistic
 // - Smell
 // - Essence

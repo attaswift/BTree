@@ -115,9 +115,7 @@ extension BTreeNode {
             else {
                 node.count += 1
                 if let s = splinter {
-                    node.keys.insert(s.separator.0, atIndex: slot)
-                    node.payloads.insert(s.separator.1, atIndex: slot)
-                    node.children.insert(s.node, atIndex: slot + 1)
+                    node.insert(s, inSlot: slot)
                     splinter = (node.isTooLarge ? node.split() : nil)
                 }
             }
@@ -410,46 +408,5 @@ class BTreeTests: XCTestCase {
             tree.assertValid()
         }
         XCTAssertTrue(tree.isEmpty)
-    }
-
-    func testBulkLoadingOneFullNode() {
-        let elements = (0 ..< order - 1).map { ($0, String($0)) }
-        let tree = Node(order: order)
-        tree.appendContentsOf(elements)
-        tree.assertValid()
-        XCTAssertElementsEqual(tree, elements)
-    }
-
-    func testBulkLoadingOneFullNodePlusOne() {
-        let elements = (0 ..< order).map { ($0, String($0)) }
-        let tree = Node(order: order)
-        tree.appendContentsOf(elements)
-        tree.assertValid()
-        XCTAssertElementsEqual(tree, elements)
-    }
-
-    func testSortedBulkLoadingFullLevels() {
-        let maxKeys = order - 1
-        let minKeys = maxKeys / 2
-
-        var n = maxKeys
-        var sum = n
-        for i in 0..<3 {
-            let elements = (0 ..< sum).map { ($0, String($0)) }
-            let tree = Node(order: order)
-            tree.appendContentsOf(elements)
-            tree.assertValid()
-            XCTAssertElementsEqual(tree, elements)
-            XCTAssertEqual(tree.depth, i)
-
-            let extra = (sum + 1, String(sum + 1))
-            tree.insert(extra.1, at: extra.0)
-            tree.assertValid()
-            XCTAssertElementsEqual(tree, elements + [extra])
-            XCTAssertEqual(tree.depth, i + 1)
-
-            n = n * (minKeys + 1)
-            sum += n
-        }
     }
 }

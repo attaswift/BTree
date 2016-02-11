@@ -129,6 +129,23 @@ extension BTreeNode: SequenceType {
             try children[keys.count].forEach(body)
         }
     }
+
+    func forEach(@noescape body: (Element) throws -> Bool) rethrows -> Bool {
+        if isLeaf {
+            for i in 0 ..< keys.count {
+                guard try body((keys[i], payloads[i])) else { return false }
+            }
+        }
+        else {
+            for i in 0 ..< keys.count {
+                guard try children[i].forEach(body) else { return false }
+                guard try body((keys[i], payloads[i])) else { return false }
+            }
+            guard try children[keys.count].forEach(body) else { return false }
+        }
+        return true
+    }
+
 }
 
 //MARK: CollectionType
@@ -301,10 +318,10 @@ extension BTreeNode {
 //MARK: Editing
 
 extension BTreeNode {
-    internal func editAtPosition(position: Int, @noescape operation: (node: BTreeNode, slot: Int) -> Void) {
-        precondition(position >= 0 && position < self.count)
+    internal func editAtPosition(position: Int, @noescape operation: (node: BTreeNode, slot: Int, match: Bool) -> Void) {
+        precondition(position >= 0 && position <= self.count)
         if isLeaf {
-            operation(node: self, slot: position)
+            operation(node: self, slot: position, match: true)
             return
         }
         var count = 0
@@ -314,11 +331,11 @@ extension BTreeNode {
             if position < c {
                 self.makeChildUnique(slot)
                 child.editAtPosition(position - count, operation: operation)
-                operation(node: self, slot: slot)
+                operation(node: self, slot: slot, match: false)
                 return
             }
             if position == c {
-                operation(node: self, slot: slot)
+                operation(node: self, slot: slot, match: true)
                 return
             }
             count = c + 1
@@ -371,6 +388,12 @@ extension BTreeNode {
             self.count = median + children.reduce(0, combine: { $0 + $1.count })
         }
         return BTreeSplinter(separator: separator, node: node)
+    }
+
+    internal func insert(splinter: BTreeSplinter<Key, Payload>, inSlot slot: Int) {
+        keys.insert(splinter.separator.0, atIndex: slot)
+        payloads.insert(splinter.separator.1, atIndex: slot)
+        children.insert(splinter.node, atIndex: slot + 1)
     }
 }
 
@@ -458,89 +481,6 @@ extension BTreeNode {
             children[slot].children.appendContentsOf(next.children)
         }
         assert(children[slot].isBalanced)
-    }
-
-}
-
-//MARK: Appending sequences
-
-extension BTreeNode {
-    convenience init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
-        self.init()
-        self.appendContentsOf(elements.sort { $0.0 < $1.0 })
-    }
-    convenience init<S: SequenceType where S.Generator.Element == Element>(sortedElements: S) {
-        self.init()
-        self.appendContentsOf(sortedElements)
-    }
-
-    func appendContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S) {
-        typealias Node = BTreeNode<Key, Payload>
-
-        // Prepare self by collecting the nodes on the rightmost path, uniquing each of them.
-        var path = [self]
-        while !path[0].isLeaf {
-            let parent = path[0]
-            let c = parent.children.count
-            parent.makeChildUnique(c - 1)
-            path.insert(parent.children[c - 1], atIndex: 0)
-        }
-        var counts = [path[0].count] // Counts of nodes on path without their rightmost subtree
-        for i in 1 ..< path.count {
-            counts.append(path[i].count - path[i - 1].count)
-        }
-
-        // Now go through the supplied elements one by one and append each of them to `path`.
-        // This is just a nonrecursive variant of `insert`, using `path` to eliminate the recursive descend.
-        var lastKey: Key? = path[0].keys.last
-        for (key, payload) in elements {
-            precondition(lastKey <= key)
-            lastKey = key
-            path[0].keys.append(key)
-            path[0].payloads.append(payload)
-            path[0].count += 1
-            counts[0] += 1
-            var i = 0
-            while path[i].isTooLarge {
-                if i == path.count - 1 {
-                    // Insert new level, keeping self as the root node.
-                    assert(path[i] === self)
-                    let left = self.clone()
-                    self.keys.removeAll()
-                    self.payloads.removeAll()
-                    self.children.removeAll()
-                    let splinter = left.split()
-                    let right = splinter.node
-                    path.insert(right, atIndex: i)
-                    counts[i] -= left.count + 1
-
-                    self.keys.append(splinter.separator.0)
-                    self.payloads.append(splinter.separator.1)
-                    self.children = [left, right]
-                    counts.append(left.count + 1)
-                    self.count = left.count + 1 + right.count
-                }
-                else {
-                    let c = counts[i]
-                    let left = path[i]
-                    let splinter = left.split()
-                    let right = splinter.node
-                    path[i] = right
-                    counts[i] = c - left.count - 1
-
-                    path[i + 1].keys.append(splinter.separator.0)
-                    path[i + 1].payloads.append(splinter.separator.1)
-                    path[i + 1].children.append(right)
-                    counts[i + 1] += 1 + left.count
-                    path[i + 1].count = counts[i + 1] + right.count
-                }
-                i += 1
-            }
-        }
-        // Finally, update counts in rightmost path to root.
-        for i in 1 ..< path.count {
-            path[i].count = counts[i] + path[i - 1].count
-        }
     }
 }
 
