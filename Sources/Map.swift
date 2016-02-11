@@ -81,6 +81,45 @@ public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
         return root.indexOf(key)
     }
 
+    public func forEach(@noescape body: (Element) throws -> ()) rethrows {
+        try root.forEach(body)
+    }
+
+    public func map<T>(@noescape transform: (Element) throws -> T) rethrows -> [T] {
+        var result: [T] = []
+        result.reserveCapacity(self.count)
+        try self.forEach {
+            result.append(try transform($0))
+        }
+        return result
+    }
+
+    public func flatMap<S : SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
+        var result: [S.Generator.Element] = []
+        try self.forEach { element in
+            result.appendContentsOf(try transform(element))
+        }
+        return result
+    }
+
+    public func flatMap<T>(@noescape transform: (Element) throws -> T?) rethrows -> [T] {
+        var result: [T] = []
+        try self.forEach { element in
+            if let t = try transform(element) {
+                result.append(t)
+            }
+        }
+        return result
+    }
+
+    public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
+        var result = initial
+        try self.forEach {
+            result = try combine(result, $0)
+        }
+        return result
+    }
+
     // Mutators
 
     public mutating func updateValue(value: Value, forKey key: Key) -> Value? {

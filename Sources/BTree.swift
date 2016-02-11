@@ -114,6 +114,21 @@ extension BTreeNode: SequenceType {
     func generate() -> Generator {
         return BTreeGenerator(self)
     }
+
+    func forEach(@noescape body: (Element) throws -> ()) rethrows {
+        if isLeaf {
+            for i in 0 ..< keys.count {
+                try body((keys[i], payloads[i]))
+            }
+        }
+        else {
+            for i in 0 ..< keys.count {
+                try children[i].forEach(body)
+                try body((keys[i], payloads[i]))
+            }
+            try children[keys.count].forEach(body)
+        }
+    }
 }
 
 //MARK: CollectionType
