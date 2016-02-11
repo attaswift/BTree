@@ -111,8 +111,9 @@ extension Map {
         return result
     }
 
+    /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     @warn_unused_result
-    public func flatMap<S : SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
+    public func flatMap<S: SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
         var result: [S.Generator.Element] = []
         try self.forEach { element in
             result.appendContentsOf(try transform(element))
@@ -120,6 +121,7 @@ extension Map {
         return result
     }
 
+    /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     @warn_unused_result
     public func flatMap<T>(@noescape transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
@@ -131,6 +133,11 @@ extension Map {
         return result
     }
 
+    /// Calculate the left fold of this map over `combine`:
+    /// return the result of repeatedly calling `combine` with an accumulated value initialized to `initial`
+    /// and each element of `self`, in turn. 
+    ///
+    /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     @warn_unused_result
     public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
         var result = initial
@@ -141,7 +148,7 @@ extension Map {
     }
 }
 
-//MARK: Dictionary methods
+//MARK: Dictionary-like methods
 
 extension Map {
 
