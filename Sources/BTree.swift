@@ -66,7 +66,6 @@ extension BTreeNode {
     }
 }
 
-
 //MARK: Uniqueness
 
 extension BTreeNode {
@@ -191,7 +190,7 @@ extension BTreeNode: CollectionType {
         get {
             precondition(index.path.first!.value! === self)
             let node = index.path.last!.value!
-            return (node.keys[index.index], node.payloads[index.index])
+            return (node.keys[index.slot], node.payloads[index.slot])
         }
     }
 }
@@ -214,11 +213,11 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     typealias Node = BTreeNode<Key, Payload>
 
     private var path: [Weak<Node>]
-    private var index: Int
+    private var slot: Int
 
     internal init() {
         self.path = []
-        self.index = 0
+        self.slot = 0
     }
 
     internal init(startIndexOf root: Node) {
@@ -229,38 +228,34 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
             path.append(Weak(node))
         }
         self.path = path
-        self.index = 0
+        self.slot = 0
     }
     
-    internal init(path: [Node], index: Int) {
+    internal init(path: [Node], slot: Int) {
         self.path = path.map { Weak($0) }
-        self.index = index
+        self.slot = slot
     }
-    private init(path: [Weak<Node>], index: Int) {
+    private init(path: [Weak<Node>], slot: Int) {
         self.path = path
-        self.index = index
+        self.slot = slot
     }
 
     private mutating func invalidate() {
         self.path = []
-        self.index = 0
-    }
-
-    private func indexOf(node: Node, under parent: Node) -> Int? {
-        return parent.children.indexOf { $0 === node }
+        self.slot = 0
     }
 
     private mutating func ascend(direction: WalkDirection) {
         while let node = path.removeLast().value, parent = self.path.last?.value {
-            guard let i = indexOf(node, under: parent) else {
+            guard let i = parent.slotOf(node) else {
                 break
             }
             if direction == .Forward && i < parent.keys.count {
-                index = i
+                slot = i
                 return
             }
             else if direction == .Backward && i > 0 {
-                index = i - 1
+                slot = i - 1
                 return
             }
         }
@@ -270,20 +265,20 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     private mutating func descend(direction: WalkDirection) {
         guard let n = self.path.last?.value else { invalidate(); return }
         assert(!n.isLeaf)
-        var node = n.children[direction == .Forward ? index + 1 : index]
+        var node = n.children[direction == .Forward ? slot + 1 : slot]
         path.append(Weak(node))
         while !node.isLeaf {
             node = node.children[direction == .Forward ? 0 : node.children.count - 1]
             path.append(Weak(node))
         }
-        index = direction == .Forward ? 0 : node.keys.count - 1
+        slot = direction == .Forward ? 0 : node.keys.count - 1
     }
 
     private mutating func successorInPlace() {
         guard let node = self.path.last?.value else { return }
         if node.isLeaf {
-            if index < node.keys.count - 1 {
-                index += 1
+            if slot < node.keys.count - 1 {
+                slot += 1
             }
             else {
                 ascend(.Forward)
@@ -296,8 +291,8 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     private mutating func predecessorInPlace() {
         guard let node = self.path.last?.value else { return }
         if node.isLeaf {
-            if index > 0 {
-                index -= 1
+            if slot > 0 {
+                slot -= 1
             }
             else {
                 ascend(.Backward)
@@ -323,7 +318,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
 
 public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
     // TODO: Invalid indexes may compare unequal under this definition.
-    guard a.index == b.index else { return false }
+    guard a.slot == b.slot else { return false }
     guard a.path.count == b.path.count else { return false }
     for i in 0 ..< a.path.count {
         if a.path[i].value !== b.path[i].value{
@@ -351,6 +346,11 @@ extension BTreeNode {
         return (start, start < keys.count && keys[start] == key)
     }
 
+    private func slotOf(child: BTreeNode) -> Int? {
+        guard !isLeaf else { return nil }
+        return self.children.indexOf { $0 === child }
+    }
+
     func payloadOf(key: Key) -> Payload? {
         var node = self
         while !node.isLeaf {
@@ -365,20 +365,28 @@ extension BTreeNode {
         return node.payloads[slot.index]
     }
 
+    func setPayloadAt(index: Index, payload: Payload) -> Payload {
+        precondition(index.path.first!.value! === self)
+        let node = index.path.last!.value!
+        let payload = node.payloads[index.slot]
+        node.payloads[index.slot] = payload
+        return payload
+    }
+
     func indexOf(key: Key) -> Index? {
         var node = self
         var path = [Weak(self)]
         while !node.isLeaf {
             let slot = node.slotOf(key)
             if slot.match {
-                return Index(path: path, index: slot.index)
+                return Index(path: path, slot: slot.index)
             }
             node = node.children[slot.index]
             path.append(Weak(node))
         }
         let slot = node.slotOf(key)
         guard slot.match else { return nil }
-        return Index(path: path, index: slot.index)
+        return Index(path: path, slot: slot.index)
     }
 }
 
@@ -387,18 +395,60 @@ extension BTreeNode {
 extension BTreeNode {
     func positionOf(key: Key) -> Int? {
         var node = self
-        var index = 0
+        var position = 0
         while !node.isLeaf {
             let slot = node.slotOf(key)
-            index += node.children[0 ..< slot.index].reduce(0, combine: { $0 + $1.count })
+            position += node.children[0 ..< slot.index].reduce(0, combine: { $0 + $1.count })
             if slot.match {
-                return index
+                return position
             }
             node = node.children[slot.index]
         }
         let slot = node.slotOf(key)
         guard slot.match else { return nil }
-        return index + slot.index
+        return position + slot.index
+    }
+
+    func positionOf(index: Index) -> Int {
+        precondition(index.path.count > 0 && index.path[0].value === self)
+        var position = index.slot
+        var i = index.path.count - 1
+        while i > 0 {
+            guard let parent = index.path[i - 1].value else { fatalError("Invalid index") }
+            guard let child = index.path[i].value else { fatalError("Invalid index") }
+            guard let slot = parent.slotOf(child) else { fatalError("Invalid index") }
+            position += slot
+            for j in 0...slot {
+                position += parent.children[j].count
+            }
+            i -= 1
+        }
+        return position
+    }
+
+    internal func indexOfPosition(position: Int) -> Index {
+        precondition(position >= 0 && position < count)
+        var position = position
+        var path = [Weak(self)]
+        var node = self
+        while !node.isLeaf {
+            var count = 0
+            for (i, child) in node.children.enumerate() {
+                let c = count + child.count
+                if position < c {
+                    node = child
+                    path.append(Weak(child))
+                    position -= count
+                    break
+                }
+                if position == c {
+                    return Index(path: path, slot: i)
+                }
+                count = c + 1
+            }
+        }
+        assert(position < node.keys.count)
+        return Index(path: path, slot: position)
     }
 
     internal func elementAtPosition(position: Int) -> (Key, Payload) {
@@ -424,65 +474,65 @@ extension BTreeNode {
     }
 }
 
-//MARK: Insertion
+//MARK: Editing
 
 extension BTreeNode {
-    func set(key: Key, to payload: Payload) -> Payload? {
-        return self.insert(payload, at: key, replacingExisting: true)
-    }
-    func insert(payload: Payload, at key: Key) {
-        self.insert(payload, at: key, replacingExisting: false)
-    }
-
-    private func insert(payload: Payload, at key: Key, replacingExisting replace: Bool) -> Payload? {
-        let (old, splinter) = self.insertAndSplit(key, payload, replace: replace)
-        guard let (separator, right) = splinter else { return old }
-        let left = clone()
-        keys.removeAll()
-        payloads.removeAll()
-        children.removeAll()
-        keys.append(separator.0)
-        payloads.append(separator.1)
-        children.append(left)
-        children.append(right)
-        count = left.count + right.count + 1
-        return old
-    }
-
-    private func insertAndSplit(key: Key, _ payload: Payload, replace: Bool) -> (old: Payload?, (separator: (Key, Payload), splinter: BTreeNode<Key, Payload>)?) {
-        let slot = slotOf(key)
-        if slot.match && replace {
-            let old = payloads[slot.index]
-            keys[slot.index] = key
-            payloads[slot.index] = payload
-            return (old, nil)
-        }
+    internal func editAtPosition(position: Int, @noescape operation: (node: BTreeNode, slot: Int) -> Void) {
+        precondition(position >= 0 && position < self.count)
         if isLeaf {
-            keys.insert(key, atIndex: slot.index)
-            payloads.insert(payload, atIndex: slot.index)
-            count += 1
-            return (nil, (isTooLarge ? split() : nil))
+            operation(node: self, slot: position)
+            return
         }
-
-        makeChildUnique(slot.index)
-        let (old, splinter) = children[slot.index].insertAndSplit(key, payload, replace: replace)
-        if old == nil {
-            count += 1
+        var count = 0
+        for slot in 0 ..< children.count {
+            let child = children[slot]
+            let c = count + child.count
+            if position < c {
+                self.makeChildUnique(slot)
+                child.editAtPosition(position - count, operation: operation)
+                operation(node: self, slot: slot)
+                return
+            }
+            if position == c {
+                operation(node: self, slot: slot)
+                return
+            }
+            count = c + 1
         }
-        guard let (separator, right) = splinter else { return (old, nil) }
-        keys.insert(separator.0, atIndex: slot.index)
-        payloads.insert(separator.1, atIndex: slot.index)
-        children.insert(right, atIndex: slot.index + 1)
-        return (old, (isTooLarge ? split() : nil))
+        fatalError("Invalid BTreeNode")
     }
 
-    private func split() -> (separator: (Key, Payload), splinter: BTreeNode<Key, Payload>) {
+    internal func editAtKey(key: Key, @noescape operation: (node: BTreeNode, slot: Int, match: Bool) -> Void) {
+        let slot = slotOf(key)
+        if slot.match || isLeaf {
+            operation(node: self, slot: slot.index, match: slot.match)
+            return
+        }
+        makeChildUnique(slot.index)
+        let child = children[slot.index]
+        child.editAtKey(key, operation: operation)
+        operation(node: self, slot: slot.index, match: false)
+    }
+}
+
+//MARK: Insertion
+
+internal struct BTreeSplinter<Key: Comparable, Payload> {
+    let separator: (Key, Payload)
+    let node: BTreeNode<Key, Payload>
+}
+
+extension BTreeNode {
+    /// Split this node into two, removing the high half of the nodes and putting them in a splinter.
+    ///
+    /// - Returns: A splinter containing the higher half of the original node.
+    internal func split() -> BTreeSplinter<Key, Payload> {
         assert(isTooLarge)
         let count = keys.count
         let median = count / 2
 
         let separator = (keys[median], payloads[median])
-        let splinter = BTreeNode(
+        let node = BTreeNode(
             order: self.order,
             keys: Array(keys[median + 1 ..< count]),
             payloads: Array(payloads[median + 1 ..< count]),
@@ -496,74 +546,22 @@ extension BTreeNode {
             children.removeRange(median + 1 ..< count + 1)
             self.count = median + children.reduce(0, combine: { $0 + $1.count })
         }
-        return (separator, splinter)
+        return BTreeSplinter(separator: separator, node: node)
     }
 }
 
 //MARK: Removal
 
 extension BTreeNode {
-    func remove(key: Key) -> Payload? {
-        guard let payload = removeAndCollapse(key) else { return nil }
-        if keys.count == 0 && children.count == 1 {
-            let n = children[0]
-            self.keys = n.keys
-            self.payloads = n.payloads
-            self.children = n.children
-            return payload
-        }
-        return payload
-    }
-
-    func removeAt(index: Index) -> (Key, Payload) {
-        let (key, payload) = self[index]
-        remove(key)
-        return (key, payload)
-    }
-
-    func removeAndCollapse(key: Key) -> Payload? {
-        let slot = self.slotOf(key)
-        if isLeaf {
-            guard slot.match else { return nil }
-            // In leaf nodes, we can just directly remove the key.
-            keys.removeAtIndex(slot.index)
-            count -= 1
-            return payloads.removeAtIndex(slot.index)
-        }
-
-        let payload: Payload
-        if slot.match {
-            // For internal nodes, we move the previous item in place of the removed one,
-            // and remove its original slot instead. (The previous item is always in a leaf node.)
-            payload = payloads[slot.index]
-            makeChildUnique(slot.index)
-            let previousKey = children[slot.index].maxKey()
-            let previousPayload = children[slot.index].removeAndCollapse(previousKey)
-            keys[slot.index] = previousKey
-            payloads[slot.index] = previousPayload!
-            count -= 1
-        }
-        else {
-            makeChildUnique(slot.index)
-            guard let p = children[slot.index].removeAndCollapse(key) else { return nil }
-            count -= 1
-            payload = p
-        }
-        if children[slot.index].isTooSmall {
-            fixDeficiency(slot.index)
-        }
-        return payload
-    }
-
-    internal func maxKey() -> Key {
+    internal func maxKey() -> Key? {
         var node = self
         while !node.isLeaf {
             node = node.children.last!
         }
-        return node.keys.last!
+        return node.keys.last
     }
 
-    private func fixDeficiency(slot: Int) {
+    internal func fixDeficiency(slot: Int) {
         assert(!isLeaf && children[slot].isTooSmall)
         if slot > 0 && children[slot - 1].keys.count > minKeys {
             rotateRight(slot)
@@ -687,12 +685,13 @@ extension BTreeNode {
                     self.keys.removeAll()
                     self.payloads.removeAll()
                     self.children.removeAll()
-                    let (sep, right) = left.split()
+                    let splinter = left.split()
+                    let right = splinter.node
                     path.insert(right, atIndex: i)
                     counts[i] -= left.count + 1
 
-                    self.keys.append(sep.0)
-                    self.payloads.append(sep.1)
+                    self.keys.append(splinter.separator.0)
+                    self.payloads.append(splinter.separator.1)
                     self.children = [left, right]
                     counts.append(left.count + 1)
                     self.count = left.count + 1 + right.count
@@ -700,12 +699,13 @@ extension BTreeNode {
                 else {
                     let c = counts[i]
                     let left = path[i]
-                    let (sep, right) = left.split()
+                    let splinter = left.split()
+                    let right = splinter.node
                     path[i] = right
                     counts[i] = c - left.count - 1
 
-                    path[i + 1].keys.append(sep.0)
-                    path[i + 1].payloads.append(sep.1)
+                    path[i + 1].keys.append(splinter.separator.0)
+                    path[i + 1].payloads.append(splinter.separator.1)
                     path[i + 1].children.append(right)
                     counts[i + 1] += 1 + left.count
                     path[i + 1].count = counts[i + 1] + right.count

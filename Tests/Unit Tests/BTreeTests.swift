@@ -99,6 +99,79 @@ extension BTreeNode {
             XCTFail(d, file: file, line: line)
         }
     }
+
+    func insert(payload: Payload, at key: Key) {
+        var splinter: BTreeSplinter<Key, Payload>? = nil
+        self.editAtKey(key) { node, slot, match in
+            precondition(!match)
+            if node.isLeaf {
+                node.keys.insert(key, atIndex: slot)
+                node.payloads.insert(payload, atIndex: slot)
+                node.count += 1
+                if node.isTooLarge {
+                    splinter = node.split()
+                }
+            }
+            else {
+                node.count += 1
+                if let s = splinter {
+                    node.keys.insert(s.separator.0, atIndex: slot)
+                    node.payloads.insert(s.separator.1, atIndex: slot)
+                    node.children.insert(s.node, atIndex: slot + 1)
+                    splinter = (node.isTooLarge ? node.split() : nil)
+                }
+            }
+        }
+        if let s = splinter {
+            let left = clone()
+            let right = s.node
+            keys = [s.separator.0]
+            payloads = [s.separator.1]
+            children = [left, right]
+            count = left.count + right.count + 1
+        }
+    }
+
+    func remove(key: Key, root: Bool = true) -> Payload? {
+        var found: Bool = false
+        var result: Payload? = nil
+        editAtKey(key) { node, slot, match in
+            if node.isLeaf {
+                assert(!found)
+                if !match { return }
+                found = true
+                node.keys.removeAtIndex(slot)
+                result = node.payloads.removeAtIndex(slot)
+                node.count -= 1
+                return
+            }
+            if match {
+                assert(!found)
+                // For internal nodes, we move the previous item in place of the removed one,
+                // and remove its original slot instead. (The previous item is always in a leaf node.)
+                result = node.payloads[slot]
+                node.makeChildUnique(slot)
+                let previousKey = node.children[slot].maxKey()!
+                let previousPayload = node.children[slot].remove(previousKey, root: false)!
+                node.keys[slot] = previousKey
+                node.payloads[slot] = previousPayload
+                found = true
+            }
+            if found {
+                node.count -= 1
+                if node.children[slot].isTooSmall {
+                    node.fixDeficiency(slot)
+                }
+            }
+        }
+        if root && keys.isEmpty && children.count == 1 {
+            let node = children[0]
+            keys = node.keys
+            payloads = node.payloads
+            children = node.children
+        }
+        return result
+    }
 }
 
 

@@ -62,12 +62,11 @@ public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
             return root.payloadOf(key)
         }
         set(value) {
-            makeUnique()
             if let value = value {
-                root.set(key, to: value)
+                updateValue(value, forKey: key)
             }
             else {
-                self.removeValueForKey(key)
+                removeValueForKey(key)
             }
         }
     }
@@ -86,17 +85,92 @@ public struct Map<Key: Comparable, Value>: OrderedAssociativeCollectionType {
 
     public mutating func updateValue(value: Value, forKey key: Key) -> Value? {
         makeUnique()
-        return root.set(key, to: value)
+        var replaced = false
+        var result: Value? = nil
+        var splinter: BTreeSplinter<Key, Value>? = nil
+        root.editAtKey(key) { node, slot, match in
+            if replaced {
+                return
+            }
+            if match {
+                result = node.payloads[slot]
+                node.payloads[slot] = value
+                replaced = true
+                return
+            }
+            if node.isLeaf {
+                node.keys.insert(key, atIndex: slot)
+                node.payloads.insert(value, atIndex: slot)
+                node.count += 1
+                if node.isTooLarge {
+                    splinter = node.split()
+                }
+            }
+            else {
+                node.count += 1
+                if let s = splinter {
+                    node.keys.insert(s.separator.0, atIndex: slot)
+                    node.payloads.insert(s.separator.1, atIndex: slot)
+                    node.children.insert(s.node, atIndex: slot + 1)
+                    splinter = (node.isTooLarge ? node.split() : nil)
+                }
+            }
+        }
+        if let s = splinter {
+            root = BTreeNode(order: root.order, keys: [s.separator.0], payloads: [s.separator.1], children: [root, s.node])
+        }
+        return result
     }
 
     public mutating func removeAtIndex(index: Index) -> (Key, Value) {
+        let key = self[index].0
         makeUnique()
-        return root.removeAt(index)
+        return (key, self.removeValueForKey(key)!)
+    }
+
+    internal mutating func removeValueForKey(key: Key, under top: Node) -> Value? {
+        var found: Bool = false
+        var result: Value? = nil
+        top.editAtKey(key) { node, slot, match in
+            if node.isLeaf {
+                assert(!found)
+                if !match { return }
+                found = true
+                node.keys.removeAtIndex(slot)
+                result = node.payloads.removeAtIndex(slot)
+                node.count -= 1
+                return
+            }
+
+            if match {
+                assert(!found)
+                // For internal nodes, we move the previous item in place of the removed one,
+                // and remove its original slot instead. (The previous item is always in a leaf node.)
+                result = node.payloads[slot]
+                node.makeChildUnique(slot)
+                let previousKey = node.children[slot].maxKey()!
+                let previousPayload = removeValueForKey(previousKey, under: node.children[slot])!
+                node.keys[slot] = previousKey
+                node.payloads[slot] = previousPayload
+                found = true
+            }
+            if found {
+                node.count -= 1
+                if node.children[slot].isTooSmall {
+                    node.fixDeficiency(slot)
+                }
+            }
+        }
+        return result
     }
 
     public mutating func removeValueForKey(key: Key) -> Value? {
         makeUnique()
-        return root.remove(key)
+        let result = removeValueForKey(key, under: root)
+        if root.keys.isEmpty && root.children.count == 1 {
+            root = root.children[0]
+        }
+        return result
     }
 
     public mutating func removeAll() {
