@@ -15,10 +15,12 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     public typealias Distance = Int
     typealias Node = BTreeNode<Key, Payload>
 
+    internal private(set) var root: Weak<Node>
     internal private(set) var path: [Weak<Node>]
     internal private(set) var slot: Int
 
     internal init() {
+        self.root = Weak()
         self.path = []
         self.slot = 0
     }
@@ -30,20 +32,30 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
             node = node.children[0]
             path.append(Weak(node))
         }
+        self.root = Weak(root)
         self.path = path
         self.slot = 0
     }
 
+    internal init(endIndexOf root: Node) {
+        self.root = Weak(root)
+        self.path = []
+        self.slot = 0
+    }
+
     internal init(path: [Node], slot: Int) {
+        self.root = Weak(path[0])
         self.path = path.map { Weak($0) }
         self.slot = slot
     }
     internal init(path: [Weak<Node>], slot: Int) {
+        self.root = path[0]
         self.path = path
         self.slot = slot
     }
 
     private mutating func invalidate() {
+        self.root = Weak()
         self.path = []
         self.slot = 0
     }
@@ -51,7 +63,8 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     private mutating func ascend(direction: WalkDirection) {
         while let node = path.removeLast().value, parent = self.path.last?.value {
             guard let i = parent.slotOf(node) else {
-                break
+                invalidate()
+                return
             }
             if direction == .Forward && i < parent.keys.count {
                 slot = i
@@ -62,7 +75,8 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
                 return
             }
         }
-        invalidate()
+        self.path = []
+        self.slot = 0
     }
 
     private mutating func descend(direction: WalkDirection) {
@@ -91,8 +105,18 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
             descend(.Forward)
         }
     }
+    
     private mutating func predecessorInPlace() {
-        guard let node = self.path.last?.value else { return }
+        guard let node = self.path.last?.value else {
+            var node = root.value!
+            path.append(root)
+            while !node.isLeaf {
+                node = node.children.last!
+                path.append(Weak(node))
+            }
+            slot = node.keys.count - 1
+            return
+        }
         if node.isLeaf {
             if slot > 0 {
                 slot -= 1
@@ -122,11 +146,10 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
 public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
     // TODO: Invalid indexes may compare unequal under this definition.
     guard a.slot == b.slot else { return false }
+    guard a.root.value === b.root.value else { return false }
     guard a.path.count == b.path.count else { return false }
     for i in 0 ..< a.path.count {
-        if a.path[i].value !== b.path[i].value{
-            return false
-        }
+        guard a.path[i].value === b.path[i].value else { return false }
     }
     return true
 }

@@ -140,12 +140,12 @@ extension BTreeNode: CollectionType {
     }
 
     var endIndex: Index {
-        return Index()
+        return Index(endIndexOf: self)
     }
 
     subscript(index: Index) -> (Key, Payload) {
         get {
-            precondition(index.path.first!.value! === self)
+            precondition(index.root.value === self)
             let node = index.path.last!.value!
             return (node.keys[index.slot], node.payloads[index.slot])
         }
@@ -190,7 +190,7 @@ extension BTreeNode {
     }
 
     func setPayloadAt(index: Index, payload: Payload) -> Payload {
-        precondition(index.path.first!.value! === self)
+        precondition(index.root.value === self)
         let node = index.path.last!.value!
         let payload = node.payloads[index.slot]
         node.payloads[index.slot] = payload

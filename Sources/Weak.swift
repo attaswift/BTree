@@ -9,6 +9,10 @@
 internal struct Weak<T: AnyObject> {
     weak var value: T?
 
+    init() {
+        self.value = nil
+    }
+    
     init(_ value: T) {
         self.value = value
     }
