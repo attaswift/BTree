@@ -246,25 +246,27 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
 
     internal func moveToPosition(position: Int) {
         precondition(isValid && position >= 0 && position <= count)
-        // Pop to ancestor that contains the desired position.
-        while true {
-            let node = path.last!
-            let slot = slots.last!
-            let p = node.positionOfSlot(slot)
-            let nodeStart = self.position - p
-            let nodeEnd = nodeStart + node.count
-            if path.count == 1 || (position >= nodeStart && position < nodeEnd) {
-                // The desired position is under the last node on path.
+        // Pop to ancestor whose subtree contains the desired position.
+        while path.count > 1 {
+            let range = rangeOfPositionForLastNode()
+            if range.contains(position) {
                 break
             }
             path.removeLast()
-            path[path.count - 1].count += node.count
+            path[path.count - 1].count += range.count
             slots.removeLast()
-            self.position = nodeEnd
+            self.position = range.endIndex
         }
         let node = path.last!
         self.position -= node.positionOfSlot(slots.removeLast())
         self.descendToPosition(position)
+    }
+
+    private func rangeOfPositionForLastNode() -> Range<Int> {
+        let node = path.last!
+        let nodeStart = self.position - node.positionOfSlot(slots.last!)
+        let nodeEnd = nodeStart + node.count
+        return nodeStart ..< nodeEnd
     }
 
     private func descendToPosition(position: Int) {
