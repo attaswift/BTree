@@ -495,22 +495,32 @@ extension List {
         root = Node()
     }
 
+    private mutating func withCursorPosition(position: Int, @noescape operation: BTreeCursor<EmptyKey, Element> -> ()) {
+        let cursor = BTreeCursor(root: self.root, position: position)
+        self.root = Node()
+        defer { self.root = cursor.finish() }
+        operation(cursor)
+    }
+
     public mutating func replaceRange<C: CollectionType where C.Generator.Element == Element>(range: Range<Int>, with elements: C) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
-        makeUnique()
-        let common: Int = min(range.count, numericCast(elements.count))
-        var generator = elements.generate()
-        var index = root.indexOfPosition(range.startIndex)
-        for _ in 0 ..< common {
-            root.setPayloadAt(index, payload: generator.next()!)
-            index.successorInPlace()
-        }
-
-        if common < range.count {
-            self.removeRange(range.startIndex + common ..< range.endIndex)
-        }
-        else {
-            self.insertContentsOf(GeneratorSequence(generator), atIndex: range.startIndex + common)
+        self.withCursorPosition(range.startIndex) { cursor in
+            let common: Int = min(range.count, numericCast(elements.count))
+            var generator = elements.generate()
+            for _ in 0 ..< common {
+                cursor.payload = generator.next()!
+                cursor.moveForward()
+            }
+            if common < range.count {
+                for _ in 0 ..< range.count - common {
+                    cursor.remove()
+                }
+            }
+            else {
+                while let element = generator.next() {
+                    cursor.insertBefore(EmptyKey(), element)
+                }
+            }
         }
     }
 }

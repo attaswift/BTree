@@ -12,7 +12,7 @@ import XCTest
 @testable import TreeCollections
 
 #if Swift22
-    typealias FileString = FileString
+    typealias FileString = StaticString
 #else
     typealias FileString = String
 #endif
@@ -27,10 +27,11 @@ func XCTAssertEqual<T: Equatable>(@autoclosure expression1: () -> T, @autoclosur
     }
 }
 
-func XCTAssertElementsEqual<Element: Equatable, S: SequenceType where S.Generator.Element == Element>(a: S, _ b: [Element], file: FileString = __FILE__, line: UInt = __LINE__) {
+func XCTAssertElementsEqual<Element: Equatable, S1: SequenceType, S2: SequenceType where S1.Generator.Element == Element, S2.Generator.Element == Element>(a: S1, _ b: S2, file: FileString = __FILE__, line: UInt = __LINE__) {
     let aa = Array(a)
-    if !aa.elementsEqual(b) {
-        XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(b)\"", file: file, line: line)
+    let ba = Array(b)
+    if !aa.elementsEqual(ba) {
+        XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(ba)\"", file: file, line: line)
     }
 }
 

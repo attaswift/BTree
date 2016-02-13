@@ -69,9 +69,11 @@ extension BTreeNode {
 //MARK: Uniqueness
 
 extension BTreeNode {
-    func makeChildUnique(index: Int) {
-        guard !isUniquelyReferenced(&children[index]) else { return }
-        children[index] = children[index].clone()
+    func makeChildUnique(index: Int) -> BTreeNode {
+        guard !isUniquelyReferenced(&children[index]) else { return children[index] }
+        let clone = children[index].clone()
+        children[index] = clone
+        return clone
     }
 
     func clone() -> BTreeNode {
@@ -115,6 +117,7 @@ extension BTreeNode: SequenceType {
         return BTreeGenerator(self)
     }
 
+    /// Call `body` on each element in self in the same order as a for-in loop.
     func forEach(@noescape body: (Element) throws -> ()) rethrows {
         if isLeaf {
             for i in 0 ..< keys.count {
@@ -130,6 +133,9 @@ extension BTreeNode: SequenceType {
         }
     }
 
+    /// A version of `forEach` that allows `body` to interrupt iteration by returning `false`.
+    /// 
+    /// - Returns: `true` iff `body` returned true for all elements in the tree.
     func forEach(@noescape body: (Element) throws -> Bool) rethrows -> Bool {
         if isLeaf {
             for i in 0 ..< keys.count {
@@ -206,14 +212,6 @@ extension BTreeNode {
         return node.payloads[slot.index]
     }
 
-    func setPayloadAt(index: Index, payload: Payload) -> Payload {
-        precondition(index.root.value === self)
-        let node = index.path.last!.value!
-        let payload = node.payloads[index.slot]
-        node.payloads[index.slot] = payload
-        return payload
-    }
-
     func indexOf(key: Key) -> Index? {
         var node = self
         var path = [Weak(self)]
@@ -265,6 +263,16 @@ extension BTreeNode {
             i -= 1
         }
         return position
+    }
+
+    internal func positionOfSlot(slot: Int) -> Int {
+        assert(slot <= keys.count)
+        if isLeaf {
+            return slot
+        }
+        else {
+            return children[0...slot].reduce(slot) { $0 + $1.count }
+        }
     }
 
     internal func indexOfPosition(position: Int) -> Index {

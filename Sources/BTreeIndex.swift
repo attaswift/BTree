@@ -12,6 +12,12 @@ private enum WalkDirection {
 }
 
 /// An index into a collection that uses a b-tree for storage.
+///
+/// This index satisfies `CollectionType`'s requirement for O(1) access, but
+/// it is only suitable for read-only processing -- most tree mutations will 
+/// invalidate all existing indexes.
+/// 
+/// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a b-tree.
 public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     public typealias Distance = Int
     typealias Node = BTreeNode<Key, Payload>
@@ -27,15 +33,21 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     }
 
     internal init(startIndexOf root: Node) {
-        var node = root
-        var path = [Weak(root)]
-        while !node.isLeaf {
-            node = node.children[0]
-            path.append(Weak(node))
-        }
         self.root = Weak(root)
-        self.path = path
-        self.slot = 0
+        if root.isEmpty {
+            self.path = []
+            self.slot = 0
+        }
+        else {
+            var node = root
+            var path = [Weak(root)]
+            while !node.isLeaf {
+                node = node.children[0]
+                path.append(Weak(node))
+            }
+            self.path = path
+            self.slot = 0
+        }
     }
 
     internal init(endIndexOf root: Node) {
@@ -154,9 +166,9 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
 
 public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
     // TODO: Invalid indexes may compare unequal under this definition.
-    guard a.slot == b.slot else { return false }
     guard a.root.value === b.root.value else { return false }
     guard a.path.count == b.path.count else { return false }
+    guard a.slot == b.slot else { return false }
     for i in 0 ..< a.path.count {
         guard a.path[i].value === b.path[i].value else { return false }
     }
