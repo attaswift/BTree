@@ -199,6 +199,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Position the cursor on the next element in the b-tree.
     ///
     /// - Requires: `!isAtEnd`
+    /// - Complexity: Amortized O(1)
     internal func moveForward() {
         precondition(position < count)
         position += 1
@@ -219,6 +220,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Position this cursor to the previous element in the b-tree.
     ///
     /// - Requires: `!isAtStart`
+    /// - Complexity: Amortized O(1)
     internal func moveBackward() {
         precondition(!isAtStart)
         position -= 1
@@ -236,14 +238,24 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         }
     }
 
+    /// Position this cursor to the start of the b-tree.
+    ///
+    /// - Complexity: O(log(`position`))
     internal func moveToStart() {
         moveToPosition(0)
     }
 
+    /// Position this cursor to the end of the b-tree.
+    ///
+    /// - Complexity: O(log(`count` - `position`))
     internal func moveToEnd() {
         moveToPosition(self.count)
     }
 
+    /// Move this cursor to the specified position in the b-tree.
+    ///
+    /// - Complexity: O(log(*distance*)), where *distance* is the absolute difference between the desired and current
+    ///   positions.
     internal func moveToPosition(position: Int) {
         precondition(isValid && position >= 0 && position <= count)
         // Pop to ancestor whose subtree contains the desired position.
@@ -305,6 +317,8 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Get or set the key of the currently focused element.
     /// Note that changing the key is potentially dangerous; it is the caller's responsibility to ensure that 
     /// keys remain in ascending order.
+    ///
+    /// - Complexity: O(1)
     internal var key: Key {
         get {
             precondition(!self.isAtEnd)
@@ -317,6 +331,8 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     }
 
     /// Get or set the payload of the currently focused element.
+    ///
+    /// - Complexity: O(1)
     internal var payload: Payload {
         get {
             precondition(!self.isAtEnd)
@@ -330,6 +346,8 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
 
     /// Update the payload stored at the cursor's current position and return the previous value.
     /// This method does not change the cursor's position.
+    ///
+    /// - Complexity: O(1)
     internal func setPayload(payload: Payload) -> Payload {
         precondition(!self.isAtEnd)
         let node = path.last!
@@ -340,6 +358,8 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     }
 
     /// Insert a new element after the cursor's current position, and position the cursor on the new element.
+    ///
+    /// - Complexity: amortized O(1)
     internal func insertAfter(key: Key, _ payload: Payload) {
         precondition(!self.isAtEnd)
         count += 1
@@ -364,6 +384,8 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     }
 
     /// Insert a new element before the cursor's current position, and leave the cursor positioned on the original element.
+    ///
+    /// - Complexity: amortized O(1)
     internal func insertBefore(key: Key, _ payload: Payload) {
         precondition(self.isValid)
         count += 1
