@@ -397,10 +397,16 @@ extension BTreeNode {
     ///
     /// - Returns: A splinter containing the higher half of the original node.
     internal func split() -> BTreeSplinter<Key, Payload> {
+        return split(keys.count / 2)
+    }
+
+    /// Split this node into two at the key at index `median`, removing all elements at or above `median` 
+    /// and putting them in a splinter.
+    ///
+    /// - Returns: A splinter containing the higher half of the original node.
+    internal func split(median: Int) -> BTreeSplinter<Key, Payload> {
         assert(isTooLarge)
         let count = keys.count
-        let median = count / 2
-
         let separator = (keys[median], payloads[median])
         let node = BTreeNode(
             order: self.order,
