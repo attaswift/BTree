@@ -38,19 +38,28 @@ internal final class BTreeNode<Key: Comparable, Payload>: NonObjectiveCBase {
     /// An empty array (when this is a leaf), or `keys.count + 1` child nodes (when this is an internal node).
     internal var children: Array<BTreeNode>
 
-    /// The order of this b-tree. An internal node will have at most this many children.
-    internal var order: Int
-
+    /// The number of elements in this b-tree.
     internal var count: Int
+
+    /// The order of this b-tree. An internal node will have at most this many children.
+    internal var _order: Int32
+    /// The depth of this b-tree.
+    internal var _depth: Int32
+
+    internal var depth: Int { return numericCast(_depth) }
+    internal var order: Int { return numericCast(_order) }
 
     internal init(order: Int, keys: Array<Key>, payloads: Array<Payload>, children: Array<BTreeNode>) {
         assert(children.count == 0 || keys.count == children.count - 1)
         assert(payloads.count == keys.count)
-        self.order = order
+        self._order = numericCast(order)
         self.keys = keys
         self.payloads = payloads
         self.children = children
         self.count = self.keys.count + children.reduce(0) { $0 + $1.count }
+        self._depth = (children.count == 0 ? 0 : children[0]._depth + 1)
+        super.init()
+        assert(children.indexOf { $0._depth + 1 != self._depth } == nil)
     }
 }
 
@@ -102,16 +111,6 @@ extension BTreeNode {
     internal var isTooSmall: Bool { return keys.count < minKeys }
     internal var isTooLarge: Bool { return keys.count > maxKeys }
     internal var isBalanced: Bool { return keys.count >= minKeys && keys.count <= maxKeys }
-
-    internal var depth: Int {
-        var depth = 0
-        var node = self
-        while !node.isLeaf {
-            node = node.children[0]
-            depth += 1
-        }
-        return depth
-    }
 }
 
 //MARK: SequenceType
@@ -431,6 +430,7 @@ extension BTreeNode {
             children.removeRange(median + 1 ..< count + 1)
             self.count = median + children.reduce(0, combine: { $0 + $1.count })
         }
+        assert(node.depth == self.depth)
         return BTreeSplinter(separator: separator, node: node)
     }
 
