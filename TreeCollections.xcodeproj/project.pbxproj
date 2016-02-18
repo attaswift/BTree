@@ -22,21 +22,16 @@
 		BB1747291C276CFB002C929C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747281C276CFB002C929C /* AppDelegate.swift */; };
 		BB17472B1C276CFB002C929C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BB17472A1C276CFB002C929C /* Assets.xcassets */; };
 		BB17472E1C276CFB002C929C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = BB17472C1C276CFB002C929C /* MainMenu.xib */; };
-		BB1747541C289539002C929C /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747491C289539002C929C /* Duration.swift */; };
-		BB1747551C289539002C929C /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747491C289539002C929C /* Duration.swift */; };
 		BB1747571C289539002C929C /* Permutations.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474A1C289539002C929C /* Permutations.swift */; };
 		BB1747581C289539002C929C /* Permutations.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474A1C289539002C929C /* Permutations.swift */; };
 		BB17475A1C289539002C929C /* PermutationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474B1C289539002C929C /* PermutationTests.swift */; };
 		BB17475B1C289539002C929C /* PermutationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474B1C289539002C929C /* PermutationTests.swift */; };
 		BB17475D1C289539002C929C /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474C1C289539002C929C /* Random.swift */; };
 		BB17475E1C289539002C929C /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474C1C289539002C929C /* Random.swift */; };
-		BB1747601C289539002C929C /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474D1C289539002C929C /* Time.swift */; };
-		BB1747611C289539002C929C /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474D1C289539002C929C /* Time.swift */; };
 		BB1747661C289539002C929C /* MapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747511C289539002C929C /* MapTests.swift */; };
 		BB1747671C289539002C929C /* MapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747511C289539002C929C /* MapTests.swift */; };
 		BB17476C1C289539002C929C /* RedBlackTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747531C289539002C929C /* RedBlackTreeTests.swift */; };
 		BB17476D1C289539002C929C /* RedBlackTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747531C289539002C929C /* RedBlackTreeTests.swift */; };
-		BB17476F1C289544002C929C /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747491C289539002C929C /* Duration.swift */; };
 		BB1747701C289544002C929C /* Permutations.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474A1C289539002C929C /* Permutations.swift */; };
 		BB1747721C289544002C929C /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474C1C289539002C929C /* Random.swift */; };
 		BB1747731C289544002C929C /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474D1C289539002C929C /* Time.swift */; };
@@ -70,8 +65,7 @@
 		BB9AE4511C1FCE0B002C5D63 /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9AE43B1C1FCC35002C5D63 /* TreeCollections.framework */; };
 		BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4831C20875D002C5D63 /* TestUtils.swift */; };
 		BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9AE4831C20875D002C5D63 /* TestUtils.swift */; };
-		BBBA30491C494E130019830F /* BigInt.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BBBA95B01C482BBC005810B9 /* BigInt.framework */; };
-		BBBA304B1C494E8D0019830F /* BigInt.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBBA95B01C482BBC005810B9 /* BigInt.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		BBB3EB4B1C75EE5200DE482C /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747491C289539002C929C /* Duration.swift */; };
 		BBBA306B1C4A8C000019830F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBA306A1C4A8C000019830F /* AppDelegate.swift */; };
 		BBBA306D1C4A8C000019830F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBA306C1C4A8C000019830F /* ViewController.swift */; };
 		BBBA30701C4A8C000019830F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BBBA306E1C4A8C000019830F /* Main.storyboard */; };
@@ -135,16 +129,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		BBBA304A1C494E830019830F /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				BBBA304B1C494E8D0019830F /* BigInt.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		BBBA308F1C4A9CD70019830F /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -269,7 +253,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB9AE4511C1FCE0B002C5D63 /* TreeCollections.framework in Frameworks */,
-				BBBA30491C494E130019830F /* BigInt.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -522,7 +505,6 @@
 				BB9AE4481C1FCE0B002C5D63 /* Sources */,
 				BB9AE4491C1FCE0B002C5D63 /* Frameworks */,
 				BB9AE44A1C1FCE0B002C5D63 /* Resources */,
-				BBBA304A1C494E830019830F /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -664,10 +646,10 @@
 				BB1747291C276CFB002C929C /* AppDelegate.swift in Sources */,
 				BBCABF9F1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB1747701C289544002C929C /* Permutations.swift in Sources */,
+				BBB3EB4B1C75EE5200DE482C /* Duration.swift in Sources */,
 				BB1747721C289544002C929C /* Random.swift in Sources */,
 				BB1747731C289544002C929C /* Time.swift in Sources */,
 				BBBA30871C4A8FB80019830F /* BenchmarkRunner.swift in Sources */,
-				BB17476F1C289544002C929C /* Duration.swift in Sources */,
 				BBBA308A1C4A96640019830F /* CollectionBenchmarks.swift in Sources */,
 				BB1747891C289A15002C929C /* Benchmark.swift in Sources */,
 				BB1747881C289A13002C929C /* InsertionBenchmark.swift in Sources */,
@@ -699,7 +681,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB1747601C289539002C929C /* Time.swift in Sources */,
 				BB1747781C2897F8002C929C /* XCTest extensions.swift in Sources */,
 				BB17475A1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB9AE4861C208762002C5D63 /* TestUtils.swift in Sources */,
@@ -710,7 +691,6 @@
 				BB3EAACC1C26F7F40028E5A7 /* TreeChecker.swift in Sources */,
 				BB3EAAC91C26F6F10028E5A7 /* TreeDumper.swift in Sources */,
 				BB1747571C289539002C929C /* Permutations.swift in Sources */,
-				BB1747541C289539002C929C /* Duration.swift in Sources */,
 				BB17476C1C289539002C929C /* RedBlackTreeTests.swift in Sources */,
 				BB17475D1C289539002C929C /* Random.swift in Sources */,
 			);
@@ -739,7 +719,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB1747611C289539002C929C /* Time.swift in Sources */,
 				BB1747791C2897F8002C929C /* XCTest extensions.swift in Sources */,
 				BB17475B1C289539002C929C /* PermutationTests.swift in Sources */,
 				BB9AE4871C208763002C5D63 /* TestUtils.swift in Sources */,
@@ -750,7 +729,6 @@
 				BB3EAACD1C26F7F40028E5A7 /* TreeChecker.swift in Sources */,
 				BB3EAACA1C26F6F10028E5A7 /* TreeDumper.swift in Sources */,
 				BB1747581C289539002C929C /* Permutations.swift in Sources */,
-				BB1747551C289539002C929C /* Duration.swift in Sources */,
 				BB17476D1C289539002C929C /* RedBlackTreeTests.swift in Sources */,
 				BB17475E1C289539002C929C /* Random.swift in Sources */,
 			);
