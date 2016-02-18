@@ -60,13 +60,17 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
 
     //MARK: Initializers
 
-    internal init() {
-        let root = Node()
+    private init(_ root: Node) {
         self.root = root
-        self.count = 0
-        self.position = 0
+        self.count = root.count
+        self.position = root.count
         self.path = [root]
-        self.slots = [0]
+        self.slots = []
+    }
+
+    internal convenience init() {
+        self.init(Node())
+        pushToSlots(0)
     }
 
     internal convenience init(startOf root: Node) {
@@ -77,56 +81,17 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         self.init(root: root, position: root.count)
     }
 
-    internal init(root: Node, position: Int) {
+    internal convenience init(root: Node, position: Int) {
         precondition(position >= 0 && position <= root.count)
-        let root = root.clone()
-        self.root = root
-        self.count = root.count
-        self.position = 0
-        self.path = [root]
-        self.slots = []
+        self.init(root.clone())
         descendToPosition(position)
     }
 
     /// Initialize a new cursor positioned at the specified `key`. If the key isn't in the tree, then the cursor
     /// is positioned after the last element whose key is below `key`.
-    internal init(root: Node, key: Key) {
-        let root = root.clone()
-        self.root = root
-        self.count = root.count
-        self.position = 0
-        self.path = [root]
-        self.slots = []
-
-        if root.isEmpty {
-            self.slots.append(0)
-            return
-        }
-
-        var node = root
-        while !node.isLeaf {
-            let slot = node.slotOf(key)
-            slots.append(slot.index)
-            position += (0..<slot.index).reduce(0) { $0 + node.children[$1].count + 1 }
-            if slot.match {
-                position += node.children[slot.index].count
-                return
-            }
-            let child = node.makeChildUnique(slot.index)
-            node.count -= child.count
-            path.append(child)
-            node = child
-        }
-        let slot = node.slotOf(key)
-        if slot.index < node.keys.count {
-            position += slot.index
-            slots.append(slot.index)
-        }
-        else {
-            position += slot.index - 1
-            slots.append(slot.index - 1)
-            moveForward()
-        }
+    internal convenience init(root: Node, key: Key) {
+        self.init(root.clone())
+        descendToKey(key)
     }
 
     //MARK: Finishing
@@ -157,43 +122,36 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         self.slots = []
     }
 
-    private func ascend(direction: WalkDirection) {
-        while path.count > 1 {
-            let node = path.removeLast()
-            slots.removeLast()
-            let parent = path[path.count - 1]
-            let slot = slots[slots.count - 1]
-            parent.count += node.count
-            precondition(parent.children[slot] === node)
-            if direction == .Forward && slot < parent.keys.count {
-                return
-            }
-            else if direction == .Backward && slot > 0 {
-                slots[slots.count - 1] = slot - 1
-                return
-            }
-        }
-        invalidate()
+    private func popFromSlots() -> Int {
+        assert(path.count == slots.count)
+        let slot = slots.removeLast()
+        let node = path.last!
+        self.position += node.count - node.positionOfSlot(slot)
+        return slot
+    }
+    private func popFromPath() -> Node {
+        assert(path.count > 1 && path.count == slots.count + 1)
+        let child = path.removeLast()
+        let parent = path.last!
+        parent.count += child.count
+        return child
     }
 
-    private func descend(direction: WalkDirection) {
-        precondition(self.path.count > 0)
-        let parent = self.path.last!
-        assert(!parent.isLeaf)
-        let slot = (direction == .Forward ? slots.last! + 1 : slots.last!)
-        slots[slots.count - 1] = slot
-        var node = parent.makeChildUnique(slot)
-        parent.count -= node.count
-        path.append(node)
-        while !node.isLeaf {
-            let slot = (direction == .Forward ? 0 : node.children.count - 1)
-            slots.append(slot)
-            let child = node.makeChildUnique(slot)
-            node.count -= child.count
-            path.append(child)
-            node = child
-        }
-        slots.append(direction == .Forward ? 0 : node.keys.count - 1)
+    private func pushToPath() -> Node {
+        assert(path.count == slots.count)
+        let parent = path.last!
+        let slot = slots.last!
+        let child = parent.makeChildUnique(slot)
+        parent.count -= child.count
+        path.append(child)
+        return child
+    }
+    private func pushToSlots(slot: Int, positionOfSlot: Int? = nil) {
+        assert(path.count == slots.count + 1)
+        let node = path.last!
+        let p = positionOfSlot ?? node.positionOfSlot(slot)
+        self.position -= node.count - p
+        self.slots.append(slot)
     }
 
     /// Position the cursor on the next element in the b-tree.
@@ -209,11 +167,22 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
                 slots[slots.count - 1] += 1
             }
             else {
-                ascend(.Forward)
+                // Ascend
+                repeat {
+                    slots.removeLast()
+                    popFromPath()
+                } while slots.last! == path.last!.keys.count
             }
         }
         else {
-            descend(.Forward)
+            // Descend
+            slots[slots.count - 1] += 1
+            var node = pushToPath()
+            while !node.isLeaf {
+                slots.append(0)
+                node = pushToPath()
+            }
+            slots.append(0)
         }
     }
 
@@ -230,11 +199,23 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
                 slots[slots.count - 1] -= 1
             }
             else {
-                ascend(.Backward)
+                repeat {
+                    slots.removeLast()
+                    popFromPath()
+                } while slots.last! == 0
+                slots[slots.count - 1] -= 1
             }
         }
         else {
-            descend(.Backward)
+            precondition(path.count > 0)
+            assert(!path.last!.isLeaf)
+            var node = pushToPath()
+            while !node.isLeaf {
+                let slot = node.children.count - 1
+                slots.append(slot)
+                node = pushToPath()
+            }
+            slots.append(node.keys.count - 1)
         }
     }
 
@@ -249,7 +230,12 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     ///
     /// - Complexity: O(log(`count` - `position`))
     internal func moveToEnd() {
-        moveToPosition(self.count)
+        popFromSlots()
+        while self.count > self.position + path.last!.count {
+            popFromPath()
+            popFromSlots()
+        }
+        self.descendToPosition(self.count)
     }
 
     /// Move this cursor to the specified position in the b-tree.
@@ -258,58 +244,57 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     ///   positions.
     internal func moveToPosition(position: Int) {
         precondition(isValid && position >= 0 && position <= count)
-        // Pop to ancestor whose subtree contains the desired position.
-        while path.count > 1 {
-            let range = rangeOfPositionForLastNode()
-            if range.contains(position) {
-                break
-            }
-            path.removeLast()
-            path[path.count - 1].count += range.count
-            slots.removeLast()
-            self.position = range.endIndex
+        if position == count {
+            moveToEnd()
+            return
         }
-        let node = path.last!
-        self.position -= node.positionOfSlot(slots.removeLast())
+        // Pop to ancestor whose subtree contains the desired position.
+        popFromSlots()
+        while position < self.position - path.last!.count || position >= self.position {
+            popFromPath()
+            popFromSlots()
+        }
         self.descendToPosition(position)
     }
 
-    private func rangeOfPositionForLastNode() -> Range<Int> {
-        let node = path.last!
-        let nodeStart = self.position - node.positionOfSlot(slots.last!)
-        let nodeEnd = nodeStart + node.count
-        return nodeStart ..< nodeEnd
+    private func descendToPosition(position: Int) {
+        assert(position >= self.position - path.last!.count && position <= self.position)
+        assert(self.path.count == self.slots.count + 1)
+        var node = path.last!
+        var slot = node.slotOfPosition(position - (self.position - node.count))
+        pushToSlots(slot.index, positionOfSlot: slot.position)
+        while !slot.match {
+            node = pushToPath()
+            slot = node.slotOfPosition(position - (self.position - node.count))
+            pushToSlots(slot.index, positionOfSlot: slot.position)
+        }
+        assert(self.position == position)
+        assert(path.count == slots.count)
     }
 
-    private func descendToPosition(position: Int) {
-        var node = path.last!
-        assert(self.position <= position && position <= self.position + node.count)
-        assert(self.slots.count == self.path.count - 1)
-        var pos = position - self.position
-        self.position = position
-        while !node.isLeaf {
-            var count = 0
-            for slot in 0 ..< node.children.count {
-                let c = node.children[slot].count
-                if pos == count + c && slot < node.keys.count {
-                    slots.append(slot)
-                    return
-                }
-                if pos <= count + c {
-                    // Descend
-                    slots.append(slot)
-                    let child = node.makeChildUnique(slot)
-                    node.count -= child.count
-                    path.append(child)
-                    node = child
-                    pos -= count
-                    break
-                }
-                count += c + 1
-            }
+    private func descendToKey(key: Key) {
+        if root.isEmpty {
+            pushToSlots(0)
+            return
         }
-        assert(pos <= node.keys.count)
-        slots.append(pos)
+
+        var node = root
+        while !node.isLeaf {
+            let slot = node.slotOf(key)
+            pushToSlots(slot.index)
+            if slot.match {
+                return
+            }
+            node = pushToPath()
+        }
+        let slot = node.slotOf(key)
+        if slot.index < node.keys.count {
+            pushToSlots(slot.index)
+        }
+        else {
+            pushToSlots(slot.index - 1)
+            moveForward()
+        }
     }
 
     //MARK: Editing
@@ -465,10 +450,47 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         }
     }
 
-    /// Remove the element at the cursor's current position, and position the cursor at the removed element's successor.
+    /// Remove and return the element at the cursor's current position, and position the cursor on its successor.
     internal func remove() -> (Key, Payload) {
         precondition(!isAtEnd)
-        fatalError("Implement this")
-        return (key, payload)
+        let node = path.last!
+        let slot = slots.last!
+        let result = (node.keys[slot], node.payloads[slot])
+        if !node.isLeaf {
+            // For internal nodes, remove the (leaf) predecessor instead, then put it back in place of the element
+            // that we actually want to remove.
+            moveBackward()
+            let surrogate = remove()
+            self.key = surrogate.0
+            self.payload = surrogate.1
+            moveForward()
+            return result
+        }
+        let targetPosition = self.position
+        node.keys.removeAtIndex(slot)
+        node.payloads.removeAtIndex(slot)
+        node.count -= 1
+        self.count -= 1
+        popFromSlots()
+        var n = node
+        while n !== root && n.isTooSmall {
+            popFromPath()
+            n = path.last!
+            let slot = popFromSlots()
+            n.fixDeficiency(slot)
+        }
+        while targetPosition != count && targetPosition == self.position && n !== root {
+            popFromPath()
+            n = path.last!
+            popFromSlots()
+        }
+        if n === root && n.keys.count == 0 && n.children.count == 1 {
+            assert(path.count == 1 && slots.count == 0)
+            root = n.children[0]
+            path[0] = root
+        }
+        descendToPosition(targetPosition)
+        return result
+    }
     }
 }

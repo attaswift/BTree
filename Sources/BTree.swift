@@ -265,6 +265,27 @@ extension BTreeNode {
         return position
     }
 
+    internal func slotOfPosition(position: Int) -> (index: Int, match: Bool, position: Int) {
+        assert(position >= 0 && position <= count)
+        if isLeaf {
+            return (position, true, position)
+        }
+        else {
+            var p = 0
+            for i in 0 ..< children.count {
+                let c = children[i].count
+                if position == p + c {
+                    return (index: i, match: true, position: p + c)
+                }
+                if position < p + c {
+                    return (index: i, match: false, position: p + c)
+                }
+                p += c + 1
+            }
+            preconditionFailure("Invalid b-tree")
+        }
+    }
+
     internal func positionOfSlot(slot: Int) -> Int {
         assert(slot <= keys.count)
         if isLeaf {
@@ -416,6 +437,9 @@ extension BTreeNode {
         return node.keys.last
     }
 
+    /// Reorganize the tree rooted at `self` so that the undersize child in `slot` is corrected.
+    /// As a side effect of the process, `self` may itself become undersized, but all of its descendants
+    /// become balanced.
     internal func fixDeficiency(slot: Int) {
         assert(!isLeaf && children[slot].isTooSmall)
         if slot > 0 && children[slot - 1].keys.count > minKeys {
