@@ -492,5 +492,4 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         descendToPosition(targetPosition)
         return result
     }
-    }
 }
