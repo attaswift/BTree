@@ -432,11 +432,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
             }
             else {
                 // Create new root node.
-                self.root = Node(
-                    order: self.root.order,
-                    keys: [splinter.separator.0],
-                    payloads: [splinter.separator.1],
-                    children: [left, right])
+                self.root = Node(left: left, separator: splinter.separator, right: right)
                 path.insert(self.root, atIndex: 0)
                 slots.insert(slot > left.keys.count ? 1 : 0, atIndex: 0)
             }

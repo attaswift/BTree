@@ -64,6 +64,15 @@ extension BTreeNode {
     convenience init(order: Int = BTreeNode<Key, Payload>.defaultOrder) { // TODO: This should be internal
         self.init(order: order, keys: [], payloads: [], children: [])
     }
+
+    internal convenience init(left: BTreeNode, separator: (Key, Payload), right: BTreeNode) {
+        assert(left.order == right.order)
+        self.init(
+            order: left.order,
+            keys: [separator.0],
+            payloads: [separator.1],
+            children: [left, right])
+    }
 }
 
 //MARK: Uniqueness
@@ -577,7 +586,7 @@ extension BTreeNode {
                 splinter = node.isTooLarge ? node.split() : nil
             }
             if let s = splinter {
-                return BTreeNode(order: left.order, keys: [s.separator.0], payloads: [s.separator.1], children: [stock, s.node])
+                return BTreeNode(left: stock, separator: s.separator, right: s.node)
             }
         }
         return stock

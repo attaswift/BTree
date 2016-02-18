@@ -292,7 +292,7 @@ extension List {
             }
         }
         if let s = splinter {
-            root = BTreeNode(order: root.order, keys: [s.separator.0], payloads: [s.separator.1], children: [root, s.node])
+            root = BTreeNode(left: root, separator: s.separator, right: s.node)
         }
     }
 
@@ -339,11 +339,7 @@ extension List {
     public mutating func insert(element: Element, atIndex index: Int) {
         makeUnique()
         if let splinter = List.insert(element, at: index, inTree: root) {
-            root = Node(
-                order: root.order,
-                keys: [splinter.separator.0],
-                payloads: [splinter.separator.1],
-                children: [root, splinter.node])
+            root = Node(left: root, separator: splinter.separator, right: splinter.node)
         }
     }
 
@@ -383,11 +379,7 @@ extension List {
                 counts[i] -= left.count + 1
                 if i == path.count - 1 {
                     // Insert new root level
-                    let new = Node(
-                        order: order,
-                        keys: [splinter.separator.0],
-                        payloads: [splinter.separator.1],
-                        children: [left, right])
+                    let new = Node(left: left, separator: splinter.separator, right: right)
                     path.append(new)
                     counts.append(left.count + 1)
                     self.root = new
@@ -492,7 +484,7 @@ extension List {
     }
 
     public mutating func removeAll() {
-        root = Node()
+        root = Node(order: root.order)
     }
 
     private mutating func withCursorPosition(position: Int, @noescape operation: BTreeCursor<EmptyKey, Element> -> ()) {

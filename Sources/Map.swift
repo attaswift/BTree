@@ -226,7 +226,7 @@ extension Map {
             }
         }
         if let s = splinter {
-            root = BTreeNode(order: root.order, keys: [s.separator.0], payloads: [s.separator.1], children: [root, s.node])
+            root = BTreeNode(left: root, separator: s.separator, right: s.node)
         }
         return result
     }
