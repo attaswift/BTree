@@ -526,22 +526,21 @@ extension BTreeNode {
     ///
     /// - Requires: `l <= separator.0 && separator.0 <= r` for all keys `l` in `left` and all keys `r` in `right`.
     /// - Complexity: O(log(left.count + right.count))
-    internal static func join(left left: BTreeNode, separator: (Key, Payload), right: BTreeNode, leftDepth: Int? = nil, rightDepth: Int? = nil) -> BTreeNode {
+    internal static func join(left left: BTreeNode, separator: (Key, Payload), right: BTreeNode, depthDelta: Int? = nil) -> BTreeNode {
         precondition(left.order == right.order)
-        let leftDepth = leftDepth ?? left.depth
-        let rightDepth = rightDepth ?? right.depth
+        let depthDelta = depthDelta ?? left.depth - right.depth
 
-        let append = leftDepth >= rightDepth
+        let append = depthDelta >= 0
         let stock = append ? left : right
         let scion = append ? right : left
         // We'll graft the scion onto the stock.
 
-        // First, find the insertion point, and preemtively update node counts on the way there.
+        // First, find the insertion point, and preemptively update node counts on the way there.
         var path = [stock]
         var node = stock
         let c = scion.count
         node.count += c + 1
-        for _ in 0 ..< abs(leftDepth - rightDepth) {
+        for _ in 0 ..< abs(depthDelta) {
             node = node.makeChildUnique(append ? node.children.count - 1 : 0)
             path.append(node)
             node.count += c + 1
