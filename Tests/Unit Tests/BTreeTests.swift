@@ -11,7 +11,7 @@ import XCTest
 @testable import TreeCollections
 
 extension BTreeNode {
-    func assertValid(file: FileString = __FILE__, line: UInt = __LINE__) {
+    func assertValid(file file: FileString = __FILE__, line: UInt = __LINE__) {
         func testNode(level level: Int, node: BTreeNode<Key, Payload>, minKey: Key?, maxKey: Key?) -> (maxlevel: Int, count: Int, defects: [String]) {
             var defects: [String] = []
 
@@ -163,7 +163,7 @@ extension BTreeNode {
 }
 
 
-func maximalTreeOfDepth(depth: Int, order: Int) -> BTreeNode<Int, String> {
+func maximalTreeOfDepth(depth: Int, order: Int, offset: Int = 0) -> BTreeNode<Int, String> {
     func maximalTreeOfDepth(depth: Int, inout key: Int) -> BTreeNode<Int, String> {
         let tree = BTreeNode<Int, String>(order: order)
         if depth == 0 {
@@ -188,7 +188,7 @@ func maximalTreeOfDepth(depth: Int, order: Int) -> BTreeNode<Int, String> {
         return tree
     }
 
-    var key = 0
+    var key = offset
     return maximalTreeOfDepth(depth, key: &key)
 }
 
@@ -720,5 +720,53 @@ class BTreeTests: XCTestCase {
             newTree.assertValid()
             XCTAssertElementsEqual(newTree, (0..<tree.count).filter{$0 != i}.map{ ($0, String($0)) })
         }
+    }
+
+    func testJoin() {
+        func createTree(keys: Range<Int> = 0..<0) -> Node {
+            let t = Node(order: 5)
+            for key in keys {
+                t.insert(String(key), at: key)
+            }
+            return t
+        }
+        func checkTree(t: Node, _ keys: Range<Int>, file: FileString = __FILE__, line: UInt = __LINE__) {
+            t.assertValid(file: file, line: line)
+            XCTAssertElementsEqual(t, keys.map { ($0, String($0)) }, file: file, line: line)
+        }
+
+        checkTree(Node.join(left: createTree(), separator: (0, "0"), right: createTree()), 0...0)
+        checkTree(Node.join(left: createTree(), separator: (0, "0"), right: createTree(1...1)), 0...1)
+        checkTree(Node.join(left: createTree(0...0), separator: (1, "1"), right: createTree()), 0...1)
+        checkTree(Node.join(left: createTree(0...0), separator: (1, "1"), right: createTree(2...2)), 0...2)
+
+        checkTree(Node.join(left: createTree(0...98), separator: (99, "99"), right: createTree(100...100)), 0...100)
+        checkTree(Node.join(left: createTree(0...0), separator: (1, "1"), right: createTree(2...100)), 0...100)
+        checkTree(Node.join(left: createTree(0...99), separator: (100, "100"), right: createTree(101...200)), 0...200)
+
+        do {
+            let l = maximalTreeOfDepth(2, order: 3)
+            let r = maximalTreeOfDepth(2, order: 3, offset: l.count + 1)
+            let s = (l.count, String(l.count))
+            let c = l.count + r.count + 1
+            checkTree(Node.join(left: l, separator: s, right: r), 0..<c)
+        }
+
+        do {
+            let l = maximalTreeOfDepth(1, order: 3)
+            let r = maximalTreeOfDepth(2, order: 3, offset: l.count + 1)
+            let s = (l.count, String(l.count))
+            let c = l.count + r.count + 1
+            checkTree(Node.join(left: l, separator: s, right: r), 0..<c)
+        }
+
+        do {
+            let l = maximalTreeOfDepth(2, order: 3)
+            let r = maximalTreeOfDepth(1, order: 3, offset: l.count + 1)
+            let s = (l.count, String(l.count))
+            let c = l.count + r.count + 1
+            checkTree(Node.join(left: l, separator: s, right: r), 0..<c)
+        }
+
     }
 }

@@ -516,3 +516,67 @@ extension BTreeNode {
     }
 }
 
+//MARK: Join
+
+extension BTreeNode {
+    /// Create and return a new b-tree consisting of elements of `left`, the `separator` and the elements of `right`, 
+    /// in this order.
+    ///
+    /// If you need to keep `left` and `right` intact, clone them before calling this function.
+    ///
+    /// - Requires: `l <= separator.0 && separator.0 <= r` for all keys `l` in `left` and all keys `r` in `right`.
+    /// - Complexity: O(log(left.count + right.count))
+    internal static func join(left left: BTreeNode, separator: (Key, Payload), right: BTreeNode, leftDepth: Int? = nil, rightDepth: Int? = nil) -> BTreeNode {
+        precondition(left.order == right.order)
+        let leftDepth = leftDepth ?? left.depth
+        let rightDepth = rightDepth ?? right.depth
+
+        let append = leftDepth >= rightDepth
+        let stock = append ? left : right
+        let scion = append ? right : left
+        // We'll graft the scion onto the stock.
+
+        // First, find the insertion point, and preemtively update node counts on the way there.
+        var path = [stock]
+        var node = stock
+        let c = scion.count
+        node.count += c + 1
+        for _ in 0 ..< abs(leftDepth - rightDepth) {
+            node = node.makeChildUnique(append ? node.children.count - 1 : 0)
+            path.append(node)
+            node.count += c + 1
+        }
+
+        // Graft the scion into the stock by inserting the contents of its root into `node`.
+        assert(node.isLeaf == scion.isLeaf)
+        if append {
+            node.keys.append(separator.0)
+            node.keys.appendContentsOf(right.keys)
+            node.payloads.append(separator.1)
+            node.payloads.appendContentsOf(right.payloads)
+            node.children.appendContentsOf(right.children)
+        }
+        else {
+            node.keys = left.keys + [separator.0] + node.keys
+            node.payloads = left.payloads + [separator.1] + node.payloads
+            node.children = left.children + node.children
+        }
+
+        // Split nodes if necessary to restore balance.
+        if node.isTooLarge {
+            path.removeLast()
+            var splinter = Optional(node.split())
+            while let s = splinter where !path.isEmpty {
+                let node = path.removeLast()
+                node.insert(s, inSlot: append ? node.keys.count : 0)
+                splinter = node.isTooLarge ? node.split() : nil
+            }
+            if let s = splinter {
+                return BTreeNode(order: left.order, keys: [s.separator.0], payloads: [s.separator.1], children: [stock, s.node])
+            }
+        }
+        return stock
+    }
+}
+
+
