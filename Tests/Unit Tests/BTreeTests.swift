@@ -772,6 +772,22 @@ class BTreeTests: XCTestCase {
             let c = l.count + r.count + 1
             checkTree(Node.join(left: l, separator: s, right: r), 0..<c)
         }
+    }
 
+    func testCursorRemoveRangeFromMaximalTree() {
+        let tree = maximalTreeOfDepth(3, order: 3)
+        let count = tree.count
+        for i in 0 ..< count {
+            for n in 0 ... count - i {
+                let cursor = BTreeCursor(root: tree, position: i)
+                cursor.remove(n)
+                let t = cursor.finish()
+                t.assertValid()
+                let keys = Array(0..<i) + Array(i + n ..< count)
+                XCTAssertElementsEqual(t, keys.map { ($0, String($0)) })
+            }
+        }
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, (0..<count).map { ($0, String($0)) })
     }
 }

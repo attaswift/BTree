@@ -82,6 +82,14 @@ extension BTreeNode {
             payloads: [separator.1],
             children: [left, right])
     }
+
+    internal convenience init(node: BTreeNode, slotRange: Range<Int>) {
+        self.init(
+            order: node.order,
+            keys: Array(node.keys[slotRange]),
+            payloads: Array(node.payloads[slotRange]),
+            children: node.isLeaf ? [] : Array(node.children[slotRange.startIndex ... slotRange.endIndex]))
+    }
 }
 
 //MARK: Uniqueness
@@ -398,13 +406,19 @@ extension BTreeNode {
 internal struct BTreeSplinter<Key: Comparable, Payload> {
     let separator: (Key, Payload)
     let node: BTreeNode<Key, Payload>
+
+    var exploded: (separator: (Key, Payload), node: BTreeNode<Key, Payload>) {
+        return (separator, node)
+    }
 }
 
 extension BTreeNode {
     /// Split this node into two, removing the high half of the nodes and putting them in a splinter.
     ///
     /// - Returns: A splinter containing the higher half of the original node.
+    @warn_unused_result
     internal func split() -> BTreeSplinter<Key, Payload> {
+        assert(isTooLarge)
         return split(keys.count / 2)
     }
 
@@ -412,15 +426,11 @@ extension BTreeNode {
     /// and putting them in a splinter.
     ///
     /// - Returns: A splinter containing the higher half of the original node.
+    @warn_unused_result
     internal func split(median: Int) -> BTreeSplinter<Key, Payload> {
-        assert(isTooLarge)
         let count = keys.count
         let separator = (keys[median], payloads[median])
-        let node = BTreeNode(
-            order: self.order,
-            keys: Array(keys[median + 1 ..< count]),
-            payloads: Array(payloads[median + 1 ..< count]),
-            children: isLeaf ? [] : Array(children[median + 1 ..< count + 1]))
+        let node = BTreeNode(node: self, slotRange: median + 1 ..< count)
         keys.removeRange(median ..< count)
         payloads.removeRange(median ..< count)
         if isLeaf {

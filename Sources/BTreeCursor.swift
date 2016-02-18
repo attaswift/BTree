@@ -30,6 +30,7 @@ private enum WalkDirection {
 internal final class BTreeCursor<Key: Comparable, Payload> {
     typealias Distance = Int
     typealias Node = BTreeNode<Key, Payload>
+    typealias Element = (Key, Payload)
 
     /// The root node in the tree that is being edited. Note that this isn't a valid b-tree while the cursor is active:
     /// each node on the current path has an invalid `count` field. (Other b-tree invariants are kept, though.)
@@ -94,10 +95,41 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         descendToKey(key)
     }
 
+    //MARK: Reset
+
+    private func reset(root: Node) {
+        self.root = root
+        self.count = root.count
+        self.position = root.count
+        self.path = [root]
+        self.slots = []
+    }
+
+    internal func reset(startOf root: Node) {
+        reset(root: root, position: 0)
+    }
+
+    internal func reset(endOf root: Node) {
+        reset(root: root, position: root.count)
+    }
+
+    internal func reset(root root: Node, position: Int) {
+        precondition(position >= 0 && position <= root.count)
+        reset(root)
+        descendToPosition(position)
+    }
+
+    internal func reset(root root: Node, key: Key) {
+        reset(root)
+        descendToKey(key)
+    }
+
     //MARK: Finishing
 
     /// Finalize editing the tree and return it, deactivating this cursor.
     /// You'll need to create a new cursor to continue editing the tree.
+    ///
+    /// - Complexity: O(log(count))
     @warn_unused_result
     internal func finish() -> Node {
         var childCount = 0
@@ -109,6 +141,87 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         assert(root.count == count)
         defer { invalidate() }
         return root
+    }
+
+    /// Cut the tree into two separate b-trees and a separator at the current position.
+    /// This operation deactivates the current cursor.
+    ///
+    /// - Complexity: O(log(count))
+    internal func finishByCutting() -> (left: Node, separator: Element, right: Node) {
+        precondition(!isAtEnd)
+
+        var left = path.removeLast()
+        var (separator, right) = left.split(slots.removeLast()).exploded
+        if left.children.count == 1 {
+            left = left.makeChildUnique(0)
+        }
+        if right.children.count == 1 {
+            right = right.makeChildUnique(0)
+        }
+
+        while !path.isEmpty {
+            let node = path.removeLast()
+            let slot = slots.removeLast()
+            if slot >= 1 {
+                let l = slot == 1 ? node.makeChildUnique(0) : Node(node: node, slotRange: 0 ..< slot - 1)
+                let s = (node.keys[slot - 1], node.payloads[slot - 1])
+                left = Node.join(left: l, separator: s, right: left)
+            }
+            let c = node.keys.count
+            if slot <= c - 1 {
+                let r = slot == c - 1 ? node.makeChildUnique(c) : Node(node: node, slotRange: slot + 1 ..< c)
+                let s = (node.keys[slot], node.payloads[slot])
+                right = Node.join(left: right, separator: s, right: r)
+            }
+        }
+
+        return (left, separator, right)
+    }
+
+    /// Discard elements at or after the current position and return the resulting b-tree.
+    /// This operation deactivates the current cursor.
+    ///
+    /// - Complexity: O(log(count))
+    internal func finishAndKeepPrefix() -> Node {
+        precondition(!isAtEnd)
+        var left = path.removeLast()
+        _ = left.split(slots.removeLast()).exploded
+        if left.children.count == 1 {
+            left = left.makeChildUnique(0)
+        }
+        while !path.isEmpty {
+            let node = path.removeLast()
+            let slot = slots.removeLast()
+            if slot >= 1 {
+                let l = slot == 1 ? node.makeChildUnique(0) : Node(node: node, slotRange: 0 ..< slot - 1)
+                let s = (node.keys[slot - 1], node.payloads[slot - 1])
+                left = Node.join(left: l, separator: s, right: left)
+            }
+        }
+        return left
+    }
+
+    /// Discard elements at or before the current position and return the resulting b-tree.
+    /// This operation destroys the current cursor.
+    ///
+    /// - Complexity: O(log(count))
+    internal func finishAndKeepSuffix() -> Node {
+        precondition(!isAtEnd)
+        var right = path.removeLast().split(slots.removeLast()).node
+        if right.children.count == 1 {
+            right = right.makeChildUnique(0)
+        }
+        while !path.isEmpty {
+            let node = path.removeLast()
+            let slot = slots.removeLast()
+            let c = node.keys.count
+            if slot <= c - 1 {
+                let r = slot == c - 1 ? node.makeChildUnique(c) : Node(node: node, slotRange: slot + 1 ..< c)
+                let s = (node.keys[slot], node.payloads[slot])
+                right = Node.join(left: right, separator: s, right: r)
+            }
+        }
+        return right
     }
 
     //MARK: Navigation
@@ -447,6 +560,8 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     }
 
     /// Remove and return the element at the cursor's current position, and position the cursor on its successor.
+    ///
+    /// - Complexity: O(log(count))
     internal func remove() -> (Key, Payload) {
         precondition(!isAtEnd)
         let node = path.last!
@@ -488,4 +603,33 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         descendToPosition(targetPosition)
         return result
     }
+
+
+
+    /// Remove `n` elements starting at the cursor's current position, and position the cursor on the successor of
+    /// the last element that was removed.
+    ///
+    /// - Complexity: O(log(count))
+    internal func remove(n: Int) {
+        precondition(isValid && n >= 0 && self.position + n <= count)
+        if n == 0 { return }
+        if n == 1 { remove(); return }
+        if n == count { reset(Node(order: root.order)); return }
+
+        let position = self.position
+        if position == 0 {
+            moveToPosition(n - 1)
+            reset(startOf: finishAndKeepSuffix())
+        }
+        else if position == count - n {
+            reset(endOf: finishAndKeepPrefix())
+        }
+        else {
+            let (left, _, mid) = finishByCutting()
+            reset(root: mid, position: n - 1)
+            let (_, separator, right) = finishByCutting()
+            reset(root: Node.join(left: left, separator: separator, right: right), position: position)
+        }
+    }
+
 }
