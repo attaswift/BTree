@@ -541,11 +541,11 @@ extension BTreeNode {
     ///
     /// - Requires: `l <= separator.0 && separator.0 <= r` for all keys `l` in `left` and all keys `r` in `right`.
     /// - Complexity: O(log(left.count + right.count))
-    internal static func join(left left: BTreeNode, separator: (Key, Payload), right: BTreeNode, depthDelta: Int? = nil) -> BTreeNode {
+    internal static func join(left left: BTreeNode, separator: (Key, Payload), right: BTreeNode) -> BTreeNode {
         precondition(left.order == right.order)
-        let depthDelta = depthDelta ?? left.depth - right.depth
-
+        let depthDelta = left.depth - right.depth
         let append = depthDelta >= 0
+        
         let stock = append ? left : right
         let scion = append ? right : left
         // We'll graft the scion onto the stock.
