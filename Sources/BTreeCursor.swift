@@ -185,7 +185,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     internal func finishAndKeepPrefix() -> Node {
         precondition(!isAtEnd)
         var left = path.removeLast()
-        _ = left.split(slots.removeLast()).exploded
+        _ = left.split(slots.removeLast())
         if left.children.count == 1 {
             left = left.makeChildUnique(0)
         }
@@ -557,6 +557,55 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
             path[i].count -= path[i + 1].count
             i += 1
         }
+    }
+
+    /// Insert the contents of `tree` before the currently focused element, keeping the cursor's position on it.
+    ///
+    /// - Complexity: O(log(`count + tree.count`))
+    internal func insert(tree: Node) {
+        precondition(isValid)
+        let c = tree.count
+        if c == 0 { return }
+        if c == 1 {
+            insertBefore(tree.keys[0], tree.payloads[0])
+            return
+        }
+        if self.count == 0 {
+            reset(endOf: tree)
+            return
+        }
+
+        let position = self.position
+        if position == self.count {
+            // Append
+            moveBackward()
+            let separator = remove()
+            let left = finish()
+            reset(endOf: Node.join(left: left, separator: separator, right: tree))
+        }
+        else if position == 0 {
+            // Prepend
+            let separator = remove()
+            let right = finish()
+            reset(root: Node.join(left: tree, separator: separator, right: right), position: position + c)
+        }
+        else {
+            // Insert in middle
+            moveBackward()
+            let sep1 = remove()
+            let (prefix, sep2, suffix) = finishByCutting()
+            let t1 = Node.join(left: prefix, separator: sep1, right: tree)
+            let t2 = Node.join(left: t1, separator: sep2, right: suffix)
+            reset(root: t2, position: position + c)
+        }
+    }
+
+    /// Insert all elements in a sequence before the currently focused element, keeping the cursor's position on it.
+    ///
+    /// - Requires: `self.isValid` and `elements` is sorted by key.
+    /// - Complexity: O(log(`count`) + *c*), where *c* is the number of elements in the sequence.
+    internal func insert<S: SequenceType where S.Generator.Element == Element>(elements: S) {
+        insert(Node(sortedElements: elements))
     }
 
     /// Remove and return the element at the cursor's current position, and position the cursor on its successor.

@@ -76,6 +76,7 @@ extension BTreeNode {
 
     internal convenience init(left: BTreeNode, separator: (Key, Payload), right: BTreeNode) {
         assert(left.order == right.order)
+        assert(left.depth == right.depth)
         self.init(
             order: left.order,
             keys: [separator.0],
@@ -126,6 +127,7 @@ extension BTreeNode {
 extension BTreeNode: SequenceType {
     typealias Generator = BTreeGenerator<Key, Payload>
     typealias Element = Generator.Element
+    typealias Node = BTreeNode<Key, Payload>
 
     var isEmpty: Bool { return count == 0 }
 
@@ -603,4 +605,125 @@ extension BTreeNode {
     }
 }
 
+//MARK: Conversion from SequenceType
+
+extension BTreeNode {
+    /// Create a new b-tree from elements of a sequence sorted by key.
+    ///
+    /// - Parameter sortedElements: A sequence of arbitrary length, sorted by key.
+    /// - Parameter order: The desired b-tree order. If not specified (recommended), the default order is used.
+    /// - Parameter fillFactor: The desired fill factor in each node of the new tree. Must be between 0.5 and 1.0.
+    ///      If not specified, a value of 1.0 is used, i.e., nodes will be loaded with as many elements as possible.
+    /// - Complexity: O(count)
+    /// - SeeAlso: `init(elements:order:fillFactor:)` for a (slower) unsorted variant.
+    internal convenience init<S: SequenceType where S.Generator.Element == Element>(sortedElements: S, order: Int = Node.defaultOrder, fillFactor: Double = 1) {
+        precondition(order > 1)
+        precondition(fillFactor >= 0.5 && fillFactor <= 1)
+        self.init()
+        let keysPerNode = Int(fillFactor * Double(order - 1) + 0.5)
+        let node = Node.make(sortedElements: sortedElements, order: order, keysPerNode: keysPerNode)
+        copy(node)
+    }
+
+    /// Create a new b-tree from elements of an unsorted sequence.
+    ///
+    /// - Parameter elements: An unsorted sequence of arbitrary length.
+    /// - Parameter order: The desired b-tree order. If not specified (recommended), the default order is used.
+    /// - Parameter fillFactor: The desired fill factor in each node of the new tree. Must be between 0.5 and 1.0.
+    ///      If not specified, a value of 1.0 is used, i.e., nodes will be loaded with as many elements as possible.
+    /// - Complexity: O(count * log(count))
+    /// - SeeAlso: `init(sortedElements:order:fillFactor:)` for a (faster) variant that can be used if the sequence is already sorted.
+    internal convenience init<S: SequenceType where S.Generator.Element == Element>(elements: S, order: Int = Node.defaultOrder, fillFactor: Double = 1) {
+        self.init(sortedElements: elements.sort { $0.0 < $1.0 }, order: order, fillFactor: fillFactor)
+    }
+
+    private func copy(node: Node) {
+        self.keys = node.keys
+        self.payloads = node.payloads
+        self.children = node.children
+        self.count = node.count
+        self._depth = node._depth
+    }
+
+    /// Construct a new b-tree by bulk loading from a sorted sequence of elements, loading the specified number of keys in each node.
+    private static func make<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S, order: Int = Node.defaultOrder, keysPerNode: Int) -> Node {
+        precondition(order > 1)
+        precondition(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
+
+        var generator = elements.generate()
+
+        // This bulk loading algorithm works growing a line of perfectly loaded saplings, in order of decreasing depth,
+        // with a separator element between each of them.
+        // In each step 
+        //   - A new separator and a new 0-depth, fully loaded node is loaded from the sequence as a new seedling.
+        //   - The seedling is then appended to or recursively merged into the list of saplings.
+        // Finally, at the end of the sequence, the final list of saplings plus the last partial seedling is joined
+        // into a single tree.
+
+        var saplings: [Node] = []
+        var separators: [Element] = []
+
+        var lastKey: Key? = nil
+        var seedling = Node(order: order)
+        outer: while true {
+            // Create new separator.
+            if saplings.count > 0 {
+                guard let element = generator.next() else { break outer }
+                precondition(lastKey <= element.0)
+                lastKey = element.0
+                separators.append(element)
+            }
+            // Load new seedling.
+            while seedling.keys.count < keysPerNode {
+                guard let element = generator.next() else { break outer }
+                precondition(lastKey <= element.0)
+                lastKey = element.0
+                seedling.keys.append(element.0)
+                seedling.payloads.append(element.1)
+                seedling.count += 1
+            }
+            // Append seedling into saplings, combining the last few seedlings when possible.
+            while !saplings.isEmpty && seedling.keys.count == keysPerNode {
+                let sapling = saplings.last!
+                assert(sapling.depth >= seedling.depth)
+                if sapling.depth == seedling.depth + 1 && sapling.keys.count < keysPerNode {
+                    // Graft current seedling under the last sapling, as a new child branch.
+                    saplings.removeLast()
+                    let separator = separators.removeLast()
+                    sapling.keys.append(separator.0)
+                    sapling.payloads.append(separator.1)
+                    sapling.children.append(seedling)
+                    sapling.count += seedling.count + 1
+                    seedling = sapling
+                }
+                else if sapling.depth == seedling.depth && sapling.keys.count == keysPerNode {
+                    // We have two full nodes; add them as two branches of a new, deeper seedling.
+                    saplings.removeLast()
+                    let separator = separators.removeLast()
+                    seedling = Node(left: sapling, separator: separator, right: seedling)
+                }
+                else {
+                    break
+                }
+            }
+            saplings.append(seedling)
+            seedling = Node(order: order)
+        }
+
+        // Merge saplings and seedling into a single tree.
+        var tree: Node
+        if separators.count == saplings.count - 1 {
+            assert(seedling.count == 0)
+            tree = saplings.removeLast()
+        }
+        else {
+            tree = seedling
+        }
+        assert(separators.count == saplings.count)
+        while !saplings.isEmpty {
+            tree = Node.join(left: saplings.removeLast(), separator: separators.removeLast(), right: tree)
+        }
+        return tree
+    }
+}
 

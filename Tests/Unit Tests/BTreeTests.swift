@@ -164,6 +164,13 @@ extension BTreeNode {
         }
         return result
     }
+
+    func forEachNode(@noescape operation: Node -> Void) {
+        operation(self)
+        for child in children {
+            child.forEachNode(operation)
+        }
+    }
 }
 
 
@@ -789,5 +796,82 @@ class BTreeTests: XCTestCase {
         }
         tree.assertValid()
         XCTAssertElementsEqual(tree, (0..<count).map { ($0, String($0)) })
+    }
+
+    func testSequenceConversion() {
+        func check(range: Range<Int>, file: FileString = __FILE__, line: UInt = __LINE__) {
+            let order = 5
+            let sequence = range.map { ($0, String($0)) }
+            let tree = Node(sortedElements: sequence, order: order)
+            tree.assertValid(file: file, line: line)
+            XCTAssertElementsEqual(tree, sequence, file: file, line: line)
+        }
+        check(0..<0)
+        check(0..<1)
+        check(0..<4)
+        check(0..<5)
+        check(0..<10)
+        check(0..<100)
+        check(0..<200)
+    }
+
+    func testUnsortedSequenceConversion() {
+        let tree = Node(elements: [(3, "3"), (1, "1"), (4, "4"), (2, "2"), (0, "0")])
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, [(0, "0"), (1, "1"), (2, "2"), (3, "3"), (4, "4")])
+    }
+
+    func testSequenceConversionToMaximalTrees() {
+        func checkDepth(depth: Int, file: FileString = __FILE__, line: UInt = __LINE__) {
+            let order = 5
+            let keysPerNode = order - 1
+            var count = keysPerNode
+            for _ in 0 ..< depth {
+                count = count * (keysPerNode + 1) + keysPerNode
+            }
+            let sequence = (0 ..< count).map { ($0, String($0)) }
+            let tree = Node(sortedElements: sequence, order: order, fillFactor: 1.0)
+            tree.assertValid(file: file, line: line)
+            tree.forEachNode { node in
+                XCTAssertEqual(node.keys.count, keysPerNode, file: file, line: line)
+            }
+        }
+
+        checkDepth(0)
+        checkDepth(1)
+        checkDepth(2)
+        checkDepth(3)
+    }
+
+    func testCursorInsertSequence() {
+        let cursor = BTreeCursor(startOf: Node(order: 3))
+        cursor.insert((10 ..< 20).map { ($0, String($0)) })
+        XCTAssertEqual(cursor.count, 10)
+        XCTAssertEqual(cursor.position, 10)
+
+        cursor.insert([])
+        XCTAssertEqual(cursor.count, 10)
+        XCTAssertEqual(cursor.position, 10)
+
+        cursor.insert((20 ..< 30).map { ($0, String($0)) })
+        XCTAssertEqual(cursor.count, 20)
+        XCTAssertEqual(cursor.position, 20)
+
+        cursor.moveToPosition(0)
+        cursor.insert((0 ..< 5).map { ($0, String($0)) })
+        XCTAssertEqual(cursor.count, 25)
+        XCTAssertEqual(cursor.position, 5)
+
+        cursor.insert((5 ..< 9).map { ($0, String($0)) })
+        XCTAssertEqual(cursor.count, 29)
+        XCTAssertEqual(cursor.position, 9)
+
+        cursor.insert([(9, "9")])
+        XCTAssertEqual(cursor.count, 30)
+        XCTAssertEqual(cursor.position, 10)
+
+        let tree = cursor.finish()
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, (0 ..< 30).map { ($0, String($0)) })
     }
 }
