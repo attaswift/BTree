@@ -48,8 +48,8 @@
 		BB3EAACC1C26F7F40028E5A7 /* TreeChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */; };
 		BB3EAACD1C26F7F40028E5A7 /* TreeChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3EAACB1C26F7F40028E5A7 /* TreeChecker.swift */; };
 		BB54D0BA1C1F0357008A462B /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* TreeCollections.framework */; };
-		BB56634F1C46969400F5A118 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTree.swift */; };
-		BB5663501C46969400F5A118 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTree.swift */; };
+		BB56634F1C46969400F5A118 /* BTreeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTreeNode.swift */; };
+		BB5663501C46969400F5A118 /* BTreeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTreeNode.swift */; };
 		BB7773811C6CA03200991A06 /* BTreeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773801C6CA03200991A06 /* BTreeGenerator.swift */; };
 		BB7773821C6CA03200991A06 /* BTreeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773801C6CA03200991A06 /* BTreeGenerator.swift */; };
 		BB7773841C6CA07C00991A06 /* BTreeIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773831C6CA07C00991A06 /* BTreeIndex.swift */; };
@@ -192,7 +192,7 @@
 		BB54D0B41C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB54D0B91C1F0357008A462B /* TreeCollectionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TreeCollectionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0C01C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BB56634E1C46969400F5A118 /* BTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTree.swift; sourceTree = "<group>"; };
+		BB56634E1C46969400F5A118 /* BTreeNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeNode.swift; sourceTree = "<group>"; };
 		BB7773801C6CA03200991A06 /* BTreeGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeGenerator.swift; sourceTree = "<group>"; };
 		BB7773831C6CA07C00991A06 /* BTreeIndex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeIndex.swift; sourceTree = "<group>"; };
 		BB7773861C6CA08B00991A06 /* Weak.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Weak.swift; sourceTree = "<group>"; };
@@ -359,7 +359,7 @@
 			isa = PBXGroup;
 			children = (
 				BB7773861C6CA08B00991A06 /* Weak.swift */,
-				BB56634E1C46969400F5A118 /* BTree.swift */,
+				BB56634E1C46969400F5A118 /* BTreeNode.swift */,
 				BB7773801C6CA03200991A06 /* BTreeGenerator.swift */,
 				BB7773831C6CA07C00991A06 /* BTreeIndex.swift */,
 				BB77738C1C6E476100991A06 /* BTreeCursor.swift */,
@@ -678,7 +678,7 @@
 				BB097FB31C236EFD00CB718A /* Map.swift in Sources */,
 				BB097FC71C25DDA700CB718A /* RedBlackTree descriptions.swift in Sources */,
 				BB77738A1C6CBC9100991A06 /* List.swift in Sources */,
-				BB56634F1C46969400F5A118 /* BTree.swift in Sources */,
+				BB56634F1C46969400F5A118 /* BTreeNode.swift in Sources */,
 				BB097FBC1C23A16700CB718A /* Summary.swift in Sources */,
 				BB097FB71C236F1E00CB718A /* RedBlackKey.swift in Sources */,
 				BB7773811C6CA03200991A06 /* BTreeGenerator.swift in Sources */,
@@ -719,7 +719,7 @@
 				BB097FB81C236F2200CB718A /* RedBlackKey.swift in Sources */,
 				BB097FCB1C25F58400CB718A /* RedBlackTree descriptions.swift in Sources */,
 				BB77738B1C6CBC9100991A06 /* List.swift in Sources */,
-				BB5663501C46969400F5A118 /* BTree.swift in Sources */,
+				BB5663501C46969400F5A118 /* BTreeNode.swift in Sources */,
 				BB097FBD1C23A1A400CB718A /* Summary.swift in Sources */,
 				BB7773821C6CA03200991A06 /* BTreeGenerator.swift in Sources */,
 			);

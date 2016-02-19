@@ -1,5 +1,5 @@
 //
-//  BTree.swift
+//  BTreeNode.swift
 //  TreeCollections
 //
 //  Created by Károly Lőrentey on 2016-01-13.
