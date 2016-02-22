@@ -1,3 +1,0 @@
-[submodule "Carthage/Checkouts/BigInt"]
-	path = Carthage/Checkouts/BigInt
-	url = https://github.com/lorentey/BigInt.git
