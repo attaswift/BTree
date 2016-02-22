@@ -730,4 +730,43 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         }
     }
 
+    /// Extract `n` elements starting at the cursor's current position, and position the cursor on the successor of
+    /// the last element that was removed.
+    ///
+    /// - Returns: The extracted elements as a new b-tree.
+    /// - Complexity: O(log(`count`))
+    public func extract(n: Int) -> Tree {
+        precondition(isValid && n >= 0 && self.position + n <= count)
+        if n == 0 {
+            return Tree(order: root.order)
+        }
+        if n == 1 {
+            let element = remove()
+            var tree = Tree(order: root.order)
+            tree.insert(element)
+            return tree
+        }
+        if n == count {
+            let tree = finish()
+            reset(Node(order: tree.root.order))
+            return tree
+        }
+
+        let position = self.position
+        if position == count - n {
+            var cut = finishByCutting()
+            reset(root: cut.left.root, position: position)
+            cut.right.insert(cut.separator, at: 0)
+            return cut.right
+        }
+        else {
+            let cut1 = finishByCutting()
+            reset(root: cut1.right.root, position: n - 1)
+            var cut2 = finishByCutting()
+            reset(root: Node.join(left: cut1.left.root, separator: cut2.separator, right: cut2.right.root), position: position)
+            cut2.left.insert(cut1.separator, at: 0)
+            return cut2.left
+        }
+    }
+
 }

@@ -378,6 +378,25 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0..<count).map { ($0, String($0)) })
     }
 
+    func testCursorExtractRangeFromMaximalTree() {
+        let tree = maximalTree(depth: 3, order: 3)
+        let count = tree.count
+        for i in 0 ..< count {
+            for n in 0 ... count - i {
+                var copy = tree
+                copy.withCursorAtPosition(i) { cursor in
+                    let extracted = cursor.extract(n)
+                    extracted.assertValid()
+                    XCTAssertElementsEqual(extracted, (i ..< i + n).map { ($0, String($0)) })
+                }
+                copy.assertValid()
+                let keys = Array(0..<i) + Array(i + n ..< count)
+                XCTAssertElementsEqual(copy, keys.map { ($0, String($0)) })
+            }
+        }
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, (0..<count).map { ($0, String($0)) })
+    }
 
     func testCursorInsertSequence() {
         var tree = Tree(order: 3)
