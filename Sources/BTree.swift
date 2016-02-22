@@ -6,6 +6,7 @@
 //  Copyright © 2015–2016 Károly Lőrentey.
 //
 
+/// B-trees are search trees that provide an ordered key-value store with excellent performance characteristics.
 public struct BTree<Key: Comparable, Payload> {
     public typealias Element = (Key, Payload)
     internal typealias Node = BTreeNode<Key, Payload>
@@ -16,11 +17,16 @@ public struct BTree<Key: Comparable, Payload> {
         self.root = root
     }
 
+    /// Initialize a new b-tree with no elements.
+    ///
+    /// - Parameter order: The maximum number of children for tree nodes.
     public init(order: Int = Node.defaultOrder) {
         self.root = Node(order: order)
     }
 
+    /// The order of this tree, i.e., the maximum number of children for tree nodes.
     public var order: Int { return root.order }
+    /// The depth of this tree. Depth starts at 0 for a tree that has a single root node.
     public var depth: Int { return root.depth }
 }
 
@@ -44,8 +50,10 @@ public extension BTree {
 extension BTree: SequenceType {
     public typealias Generator = BTreeGenerator<Key, Payload>
 
+    /// Returns true iff this tree has no elements.
     public var isEmpty: Bool { return root.count == 0 }
 
+    /// Returns a generator over the elements of this b-tree. Elements are sorted by key.
     public func generate() -> Generator {
         return Generator(self.root)
     }
@@ -68,18 +76,22 @@ extension BTree: SequenceType {
 extension BTree: CollectionType {
     public typealias Index = BTreeIndex<Key, Payload>
 
+    /// The index of the first element of this tree. Elements are sorted by key.
     public var startIndex: Index {
         return Index(startIndexOf: root)
     }
 
+    /// The index after the last element of this tree. (Equals `startIndex` when the tree is empty.)
     public var endIndex: Index {
         return Index(endIndexOf: root)
     }
 
+    /// The number of elements in this tree.
     public var count: Int {
         return root.count
     }
 
+    /// Returns the element at `index`.
     public subscript(index: Index) -> Element {
         get {
             precondition(index.root.value === self.root)
