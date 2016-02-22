@@ -248,7 +248,7 @@ class BTreeNodeTests: XCTestCase {
         node.insert((-1, "Foo"), inSlot: 2)
         XCTAssertEqual(node.count, 5)
         XCTAssertTrue(node.isTooLarge)
-        XCTAssertElementsEqual(node.elements, [(1, "1"), (-1, "Foo"), (2, "2")])
+        XCTAssertElementsEqual(node.elements, [(0, "0"), (1, "1"), (-1, "Foo"), (2, "2"), (3, "3")])
     }
 
     func testAppendElement() {
