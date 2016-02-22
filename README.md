@@ -1,7 +1,7 @@
 # In-Memory B-Trees and Ordered Collections in Swift
 
-[![Build Status](https://travis-ci.org/lorentey/TreeCollections.svg?branch=master)](https://travis-ci.org/lorentey/TreeCollections)
-[![codecov.io](https://codecov.io/github/lorentey/TreeCollections/coverage.svg?branch=master)](https://codecov.io/github/lorentey/TreeCollections?branch=master)
+[![Build Status](https://travis-ci.org/lorentey/BTree.svg?branch=master)](https://travis-ci.org/lorentey/BTree)
+[![codecov.io](https://codecov.io/github/lorentey/BTree/coverage.svg?branch=master)](https://codecov.io/github/lorentey/BTree?branch=master)
 
 This project provides an efficient in-memory b-tree implementation in pure Swift, and several useful
 collection types that use b-trees for their underlying storage.

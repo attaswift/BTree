@@ -1,13 +1,13 @@
 //
 //  MapTests.swift
-//  TreeCollectionsTests
+//  BTreeTests
 //
 //  Created by Károly Lőrentey on 2015-12-15.
 //  Copyright © 2015 Károly Lőrentey.
 //
 
 import XCTest
-@testable import TreeCollections
+@testable import BTree
 
 class MapTests: XCTestCase {
     func testEmptyMap() {

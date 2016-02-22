@@ -1,6 +1,6 @@
 //
 //  Weak.swift
-//  TreeCollections
+//  BTree
 //
 //  Created by Károly Lőrentey on 2016-02-11.
 //  Copyright © 2016 Károly Lőrentey.

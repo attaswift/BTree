@@ -1,13 +1,13 @@
 //
 //  BTreeTests.swift
-//  TreeCollections
+//  BTree
 //
 //  Created by Károly Lőrentey on 2016-01-13.
 //  Copyright © 2016 Károly Lőrentey.
 //
 
 import XCTest
-@testable import TreeCollections
+@testable import BTree
 
 extension BTree {
     func assertValid(file file: FileString = __FILE__, line: UInt = __LINE__) {

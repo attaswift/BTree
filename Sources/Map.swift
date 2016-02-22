@@ -1,6 +1,6 @@
 //
 //  Map.swift
-//  TreeCollections
+//  BTree
 //
 //  Created by Károly Lőrentey on 2015-12-17.
 //  Copyright © 2015 Károly Lőrentey.

@@ -1,6 +1,6 @@
 //
 //  BTreeNode.swift
-//  TreeCollections
+//  BTree
 //
 //  Created by Károly Lőrentey on 2016-01-13.
 //  Copyright © 2016 Károly Lőrentey.

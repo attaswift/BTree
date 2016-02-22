@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0720"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -18,22 +18,7 @@
                BlueprintIdentifier = "BB9AE43A1C1FCC35002C5D63"
                BuildableName = "TreeCollections.framework"
                BlueprintName = "Mac"
-               ReferencedContainer = "container:TreeCollections.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES"
-            hideIssues = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BB9AE44B1C1FCE0B002C5D63"
-               BuildableName = "TreeCollectionsTests.xctest"
-               BlueprintName = "Tests-Mac"
-               ReferencedContainer = "container:TreeCollections.xcodeproj">
+               ReferencedContainer = "container:BTree.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -42,8 +27,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -52,7 +36,7 @@
                BlueprintIdentifier = "BB9AE44B1C1FCE0B002C5D63"
                BuildableName = "TreeCollectionsTests.xctest"
                BlueprintName = "Tests-Mac"
-               ReferencedContainer = "container:TreeCollections.xcodeproj">
+               ReferencedContainer = "container:BTree.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -62,7 +46,7 @@
             BlueprintIdentifier = "BB9AE43A1C1FCC35002C5D63"
             BuildableName = "TreeCollections.framework"
             BlueprintName = "Mac"
-            ReferencedContainer = "container:TreeCollections.xcodeproj">
+            ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -84,7 +68,7 @@
             BlueprintIdentifier = "BB9AE43A1C1FCC35002C5D63"
             BuildableName = "TreeCollections.framework"
             BlueprintName = "Mac"
-            ReferencedContainer = "container:TreeCollections.xcodeproj">
+            ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -102,7 +86,7 @@
             BlueprintIdentifier = "BB9AE43A1C1FCC35002C5D63"
             BuildableName = "TreeCollections.framework"
             BlueprintName = "Mac"
-            ReferencedContainer = "container:TreeCollections.xcodeproj">
+            ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

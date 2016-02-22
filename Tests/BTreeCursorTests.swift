@@ -1,6 +1,6 @@
 //
 //  BTreeCursorTests.swift
-//  TreeCollections
+//  BTree
 //
 //  Created by Károly Lőrentey on 2016-02-19.
 //  Copyright © 2016 Károly Lőrentey.
@@ -8,7 +8,7 @@
 
 import Foundation
 import XCTest
-@testable import TreeCollections
+@testable import BTree
 
 class BTreeCursorTests: XCTestCase {
     typealias Tree = BTree<Int, String>

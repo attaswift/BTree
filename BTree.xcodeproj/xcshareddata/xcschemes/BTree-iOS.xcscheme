@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0720"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -11,13 +11,14 @@
             buildForRunning = "YES"
             buildForProfiling = "YES"
             buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForAnalyzing = "YES"
+            hideIssues = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "BB54D0AE1C1F0357008A462B"
                BuildableName = "TreeCollections.framework"
                BlueprintName = "iOS"
-               ReferencedContainer = "container:TreeCollections.xcodeproj">
+               ReferencedContainer = "container:BTree.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +36,7 @@
                BlueprintIdentifier = "BB54D0B81C1F0357008A462B"
                BuildableName = "TreeCollectionsTests.xctest"
                BlueprintName = "Tests-iOS"
-               ReferencedContainer = "container:TreeCollections.xcodeproj">
+               ReferencedContainer = "container:BTree.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -45,7 +46,7 @@
             BlueprintIdentifier = "BB54D0AE1C1F0357008A462B"
             BuildableName = "TreeCollections.framework"
             BlueprintName = "iOS"
-            ReferencedContainer = "container:TreeCollections.xcodeproj">
+            ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -67,7 +68,7 @@
             BlueprintIdentifier = "BB54D0AE1C1F0357008A462B"
             BuildableName = "TreeCollections.framework"
             BlueprintName = "iOS"
-            ReferencedContainer = "container:TreeCollections.xcodeproj">
+            ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -85,7 +86,7 @@
             BlueprintIdentifier = "BB54D0AE1C1F0357008A462B"
             BuildableName = "TreeCollections.framework"
             BlueprintName = "iOS"
-            ReferencedContainer = "container:TreeCollections.xcodeproj">
+            ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

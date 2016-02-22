@@ -1,6 +1,6 @@
 //
 //  PermutationTests.swift
-//  TreeCollections
+//  BTree
 //
 //  Created by Károly Lőrentey on 2015-12-21.
 //  Copyright © 2015 Károly Lőrentey.

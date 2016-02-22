@@ -1,13 +1,13 @@
 //
 //  BTreeNodeTests.swift
-//  TreeCollections
+//  BTree
 //
 //  Created by Károly Lőrentey on 2016-02-21.
 //  Copyright © 2016 Károly Lőrentey.
 //
 
 import XCTest
-@testable import TreeCollections
+@testable import BTree
 
 class BTreeNodeTests: XCTestCase {
     typealias Node = BTreeNode<Int, String>

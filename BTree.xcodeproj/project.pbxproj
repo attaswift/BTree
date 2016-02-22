@@ -17,7 +17,7 @@
 		BB17475E1C289539002C929C /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474C1C289539002C929C /* Random.swift */; };
 		BB1747781C2897F8002C929C /* XCTest extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747771C2897F8002C929C /* XCTest extensions.swift */; };
 		BB1747791C2897F8002C929C /* XCTest extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747771C2897F8002C929C /* XCTest extensions.swift */; };
-		BB54D0BA1C1F0357008A462B /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* TreeCollections.framework */; };
+		BB54D0BA1C1F0357008A462B /* BTree.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* BTree.framework */; };
 		BB56634F1C46969400F5A118 /* BTreeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTreeNode.swift */; };
 		BB5663501C46969400F5A118 /* BTreeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTreeNode.swift */; };
 		BB7773811C6CA03200991A06 /* BTreeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773801C6CA03200991A06 /* BTreeGenerator.swift */; };
@@ -30,13 +30,19 @@
 		BB77738B1C6CBC9100991A06 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773891C6CBC9100991A06 /* List.swift */; };
 		BB77738F1C6E57B200991A06 /* BTreeCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB77738C1C6E476100991A06 /* BTreeCursor.swift */; };
 		BB7773901C6E57B300991A06 /* BTreeCursor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB77738C1C6E476100991A06 /* BTreeCursor.swift */; };
-		BB9AE4511C1FCE0B002C5D63 /* TreeCollections.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9AE43B1C1FCC35002C5D63 /* TreeCollections.framework */; };
-		BBB224DD1C7B9BAA0049FEF6 /* BTreeCursorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D71C7B9BAA0049FEF6 /* BTreeCursorTests.swift */; };
-		BBB224DE1C7B9BAA0049FEF6 /* BTreeNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D81C7B9BAA0049FEF6 /* BTreeNodeTests.swift */; };
-		BBB224DF1C7B9BAA0049FEF6 /* BTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D91C7B9BAA0049FEF6 /* BTreeTests.swift */; };
-		BBB224E01C7B9BAA0049FEF6 /* BTreeTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DA1C7B9BAA0049FEF6 /* BTreeTestSupport.swift */; };
-		BBB224E11C7B9BAA0049FEF6 /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */; };
-		BBB224E21C7B9BAA0049FEF6 /* MapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */; };
+		BB9AE4511C1FCE0B002C5D63 /* BTree.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9AE43B1C1FCC35002C5D63 /* BTree.framework */; };
+		BBB224E31C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DA1C7B9BAA0049FEF6 /* BTreeTestSupport.swift */; };
+		BBB224E41C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D81C7B9BAA0049FEF6 /* BTreeNodeTests.swift */; };
+		BBB224E51C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D71C7B9BAA0049FEF6 /* BTreeCursorTests.swift */; };
+		BBB224E61C7B9ED60049FEF6 /* BTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D91C7B9BAA0049FEF6 /* BTreeTests.swift */; };
+		BBB224E71C7B9ED60049FEF6 /* MapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */; };
+		BBB224E81C7B9ED60049FEF6 /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */; };
+		BBB224E91C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DA1C7B9BAA0049FEF6 /* BTreeTestSupport.swift */; };
+		BBB224EA1C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D81C7B9BAA0049FEF6 /* BTreeNodeTests.swift */; };
+		BBB224EB1C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D71C7B9BAA0049FEF6 /* BTreeCursorTests.swift */; };
+		BBB224EC1C7B9ED60049FEF6 /* BTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D91C7B9BAA0049FEF6 /* BTreeTests.swift */; };
+		BBB224ED1C7B9ED60049FEF6 /* MapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */; };
+		BBB224EE1C7B9ED60049FEF6 /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */; };
 		BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 		BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 		BBD622791C77568D00B6BF46 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD622781C77568D00B6BF46 /* BTree.swift */; };
@@ -67,9 +73,9 @@
 		BB17474B1C289539002C929C /* PermutationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PermutationTests.swift; sourceTree = "<group>"; };
 		BB17474C1C289539002C929C /* Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		BB1747771C2897F8002C929C /* XCTest extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTest extensions.swift"; sourceTree = "<group>"; };
-		BB54D0AF1C1F0357008A462B /* TreeCollections.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TreeCollections.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB54D0AF1C1F0357008A462B /* BTree.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BTree.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0B41C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		BB54D0B91C1F0357008A462B /* TreeCollectionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TreeCollectionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB54D0B91C1F0357008A462B /* BTreeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BTreeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0C01C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB56634E1C46969400F5A118 /* BTreeNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeNode.swift; sourceTree = "<group>"; };
 		BB7773801C6CA03200991A06 /* BTreeGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeGenerator.swift; sourceTree = "<group>"; };
@@ -77,8 +83,8 @@
 		BB7773861C6CA08B00991A06 /* Weak.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Weak.swift; sourceTree = "<group>"; };
 		BB7773891C6CBC9100991A06 /* List.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
 		BB77738C1C6E476100991A06 /* BTreeCursor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeCursor.swift; sourceTree = "<group>"; };
-		BB9AE43B1C1FCC35002C5D63 /* TreeCollections.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TreeCollections.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		BB9AE44C1C1FCE0B002C5D63 /* TreeCollectionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TreeCollectionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB9AE43B1C1FCC35002C5D63 /* BTree.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BTree.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB9AE44C1C1FCE0B002C5D63 /* BTreeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BTreeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB9AE47D1C207303002C5D63 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		BBB224D71C7B9BAA0049FEF6 /* BTreeCursorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeCursorTests.swift; sourceTree = "<group>"; };
 		BBB224D81C7B9BAA0049FEF6 /* BTreeNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeNodeTests.swift; sourceTree = "<group>"; };
@@ -105,7 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB54D0BA1C1F0357008A462B /* TreeCollections.framework in Frameworks */,
+				BB54D0BA1C1F0357008A462B /* BTree.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,7 +126,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BB9AE4511C1FCE0B002C5D63 /* TreeCollections.framework in Frameworks */,
+				BB9AE4511C1FCE0B002C5D63 /* BTree.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -156,10 +162,10 @@
 		BB54D0B01C1F0357008A462B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BB54D0AF1C1F0357008A462B /* TreeCollections.framework */,
-				BB54D0B91C1F0357008A462B /* TreeCollectionsTests.xctest */,
-				BB9AE43B1C1FCC35002C5D63 /* TreeCollections.framework */,
-				BB9AE44C1C1FCE0B002C5D63 /* TreeCollectionsTests.xctest */,
+				BB54D0AF1C1F0357008A462B /* BTree.framework */,
+				BB54D0B91C1F0357008A462B /* BTreeTests.xctest */,
+				BB9AE43B1C1FCC35002C5D63 /* BTree.framework */,
+				BB9AE44C1C1FCE0B002C5D63 /* BTreeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -239,7 +245,7 @@
 			);
 			name = iOS;
 			productName = TreeCollections;
-			productReference = BB54D0AF1C1F0357008A462B /* TreeCollections.framework */;
+			productReference = BB54D0AF1C1F0357008A462B /* BTree.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		BB54D0B81C1F0357008A462B /* Tests-iOS */ = {
@@ -257,7 +263,7 @@
 			);
 			name = "Tests-iOS";
 			productName = TreeCollectionsTests;
-			productReference = BB54D0B91C1F0357008A462B /* TreeCollectionsTests.xctest */;
+			productReference = BB54D0B91C1F0357008A462B /* BTreeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		BB9AE43A1C1FCC35002C5D63 /* Mac */ = {
@@ -275,7 +281,7 @@
 			);
 			name = Mac;
 			productName = "TreeCollections-OS X";
-			productReference = BB9AE43B1C1FCC35002C5D63 /* TreeCollections.framework */;
+			productReference = BB9AE43B1C1FCC35002C5D63 /* BTree.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		BB9AE44B1C1FCE0B002C5D63 /* Tests-Mac */ = {
@@ -293,7 +299,7 @@
 			);
 			name = "Tests-Mac";
 			productName = TreeCollectionTests;
-			productReference = BB9AE44C1C1FCE0B002C5D63 /* TreeCollectionsTests.xctest */;
+			productReference = BB9AE44C1C1FCE0B002C5D63 /* BTreeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -320,7 +326,7 @@
 					};
 				};
 			};
-			buildConfigurationList = BB54D0A91C1F0357008A462B /* Build configuration list for PBXProject "TreeCollections" */;
+			buildConfigurationList = BB54D0A91C1F0357008A462B /* Build configuration list for PBXProject "BTree" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -378,13 +384,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BB7773841C6CA07C00991A06 /* BTreeIndex.swift in Sources */,
-				BBB224DD1C7B9BAA0049FEF6 /* BTreeCursorTests.swift in Sources */,
-				BBB224DE1C7B9BAA0049FEF6 /* BTreeNodeTests.swift in Sources */,
 				BBD622791C77568D00B6BF46 /* BTree.swift in Sources */,
-				BBB224E21C7B9BAA0049FEF6 /* MapTests.swift in Sources */,
-				BBB224E11C7B9BAA0049FEF6 /* ListTests.swift in Sources */,
-				BBB224E01C7B9BAA0049FEF6 /* BTreeTestSupport.swift in Sources */,
-				BBB224DF1C7B9BAA0049FEF6 /* BTreeTests.swift in Sources */,
 				BB7773871C6CA08B00991A06 /* Weak.swift in Sources */,
 				BB7773901C6E57B300991A06 /* BTreeCursor.swift in Sources */,
 				BB097FB31C236EFD00CB718A /* Map.swift in Sources */,
@@ -402,6 +402,12 @@
 				BB17475A1C289539002C929C /* PermutationTests.swift in Sources */,
 				BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB1747571C289539002C929C /* Permutations.swift in Sources */,
+				BBB224E81C7B9ED60049FEF6 /* ListTests.swift in Sources */,
+				BBB224E51C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
+				BBB224E31C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */,
+				BBB224E71C7B9ED60049FEF6 /* MapTests.swift in Sources */,
+				BBB224E41C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */,
+				BBB224E61C7B9ED60049FEF6 /* BTreeTests.swift in Sources */,
 				BB17475D1C289539002C929C /* Random.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -429,6 +435,12 @@
 				BB17475B1C289539002C929C /* PermutationTests.swift in Sources */,
 				BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB1747581C289539002C929C /* Permutations.swift in Sources */,
+				BBB224EE1C7B9ED60049FEF6 /* ListTests.swift in Sources */,
+				BBB224EB1C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
+				BBB224E91C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */,
+				BBB224ED1C7B9ED60049FEF6 /* MapTests.swift in Sources */,
+				BBB224EA1C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */,
+				BBB224EC1C7B9ED60049FEF6 /* BTreeTests.swift in Sources */,
 				BB17475E1C289539002C929C /* Random.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -481,7 +493,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SWIFT_DISABLE_SAFETY_CHECKS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -501,15 +514,11 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.iOS;
-				PRODUCT_NAME = TreeCollections;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.iOS;
+				PRODUCT_NAME = BTree;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -530,8 +539,8 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.Mac;
-				PRODUCT_NAME = TreeCollections;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Mac;
+				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -542,8 +551,8 @@
 			buildSettings = {
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.TreeCollectionsTests;
-				PRODUCT_NAME = TreeCollectionsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.iOS;
+				PRODUCT_NAME = BTreeTests;
 				SDKROOT = iphoneos;
 			};
 			name = Unchecked;
@@ -553,15 +562,11 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.TreeCollectionTests;
-				PRODUCT_NAME = TreeCollectionsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
+				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
 			};
 			name = Unchecked;
@@ -603,7 +608,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -644,7 +650,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -663,15 +670,11 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.iOS;
-				PRODUCT_NAME = TreeCollections;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.iOS;
+				PRODUCT_NAME = BTree;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -686,15 +689,11 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.iOS;
-				PRODUCT_NAME = TreeCollections;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.iOS;
+				PRODUCT_NAME = BTree;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -705,8 +704,8 @@
 			buildSettings = {
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.TreeCollectionsTests;
-				PRODUCT_NAME = TreeCollectionsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.iOS;
+				PRODUCT_NAME = BTreeTests;
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -716,8 +715,8 @@
 			buildSettings = {
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.TreeCollectionsTests;
-				PRODUCT_NAME = TreeCollectionsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.iOS;
+				PRODUCT_NAME = BTreeTests;
 				SDKROOT = iphoneos;
 			};
 			name = Release;
@@ -737,8 +736,8 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.Mac;
-				PRODUCT_NAME = TreeCollections;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Mac;
+				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -759,8 +758,8 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.Mac;
-				PRODUCT_NAME = TreeCollections;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Mac;
+				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -771,15 +770,11 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.TreeCollectionTests;
-				PRODUCT_NAME = TreeCollectionsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
+				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -789,15 +784,11 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.TreeCollectionTests;
-				PRODUCT_NAME = TreeCollectionsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
+				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -834,7 +825,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -853,15 +845,11 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.iOS;
-				PRODUCT_NAME = TreeCollections;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.iOS;
+				PRODUCT_NAME = BTree;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 			};
@@ -882,8 +870,8 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.Mac;
-				PRODUCT_NAME = TreeCollections;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Mac;
+				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 			};
@@ -894,8 +882,8 @@
 			buildSettings = {
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.TreeCollectionsTests;
-				PRODUCT_NAME = TreeCollectionsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.iOS;
+				PRODUCT_NAME = BTreeTests;
 				SDKROOT = iphoneos;
 			};
 			name = Profile;
@@ -905,15 +893,11 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/Mac",
-				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.TreeCollections.TreeCollectionTests;
-				PRODUCT_NAME = TreeCollectionsTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
+				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
 			};
 			name = Profile;
@@ -921,7 +905,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BB54D0A91C1F0357008A462B /* Build configuration list for PBXProject "TreeCollections" */ = {
+		BB54D0A91C1F0357008A462B /* Build configuration list for PBXProject "BTree" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BB54D0C11C1F0357008A462B /* Debug */,
