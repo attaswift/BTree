@@ -185,7 +185,7 @@ public extension BTree {
         if match == 0 {
             return nil
         }
-        path.removeLast(path.count - match)
+        path.removeRange(path.count - match ..< path.count)
         return Index(path: path, slot: matchSlot)
     }
 
