@@ -11,7 +11,7 @@ import XCTest
 
 extension List {
     func assertValid() {
-        root.assertValid()
+        tree.root.assertValid()
     }
 }
 

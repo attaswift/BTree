@@ -26,12 +26,6 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     internal private(set) var path: [Weak<Node>]
     internal private(set) var slot: Int
 
-    internal init() {
-        self.root = Weak()
-        self.path = []
-        self.slot = 0
-    }
-
     internal init(startIndexOf root: Node) {
         self.root = Weak(root)
         if root.isEmpty {
@@ -40,7 +34,9 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
         }
         else {
             var node = root
-            var path = [Weak(root)]
+            var path: [Weak<Node>] = []
+            path.reserveCapacity(root.depth + 1)
+            path.append(Weak(root))
             while !node.isLeaf {
                 node = node.children[0]
                 path.append(Weak(node))
@@ -54,13 +50,9 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
         self.root = Weak(root)
         self.path = []
         self.slot = 0
+        path.reserveCapacity(root.depth + 1)
     }
 
-    internal init(path: [Node], slot: Int) {
-        self.root = Weak(path[0])
-        self.path = path.map { Weak($0) }
-        self.slot = slot
-    }
     internal init(path: [Weak<Node>], slot: Int) {
         self.root = path[0]
         self.path = path
@@ -88,12 +80,15 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
                 return
             }
         }
+        if direction == .Backward {
+            self.root = Weak()
+        }
         self.path = []
         self.slot = 0
     }
 
     private mutating func descend(direction: WalkDirection) {
-        guard let n = self.path.last?.value else { invalidate(); return }
+        let n = self.path.last!.value!
         assert(!n.isLeaf)
         var node = n.children[direction == .Forward ? slot + 1 : slot]
         path.append(Weak(node))
@@ -105,7 +100,8 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     }
 
     internal mutating func successorInPlace() {
-        guard let node = self.path.last?.value else { return }
+        guard root.value != nil else { return }
+        guard let node = self.path.last?.value else { invalidate(); return }
         if node.isLeaf {
             if slot < node.keys.count - 1 {
                 slot += 1
@@ -120,6 +116,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     }
     
     internal mutating func predecessorInPlace() {
+        guard root.value != nil else { return }
         guard let node = self.path.last?.value else {
             var node = root.value!
             path.append(root)

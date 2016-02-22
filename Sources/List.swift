@@ -17,40 +17,25 @@
 /// Unfortunately, this advantage is often overshadowed by the increased cost of element access.)
 ///
 /// - Note: While `List` implements all formal requirements of `CollectionType`, it violates the semantic requirement 
-///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(count))`. Collection algorithms that
+///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(`count`))`. Collection algorithms that
 ///   rely on subscripting will have higher complexity than expected. (This does not affect algorithms that use
 ///   generate() to iterate over elements.)
 ///
 public struct List<Element> {
-    internal typealias Node = BTreeNode<EmptyKey, Element>
+    internal typealias Tree = BTree<EmptyKey, Element>
 
     /// The root node.
-    internal private(set) var root: Node
+    internal private(set) var tree: Tree
 
     /// Initialize an empty list.
     public init() {
-        self.root = Node()
+        self.tree = Tree()
     }
 }
 
 internal struct EmptyKey: Comparable { }
 internal func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
 internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
-
-//MARK: Uniqueness
-
-extension List {
-    /// True if this list holds the only reference to its root node.
-    private var isUnique: Bool {
-        mutating get { return isUniquelyReferenced(&root) }
-    }
-
-    /// Ensure that this list holds the only reference to its root node, cloning it when necessary.
-    private mutating func makeUnique() {
-        guard !isUnique else { return }
-        root = root.clone()
-    }
-}
 
 //MARK: CollectionType
 
@@ -65,17 +50,17 @@ extension List: MutableCollectionType {
 
     /// The "past-the-end" element index; the successor of the last valid subscript argument.
     public var endIndex: Int {
-        return root.count
+        return tree.count
     }
 
     /// The number of elements in this list.
     public var count: Int {
-        return root.count
+        return tree.count
     }
 
     /// True iff this list has no elements.
     public var isEmpty: Bool {
-        return count == 0
+        return tree.count == 0
     }
 
     /// Get or set the element at the given index.
@@ -83,29 +68,25 @@ extension List: MutableCollectionType {
     /// - Complexity: O(log(`count`))
     public subscript(index: Int) -> Element {
         get {
-            return root.elementAtPosition(index).1
+            return tree.elementAtPosition(index).1
         }
         set {
-            makeUnique()
-            root.editAtPosition(index) { node, slot, match in
-                if match {
-                    node.payloads[slot] = newValue
-                }
-            }
+            tree.setPayloadAt(index, to: newValue)
         }
     }
 
     /// Return a generator over all elements in this list.
     @warn_unused_result
     public func generate() -> Generator {
-        return ListGenerator(root.generate())
+        return ListGenerator(tree.generate())
     }
 }
 
 public struct ListGenerator<Element>: GeneratorType {
-    private var base: BTreeGenerator<EmptyKey, Element>
+    internal typealias Base = BTreeGenerator<EmptyKey, Element>
+    private var base: Base
 
-    private init(_ base: BTreeGenerator<EmptyKey, Element>) {
+    private init(_ base: Base) {
         self.base = base
     }
 
@@ -121,7 +102,7 @@ extension List {
     ///
     /// - Complexity: O(`count`)
     public func forEach(@noescape body: (Element) throws -> ()) rethrows {
-        try root.forEach { try body($0.1) }
+        try tree.forEach { try body($0.1) }
     }
 
     /// Return an `Array` containing the results of mapping `transform` over all elements in `self`.
@@ -197,7 +178,7 @@ extension List {
     /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if such value is not found.
     public func indexOf(@noescape predicate: (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
-        try self.root.forEach { element -> Bool in
+        try self.tree.forEach { element -> Bool in
             if try predicate(element.1) {
                 return false
             }
@@ -212,7 +193,7 @@ public extension List where Element: Equatable {
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
     public func indexOf(element: Element) -> Index? {
         var i = 0
-        self.root.forEach { e -> Bool in
+        self.tree.forEach { e -> Bool in
             if element == e.1 {
                 return false
             }
@@ -264,254 +245,111 @@ extension List: CustomDebugStringConvertible {
 //MARK: Insertion
 
 extension List {
+    /// Append `element` to the end of this list.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func append(element: Element) {
-        makeUnique()
-        if root.count == 0 {
-            root.keys.append(EmptyKey())
-            root.payloads.append(element)
-            root.count = 1
-            return
-        }
-        var splinter: BTreeSplinter<EmptyKey, Element>? = nil
-        root.editAtPosition(root.count - 1) { node, slot, match in
-            if match {
-                assert(node.isLeaf)
-                node.keys.append(EmptyKey())
-                node.payloads.append(element)
-                node.count += 1
-                if node.isTooLarge {
-                    splinter = node.split()
-                }
-            }
-            else {
-                node.count += 1
-                if let s = splinter {
-                    node.insert(s, inSlot: slot)
-                    splinter = (node.isTooLarge ? node.split() : nil)
-                }
-            }
-        }
-        if let s = splinter {
-            root = BTreeNode(left: root, separator: s.separator, right: s.node)
-        }
+        tree.insert((EmptyKey(), element), at: tree.count)
     }
 
-    private static func insert(element: Element, at position: Int, inTree root: Node) -> BTreeSplinter<EmptyKey, Element>? {
-        precondition(position >= 0 && position <= root.count)
-        var splinter: BTreeSplinter<EmptyKey, Element>? = nil
-        root.editAtPosition(position) { node, slot, match in
-            if node.isLeaf {
-                assert(match)
-                node.keys.append(EmptyKey())
-                node.payloads.insert(element, atIndex: slot)
-                node.count += 1
-                if node.isTooLarge {
-                    splinter = node.split()
-                }
-            }
-            else {
-                if match {
-                    assert(slot < node.payloads.count)
-                    assert(splinter == nil)
-                    // For internal nodes, we move the new element in place of the one that was originally at the
-                    // specified index, and insert the old element in its right subtree.
-                    node.count += 1
-                    let old = node.payloads[slot]
-                    node.payloads[slot] = element
-                    node.makeChildUnique(slot + 1)
-                    if let s = insert(old, at: 0, inTree: node.children[slot + 1]) {
-                        node.insert(s, inSlot: slot + 1)
-                        splinter = (node.isTooLarge ? node.split() : nil)
-                    }
-                }
-                else {
-                    node.count += 1
-                    if let s = splinter {
-                        node.insert(s, inSlot: slot)
-                        splinter = (node.isTooLarge ? node.split() : nil)
-                    }
-                }
-            }
-        }
-        return splinter
-    }
-
+    /// Insert `element` into this list at `index`.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func insert(element: Element, atIndex index: Int) {
-        makeUnique()
-        if let splinter = List.insert(element, at: index, inTree: root) {
-            root = Node(left: root, separator: splinter.separator, right: splinter.node)
+        tree.insert((EmptyKey(), element), at: index)
+    }
+
+    /// Append `list` to the end of this list.
+    ///
+    /// - Complexity: O(log(self.count + list.count))
+    public mutating func appendContentsOf(list: List<Element>) {
+        tree.withCursorAtPosition(tree.count) { cursor in
+            cursor.insert(list.tree)
         }
     }
 
     public mutating func appendContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S) {
-        // TODO: Performance: When S is also a List, it'd be possible to splice it into self in log(count) steps.
-
-        makeUnique()
-
-        let order = root.order
-
-        // Prepare tree by collecting the nodes on the rightmost path, uniquing each of them.
-        var path = [root]
-        while !path[0].isLeaf {
-            let parent = path[0]
-            let c = parent.children.count
-            parent.makeChildUnique(c - 1)
-            path.insert(parent.children[c - 1], atIndex: 0)
+        tree.withCursorAtPosition(tree.count) { cursor in
+            cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
-        var counts = [path[0].count] // Counts of nodes on path without their rightmost subtree
-        for i in 1 ..< path.count {
-            counts.append(path[i].count - path[i - 1].count)
-        }
+    }
 
-        // Now go through the supplied elements one by one and append each of them to `path`.
-        // This is just a nonrecursive variant of `insert`, using `path` to eliminate the recursive descend.
-        for element in elements {
-            path[0].keys.append(EmptyKey())
-            path[0].payloads.append(element)
-            path[0].count += 1
-            counts[0] += 1
-            var i = 0
-            while path[i].isTooLarge {
-                let left = path[i]
-                let splinter = left.split()
-                let right = splinter.node
-                path[i] = right
-                counts[i] -= left.count + 1
-                if i == path.count - 1 {
-                    // Insert new root level
-                    let new = Node(left: left, separator: splinter.separator, right: right)
-                    path.append(new)
-                    counts.append(left.count + 1)
-                    self.root = new
-                }
-                else {
-                    path[i + 1].keys.append(splinter.separator.0)
-                    path[i + 1].payloads.append(splinter.separator.1)
-                    path[i + 1].children.append(right)
-                    counts[i + 1] += 1 + left.count
-                    path[i + 1].count = counts[i + 1] + right.count
-                }
-                i += 1
-            }
-        }
-        // Finally, update counts in rightmost path to root.
-        for i in 1 ..< path.count {
-            path[i].count = counts[i] + path[i - 1].count
+    public mutating func insertContentsOf(list: List<Element>, atIndex index: Int) {
+        tree.withCursorAtPosition(index) { cursor in
+            cursor.insert(list.tree)
         }
     }
 
     public mutating func insertContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S, atIndex index: Int) {
-        // TODO: Performance: Generalize appendContentsOf
-        var i = index
-        for element in elements {
-            insert(element, atIndex: i)
-            i += 1
+        tree.withCursorAtPosition(index) { cursor in
+            cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
-    }
-
-    internal static func removeAtIndex(index: Int, under root: Node) -> Element {
-        var result: Element? = nil
-        root.editAtPosition(index) { node, slot, match in
-            if node.isLeaf {
-                assert(match)
-                node.keys.removeLast()
-                result = node.payloads.removeAtIndex(slot)
-                node.count -= 1
-                return
-            }
-            if match {
-                // For internal nodes, we move the previous item in place of the removed one,
-                // and remove its original slot instead. (The previous item is always in a leaf node.)
-                result = node.payloads[slot]
-                node.makeChildUnique(slot)
-                let previous = removeAtIndex(node.children[slot].count - 1, under: node.children[slot])
-                node.payloads[slot] = previous
-            }
-            node.count -= 1
-            if node.children[slot].isTooSmall {
-                node.fixDeficiency(slot)
-            }
-        }
-        return result!
     }
 
     public mutating func removeAtIndex(index: Int) -> Element {
         precondition(index >= 0 && index < count)
-        makeUnique()
-        let result = List.removeAtIndex(index, under: root)
-        if root.keys.isEmpty && root.children.count == 1 {
-            root = root.children[0]
-        }
-        return result
+        return tree.removeAt(index).1
     }
 
     public mutating func removeFirst() -> Element {
         precondition(count > 0)
-        return removeAtIndex(0)
+        return tree.removeAt(0).1
     }
 
     public mutating func removeFirst(n: Int) {
         precondition(n <= count)
-        removeRange(0..<n)
+        tree.withCursorAtPosition(0) { cursor in
+            cursor.remove(n)
+        }
     }
 
     public mutating func removeLast() -> Element {
         precondition(count > 0)
-        return removeAtIndex(count - 1)
+        return tree.removeAt(count - 1).1
     }
 
     public mutating func removeLast(n: Int) {
         precondition(n <= count)
-        removeRange(n - count ..< count)
+        tree.withCursorAtPosition(count - n) { cursor in
+            cursor.remove(n)
+        }
     }
 
     public mutating func popLast() -> Element? {
         guard count > 0 else { return nil }
-        return removeLast()
+        return tree.removeAt(count - 1).1
     }
 
     public mutating func popFirst() -> Element? {
         guard count > 0 else { return nil }
-        return removeFirst()
+        return tree.removeAt(0).1
     }
 
     public mutating func removeRange(range: Range<Int>) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
-        // TODO: Performance: It is possible to splice out the range in O(log(n)) steps.
-        for _ in 0 ..< range.count {
-            self.removeAtIndex(range.startIndex)
+        tree.withCursorAtPosition(range.startIndex) { cursor in
+            cursor.remove(range.count)
         }
     }
 
     public mutating func removeAll() {
-        root = Node(order: root.order)
-    }
-
-    private mutating func withCursorPosition(position: Int, @noescape operation: BTreeCursor<EmptyKey, Element> -> ()) {
-        let cursor = BTreeCursor(root: self.root, position: position)
-        self.root = Node()
-        defer { self.root = cursor.finish() }
-        operation(cursor)
+        tree = Tree()
     }
 
     public mutating func replaceRange<C: CollectionType where C.Generator.Element == Element>(range: Range<Int>, with elements: C) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
-        self.withCursorPosition(range.startIndex) { cursor in
-            let common: Int = min(range.count, numericCast(elements.count))
-            var generator = elements.generate()
-            for _ in 0 ..< common {
-                cursor.payload = generator.next()!
+        tree.withCursorAtPosition(range.startIndex) { cursor in
+            var generator = Optional(elements.generate())
+            while cursor.position < range.endIndex {
+                guard let element = generator!.next() else { generator = nil; break }
+                cursor.payload = element
                 cursor.moveForward()
             }
-            if common < range.count {
-                for _ in 0 ..< range.count - common {
-                    cursor.remove()
-                }
+            if cursor.position < range.endIndex {
+                cursor.remove(range.endIndex - cursor.position)
             }
             else {
-                while let element = generator.next() {
-                    cursor.insertBefore(EmptyKey(), element)
-                }
+                cursor.insert(GeneratorSequence(generator!).lazy.map { (EmptyKey(), $0) })
             }
         }
     }

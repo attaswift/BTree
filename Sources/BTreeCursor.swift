@@ -6,6 +6,63 @@
 //  Copyright © 2016 Károly Lőrentey. All rights reserved.
 //
 
+//MARK: Cursors
+
+extension BTree {
+    public typealias Cursor = BTreeCursor<Key, Payload>
+
+    /// Call `body` with a cursor at `position` in this tree.
+    ///
+    /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
+    ///   execution of body: it will not appear to have the correct value.
+    ///   Instead, use only the supplied cursor to manipulate the tree.
+    ///
+    public mutating func withCursorAtPosition(position: Int, @noescape body: Cursor throws -> Void) rethrows {
+        precondition(position >= 0 && position <= count)
+        makeUnique()
+        let cursor = BTreeCursor(root)
+        cursor.descendToPosition(position)
+        root = Node()
+        defer { self = cursor.finish() }
+        try body(cursor)
+    }
+
+    /// Call `body` with a cursor at the start of this tree.
+    ///
+    /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
+    ///   execution of body: it will not appear to have the correct value.
+    ///   Instead, use only the supplied cursor to manipulate the tree.
+    ///
+    public mutating func withCursorAtStart(@noescape body: Cursor throws -> Void) rethrows {
+        try withCursorAtPosition(0, body: body)
+    }
+
+    /// Call `body` with a cursor at the end of this tree.
+    ///
+    /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
+    ///   execution of body: it will not appear to have the correct value.
+    ///   Instead, use only the supplied cursor to manipulate the tree.
+    ///
+    public mutating func withCursorAtEnd(@noescape body: Cursor throws -> Void) rethrows {
+        try withCursorAtPosition(count, body: body)
+    }
+
+    /// Call `body` with a cursor at `position` in this tree.
+    ///
+    /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
+    ///   execution of body: it will not appear to have the correct value.
+    ///   Instead, use only the supplied cursor to manipulate the tree.
+    ///
+    public mutating func withCursorAt(key: Key, choosing selector: BTreeKeySelector = .Any, @noescape body: Cursor throws -> Void) rethrows {
+        makeUnique()
+        let cursor = BTreeCursor(root)
+        cursor.descendToKey(key, choosing: selector)
+        root = Node()
+        defer { self = cursor.finish() }
+        try body(cursor)
+    }
+}
+
 private enum WalkDirection {
     case Forward
     case Backward
@@ -27,10 +84,10 @@ private enum WalkDirection {
 /// Creating a cursor takes O(log(*n*)) steps; once the cursor has been created, the complexity of most manipulations
 /// is amortized O(1). For example, appending *k* new elements without a cursor takes O(*k* * log(*n*)) steps;
 /// using a cursor to do the same only takes O(log(*n*) + *k*).
-internal final class BTreeCursor<Key: Comparable, Payload> {
-    typealias Distance = Int
-    typealias Node = BTreeNode<Key, Payload>
-    typealias Element = (Key, Payload)
+public final class BTreeCursor<Key: Comparable, Payload> {
+    public typealias Element = (Key, Payload)
+    public typealias Tree = BTree<Key, Payload>
+    internal typealias Node = BTreeNode<Key, Payload>
 
     /// The root node in the tree that is being edited. Note that this isn't a valid b-tree while the cursor is active:
     /// each node on the current path has an invalid `count` field. (Other b-tree invariants are kept, though.)
@@ -48,51 +105,25 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     private var slots: [Int]
 
     /// The current count of elements in the tree. This is always kept up to date, while `root.count` is usually invalid.
-    internal private(set) var count: Int
+    public private(set) var count: Int
 
     /// The position of the currenly focused element in the tree.
-    internal private(set) var position: Int
+    private var _position: Int
 
     //MARK: Simple properties
 
-    internal var isValid: Bool { return !path.isEmpty }
-    internal var isAtStart: Bool { return position == 0 }
-    internal var isAtEnd: Bool { return position == count }
+    public var isValid: Bool { return !path.isEmpty }
+    public var isAtStart: Bool { return _position == 0 }
+    public var isAtEnd: Bool { return _position == count }
 
     //MARK: Initializers
 
     private init(_ root: Node) {
         self.root = root
         self.count = root.count
-        self.position = root.count
+        self._position = root.count
         self.path = [root]
         self.slots = []
-    }
-
-    internal convenience init() {
-        self.init(Node())
-        pushToSlots(0)
-    }
-
-    internal convenience init(startOf root: Node) {
-        self.init(root: root, position: 0)
-    }
-
-    internal convenience init(endOf root: Node) {
-        self.init(root: root, position: root.count)
-    }
-
-    internal convenience init(root: Node, position: Int) {
-        precondition(position >= 0 && position <= root.count)
-        self.init(root.clone())
-        descendToPosition(position)
-    }
-
-    /// Initialize a new cursor positioned at the specified `key`. If the key isn't in the tree, then the cursor
-    /// is positioned after the last element whose key is below `key`.
-    internal convenience init(root: Node, key: Key) {
-        self.init(root.clone())
-        descendToKey(key)
     }
 
     //MARK: Reset
@@ -100,7 +131,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     private func reset(root: Node) {
         self.root = root
         self.count = root.count
-        self.position = root.count
+        self._position = root.count
         self.path = [root]
         self.slots = []
     }
@@ -119,9 +150,9 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         descendToPosition(position)
     }
 
-    internal func reset(root root: Node, key: Key) {
+    internal func reset(root root: Node, key: Key, choosing selector: BTreeKeySelector = .Any) {
         reset(root)
-        descendToKey(key)
+        descendToKey(key, choosing: selector)
     }
 
     //MARK: Finishing
@@ -129,9 +160,9 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Finalize editing the tree and return it, deactivating this cursor.
     /// You'll need to create a new cursor to continue editing the tree.
     ///
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     @warn_unused_result
-    internal func finish() -> Node {
+    internal func finish() -> Tree {
         var childCount = 0
         while !path.isEmpty {
             let node = path.removeLast()
@@ -140,14 +171,14 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         }
         assert(root.count == count)
         defer { invalidate() }
-        return root
+        return Tree(root)
     }
 
     /// Cut the tree into two separate b-trees and a separator at the current position.
     /// This operation deactivates the current cursor.
     ///
-    /// - Complexity: O(log(count))
-    internal func finishByCutting() -> (left: Node, separator: Element, right: Node) {
+    /// - Complexity: O(log(`count`))
+    internal func finishByCutting() -> (left: Tree, separator: Element, right: Tree) {
         precondition(!isAtEnd)
 
         var left = path.removeLast()
@@ -175,14 +206,14 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
             }
         }
 
-        return (left, separator, right)
+        return (Tree(left), separator, Tree(right))
     }
 
     /// Discard elements at or after the current position and return the resulting b-tree.
     /// This operation deactivates the current cursor.
     ///
-    /// - Complexity: O(log(count))
-    internal func finishAndKeepPrefix() -> Node {
+    /// - Complexity: O(log(`count`))
+    internal func finishAndKeepPrefix() -> Tree {
         precondition(!isAtEnd)
         var left = path.removeLast()
         _ = left.split(slots.removeLast())
@@ -198,14 +229,14 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
                 left = Node.join(left: l, separator: s, right: left)
             }
         }
-        return left
+        return Tree(left)
     }
 
     /// Discard elements at or before the current position and return the resulting b-tree.
     /// This operation destroys the current cursor.
     ///
-    /// - Complexity: O(log(count))
-    internal func finishAndKeepSuffix() -> Node {
+    /// - Complexity: O(log(`count`))
+    internal func finishAndKeepSuffix() -> Tree {
         precondition(!isAtEnd)
         var right = path.removeLast().split(slots.removeLast()).node
         if right.children.count == 1 {
@@ -221,7 +252,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
                 right = Node.join(left: right, separator: s, right: r)
             }
         }
-        return right
+        return Tree(right)
     }
 
     //MARK: Navigation
@@ -230,7 +261,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     private func invalidate() {
         self.root = Node()
         self.count = 0
-        self.position = 0
+        self._position = 0
         self.path = []
         self.slots = []
     }
@@ -239,7 +270,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         assert(path.count == slots.count)
         let slot = slots.removeLast()
         let node = path.last!
-        self.position += node.count - node.positionOfSlot(slot)
+        self._position += node.count - node.positionOfSlot(slot)
         return slot
     }
     private func popFromPath() -> Node {
@@ -263,20 +294,29 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         assert(path.count == slots.count + 1)
         let node = path.last!
         let p = positionOfSlot ?? node.positionOfSlot(slot)
-        self.position -= node.count - p
+        self._position -= node.count - p
         self.slots.append(slot)
+    }
+
+    public var position: Int {
+        get {
+            return _position
+        }
+        set {
+            moveToPosition(newValue)
+        }
     }
 
     /// Position the cursor on the next element in the b-tree.
     ///
     /// - Requires: `!isAtEnd`
     /// - Complexity: Amortized O(1)
-    internal func moveForward() {
-        precondition(position < count)
-        position += 1
+    public func moveForward() {
+        precondition(self.position < count)
+        _position += 1
         let node = path.last!
         if node.isLeaf {
-            if slots.last! < node.keys.count - 1 || position == count {
+            if slots.last! < node.keys.count - 1 || _position == count {
                 slots[slots.count - 1] += 1
             }
             else {
@@ -303,9 +343,9 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     ///
     /// - Requires: `!isAtStart`
     /// - Complexity: Amortized O(1)
-    internal func moveBackward() {
+    public func moveBackward() {
         precondition(!isAtStart)
-        position -= 1
+        _position -= 1
         let node = path.last!
         if node.isLeaf {
             if slots.last! > 0 {
@@ -335,14 +375,14 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Position this cursor to the start of the b-tree.
     ///
     /// - Complexity: O(log(`position`))
-    internal func moveToStart() {
+    public func moveToStart() {
         moveToPosition(0)
     }
 
     /// Position this cursor to the end of the b-tree.
     ///
     /// - Complexity: O(log(`count` - `position`))
-    internal func moveToEnd() {
+    public func moveToEnd() {
         popFromSlots()
         while self.count > self.position + path.last!.count {
             popFromPath()
@@ -355,7 +395,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     ///
     /// - Complexity: O(log(*distance*)), where *distance* is the absolute difference between the desired and current
     ///   positions.
-    internal func moveToPosition(position: Int) {
+    public func moveToPosition(position: Int) {
         precondition(isValid && position >= 0 && position <= count)
         if position == count {
             moveToEnd()
@@ -385,39 +425,53 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         assert(path.count == slots.count)
     }
 
-    private func descendToKey(key: Key) {
+    private func descendToKey(key: Key, choosing selector: BTreeKeySelector) {
         if root.isEmpty {
             pushToSlots(0)
             return
         }
 
         var node = root
-        while !node.isLeaf {
-            let slot = node.slotOf(key)
-            pushToSlots(slot.index)
-            if slot.match {
-                return
+        var match: (depth: Int, slot: Int)? = nil
+        while true {
+            let slot = node.slotOf(key, choosing: selector)
+            if let m = slot.match {
+                if node.isLeaf || selector == .Any {
+                    pushToSlots(m)
+                    return
+                }
+                match = (depth: path.count, slot: m)
             }
+            if node.isLeaf {
+                if let m = match {
+                    for _ in 0 ..< path.count - m.depth {
+                        popFromPath()
+                        popFromSlots()
+                    }
+                    pushToSlots(m.slot)
+                }
+                else if slot.descend < node.keys.count {
+                    pushToSlots(slot.descend)
+                }
+                else {
+                    pushToSlots(slot.descend - 1)
+                    moveForward()
+                }
+                break
+            }
+            pushToSlots(slot.descend)
             node = pushToPath()
-        }
-        let slot = node.slotOf(key)
-        if slot.index < node.keys.count {
-            pushToSlots(slot.index)
-        }
-        else {
-            pushToSlots(slot.index - 1)
-            moveForward()
         }
     }
 
     //MARK: Editing
 
     /// Get or set the key of the currently focused element.
-    /// Note that changing the key is potentially dangerous; it is the caller's responsibility to ensure that 
-    /// keys remain in ascending order.
     ///
+    /// - Warning: Changing the key is potentially dangerous; it is the caller's responsibility to ensure that
+    /// keys remain in ascending order. This is not verified at runtime.
     /// - Complexity: O(1)
-    internal var key: Key {
+    public var key: Key {
         get {
             precondition(!self.isAtEnd)
             return path.last!.keys[slots.last!]
@@ -431,7 +485,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Get or set the payload of the currently focused element.
     ///
     /// - Complexity: O(1)
-    internal var payload: Payload {
+    public var payload: Payload {
         get {
             precondition(!self.isAtEnd)
             return path.last!.payloads[slots.last!]
@@ -446,7 +500,7 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// This method does not change the cursor's position.
     ///
     /// - Complexity: O(1)
-    internal func setPayload(payload: Payload) -> Payload {
+    public func setPayload(payload: Payload) -> Payload {
         precondition(!self.isAtEnd)
         let node = path.last!
         let slot = slots.last!
@@ -458,25 +512,21 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Insert a new element after the cursor's current position, and position the cursor on the new element.
     ///
     /// - Complexity: amortized O(1)
-    internal func insertAfter(key: Key, _ payload: Payload) {
+    public func insertAfter(element: Element) {
         precondition(!self.isAtEnd)
         count += 1
         if path.last!.isLeaf {
             let node = path.last!
             let slot = slots.last!
-            node.keys.insert(key, atIndex: slot + 1)
-            node.payloads.insert(payload, atIndex: slot + 1)
+            node.insert(element, inSlot: slot + 1)
             slots[slots.count - 1] = slot + 1
-            node.count += 1
-            self.position += 1
+            _position += 1
         }
         else {
             moveForward()
             let node = path.last!
             assert(node.isLeaf && slots.last == 0)
-            node.keys.insert(key, atIndex: 0)
-            node.payloads.insert(payload, atIndex: 0)
-            node.count += 1
+            node.insert(element, inSlot: 0)
         }
         fixupAfterInsert()
     }
@@ -484,25 +534,21 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Insert a new element before the cursor's current position, and leave the cursor positioned on the original element.
     ///
     /// - Complexity: amortized O(1)
-    internal func insertBefore(key: Key, _ payload: Payload) {
+    public func insertBefore(element: Element) {
         precondition(self.isValid)
         count += 1
         if path.last!.isLeaf {
             let node = path.last!
             let slot = slots.last!
-            node.keys.insert(key, atIndex: slot)
-            node.payloads.insert(payload, atIndex: slot)
-            node.count += 1
+            node.insert(element, inSlot: slot)
         }
         else {
             moveBackward()
             let node = path.last!
             assert(node.isLeaf && slots.last == node.keys.count - 1)
-            node.keys.append(key)
-            node.payloads.append(payload)
+            node.append(element)
             slots[slots.count - 1] = node.keys.count - 1
-            node.count += 1
-            self.position += 1
+            _position += 1
         }
         fixupAfterInsert()
         moveForward()
@@ -562,16 +608,21 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     /// Insert the contents of `tree` before the currently focused element, keeping the cursor's position on it.
     ///
     /// - Complexity: O(log(`count + tree.count`))
-    internal func insert(tree: Node) {
+    public func insert(tree: Tree) {
+        let root = tree.root.clone()
+        insertWithoutCloning(root)
+    }
+
+    private func insertWithoutCloning(root: Node) {
         precondition(isValid)
-        let c = tree.count
+        let c = root.count
         if c == 0 { return }
         if c == 1 {
-            insertBefore(tree.keys[0], tree.payloads[0])
+            insertBefore(root.elementInSlot(0))
             return
         }
         if self.count == 0 {
-            reset(endOf: tree)
+            reset(endOf: root)
             return
         }
 
@@ -581,21 +632,21 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
             moveBackward()
             let separator = remove()
             let left = finish()
-            reset(endOf: Node.join(left: left, separator: separator, right: tree))
+            reset(endOf: Node.join(left: left.root, separator: separator, right: root))
         }
         else if position == 0 {
             // Prepend
             let separator = remove()
             let right = finish()
-            reset(root: Node.join(left: tree, separator: separator, right: right), position: position + c)
+            reset(root: Node.join(left: root, separator: separator, right: right.root), position: position + c)
         }
         else {
             // Insert in middle
             moveBackward()
             let sep1 = remove()
             let (prefix, sep2, suffix) = finishByCutting()
-            let t1 = Node.join(left: prefix, separator: sep1, right: tree)
-            let t2 = Node.join(left: t1, separator: sep2, right: suffix)
+            let t1 = Node.join(left: prefix.root, separator: sep1, right: root)
+            let t2 = Node.join(left: t1, separator: sep2, right: suffix.root)
             reset(root: t2, position: position + c)
         }
     }
@@ -604,18 +655,18 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
     ///
     /// - Requires: `self.isValid` and `elements` is sorted by key.
     /// - Complexity: O(log(`count`) + *c*), where *c* is the number of elements in the sequence.
-    internal func insert<S: SequenceType where S.Generator.Element == Element>(elements: S) {
-        insert(Node(sortedElements: elements))
+    public func insert<S: SequenceType where S.Generator.Element == Element>(elements: S) {
+        insertWithoutCloning(BTree(sortedElements: elements).root)
     }
 
     /// Remove and return the element at the cursor's current position, and position the cursor on its successor.
     ///
-    /// - Complexity: O(log(count))
-    internal func remove() -> (Key, Payload) {
+    /// - Complexity: O(log(`count`))
+    public func remove() -> Element {
         precondition(!isAtEnd)
-        let node = path.last!
+        var node = path.last!
         let slot = slots.last!
-        let result = (node.keys[slot], node.payloads[slot])
+        let result = node.elementInSlot(slot)
         if !node.isLeaf {
             // For internal nodes, remove the (leaf) predecessor instead, then put it back in place of the element
             // that we actually want to remove.
@@ -632,34 +683,32 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         node.count -= 1
         self.count -= 1
         popFromSlots()
-        var n = node
-        while n !== root && n.isTooSmall {
+
+        while node !== root && node.isTooSmall {
             popFromPath()
-            n = path.last!
+            node = path.last!
             let slot = popFromSlots()
-            n.fixDeficiency(slot)
+            node.fixDeficiency(slot)
         }
-        while targetPosition != count && targetPosition == self.position && n !== root {
+        while targetPosition != count && targetPosition == self.position && node !== root {
             popFromPath()
-            n = path.last!
+            node = path.last!
             popFromSlots()
         }
-        if n === root && n.keys.count == 0 && n.children.count == 1 {
+        if node === root && node.keys.count == 0 && node.children.count == 1 {
             assert(path.count == 1 && slots.count == 0)
-            root = n.children[0]
+            root = node.makeChildUnique(0)
             path[0] = root
         }
         descendToPosition(targetPosition)
         return result
     }
 
-
-
     /// Remove `n` elements starting at the cursor's current position, and position the cursor on the successor of
     /// the last element that was removed.
     ///
-    /// - Complexity: O(log(count))
-    internal func remove(n: Int) {
+    /// - Complexity: O(log(`count`))
+    public func remove(n: Int) {
         precondition(isValid && n >= 0 && self.position + n <= count)
         if n == 0 { return }
         if n == 1 { remove(); return }
@@ -668,16 +717,16 @@ internal final class BTreeCursor<Key: Comparable, Payload> {
         let position = self.position
         if position == 0 {
             moveToPosition(n - 1)
-            reset(startOf: finishAndKeepSuffix())
+            reset(startOf: finishAndKeepSuffix().root)
         }
         else if position == count - n {
-            reset(endOf: finishAndKeepPrefix())
+            reset(endOf: finishAndKeepPrefix().root)
         }
         else {
             let (left, _, mid) = finishByCutting()
-            reset(root: mid, position: n - 1)
+            reset(root: mid.root, position: n - 1)
             let (_, separator, right) = finishByCutting()
-            reset(root: Node.join(left: left, separator: separator, right: right), position: position)
+            reset(root: Node.join(left: left.root, separator: separator, right: right.root), position: position)
         }
     }
 

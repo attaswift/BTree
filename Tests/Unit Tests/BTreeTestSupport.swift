@@ -92,79 +92,6 @@ extension BTreeNode {
         }
     }
 
-    func insert(payload: Payload, at key: Key) {
-        var splinter: BTreeSplinter<Key, Payload>? = nil
-        self.editAtKey(key) { node, slot, match in
-            precondition(!match)
-            if node.isLeaf {
-                node.keys.insert(key, atIndex: slot)
-                node.payloads.insert(payload, atIndex: slot)
-                node.count += 1
-                if node.isTooLarge {
-                    splinter = node.split()
-                }
-            }
-            else {
-                node.count += 1
-                if let s = splinter {
-                    node.insert(s, inSlot: slot)
-                    splinter = (node.isTooLarge ? node.split() : nil)
-                }
-            }
-        }
-        if let s = splinter {
-            let left = clone()
-            let right = s.node
-            keys = [s.separator.0]
-            payloads = [s.separator.1]
-            children = [left, right]
-            count = left.count + right.count + 1
-            _depth = _depth + 1
-        }
-    }
-
-    func remove(key: Key, root: Bool = true) -> Payload? {
-        var found: Bool = false
-        var result: Payload? = nil
-        editAtKey(key) { node, slot, match in
-            if node.isLeaf {
-                assert(!found)
-                if !match { return }
-                found = true
-                node.keys.removeAtIndex(slot)
-                result = node.payloads.removeAtIndex(slot)
-                node.count -= 1
-                return
-            }
-            if match {
-                assert(!found)
-                // For internal nodes, we move the previous item in place of the removed one,
-                // and remove its original slot instead. (The previous item is always in a leaf node.)
-                result = node.payloads[slot]
-                node.makeChildUnique(slot)
-                let previousKey = node.children[slot].maxKey()!
-                let previousPayload = node.children[slot].remove(previousKey, root: false)!
-                node.keys[slot] = previousKey
-                node.payloads[slot] = previousPayload
-                found = true
-            }
-            if found {
-                node.count -= 1
-                if node.children[slot].isTooSmall {
-                    node.fixDeficiency(slot)
-                }
-            }
-        }
-        if root && keys.isEmpty && children.count == 1 {
-            let node = children[0]
-            keys = node.keys
-            payloads = node.payloads
-            children = node.children
-            _depth -= 1
-        }
-        return result
-    }
-
     func forEachNode(@noescape operation: Node -> Void) {
         operation(self)
         for child in children {
@@ -173,33 +100,116 @@ extension BTreeNode {
     }
 }
 
+func uniformNode(depth depth: Int, order: Int, keysPerNode: Int, offset: Int = 0) -> BTreeNode<Int, String> {
+    precondition(keysPerNode < order && keysPerNode >= (order - 1) / 2)
+    var count = keysPerNode
+    for _ in 0 ..< depth {
+        count *= keysPerNode + 1
+        count += keysPerNode
+    }
+    let sequence = (offset ..< offset + count).map { ($0, String($0)) }
+    let tree = BTree<Int, String>(sortedElements: sequence, order: order, fillFactor: Double(keysPerNode) / Double(order - 1))
+    return tree.root
+}
 
-func maximalTreeOfDepth(depth: Int, order: Int, offset: Int = 0) -> BTreeNode<Int, String> {
-    func maximalTreeOfDepth(depth: Int, inout key: Int) -> BTreeNode<Int, String> {
-        let tree = BTreeNode<Int, String>(order: order)
-        tree._depth = numericCast(depth)
-        if depth == 0 {
-            for _ in 0 ..< tree.order - 1 {
-                tree.insert(String(key), at: key)
-                key += 1
-            }
-        }
-        else {
-            for i in 0 ..< tree.order {
-                let child = maximalTreeOfDepth(depth - 1, key: &key)
-                tree.children.append(child)
-                tree.count += child.count
-                if i < tree.order - 1 {
-                    tree.keys.append(key)
-                    tree.payloads.append(String(key))
-                    tree.count += 1
-                    key += 1
-                }
-            }
-        }
-        return tree
+func maximalNode(depth depth: Int, order: Int, offset: Int = 0) -> BTreeNode<Int, String> {
+    return uniformNode(depth: depth, order: order, keysPerNode: order - 1, offset: offset)
+}
+
+func minimalNode(depth depth: Int, order: Int, offset: Int = 0) -> BTreeNode<Int, String> {
+    return uniformNode(depth: depth, order: order, keysPerNode: (order - 1) / 2, offset: offset)
+}
+
+func uniformTree(depth depth: Int, order: Int, keysPerNode: Int, offset: Int = 0) -> BTree<Int, String> {
+    return BTree(uniformNode(depth: depth, order: order, keysPerNode: keysPerNode, offset: offset))
+}
+
+func maximalTree(depth depth: Int, order: Int, offset: Int = 0) -> BTree<Int, String> {
+    return BTree(maximalNode(depth: depth, order: order, offset: offset))
+}
+
+func minimalTree(depth depth: Int, order: Int, offset: Int = 0) -> BTree<Int, String> {
+    return BTree(minimalNode(depth: depth, order: order, offset: offset))
+}
+
+class BTreeSupportTests: XCTestCase {
+    func testMaximalNodeOfDepth0() {
+        let node = maximalNode(depth: 0, order: 5)
+        node.assertValid()
+
+        XCTAssertEqual(node.keys, [0, 1, 2, 3])
+        XCTAssertEqual(node.payloads, ["0", "1", "2", "3"])
+        XCTAssertEqual(node.children.count, 0)
+        XCTAssertEqual(node.count, 4)
+        XCTAssertEqual(node.order, 5)
+        XCTAssertEqual(node.depth, 0)
+
+        XCTAssertFalse(node.isEmpty)
+        XCTAssertElementsEqual(node, [(0, "0"), (1, "1"), (2, "2"), (3, "3")])
     }
 
-    var key = offset
-    return maximalTreeOfDepth(depth, key: &key)
+    func testMaximalNodeOfDepth1() {
+        let node = maximalNode(depth: 1, order: 3)
+        node.assertValid()
+
+        XCTAssertEqual(node.keys, [2, 5])
+        XCTAssertEqual(node.payloads, ["2", "5"])
+        XCTAssertEqual(node.count, 8)
+        XCTAssertEqual(node.order, 3)
+        XCTAssertEqual(node.depth, 1)
+
+        XCTAssertEqual(node.children.count, 3)
+        var i = 0
+        for child in node.children {
+            XCTAssertEqual(child.keys, [i, i + 1])
+            XCTAssertEqual(child.payloads, (i ..< i + 2).map { String($0) })
+            XCTAssertEqual(child.children.count, 0)
+            XCTAssertEqual(child.count, 2)
+            XCTAssertEqual(child.order, 3)
+            XCTAssertEqual(child.depth, 0)
+            i += 3
+        }
+
+        XCTAssertElementsEqual(node, (0..<8).map { ($0, String($0)) })
+    }
+
+    func testMinimalNodeOfDepth0() {
+        let node = minimalNode(depth: 0, order: 5)
+        node.assertValid()
+
+        XCTAssertEqual(node.keys, [0, 1])
+        XCTAssertEqual(node.payloads, ["0", "1"])
+        XCTAssertEqual(node.children.count, 0)
+        XCTAssertEqual(node.count, 2)
+        XCTAssertEqual(node.order, 5)
+        XCTAssertEqual(node.depth, 0)
+
+        XCTAssertFalse(node.isEmpty)
+        XCTAssertElementsEqual(node, [(0, "0"), (1, "1")])
+    }
+
+    func testMinimalNodeOfDepth1() {
+        let node = minimalNode(depth: 1, order: 3)
+        node.assertValid()
+
+        XCTAssertEqual(node.keys, [1])
+        XCTAssertEqual(node.payloads, ["1"])
+        XCTAssertEqual(node.count, 3)
+        XCTAssertEqual(node.order, 3)
+        XCTAssertEqual(node.depth, 1)
+
+        XCTAssertEqual(node.children.count, 2)
+        var i = 0
+        for child in node.children {
+            XCTAssertEqual(child.keys, [i])
+            XCTAssertEqual(child.payloads, [String(i)])
+            XCTAssertEqual(child.children.count, 0)
+            XCTAssertEqual(child.count, 1)
+            XCTAssertEqual(child.order, 3)
+            XCTAssertEqual(child.depth, 0)
+            i += 2
+        }
+        
+        XCTAssertElementsEqual(node, (0..<3).map { ($0, String($0)) })
+    }
 }

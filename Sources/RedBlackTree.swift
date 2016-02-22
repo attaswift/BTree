@@ -246,7 +246,7 @@ public extension RedBlackTree {
     }
 
     /// Returns the payload of the topmost node matching `key`, if any.
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public func payloadOf<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Payload? {
         guard let handle = find(key) else { return nil }
         return self.payloadAt(handle)
@@ -264,7 +264,7 @@ public extension RedBlackTree {
     }
 
     /// Returns the key of the node at `handle`.
-    /// - Complexity: O(log(count)) if the summary is non-empty; O(1) otherwise.
+    /// - Complexity: O(log(`count`)) if the summary is non-empty; O(1) otherwise.
     /// - Note: If you need to get the key for a range of nodes, and you have a non-empty summary, using a generator
     ///   is faster than querying the keys of each node one by one.
     /// - SeeAlso: `generate`, `generateFrom`
@@ -275,7 +275,7 @@ public extension RedBlackTree {
     }
 
     /// Returns a typle containing the key and payload of the node at `handle`.
-    /// - Complexity: O(log(count)) if the summary is non-empty; O(1) otherwise.
+    /// - Complexity: O(log(`count`)) if the summary is non-empty; O(1) otherwise.
     /// - Note: If you need to get the key for a range of nodes, and you have a non-empty summary, using a generator
     ///   is faster than querying the keys of each node one by one.
     /// - SeeAlso: `generate`, `generateFrom`
@@ -312,7 +312,7 @@ public extension RedBlackTree {
     ///
     /// - Returns: The previous head of the node.
     ///
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     ///
     public mutating func setHeadAt(handle: Handle, to head: Head) -> Head {
         var node = self[handle]
@@ -466,14 +466,14 @@ extension RedBlackTree {
     }
 
     /// Finds and returns the handle of a node which matches `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public func find<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
         // Topmost is the best, since it terminates on the first match.
         return topmostMatching(key)
     }
 
     /// Finds and returns the handle of the topmost node that matches `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public func topmostMatching<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
         var result: Handle? = nil
         find(key) { match, handle in
@@ -484,25 +484,25 @@ extension RedBlackTree {
     }
 
     /// Finds and returns the handle of the rightmost node that sorts before `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public func rightmostBefore<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
         return find(key, winding: .Left).miss
     }
 
     /// Finds and returns the handle of the leftmost node that matches `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public func leftmostMatching<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
         return find(key, winding: .Left).hit
     }
 
     /// Finds and returns the handle of the rightmost node that matches `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public func rightmostMatching<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
         return find(key, winding: .Right).hit
     }
 
     /// Finds and returns the handle of the leftmost node that sorts after `key`, or nil if no such node exists.
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public func leftmostAfter<Key: RedBlackKey where Key.Summary == Summary>(key: Key) -> Handle? {
         return find(key, winding: .Right).miss
     }
@@ -522,7 +522,7 @@ extension RedBlackTree {
     }
 
     /// Updates the summary cached at `handle` and its ancestors, assuming that all other nodes have up-to-date data.
-    /// - Complexity: O(log(count)) for nonempty summaries, O(1) when the summary is empty.
+    /// - Complexity: O(log(`count`)) for nonempty summaries, O(1) when the summary is empty.
     private mutating func updateSummariesAtAndAbove(handle: Handle?) {
         guard sizeof(Summary.self) > 0 else { return }
         var handle: Handle? = handle
@@ -540,7 +540,7 @@ extension RedBlackTree {
     }
 
     /// Returns the summary calculated over the sequence all nodes preceding `handle` in the tree.
-    /// - Complexity: O(log(count) for nonempty summaries, O(1) when the summary is empty.
+    /// - Complexity: O(log(`count`) for nonempty summaries, O(1) when the summary is empty.
     public func summaryBefore(handle: Handle) -> Summary {
         guard sizeof(Summary.self) > 0 else { return Summary() }
 
@@ -560,7 +560,7 @@ extension RedBlackTree {
     }
 
     /// Returns the summary calculated over the sequence all nodes succeeding `handle` in the tree.
-    /// - Complexity: O(log(count) for nonempty summaries, O(1) when the summary is empty.
+    /// - Complexity: O(log(`count`) for nonempty summaries, O(1) when the summary is empty.
     public func summaryAfter(handle: Handle) -> Summary {
         guard sizeof(Summary.self) > 0 else { return Summary() }
 
@@ -866,7 +866,7 @@ extension RedBlackTree {
     /// Remove the node at `handle`, invalidating all existing handles.
     /// - Note: You need to discard your existing handles into the tree after you call this method.
     /// - SeeAlso: `removeAndReturnSuccessor`
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public mutating func remove(handle: Handle) -> Payload {
         return _remove(handle, successor: nil).1
     }
@@ -875,7 +875,7 @@ extension RedBlackTree {
     /// - Note: You can use the returned handle to continue operating on the tree without having to find your place again.
     /// - Returns: The handle of the node that used to follow the removed node in the original tree, or nil if 
     ///   `handle` was at the rightmost position.
-    /// - Complexity: O(log(count))
+    /// - Complexity: O(log(`count`))
     public mutating func removeAndReturnSuccessor(handle: Handle) -> (Handle?, Payload) {
         return _remove(handle, successor: successor(handle))
     }

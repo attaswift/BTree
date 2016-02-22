@@ -35,9 +35,10 @@ func XCTAssertElementsEqual<Element: Equatable, S1: SequenceType, S2: SequenceTy
     }
 }
 
-func XCTAssertElementsEqual<T1: Equatable, T2: Equatable, S: SequenceType where S.Generator.Element == (T1, T2)>(a: S, _ b: [(T1, T2)], file: FileString = __FILE__, line: UInt = __LINE__) {
+func XCTAssertElementsEqual<T1: Equatable, T2: Equatable, S1: SequenceType, S2: SequenceType where S1.Generator.Element == (T1, T2), S2.Generator.Element == (T1, T2)>(a: S1, _ b: S2, file: FileString = __FILE__, line: UInt = __LINE__) {
     let aa = Array(a)
-    if !aa.elementsEqual(b, isEquivalent: { a, b in a.0 == b.0 && a.1 == b.1 }) {
+    let ba = Array(b)
+    if !aa.elementsEqual(ba, isEquivalent: { a, b in a.0 == b.0 && a.1 == b.1 }) {
         XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(b)\"", file: file, line: line)
     }
 }

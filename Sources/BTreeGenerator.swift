@@ -21,7 +21,9 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
         }
         else {
             var node = root
-            var path: Array<Node> = [root]
+            var path: Array<Node> = []
+            path.reserveCapacity(node.depth + 1)
+            path.append(root)
             while !node.isLeaf {
                 node = node.children.first!
                 path.append(node)

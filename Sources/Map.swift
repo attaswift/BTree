@@ -22,29 +22,14 @@ import Foundation
 /// Unfortunately, this advantage is often overshadowed by the increased cost of element access.)
 public struct Map<Key: Comparable, Value> {
     // Typealiases
-    internal typealias Node = BTreeNode<Key, Value>
+    internal typealias Tree = BTree<Key, Value>
 
     /// The root node.
-    internal private(set) var root: Node
+    internal private(set) var tree: Tree
 
     /// Initialize an empty map.
     public init() {
-        self.root = Node()
-    }
-}
-
-//MARK: Uniqueness
-
-extension Map {
-    /// True iff this map holds the only reference to its root node.
-    private var isUnique: Bool {
-        mutating get { return isUniquelyReferenced(&root) }
-    }
-
-    /// Ensure that this map holds the only reference to its root node, cloning it when necessary.
-    private mutating func makeUnique() {
-        guard !isUnique else { return }
-        root = root.clone()
+        self.tree = Tree()
     }
 }
 
@@ -57,19 +42,19 @@ extension Map: CollectionType {
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
     public var startIndex: Index {
-        return root.startIndex
+        return tree.startIndex
     }
 
     /// The "past-the-end" element index; the successor of the last valid subscript argument.
     public var endIndex: Index {
-        return root.endIndex
+        return tree.endIndex
     }
 
     /// The number of (key, value) pairs in this map.
     ///
     /// - Complexity: O(1)
     public var count: Int {
-        return root.count
+        return tree.count
     }
 
     /// True iff this collection has no elements.
@@ -82,13 +67,13 @@ extension Map: CollectionType {
     /// - Requires: `index` originated from an unmutated copy of this map.
     /// - Complexity: O(1)
     public subscript(index: Index) -> Element {
-        return root[index]
+        return tree[index]
     }
 
     /// Return a generator over all (key, value) pairs in this map, in ascending key order.
     @warn_unused_result
     public func generate() -> Generator {
-        return root.generate()
+        return tree.generate()
     }
 }
 
@@ -99,7 +84,7 @@ extension Map {
     ///
     /// - Complexity: O(`count`)
     public func forEach(@noescape body: (Element) throws -> ()) rethrows {
-        try root.forEach(body)
+        try tree.forEach(body)
     }
 
     /// Return an `Array` containing the results of mapping `transform` over all elements in `self`.
@@ -117,6 +102,8 @@ extension Map {
     }
 
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
+    ///
+    /// - Complexity: O(`count`)
     @warn_unused_result
     public func flatMap<S: SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
         var result: [S.Generator.Element] = []
@@ -127,6 +114,8 @@ extension Map {
     }
 
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
+    ///
+    /// - Complexity: O(`count`)
     @warn_unused_result
     public func flatMap<T>(@noescape transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
@@ -143,6 +132,8 @@ extension Map {
     /// and each element of `self`, in turn. 
     ///
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
+    ///
+    /// - Complexity: O(`count`)
     @warn_unused_result
     public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
         var result = initial
@@ -168,9 +159,11 @@ extension Map {
     }
 
     /// Provides access to the value for a given key. Nonexistent values are represented as `nil`.
+    /// 
+    /// - Complexity: O(log(`count`))
     public subscript(key: Key) -> Value? {
         get {
-            return root.payloadOf(key)
+            return tree.payloadOf(key)
         }
         set(value) {
             if let value = value {
@@ -183,9 +176,11 @@ extension Map {
     }
 
     /// Returns the index for the given key, or `nil` if the key is not present in this map.
+    ///
+    /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func indexForKey(key: Key) -> Index? {
-        return root.indexOf(key)
+        return tree.indexOf(key)
     }
 
     /// Update the value stored in the map for the given key, or, if they key does not exist, add a new key-value pair to the map.
@@ -195,40 +190,7 @@ extension Map {
     ///
     /// - Complexity: O(log(`count`))
     public mutating func updateValue(value: Value, forKey key: Key) -> Value? {
-        makeUnique()
-        var replaced = false
-        var result: Value? = nil
-        var splinter: BTreeSplinter<Key, Value>? = nil
-        root.editAtKey(key) { node, slot, match in
-            if replaced {
-                return
-            }
-            if match {
-                result = node.payloads[slot]
-                node.payloads[slot] = value
-                replaced = true
-                return
-            }
-            if node.isLeaf {
-                node.keys.insert(key, atIndex: slot)
-                node.payloads.insert(value, atIndex: slot)
-                node.count += 1
-                if node.isTooLarge {
-                    splinter = node.split()
-                }
-            }
-            else {
-                node.count += 1
-                if let s = splinter {
-                    node.insert(s, inSlot: slot)
-                    splinter = (node.isTooLarge ? node.split() : nil)
-                }
-            }
-        }
-        if let s = splinter {
-            root = BTreeNode(left: root, separator: s.separator, right: s.node)
-        }
-        return result
+        return tree.insertOrReplace((key, value))
     }
 
     /// Remove the key-value pair at `index` from this map.
@@ -238,44 +200,7 @@ extension Map {
     /// - Complexity: O(log(`count`))
     public mutating func removeAtIndex(index: Index) -> (Key, Value) {
         let key = self[index].0
-        makeUnique()
         return (key, self.removeValueForKey(key)!)
-    }
-
-    internal static func removeValueForKey(key: Key, under top: Node) -> Value? {
-        var found: Bool = false
-        var result: Value? = nil
-        top.editAtKey(key) { node, slot, match in
-            if node.isLeaf {
-                assert(!found)
-                if !match { return }
-                found = true
-                node.keys.removeAtIndex(slot)
-                result = node.payloads.removeAtIndex(slot)
-                node.count -= 1
-                return
-            }
-
-            if match {
-                assert(!found)
-                // For internal nodes, we move the previous item in place of the removed one,
-                // and remove its original slot instead. (The previous item is always in a leaf node.)
-                result = node.payloads[slot]
-                node.makeChildUnique(slot)
-                let previousKey = node.children[slot].maxKey()!
-                let previousPayload = removeValueForKey(previousKey, under: node.children[slot])!
-                node.keys[slot] = previousKey
-                node.payloads[slot] = previousPayload
-                found = true
-            }
-            if found {
-                node.count -= 1
-                if node.children[slot].isTooSmall {
-                    node.fixDeficiency(slot)
-                }
-            }
-        }
-        return result
     }
 
     /// Remove a given key and the associated value from this map.
@@ -285,12 +210,7 @@ extension Map {
     ///
     /// - Complexity: O(log(`count`))
     public mutating func removeValueForKey(key: Key) -> Value? {
-        makeUnique()
-        let result = Map.removeValueForKey(key, under: root)
-        if root.keys.isEmpty && root.children.count == 1 {
-            root = root.children[0]
-        }
-        return result
+        return tree.remove(key)
     }
 
     /// Remove all elements from this map.
@@ -299,17 +219,14 @@ extension Map {
     ///
     /// - Complexity: O(`count`)
     public mutating func removeAll() {
-        root = Node()
+        tree = Tree()
     }
 }
 
 extension Map: DictionaryLiteralConvertible {
     /// Initialize a new map from the given elements.
     public init(dictionaryLiteral elements: (Key, Value)...) {
-        self.init()
-        for (key, value) in elements {
-            self[key] = value
-        }
+        self.tree = Tree(elements: elements)
     }
 }
 
