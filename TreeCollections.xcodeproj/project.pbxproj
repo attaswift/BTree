@@ -67,7 +67,6 @@
 		BB17474B1C289539002C929C /* PermutationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PermutationTests.swift; sourceTree = "<group>"; };
 		BB17474C1C289539002C929C /* Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		BB1747771C2897F8002C929C /* XCTest extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTest extensions.swift"; sourceTree = "<group>"; };
-		BB175C021C3EC6A000B309B8 /* Cartfile.private */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile.private; sourceTree = "<group>"; };
 		BB54D0AF1C1F0357008A462B /* TreeCollections.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TreeCollections.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0B41C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB54D0B91C1F0357008A462B /* TreeCollectionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TreeCollectionsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -145,7 +144,6 @@
 			isa = PBXGroup;
 			children = (
 				BB0D75D91C1F045C00538080 /* README.md */,
-				BB175C021C3EC6A000B309B8 /* Cartfile.private */,
 				BBBA30481C4946660019830F /* .travis.yml */,
 				BB9AE47D1C207303002C5D63 /* Package.swift */,
 				BB54D0B11C1F0357008A462B /* Sources */,
