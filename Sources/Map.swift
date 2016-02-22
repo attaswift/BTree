@@ -11,15 +11,23 @@ import Foundation
 /// An ordered mapping from comparable keys to arbitrary values. 
 /// Works like `Dictionary`, but provides a well-defined ordering for its elements.
 ///
-/// Lookup, insertion and removal of individual key-value pairs in a map have logarithmic complexity.
-/// This is in contrast to `Dictionary`'s O(1) implementations of the same operations;
-/// the increased complexity is due to the requirement of keeping elements sorted.
-///
-/// `Map` is a struct with copy-on-write value semantics.
+/// `Map` is a struct with copy-on-write value semantics, like Swift's standard collection types.
 /// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other maps.
-/// Mutating a map whose storage is (partially or completely) shared requires copying of O(log(`count`)) elements.
-/// (Thus, mutation of shared maps may be cheaper than dictionaries, which need to copy all elements.
-/// Unfortunately, this advantage is often overshadowed by the increased cost of element access.)
+/// Modifying an element of a map whose storage is (partially or completely) shared requires copying of 
+/// only O(log(`count`)) elements. (Thus, mutation of shared maps may be relatively cheaper than dictionaries, 
+/// which need to clone all elements.)
+///
+/// Lookup, insertion and removal of individual key-value pairs in a map have logarithmic complexity.
+/// This is in contrast to `Dictionary`'s best-case O(1) (worst-case O(n)) implementations for the same operations.
+/// To make up for being typically slower, `Map` always keeps its elements in a well-defined order.
+///
+/// While independently looking up individual elements takes O(log(n)) time, batch operations on lots of elements
+/// often complete faster than you might expect.
+/// For example, iterating over a `Map` using the generator API requires O(n) time, just like a dictionary.
+///
+/// Due to its tree-based structure, `Map` is able to provide efficient implementations for several operations 
+/// that would be slower with dictionaries.
+///
 public struct Map<Key: Comparable, Value> {
     // Typealiases
     internal typealias Tree = BTree<Key, Value>
@@ -223,6 +231,22 @@ extension Map {
     }
 }
 
+extension Map {
+    /// Initialize a new map from an unsorted sequence of elements.
+    ///
+    /// - Complexity: O(*n* * log(*n*)) where *n* is the number of items in `elements`.
+    public init<S: SequenceType where S.Generator.Element == Element>(elements: S) {
+        self.tree = Tree(elements: elements)
+    }
+
+    /// Initialize a new map from a sorted sequence of elements.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of items in `elements`.
+    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S) {
+        self.tree = Tree(sortedElements: elements)
+    }
+}
+
 extension Map: DictionaryLiteralConvertible {
     /// Initialize a new map from the given elements.
     public init(dictionaryLiteral elements: (Key, Value)...) {
@@ -234,8 +258,8 @@ extension Map: CustomStringConvertible {
     /// A textual representation of this map.
     public var description: String {
         let contents = self.map { (key, value) -> String in
-            let ks = String(key)
-            let vs = String(value)
+            let ks = String(reflecting: key)
+            let vs = String(reflecting: value)
             return "\(ks): \(vs)"
         }
         return "[" + contents.joinWithSeparator(", ") + "]"
