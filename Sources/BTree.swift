@@ -96,7 +96,7 @@ extension BTree: CollectionType {
         get {
             precondition(index.root.value === self.root)
             let node = index.path.last!.value!
-            return (node.keys[index.slot], node.payloads[index.slot])
+            return node.elements[index.slot]
         }
     }
 }
@@ -128,13 +128,13 @@ public extension BTree {
         while !node.isLeaf {
             let slot = node.slotOfPosition(position)
             if slot.match {
-                return node.elementInSlot(slot.index)
+                return node.elements[slot.index]
             }
             let child = node.children[slot.index]
             position -= slot.position - child.count
             node = child
         }
-        return node.elementInSlot(position)
+        return node.elements[position]
     }
 
     /// Returns the payload of an element of this tree with the specified key, or `nil` if there is no such element.
@@ -148,7 +148,7 @@ public extension BTree {
             while true {
                 let slot = node.slotOf(key, choosing: .First)
                 if let m = slot.match {
-                    return node.payloads[m]
+                    return node.elements[m].1
                 }
                 if node.isLeaf {
                     break
@@ -162,7 +162,7 @@ public extension BTree {
             while true {
                 let slot = node.slotOf(key, choosing: selector)
                 if let m = slot.match {
-                    lastmatch = node.payloads[m]
+                    lastmatch = node.elements[m].1
                 }
                 if node.isLeaf {
                     break
@@ -274,7 +274,7 @@ public extension BTree {
             position -= slot.position - child.count
             node = child
         }
-        assert(position < node.keys.count)
+        assert(position < node.elements.count)
         return Index(path: path, slot: position)
     }
 }
@@ -328,8 +328,8 @@ extension BTree {
         edit(
             descend: { node in
                 let slot = node.slotOfPosition(node.count - pos)
-                assert(slot.index == 0 || node.keys[slot.index - 1] <= element.0)
-                assert(slot.index == node.keys.count || node.keys[slot.index] >= element.0)
+                assert(slot.index == 0 || node.elements[slot.index - 1].0 <= element.0)
+                assert(slot.index == node.elements.count || node.elements[slot.index].0 >= element.0)
                 if !slot.match {
                     // Continue descending.
                     pos -= node.count - slot.position
@@ -383,8 +383,8 @@ extension BTree {
                     pos -= node.count - slot.position
                     return slot.index
                 }
-                old = node.payloads[slot.index]
-                node.payloads[slot.index] = payload
+                old = node.elements[slot.index].1
+                node.elements[slot.index].1 = payload
                 return nil
             },
             ascend: { node, slot in
@@ -545,7 +545,7 @@ extension BTree {
             }
         )
         if root.children.count == 1 {
-            assert(root.keys.count == 0)
+            assert(root.elements.count == 0)
             root = root.children[0]
         }
         return old!
@@ -571,7 +571,7 @@ extension BTree {
                         matching = nil
                     }
                     else if matching != nil {
-                        old = node.removeSlot(slot.descend == node.keys.count ? slot.descend - 1 : slot.descend)
+                        old = node.removeSlot(slot.descend == node.elements.count ? slot.descend - 1 : slot.descend)
                     }
                     return nil
                 }
@@ -594,7 +594,7 @@ extension BTree {
             }
         )
         if root.children.count == 1 {
-            assert(root.keys.count == 0)
+            assert(root.elements.count == 0)
             root = root.children[0]
         }
         return old?.1
@@ -641,29 +641,27 @@ extension BTree {
                 separators.append(element)
             }
             // Load new seedling.
-            while seedling.keys.count < keysPerNode {
+            while seedling.elements.count < keysPerNode {
                 guard let element = generator.next() else { break outer }
                 precondition(lastKey <= element.0)
                 lastKey = element.0
-                seedling.keys.append(element.0)
-                seedling.payloads.append(element.1)
+                seedling.elements.append(element)
                 seedling.count += 1
             }
             // Append seedling into saplings, combining the last few seedlings when possible.
-            while !saplings.isEmpty && seedling.keys.count == keysPerNode {
+            while !saplings.isEmpty && seedling.elements.count == keysPerNode {
                 let sapling = saplings.last!
                 assert(sapling.depth >= seedling.depth)
-                if sapling.depth == seedling.depth + 1 && sapling.keys.count < keysPerNode {
+                if sapling.depth == seedling.depth + 1 && sapling.elements.count < keysPerNode {
                     // Graft current seedling under the last sapling, as a new child branch.
                     saplings.removeLast()
                     let separator = separators.removeLast()
-                    sapling.keys.append(separator.0)
-                    sapling.payloads.append(separator.1)
+                    sapling.elements.append(separator)
                     sapling.children.append(seedling)
                     sapling.count += seedling.count + 1
                     seedling = sapling
                 }
-                else if sapling.depth == seedling.depth && sapling.keys.count == keysPerNode {
+                else if sapling.depth == seedling.depth && sapling.elements.count == keysPerNode {
                     // We have two full nodes; add them as two branches of a new, deeper seedling.
                     saplings.removeLast()
                     let separator = separators.removeLast()

@@ -195,13 +195,13 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             let slot = slots.removeLast()
             if slot >= 1 {
                 let l = slot == 1 ? node.makeChildUnique(0) : Node(node: node, slotRange: 0 ..< slot - 1)
-                let s = (node.keys[slot - 1], node.payloads[slot - 1])
+                let s = node.elements[slot - 1]
                 left = Node.join(left: l, separator: s, right: left)
             }
-            let c = node.keys.count
+            let c = node.elements.count
             if slot <= c - 1 {
                 let r = slot == c - 1 ? node.makeChildUnique(c) : Node(node: node, slotRange: slot + 1 ..< c)
-                let s = (node.keys[slot], node.payloads[slot])
+                let s = node.elements[slot]
                 right = Node.join(left: right, separator: s, right: r)
             }
         }
@@ -225,7 +225,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             let slot = slots.removeLast()
             if slot >= 1 {
                 let l = slot == 1 ? node.makeChildUnique(0) : Node(node: node, slotRange: 0 ..< slot - 1)
-                let s = (node.keys[slot - 1], node.payloads[slot - 1])
+                let s = node.elements[slot - 1]
                 left = Node.join(left: l, separator: s, right: left)
             }
         }
@@ -245,10 +245,10 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         while !path.isEmpty {
             let node = path.removeLast()
             let slot = slots.removeLast()
-            let c = node.keys.count
+            let c = node.elements.count
             if slot <= c - 1 {
                 let r = slot == c - 1 ? node.makeChildUnique(c) : Node(node: node, slotRange: slot + 1 ..< c)
-                let s = (node.keys[slot], node.payloads[slot])
+                let s = node.elements[slot]
                 right = Node.join(left: right, separator: s, right: r)
             }
         }
@@ -316,7 +316,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         _position += 1
         let node = path.last!
         if node.isLeaf {
-            if slots.last! < node.keys.count - 1 || _position == count {
+            if slots.last! < node.elements.count - 1 || _position == count {
                 slots[slots.count - 1] += 1
             }
             else {
@@ -324,7 +324,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
                 repeat {
                     slots.removeLast()
                     popFromPath()
-                } while slots.last! == path.last!.keys.count
+                } while slots.last! == path.last!.elements.count
             }
         }
         else {
@@ -368,7 +368,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
                 slots.append(slot)
                 node = pushToPath()
             }
-            slots.append(node.keys.count - 1)
+            slots.append(node.elements.count - 1)
         }
     }
 
@@ -450,7 +450,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
                     }
                     pushToSlots(m.slot)
                 }
-                else if slot.descend < node.keys.count {
+                else if slot.descend < node.elements.count {
                     pushToSlots(slot.descend)
                 }
                 else {
@@ -474,11 +474,11 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     public var key: Key {
         get {
             precondition(!self.isAtEnd)
-            return path.last!.keys[slots.last!]
+            return path.last!.elements[slots.last!].0
         }
         set {
             precondition(!self.isAtEnd)
-            path.last!.keys[slots.last!] = newValue
+            path.last!.elements[slots.last!].0 = newValue
         }
     }
 
@@ -488,11 +488,11 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     public var payload: Payload {
         get {
             precondition(!self.isAtEnd)
-            return path.last!.payloads[slots.last!]
+            return path.last!.elements[slots.last!].1
         }
         set {
             precondition(!self.isAtEnd)
-            path.last!.payloads[slots.last!] = newValue
+            path.last!.elements[slots.last!].1 = newValue
         }
     }
 
@@ -504,8 +504,8 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         precondition(!self.isAtEnd)
         let node = path.last!
         let slot = slots.last!
-        let old = node.payloads[slot]
-        node.payloads[slot] = payload
+        let old = node.elements[slot].1
+        node.elements[slot].1 = payload
         return old
     }
 
@@ -545,9 +545,9 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         else {
             moveBackward()
             let node = path.last!
-            assert(node.isLeaf && slots.last == node.keys.count - 1)
+            assert(node.isLeaf && slots.last == node.elements.count - 1)
             node.append(element)
-            slots[slots.count - 1] = node.keys.count - 1
+            slots[slots.count - 1] = node.elements.count - 1
             _position += 1
         }
         fixupAfterInsert()
@@ -565,12 +565,12 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             let slot = slots[i]
             let splinter = left.split()
             let right = splinter.node
-            if slot > left.keys.count {
+            if slot > left.elements.count {
                 // Focused element is in the new branch; adjust state accordingly.
-                slots[i] = slot - left.keys.count - 1
+                slots[i] = slot - left.elements.count - 1
                 path[i] = right
             }
-            else if slot == left.keys.count {
+            else if slot == left.elements.count {
                 // Focused element is the new separator; adjust state accordingly.
                 assert(i == path.count - 1)
                 path.removeLast()
@@ -583,7 +583,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
                 let pslot = slots[i - 1]
                 parent.insert(splinter, inSlot: pslot)
                 parent.count += left.count + right.count + 1
-                if slot > left.keys.count {
+                if slot > left.elements.count {
                     // Focused element is in the new branch; update state accordingly.
                     slots[i - 1] = pslot + 1
                 }
@@ -593,7 +593,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
                 // Create new root node.
                 self.root = Node(left: left, separator: splinter.separator, right: right)
                 path.insert(self.root, atIndex: 0)
-                slots.insert(slot > left.keys.count ? 1 : 0, atIndex: 0)
+                slots.insert(slot > left.elements.count ? 1 : 0, atIndex: 0)
             }
         }
 
@@ -618,7 +618,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         let c = root.count
         if c == 0 { return }
         if c == 1 {
-            insertBefore(root.elementInSlot(0))
+            insertBefore(root.elements[0])
             return
         }
         if self.count == 0 {
@@ -666,7 +666,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         precondition(!isAtEnd)
         var node = path.last!
         let slot = slots.last!
-        let result = node.elementInSlot(slot)
+        let result = node.elements[slot]
         if !node.isLeaf {
             // For internal nodes, remove the (leaf) predecessor instead, then put it back in place of the element
             // that we actually want to remove.
@@ -678,8 +678,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             return result
         }
         let targetPosition = self.position
-        node.keys.removeAtIndex(slot)
-        node.payloads.removeAtIndex(slot)
+        node.elements.removeAtIndex(slot)
         node.count -= 1
         self.count -= 1
         popFromSlots()
@@ -695,7 +694,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             node = path.last!
             popFromSlots()
         }
-        if node === root && node.keys.count == 0 && node.children.count == 1 {
+        if node === root && node.elements.count == 0 && node.children.count == 1 {
             assert(path.count == 1 && slots.count == 0)
             root = node.makeChildUnique(0)
             path[0] = root

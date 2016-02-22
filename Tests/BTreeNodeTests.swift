@@ -17,8 +17,7 @@ class BTreeNodeTests: XCTestCase {
         let node = Node(order: order)
         node.assertValid()
 
-        XCTAssertEqual(node.keys.count, 0)
-        XCTAssertEqual(node.payloads.count, 0)
+        XCTAssertEqual(node.elements.count, 0)
         XCTAssertEqual(node.children.count, 0)
         XCTAssertEqual(node.count, 0)
         XCTAssertEqual(node.order, order)
@@ -41,8 +40,7 @@ class BTreeNodeTests: XCTestCase {
         let node = Node(left: left, separator: separator, right: right)
         node.assertValid()
 
-        XCTAssertEqual(node.keys, [separator.0])
-        XCTAssertEqual(node.payloads, [separator.1])
+        XCTAssertElementsEqual(node.elements, [separator])
         XCTAssertEqual(node.children.count, 2)
         XCTAssertTrue(node.children[0] === left)
         XCTAssertTrue(node.children[1] === right)
@@ -55,8 +53,7 @@ class BTreeNodeTests: XCTestCase {
         let source = maximalNode(depth: 1, order: 5)
         let node = Node(node: source, slotRange: 1..<3)
 
-        XCTAssertEqual(node.keys, [9, 14])
-        XCTAssertEqual(node.payloads, ["9", "14"])
+        XCTAssertElementsEqual(node.elements, [(9, "9"), (14, "14")])
         XCTAssertEqual(node.children.count, 3)
         XCTAssertTrue(node.children[0] === source.children[1])
         XCTAssertTrue(node.children[1] === source.children[2])
@@ -66,8 +63,7 @@ class BTreeNodeTests: XCTestCase {
         XCTAssertEqual(node.depth, 1)
 
         let node2 = Node(node: maximalNode(depth: 0, order: 5), slotRange: 1..<3)
-        XCTAssertEqual(node2.keys, [1, 2])
-        XCTAssertEqual(node2.payloads, ["1", "2"])
+        XCTAssertElementsEqual(node2.elements, [(1, "1"), (2, "2")])
         XCTAssertEqual(node2.children.count, 0)
         XCTAssertEqual(node2.count, 2)
         XCTAssertEqual(node2.order, 5)
@@ -92,8 +88,7 @@ class BTreeNodeTests: XCTestCase {
         let clone = node.clone()
 
         XCTAssertFalse(node === clone)
-        XCTAssertEqual(node.keys, clone.keys)
-        XCTAssertEqual(node.payloads, clone.payloads)
+        XCTAssertElementsEqual(node.elements, clone.elements)
         XCTAssertEqual(node.children.count, clone.children.count)
         for i in 0..<node.children.count {
             XCTAssertTrue(node.children[i] === clone.children[i])
@@ -237,22 +232,14 @@ class BTreeNodeTests: XCTestCase {
         XCTAssertEqual(outdated.path.count, 0)
     }
 
-    func testElementInSlot() {
-        let node = maximalNode(depth: 1, order: 5)
-
-        let element = node.elementInSlot(2)
-        XCTAssertEqual(element.0, node.keys[2])
-        XCTAssertEqual(element.1, node.payloads[2])
-    }
-
     func testSetElementInSlot() {
         let node = maximalNode(depth: 1, order: 5)
 
         let element = node.setElementInSlot(2, to: (-1, "Foo"))
         XCTAssertEqual(element.0, 14)
         XCTAssertEqual(element.1, "14")
-        XCTAssertEqual(node.keys[2], -1)
-        XCTAssertEqual(node.payloads[2], "Foo")
+        XCTAssertEqual(node.elements[2].0, -1)
+        XCTAssertEqual(node.elements[2].1, "Foo")
     }
 
     func testInsertElementInSlot() {
@@ -261,12 +248,7 @@ class BTreeNodeTests: XCTestCase {
         node.insert((-1, "Foo"), inSlot: 2)
         XCTAssertEqual(node.count, 5)
         XCTAssertTrue(node.isTooLarge)
-        XCTAssertEqual(node.keys[1], 1)
-        XCTAssertEqual(node.payloads[1], "1")
-        XCTAssertEqual(node.keys[2], -1)
-        XCTAssertEqual(node.payloads[2], "Foo")
-        XCTAssertEqual(node.keys[3], 2)
-        XCTAssertEqual(node.payloads[3], "2")
+        XCTAssertElementsEqual(node.elements, [(1, "1"), (-1, "Foo"), (2, "2")])
     }
 
     func testAppendElement() {
@@ -406,38 +388,38 @@ class BTreeNodeTests: XCTestCase {
         let node = uniformNode(depth: 2, order: 7, keysPerNode: 4)
         let c = node.count
 
-        XCTAssertEqual(node.keys, [24, 49, 74, 99])
+        XCTAssertEqual(node.elements.map { $0.0 }, [24, 49, 74, 99])
         XCTAssertEqual(node.children.map { $0.count }, [24, 24, 24, 24, 24])
 
         node.rotateLeft(2)
 
         node.assertValid()
         XCTAssertElementsEqual(node.map { $0.0 }, 0 ..< c)
-        XCTAssertEqual(node.keys, [24, 49, 79, 99])
+        XCTAssertEqual(node.elements.map { $0.0 }, [24, 49, 79, 99])
         XCTAssertEqual(node.children.map { $0.count }, [24, 24, 29, 19, 24])
 
         node.rotateRight(2)
 
         node.assertValid()
         XCTAssertElementsEqual(node.map { $0.0 }, 0 ..< c)
-        XCTAssertEqual(node.keys, [24, 44, 79, 99])
+        XCTAssertEqual(node.elements.map { $0.0 }, [24, 44, 79, 99])
         XCTAssertEqual(node.children.map { $0.count }, [24, 19, 34, 19, 24])
     }
 
     func testCollapse() {
         let node = uniformNode(depth: 3, order: 7, keysPerNode: 4)
         let c = node.count
-        XCTAssertEqual(node.children.map { $0.keys.count }, [4, 4, 4, 4, 4])
+        XCTAssertEqual(node.children.map { $0.elements.count }, [4, 4, 4, 4, 4])
         node.rotateRight(3)
-        XCTAssertEqual(node.children.map { $0.keys.count }, [4, 4, 3, 5, 4])
+        XCTAssertEqual(node.children.map { $0.elements.count }, [4, 4, 3, 5, 4])
         node.rotateRight(3)
-        XCTAssertEqual(node.children.map { $0.keys.count }, [4, 4, 2, 6, 4])
+        XCTAssertEqual(node.children.map { $0.elements.count }, [4, 4, 2, 6, 4])
         node.rotateLeft(0)
-        XCTAssertEqual(node.children.map { $0.keys.count }, [5, 3, 2, 6, 4])
+        XCTAssertEqual(node.children.map { $0.elements.count }, [5, 3, 2, 6, 4])
         node.collapse(1)
         node.assertValid()
         XCTAssertEqual(node.children.count, 4)
-        XCTAssertEqual(node.children.map { $0.keys.count }, [5, 6, 6, 4])
+        XCTAssertEqual(node.children.map { $0.elements.count }, [5, 6, 6, 4])
         XCTAssertElementsEqual(node.map { $0.0 }, 0 ..< c)
     }
 

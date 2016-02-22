@@ -39,7 +39,7 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
         guard level > 0 else { return nil }
         let node = nodePath[level - 1]
         let index = indexPath[level - 1]
-        let result = (node.keys[index], node.payloads[index])
+        let result = node.elements[index]
         if !node.isLeaf {
             // Descend
             indexPath[level - 1] = index + 1
@@ -52,14 +52,14 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
                 indexPath.append(0)
             }
         }
-        else if index < node.keys.count - 1 {
+        else if index < node.elements.count - 1 {
             indexPath[level - 1] = index + 1
         }
         else {
             // Ascend
             nodePath.removeLast()
             indexPath.removeLast()
-            while !nodePath.isEmpty && indexPath.last == nodePath.last!.keys.count {
+            while !nodePath.isEmpty && indexPath.last == nodePath.last!.elements.count {
                 nodePath.removeLast()
                 indexPath.removeLast()
             }

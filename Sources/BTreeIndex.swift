@@ -71,7 +71,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
                 invalidate()
                 return
             }
-            if direction == .Forward && i < parent.keys.count {
+            if direction == .Forward && i < parent.elements.count {
                 slot = i
                 return
             }
@@ -96,14 +96,14 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
             node = node.children[direction == .Forward ? 0 : node.children.count - 1]
             path.append(Weak(node))
         }
-        slot = direction == .Forward ? 0 : node.keys.count - 1
+        slot = direction == .Forward ? 0 : node.elements.count - 1
     }
 
     internal mutating func successorInPlace() {
         guard root.value != nil else { return }
         guard let node = self.path.last?.value else { invalidate(); return }
         if node.isLeaf {
-            if slot < node.keys.count - 1 {
+            if slot < node.elements.count - 1 {
                 slot += 1
             }
             else {
@@ -124,7 +124,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
                 node = node.children.last!
                 path.append(Weak(node))
             }
-            slot = node.keys.count - 1
+            slot = node.elements.count - 1
             return
         }
         if node.isLeaf {

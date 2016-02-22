@@ -440,7 +440,7 @@ class BTreeTests: XCTestCase {
         XCTAssertElementsEqual(tree, reference)
         XCTAssertEqual(tree.depth, 1)
 
-        XCTAssertEqual(tree.root.keys.count, 1)
+        XCTAssertEqual(tree.root.elements.count, 1)
         XCTAssertEqual(tree.root.children.count, 2)
     }
 
@@ -597,7 +597,7 @@ class BTreeTests: XCTestCase {
             let tree = Tree(sortedElements: sequence, order: order, fillFactor: 1.0)
             tree.assertValid(file: file, line: line)
             tree.root.forEachNode { node in
-                XCTAssertEqual(node.keys.count, keysPerNode, file: file, line: line)
+                XCTAssertEqual(node.elements.count, keysPerNode, file: file, line: line)
             }
         }
 

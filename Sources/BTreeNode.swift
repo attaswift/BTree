@@ -27,13 +27,14 @@ internal let bTreeNodeSize = 8191
 /// A node in an in-memory b-tree data structure, efficiently mapping `Comparable` keys to arbitrary payloads.
 /// Iterating over the elements in a b-tree returns them in ascending order of their keys.
 internal final class BTreeNode<Key: Comparable, Payload>: NonObjectiveCBase {
+    typealias Element = Generator.Element
+    typealias Node = BTreeNode<Key, Payload>
+
     /// FIXME: Allocate keys/payloads/children in a single buffer
 
-    /// A sorted array of keys.
-    internal var keys: Array<Key>
-    /// The payload that belongs to each key in the `keys` array, respectively.
-    internal var payloads: Array<Payload>
-    /// An empty array (when this is a leaf), or `keys.count + 1` child nodes (when this is an internal node).
+    /// The elements stored in this node, sorted by key.
+    internal var elements: Array<Element>
+    /// An empty array (when this is a leaf), or `elements.count + 1` child nodes (when this is an internal node).
     internal var children: Array<BTreeNode>
 
     /// The number of elements in this b-tree.
@@ -47,12 +48,10 @@ internal final class BTreeNode<Key: Comparable, Payload>: NonObjectiveCBase {
     internal var depth: Int { return numericCast(_depth) }
     internal var order: Int { return numericCast(_order) }
 
-    internal init(order: Int, keys: Array<Key>, payloads: Array<Payload>, children: Array<BTreeNode>, count: Int) {
-        assert(children.count == 0 || keys.count == children.count - 1)
-        assert(payloads.count == keys.count)
+    internal init(order: Int, elements: Array<Element>, children: Array<BTreeNode>, count: Int) {
+        assert(children.count == 0 || elements.count == children.count - 1)
         self._order = numericCast(order)
-        self.keys = keys
-        self.payloads = payloads
+        self.elements = elements
         self.children = children
         self.count = count
         self._depth = (children.count == 0 ? 0 : children[0]._depth + 1)
@@ -69,7 +68,7 @@ extension BTreeNode {
     }
 
     convenience init(order: Int = Node.defaultOrder) {
-        self.init(order: order, keys: [], payloads: [], children: [], count: 0)
+        self.init(order: order, elements: [], children: [], count: 0)
     }
 
     internal convenience init(left: Node, separator: (Key, Payload), right: Node) {
@@ -77,18 +76,16 @@ extension BTreeNode {
         assert(left.depth == right.depth)
         self.init(
             order: left.order,
-            keys: [separator.0],
-            payloads: [separator.1],
+            elements: [separator],
             children: [left, right],
             count: left.count + 1 + right.count)
     }
 
     internal convenience init(node: BTreeNode, slotRange: Range<Int>) {
-        let keys = Array(node.keys[slotRange])
-        let payloads = Array(node.payloads[slotRange])
+        let elements = Array(node.elements[slotRange])
         let children = node.isLeaf ? [] : Array(node.children[slotRange.startIndex ... slotRange.endIndex])
-        let count = children.reduce(keys.count) { $0 + $1.count }
-        self.init(order: node.order, keys: keys, payloads: payloads, children: children, count: count)
+        let count = children.reduce(elements.count) { $0 + $1.count }
+        self.init(order: node.order, elements: elements, children: children, count: count)
     }
 }
 
@@ -103,7 +100,7 @@ extension BTreeNode {
     }
 
     func clone() -> BTreeNode {
-        return BTreeNode(order: order, keys: keys, payloads: payloads, children: children, count: count)
+        return BTreeNode(order: order, elements: elements, children: children, count: count)
     }
 }
 
@@ -116,17 +113,15 @@ extension BTreeNode {
     internal var minKeys: Int { return minChildren - 1 }
 
     internal var isLeaf: Bool { return children.isEmpty }
-    internal var isTooSmall: Bool { return keys.count < minKeys }
-    internal var isTooLarge: Bool { return keys.count > maxKeys }
-    internal var isBalanced: Bool { return keys.count >= minKeys && keys.count <= maxKeys }
+    internal var isTooSmall: Bool { return elements.count < minKeys }
+    internal var isTooLarge: Bool { return elements.count > maxKeys }
+    internal var isBalanced: Bool { return elements.count >= minKeys && elements.count <= maxKeys }
 }
 
 //MARK: SequenceType
 
 extension BTreeNode: SequenceType {
     typealias Generator = BTreeGenerator<Key, Payload>
-    typealias Element = Generator.Element
-    typealias Node = BTreeNode<Key, Payload>
 
     var isEmpty: Bool { return count == 0 }
 
@@ -137,16 +132,16 @@ extension BTreeNode: SequenceType {
     /// Call `body` on each element in self in the same order as a for-in loop.
     func forEach(@noescape body: (Element) throws -> ()) rethrows {
         if isLeaf {
-            for i in 0 ..< keys.count {
-                try body((keys[i], payloads[i]))
+            for element in elements {
+                try body(element)
             }
         }
         else {
-            for i in 0 ..< keys.count {
+            for i in 0 ..< elements.count {
                 try children[i].forEach(body)
-                try body((keys[i], payloads[i]))
+                try body(elements[i])
             }
-            try children[keys.count].forEach(body)
+            try children[elements.count].forEach(body)
         }
     }
 
@@ -155,16 +150,16 @@ extension BTreeNode: SequenceType {
     /// - Returns: `true` iff `body` returned true for all elements in the tree.
     func forEach(@noescape body: (Element) throws -> Bool) rethrows -> Bool {
         if isLeaf {
-            for i in 0 ..< keys.count {
-                guard try body((keys[i], payloads[i])) else { return false }
+            for element in elements {
+                guard try body(element) else { return false }
             }
         }
         else {
-            for i in 0 ..< keys.count {
+            for i in 0 ..< elements.count {
                 guard try children[i].forEach(body) else { return false }
-                guard try body((keys[i], payloads[i])) else { return false }
+                guard try body(elements[i]) else { return false }
             }
-            guard try children[keys.count].forEach(body) else { return false }
+            guard try children[elements.count].forEach(body) else { return false }
         }
         return true
     }
@@ -187,7 +182,7 @@ extension BTreeNode: CollectionType {
         get {
             precondition(index.root.value === self)
             let node = index.path.last!.value!
-            return node.elementInSlot(index.slot)
+            return node.elements[index.slot]
         }
     }
 }
@@ -195,32 +190,25 @@ extension BTreeNode: CollectionType {
 //MARK: Slots
 
 extension BTreeNode {
-    internal func elementInSlot(slot: Int) -> Element {
-        return (keys[slot], payloads[slot])
-    }
-
     internal func setElementInSlot(slot: Int, to element: Element) -> Element {
-        let old = (keys[slot], payloads[slot])
-        keys[slot] = element.0
-        payloads[slot] = element.1
+        let old = elements[slot]
+        elements[slot] = element
         return old
     }
 
     internal func insert(element: Element, inSlot slot: Int) {
-        keys.insert(element.0, atIndex: slot)
-        payloads.insert(element.1, atIndex: slot)
+        elements.insert(element, atIndex: slot)
         count += 1
     }
 
     internal func append(element: Element) {
-        keys.append(element.0)
-        payloads.append(element.1)
+        elements.append(element)
         count += 1
     }
 
     internal func removeSlot(slot: Int) -> Element {
         count -= 1
-        return (keys.removeAtIndex(slot), payloads.removeAtIndex(slot))
+        return elements.removeAtIndex(slot)
     }
 
     /// Does one step toward looking up an element with `key`, returning the slot index of a direct match (if any), 
@@ -232,30 +220,30 @@ extension BTreeNode {
         switch selector {
         case .First, .Any:
             var start = 0
-            var end = keys.count
+            var end = elements.count
             while start < end {
                 let mid = start + (end - start) / 2
-                if keys[mid] < key {
+                if elements[mid].0 < key {
                     start = mid + 1
                 }
                 else {
                     end = mid
                 }
             }
-            return (start < keys.count && keys[start] == key ? start : nil, start)
+            return (start < elements.count && elements[start].0 == key ? start : nil, start)
         case .Last:
             var start = -1
-            var end = keys.count - 1
+            var end = elements.count - 1
             while start < end {
                 let mid = start + (end - start + 1) / 2
-                if keys[mid] > key {
+                if elements[mid].0 > key {
                     end = mid - 1
                 }
                 else {
                     start = mid
                 }
             }
-            return (start >= 0 && keys[start] == key ? start : nil, start + 1)
+            return (start >= 0 && elements[start].0 == key ? start : nil, start + 1)
         }
     }
 
@@ -286,7 +274,7 @@ extension BTreeNode {
     }
 
     internal func positionOfSlot(slot: Int) -> Int {
-        assert(slot >= 0 && slot <= keys.count)
+        assert(slot >= 0 && slot <= elements.count)
         guard !isLeaf else {
             return slot
         }
@@ -325,7 +313,7 @@ extension BTreeNode {
     @warn_unused_result
     internal func split() -> BTreeSplinter<Key, Payload> {
         assert(isTooLarge)
-        return split(keys.count / 2)
+        return split(elements.count / 2)
     }
 
     /// Split this node into two at the key at index `median`, removing all elements at or above `median` 
@@ -334,11 +322,10 @@ extension BTreeNode {
     /// - Returns: A splinter containing the higher half of the original node.
     @warn_unused_result
     internal func split(median: Int) -> BTreeSplinter<Key, Payload> {
-        let count = keys.count
-        let separator = (keys[median], payloads[median])
+        let count = elements.count
+        let separator = elements[median]
         let node = BTreeNode(node: self, slotRange: median + 1 ..< count)
-        keys.removeRange(median ..< count)
-        payloads.removeRange(median ..< count)
+        elements.removeRange(median ..< count)
         if isLeaf {
             self.count = median
         }
@@ -351,8 +338,7 @@ extension BTreeNode {
     }
 
     internal func insert(splinter: BTreeSplinter<Key, Payload>, inSlot slot: Int) {
-        keys.insert(splinter.separator.0, atIndex: slot)
-        payloads.insert(splinter.separator.1, atIndex: slot)
+        elements.insert(splinter.separator, atIndex: slot)
         children.insert(splinter.node, atIndex: slot + 1)
     }
 }
@@ -365,10 +351,10 @@ extension BTreeNode {
     /// become balanced.
     internal func fixDeficiency(slot: Int) {
         assert(!isLeaf && children[slot].isTooSmall)
-        if slot > 0 && children[slot - 1].keys.count > minKeys {
+        if slot > 0 && children[slot - 1].elements.count > minKeys {
             rotateRight(slot)
         }
-        else if slot < children.count - 1 && children[slot + 1].keys.count > minKeys {
+        else if slot < children.count - 1 && children[slot + 1].elements.count > minKeys {
             rotateLeft(slot)
         }
         else if slot > 0 {
@@ -385,8 +371,7 @@ extension BTreeNode {
         assert(slot > 0)
         makeChildUnique(slot)
         makeChildUnique(slot - 1)
-        children[slot].keys.insert(keys[slot - 1], atIndex: 0)
-        children[slot].payloads.insert(payloads[slot - 1], atIndex: 0)
+        children[slot].elements.insert(elements[slot - 1], atIndex: 0)
         if !children[slot].isLeaf {
             let lastGrandChildBeforeSlot = children[slot - 1].children.removeLast()
             children[slot].children.insert(lastGrandChildBeforeSlot, atIndex: 0)
@@ -394,9 +379,7 @@ extension BTreeNode {
             children[slot - 1].count -= lastGrandChildBeforeSlot.count
             children[slot].count += lastGrandChildBeforeSlot.count
         }
-        keys[slot - 1] = children[slot - 1].keys.removeLast()
-        payloads[slot - 1] = children[slot - 1].payloads.removeLast()
-
+        elements[slot - 1] = children[slot - 1].elements.removeLast()
         children[slot - 1].count -= 1
         children[slot].count += 1
     }
@@ -405,8 +388,7 @@ extension BTreeNode {
         assert(slot < children.count - 1)
         makeChildUnique(slot)
         makeChildUnique(slot + 1)
-        children[slot].keys.append(keys[slot])
-        children[slot].payloads.append(payloads[slot])
+        children[slot].elements.append(elements[slot])
         if !children[slot].isLeaf {
             let firstGrandChildAfterSlot = children[slot + 1].children.removeAtIndex(0)
             children[slot].children.append(firstGrandChildAfterSlot)
@@ -414,9 +396,7 @@ extension BTreeNode {
             children[slot + 1].count -= firstGrandChildAfterSlot.count
             children[slot].count += firstGrandChildAfterSlot.count
         }
-        keys[slot] = children[slot + 1].keys.removeAtIndex(0)
-        payloads[slot] = children[slot + 1].payloads.removeAtIndex(0)
-
+        elements[slot] = children[slot + 1].elements.removeAtIndex(0)
         children[slot].count += 1
         children[slot + 1].count -= 1
     }
@@ -425,12 +405,9 @@ extension BTreeNode {
         assert(slot < children.count - 1)
         makeChildUnique(slot)
         let next = children.removeAtIndex(slot + 1)
-        children[slot].keys.append(keys.removeAtIndex(slot))
-        children[slot].payloads.append(payloads.removeAtIndex(slot))
+        children[slot].elements.append(elements.removeAtIndex(slot))
         children[slot].count += 1
-
-        children[slot].keys.appendContentsOf(next.keys)
-        children[slot].payloads.appendContentsOf(next.payloads)
+        children[slot].elements.appendContentsOf(next.elements)
         children[slot].count += next.count
         if !next.isLeaf {
             children[slot].children.appendContentsOf(next.children)
@@ -472,15 +449,12 @@ extension BTreeNode {
         // Graft the scion into the stock by inserting the contents of its root into `node`.
         assert(node.isLeaf == scion.isLeaf)
         if append {
-            node.keys.append(separator.0)
-            node.keys.appendContentsOf(right.keys)
-            node.payloads.append(separator.1)
-            node.payloads.appendContentsOf(right.payloads)
+            node.elements.append(separator)
+            node.elements.appendContentsOf(right.elements)
             node.children.appendContentsOf(right.children)
         }
         else {
-            node.keys = left.keys + [separator.0] + node.keys
-            node.payloads = left.payloads + [separator.1] + node.payloads
+            node.elements = left.elements + [separator] + node.elements
             node.children = left.children + node.children
         }
 
@@ -490,7 +464,7 @@ extension BTreeNode {
             var splinter = Optional(node.split())
             while let s = splinter where !path.isEmpty {
                 let node = path.removeLast()
-                node.insert(s, inSlot: append ? node.keys.count : 0)
+                node.insert(s, inSlot: append ? node.elements.count : 0)
                 splinter = node.isTooLarge ? node.split() : nil
             }
             if let s = splinter {

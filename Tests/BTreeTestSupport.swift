@@ -17,7 +17,7 @@ extension BTreeNode {
 
             // Check item order
             var prev = minKey
-            for key in node.keys {
+            for key in node.elements.map({ $0.0 }) {
                 if let p = prev where p > key {
                     defects.append("Invalid item order: \(p) > \(key)")
                 }
@@ -29,14 +29,11 @@ extension BTreeNode {
 
             // Check leaf node
             if node.isLeaf {
-                if node.keys.count > node.order - 1 {
-                    defects.append("Oversize leaf node: \(node.keys.count) > \(node.order - 1)")
+                if node.elements.count > node.order - 1 {
+                    defects.append("Oversize leaf node: \(node.elements.count) > \(node.order - 1)")
                 }
-                if level > 0 && node.keys.count < (node.order - 1) / 2 {
-                    defects.append("Undersize leaf node: \(node.keys.count) < \((node.order - 1) / 2)")
-                }
-                if node.payloads.count != node.keys.count {
-                    defects.append("Mismatching item counts in leaf node (keys.count: \(node.keys.count), payloads.count: \(node.payloads.count)")
+                if level > 0 && node.elements.count < (node.order - 1) / 2 {
+                    defects.append("Undersize leaf node: \(node.elements.count) < \((node.order - 1) / 2)")
                 }
                 if !node.children.isEmpty {
                     defects.append("Leaf node should have no children, this one has \(node.children.count)")
@@ -44,7 +41,7 @@ extension BTreeNode {
                 if node.depth != 0 {
                     defects.append("Lead node should have depth 0")
                 }
-                return (node.keys.count, defects)
+                return (node.elements.count, defects)
             }
 
             // Check child count
@@ -58,22 +55,19 @@ extension BTreeNode {
                 defects.append("Undersize root node: \(node.children.count) < 2")
             }
             // Check item count
-            if node.keys.count != node.children.count - 1 {
-                defects.append("Mismatching item counts in internal node (keys.count: \(node.keys.count), children.count: \(node.children.count)")
-            }
-            if node.payloads.count != node.keys.count {
-                defects.append("Mismatching item counts in internal node (keys.count: \(node.keys.count), payloads.count: \(node.payloads.count)")
+            if node.elements.count != node.children.count - 1 {
+                defects.append("Mismatching item counts in internal node (elements.count: \(node.elements.count), children.count: \(node.children.count)")
             }
 
             // Recursion
-            var count = node.keys.count
+            var count = node.elements.count
             for slot in 0 ..< node.children.count {
                 let child = node.children[slot]
                 let (c, d) = testNode(
                     level: level + 1,
                     node: child,
-                    minKey: (slot > 0 ? node.keys[slot - 1] : minKey),
-                    maxKey: (slot < node.keys.count - 1 ? node.keys[slot + 1] : maxKey))
+                    minKey: (slot > 0 ? node.elements.map { $0.0 }[slot - 1] : minKey),
+                    maxKey: (slot < node.elements.count - 1 ? node.elements.map { $0.0 }[slot + 1] : maxKey))
                 if node.depth != child.depth + 1 {
                     defects.append("Invalid depth: \(node.depth) in parent vs \(child.depth) in child")
                 }
@@ -137,8 +131,8 @@ class BTreeSupportTests: XCTestCase {
         let node = maximalNode(depth: 0, order: 5)
         node.assertValid()
 
-        XCTAssertEqual(node.keys, [0, 1, 2, 3])
-        XCTAssertEqual(node.payloads, ["0", "1", "2", "3"])
+        XCTAssertEqual(node.elements.map { $0.0 }, [0, 1, 2, 3])
+        XCTAssertEqual(node.elements.map { $0.1 }, ["0", "1", "2", "3"])
         XCTAssertEqual(node.children.count, 0)
         XCTAssertEqual(node.count, 4)
         XCTAssertEqual(node.order, 5)
@@ -152,8 +146,8 @@ class BTreeSupportTests: XCTestCase {
         let node = maximalNode(depth: 1, order: 3)
         node.assertValid()
 
-        XCTAssertEqual(node.keys, [2, 5])
-        XCTAssertEqual(node.payloads, ["2", "5"])
+        XCTAssertEqual(node.elements.map { $0.0 }, [2, 5])
+        XCTAssertEqual(node.elements.map { $0.1 }, ["2", "5"])
         XCTAssertEqual(node.count, 8)
         XCTAssertEqual(node.order, 3)
         XCTAssertEqual(node.depth, 1)
@@ -161,8 +155,8 @@ class BTreeSupportTests: XCTestCase {
         XCTAssertEqual(node.children.count, 3)
         var i = 0
         for child in node.children {
-            XCTAssertEqual(child.keys, [i, i + 1])
-            XCTAssertEqual(child.payloads, (i ..< i + 2).map { String($0) })
+            XCTAssertEqual(child.elements.map { $0.0 }, [i, i + 1])
+            XCTAssertEqual(child.elements.map { $0.1 }, (i ..< i + 2).map { String($0) })
             XCTAssertEqual(child.children.count, 0)
             XCTAssertEqual(child.count, 2)
             XCTAssertEqual(child.order, 3)
@@ -177,8 +171,8 @@ class BTreeSupportTests: XCTestCase {
         let node = minimalNode(depth: 0, order: 5)
         node.assertValid()
 
-        XCTAssertEqual(node.keys, [0, 1])
-        XCTAssertEqual(node.payloads, ["0", "1"])
+        XCTAssertEqual(node.elements.map { $0.0 }, [0, 1])
+        XCTAssertEqual(node.elements.map { $0.1 }, ["0", "1"])
         XCTAssertEqual(node.children.count, 0)
         XCTAssertEqual(node.count, 2)
         XCTAssertEqual(node.order, 5)
@@ -192,8 +186,8 @@ class BTreeSupportTests: XCTestCase {
         let node = minimalNode(depth: 1, order: 3)
         node.assertValid()
 
-        XCTAssertEqual(node.keys, [1])
-        XCTAssertEqual(node.payloads, ["1"])
+        XCTAssertEqual(node.elements.map { $0.0 }, [1])
+        XCTAssertEqual(node.elements.map { $0.1 }, ["1"])
         XCTAssertEqual(node.count, 3)
         XCTAssertEqual(node.order, 3)
         XCTAssertEqual(node.depth, 1)
@@ -201,8 +195,8 @@ class BTreeSupportTests: XCTestCase {
         XCTAssertEqual(node.children.count, 2)
         var i = 0
         for child in node.children {
-            XCTAssertEqual(child.keys, [i])
-            XCTAssertEqual(child.payloads, [String(i)])
+            XCTAssertEqual(child.elements.map { $0.0 }, [i])
+            XCTAssertEqual(child.elements.map { $0.1 }, [String(i)])
             XCTAssertEqual(child.children.count, 0)
             XCTAssertEqual(child.count, 1)
             XCTAssertEqual(child.order, 3)
