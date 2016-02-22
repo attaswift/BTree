@@ -3,7 +3,7 @@
 //  TreeCollections
 //
 //  Created by Károly Lőrentey on 2016-01-13.
-//  Copyright © 2016 Károly Lőrentey. All rights reserved.
+//  Copyright © 2016 Károly Lőrentey.
 //
 
 // `bTreeNodeSize` is the maximum size (in bytes) of the keys in a single, fully loaded b-tree node.

@@ -3,7 +3,7 @@
 //  TreeCollections
 //
 //  Created by Károly Lőrentey on 2015-12-15.
-//  Copyright © 2015 Károly Lőrentey. All rights reserved.
+//  Copyright © 2015 Károly Lőrentey.
 //
 
 import PackageDescription

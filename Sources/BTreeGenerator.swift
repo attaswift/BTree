@@ -3,7 +3,7 @@
 //  TreeCollections
 //
 //  Created by Károly Lőrentey on 2016-02-11.
-//  Copyright © 2016 Károly Lőrentey. All rights reserved.
+//  Copyright © 2016 Károly Lőrentey.
 //
 
 /// A generator for all elements stored in a b-tree, in ascending key order.

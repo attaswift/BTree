@@ -3,7 +3,7 @@
 //  TreeCollections
 //
 //  Created by Károly Lőrentey on 2016-02-19.
-//  Copyright © 2016 Károly Lőrentey. All rights reserved.
+//  Copyright © 2016 Károly Lőrentey.
 //
 
 public struct BTree<Key: Comparable, Payload> {
