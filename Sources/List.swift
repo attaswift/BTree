@@ -10,11 +10,14 @@
 /// `List` works like an `Array`, but lookup, insertion and removal of elements at any index have
 /// logarithmic complexity. (`Array` has O(1) lookup, but removal/insertion at an arbitrary index costs O(count).)
 ///
-/// `List` is a struct with copy-on-write value semantics.
+/// `List` is a struct with copy-on-write value semantics, like Swift's standard collection types.
 /// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other lists.
-/// Mutating a list whose storage is (partially or completely) shared requires copying of O(log(`count`)) elements.
-/// (Thus, mutation of shared lists may be cheaper than arrays, which need to copy all elements.
-/// Unfortunately, this advantage is often overshadowed by the increased cost of element access.)
+/// Mutating a list whose storage is (partially or completely) shared requires copying of only O(log(`count`)) elements.
+/// (Thus, mutation of shared lists may be relatively cheaper than arrays, which need to copy all elements.)
+///
+/// Lookup, insertion and removal of individual elements anywhere in a list have logarithmic complexity.
+/// Using the batch operations provided by `List` can often be much faster than processing individual elements
+/// one by one. For example, splitting a list or concatenating two lists can be done in O(log(n)) time.
 ///
 /// - Note: While `List` implements all formal requirements of `CollectionType`, it violates the semantic requirement 
 ///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(`count`))`. Collection algorithms that
@@ -175,7 +178,10 @@ extension List {
         return result
     }
 
-    /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if such value is not found.
+    /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if 
+    /// such value is not found.
+    ///
+    /// - Complexity: O(`count`)
     public func indexOf(@noescape predicate: (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
         try self.tree.forEach { element -> Bool in
@@ -191,6 +197,8 @@ extension List {
 
 public extension List where Element: Equatable {
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
+    ///
+    /// - Complexity: O(`count`)
     public func indexOf(element: Element) -> Index? {
         var i = 0
         self.tree.forEach { e -> Bool in
@@ -230,7 +238,7 @@ extension List: ArrayLiteralConvertible {
 
 extension List: CustomStringConvertible {
     public var description: String {
-        let contents = self.map { element in String(element) }
+        let contents = self.map { element in String(reflecting: element) }
         return "[" + contents.joinWithSeparator(", ") + "]"
     }
 }
@@ -261,26 +269,32 @@ extension List {
 
     /// Append `list` to the end of this list.
     ///
-    /// - Complexity: O(log(self.count + list.count))
+    /// - Complexity: O(log(`self.count + list.count`))
     public mutating func appendContentsOf(list: List<Element>) {
         tree.withCursorAtPosition(tree.count) { cursor in
             cursor.insert(list.tree)
         }
     }
 
+    /// Append the contents of `elements` to the end of this list.
+    ///
+    /// - Complexity: O(log(`count`) + *n*) where *n* is the number of elements in the sequence.
     public mutating func appendContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S) {
         tree.withCursorAtPosition(tree.count) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
     }
 
-    public mutating func insertContentsOf(list: List<Element>, atIndex index: Int) {
+    /// Insert the contents of `list` in this list at `index`.
+    ///
+    /// - Complexity: O(log(`self.count + list.count`))
+    public mutating func insertContentsOf(list: List<Element>, at index: Int) {
         tree.withCursorAtPosition(index) { cursor in
             cursor.insert(list.tree)
         }
     }
 
-    public mutating func insertContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S, atIndex index: Int) {
+    public mutating func insertContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S, at index: Int) {
         tree.withCursorAtPosition(index) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }

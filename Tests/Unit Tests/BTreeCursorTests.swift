@@ -361,7 +361,7 @@ class BTreeCursorTests: XCTestCase {
     }
 
     func testCursorRemoveRangeFromMaximalTree() {
-        let tree = maximalTree(depth: 3, order: 3)
+        let tree = maximalTree(depth: 2, order: 3)
         let count = tree.count
         for i in 0 ..< count {
             for n in 0 ... count - i {
@@ -379,7 +379,7 @@ class BTreeCursorTests: XCTestCase {
     }
 
     func testCursorExtractRangeFromMaximalTree() {
-        let tree = maximalTree(depth: 3, order: 3)
+        let tree = maximalTree(depth: 2, order: 3)
         let count = tree.count
         for i in 0 ..< count {
             for n in 0 ... count - i {
