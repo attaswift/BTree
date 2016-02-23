@@ -11,11 +11,12 @@
             buildForRunning = "YES"
             buildForProfiling = "YES"
             buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
+            buildForAnalyzing = "YES"
+            hideIssues = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "BB8FE9981C7C8CDC0051268F"
-               BuildableName = "watchOS.framework"
+               BuildableName = "BTree.framework"
                BlueprintName = "watchOS"
                ReferencedContainer = "container:BTree.xcodeproj">
             </BuildableReference>
@@ -46,7 +47,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BB8FE9981C7C8CDC0051268F"
-            BuildableName = "watchOS.framework"
+            BuildableName = "BTree.framework"
             BlueprintName = "watchOS"
             ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
@@ -64,7 +65,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "BB8FE9981C7C8CDC0051268F"
-            BuildableName = "watchOS.framework"
+            BuildableName = "BTree.framework"
             BlueprintName = "watchOS"
             ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
