@@ -166,27 +166,6 @@ extension BTreeNode: SequenceType {
 
 }
 
-//MARK: CollectionType
-extension BTreeNode: CollectionType {
-    typealias Index = BTreeIndex<Key, Payload>
-
-    var startIndex: Index {
-        return Index(startIndexOf: self)
-    }
-
-    var endIndex: Index {
-        return Index(endIndexOf: self)
-    }
-
-    subscript(index: Index) -> Element {
-        get {
-            precondition(index.root.value === self)
-            let node = index.path.last!.value!
-            return node.elements[index.slot]
-        }
-    }
-}
-
 //MARK: Slots
 
 extension BTreeNode {
@@ -245,11 +224,6 @@ extension BTreeNode {
             }
             return (start >= 0 && elements[start].0 == key ? start : nil, start + 1)
         }
-    }
-
-    internal func slotOf(child: BTreeNode) -> Int? {
-        guard !isLeaf else { return nil }
-        return self.children.indexOf { $0 === child }
     }
 
     internal func slotOfPosition(position: Int) -> (index: Int, match: Bool, position: Int) {

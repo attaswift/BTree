@@ -25,8 +25,7 @@ class BTreeNodeTests: XCTestCase {
 
         XCTAssertTrue(node.isEmpty)
         XCTAssertElementsEqual(node, [])
-        XCTAssertEqual(node.startIndex, node.endIndex)
-    }    
+    }
 
     func testDefaultOrder() {
         XCTAssertLessThanOrEqual(Node.defaultOrder * strideof(Int), bTreeNodeSize)
@@ -172,66 +171,6 @@ class BTreeNodeTests: XCTestCase {
         XCTAssertEqual(i, 120)
     }
 
-    func testIndexingForward() {
-        let node = maximalNode(depth: 2, order: 5)
-
-        var index = node.startIndex
-        let end = node.endIndex
-        var i = 0
-        while index != end {
-            XCTAssertEqual(node[index].0, i)
-            XCTAssertEqual(node[index].1, String(i))
-            index = index.successor()
-            i += 1
-        }
-        XCTAssertEqual(i, node.count)
-    }
-
-    func testIndexingBackward() {
-        let node = maximalNode(depth: 2, order: 5)
-
-        var index = node.endIndex
-        let end = node.startIndex
-        var i = node.count
-        repeat {
-            i -= 1
-            index = index.predecessor()
-            XCTAssertEqual(node[index].0, i)
-            XCTAssertEqual(node[index].1, String(i))
-        } while index != end
-        XCTAssertEqual(i, 0)
-    }
-
-    func testIndexInvalidation() {
-        let node = maximalNode(depth: 1, order: 5)
-        let startIndex = node.startIndex
-        let endIndex = node.endIndex
-
-        XCTAssertNil(startIndex.predecessor().root.value)
-        XCTAssertEqual(startIndex.predecessor().path.count, 0)
-
-        XCTAssertNil(endIndex.successor().root.value)
-        XCTAssertEqual(endIndex.successor().path.count, 0)
-
-        let invalid = startIndex.predecessor()
-        XCTAssertNil(invalid.predecessor().root.value)
-        XCTAssertEqual(invalid.predecessor().path.count, 0)
-        XCTAssertNil(invalid.successor().root.value)
-        XCTAssertEqual(invalid.successor().path.count, 0)
-
-        let index = startIndex.advancedBy(5)
-        XCTAssertEqual(index.advancedBy(-5), startIndex)
-
-        let child = node.children[1]
-        node.makeChildUnique(1)
-        XCTAssertFalse(child === node.children[1])
-
-        let outdated = index.advancedBy(-5)
-        XCTAssertNotEqual(outdated, startIndex)
-        XCTAssertNil(outdated.root.value)
-        XCTAssertEqual(outdated.path.count, 0)
-    }
-
     func testSetElementInSlot() {
         let node = maximalNode(depth: 1, order: 5)
 
@@ -286,13 +225,6 @@ class BTreeNodeTests: XCTestCase {
         XCTAssertEqual(node.slotOf(45, choosing: .Last).descend, 45)
         XCTAssertEqual(node.slotOf(25, choosing: .Last).match, 26)
         XCTAssertEqual(node.slotOf(25, choosing: .Last).descend, 27)
-    }
-
-    func testSlotOfChild() {
-        let node = maximalNode(depth: 1, order: 5)
-        XCTAssertEqual(node.slotOf(node.children[2]), 2)
-
-        XCTAssertEqual(maximalNode(depth: 0, order: 5).slotOf(node), nil)
     }
 
     func testSlotOfPosition() {

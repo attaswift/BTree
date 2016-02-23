@@ -24,115 +24,102 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
 
     internal private(set) var root: Weak<Node>
     internal private(set) var path: [Weak<Node>]
-    internal private(set) var slot: Int
+    internal private(set) var slots: [Int]
 
     internal init(startIndexOf root: Node) {
         self.root = Weak(root)
-        if root.isEmpty {
-            self.path = []
-            self.slot = 0
-        }
-        else {
-            var node = root
-            var path: [Weak<Node>] = []
-            path.reserveCapacity(root.depth + 1)
-            path.append(Weak(root))
-            while !node.isLeaf {
-                node = node.children[0]
-                path.append(Weak(node))
-            }
-            self.path = path
-            self.slot = 0
-        }
+        self.path = []
+        self.slots = []
+        guard !root.isEmpty else { return }
+        descend(.Forward, node: root)
     }
 
     internal init(endIndexOf root: Node) {
         self.root = Weak(root)
         self.path = []
-        self.slot = 0
+        self.slots = []
         path.reserveCapacity(root.depth + 1)
     }
 
-    internal init(path: [Weak<Node>], slot: Int) {
+    internal init(path: [Weak<Node>], slots: [Int]) {
+        precondition(path.count == slots.count)
+        precondition(path.count > 0)
         self.root = path[0]
+        self.slots = slots
         self.path = path
-        self.slot = slot
     }
 
-    private mutating func invalidate() {
-        self.root = Weak()
-        self.path = []
-        self.slot = 0
+    internal func expectValid(@autoclosure expression: Void->Bool, file: StaticString = __FILE__, line: UInt = __LINE__) {
+        precondition(expression(), "Invalid BTreeCursor", file: file, line: line)
     }
 
-    private mutating func ascend(direction: WalkDirection) {
-        while let node = path.removeLast().value, parent = self.path.last?.value {
-            guard let i = parent.slotOf(node) else {
-                invalidate()
-                return
-            }
-            if direction == .Forward && i < parent.elements.count {
-                slot = i
-                return
-            }
-            else if direction == .Backward && i > 0 {
-                slot = i - 1
-                return
-            }
-        }
-        if direction == .Backward {
-            self.root = Weak()
-        }
-        self.path = []
-        self.slot = 0
+    @noreturn internal func invalid(file: StaticString = __FILE__, line: UInt = __LINE__) {
+        preconditionFailure("Invalid BTreeCursor", file: file, line: line)
     }
 
-    private mutating func descend(direction: WalkDirection) {
-        let n = self.path.last!.value!
-        assert(!n.isLeaf)
-        var node = n.children[direction == .Forward ? slot + 1 : slot]
+    private mutating func descend(direction: WalkDirection, node: Node? = nil) {
+        var node = node ?? path.last!.value!.children[slots.last!]
         path.append(Weak(node))
         while !node.isLeaf {
-            node = node.children[direction == .Forward ? 0 : node.children.count - 1]
+            let slot = direction == .Forward ? 0 : node.children.count - 1
+            slots.append(slot)
+            node = node.children[slot]
             path.append(Weak(node))
         }
-        slot = direction == .Forward ? 0 : node.elements.count - 1
+        slots.append(direction == .Forward ? 0 : node.elements.count - 1)
+    }
+
+    private mutating func popPath() {
+        guard let n = path.removeLast().value else { invalid() }
+        slots.removeLast()
+        if path.count > 0 {
+            guard let p = path.last!.value else { invalid() }
+            let s = slots.last!
+            expectValid(s < p.children.count && p.children[s] === n)
+        }
     }
 
     internal mutating func successorInPlace() {
-        guard root.value != nil else { return }
-        guard let node = self.path.last?.value else { invalidate(); return }
+        guard root.value != nil else { invalid() }
+        guard let node = self.path.last?.value else { invalid() }
         if node.isLeaf {
-            if slot < node.elements.count - 1 {
-                slot += 1
+            if slots.last! < node.elements.count - 1 {
+                slots[slots.count - 1] += 1
             }
             else {
-                ascend(.Forward)
+                // Ascend
+                popPath()
+                while slots.count > 0 && slots.last! == path.last!.value!.elements.count {
+                    popPath()
+                }
             }
         }
         else {
+            slots[slots.count - 1] += 1
             descend(.Forward)
         }
     }
     
     internal mutating func predecessorInPlace() {
-        guard root.value != nil else { return }
-        guard let node = self.path.last?.value else {
-            var node = root.value!
-            path.append(root)
-            while !node.isLeaf {
-                node = node.children.last!
-                path.append(Weak(node))
-            }
-            slot = node.elements.count - 1
+        expectValid(root.value != nil)
+        if path.count == 0 {
+            descend(.Backward, node: root.value!)
             return
         }
+        guard let node = self.path.last!.value else { invalid() }
         if node.isLeaf {
-            if slot > 0 {
-                slot -= 1
+            if slots.last! > 0 {
+                slots[slots.count - 1] -= 1
             }
             else {
-                ascend(.Backward)
+                // Ascend
+                popPath()
+                while slots.count > 0 && slots.last! == 0 {
+                    popPath()
+                }
+                if slots.count > 0 {
+                    slots[slots.count - 1] -= 1
+                }
             }
         }
         else {
@@ -162,10 +149,9 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
 }
 
 public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
-    // TODO: Invalid indexes may compare unequal under this definition.
-    guard a.root.value === b.root.value else { return false }
-    guard a.path.count == b.path.count else { return false }
-    guard a.slot == b.slot else { return false }
+    // Invalid indexes should compare unequal to every index, including themselves.
+    guard let ar = a.root.value, br = b.root.value where ar === br else { return false }
+    guard a.slots == b.slots else { return false }
     for i in 0 ..< a.path.count {
         guard a.path[i].value === b.path[i].value else { return false }
     }

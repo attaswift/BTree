@@ -96,7 +96,7 @@ extension BTree: CollectionType {
         get {
             precondition(index.root.value === self.root)
             let node = index.path.last!.value!
-            return node.elements[index.slot]
+            return node.elements[index.slots.last!]
         }
     }
 }
@@ -180,6 +180,7 @@ public extension BTree {
     public func indexOf(key: Key, choosing selector: BTreeKeySelector = .Any) -> Index? {
         var node = root
         var path = [Weak(root)]
+        var slots: [Int] = []
         var match = 0
         var matchSlot = 0
         while true {
@@ -192,13 +193,16 @@ public extension BTree {
                 break
             }
             node = node.children[slot.descend]
+            slots.append(slot.descend)
             path.append(Weak(node))
         }
         if match == 0 {
             return nil
         }
         path.removeRange(match ..< path.count)
-        return Index(path: path, slot: matchSlot)
+        slots.removeRange(match - 1 ..< slots.count)
+        slots.append(matchSlot)
+        return Index(path: path, slots: slots)
     }
 
     /// Returns the position of the first element in this tree with the specified key, or `nil` if there is no such element.
@@ -233,24 +237,21 @@ public extension BTree {
     ///
     /// - Complexity: O(log(`count`))
     public func positionOfIndex(index: Index) -> Int {
-        precondition(index.path.count > 0 && index.path[0].value === root, "Invalid index")
-        var position = index.slot
-        guard let last = index.path.last?.value else { preconditionFailure("Invalid index") }
-        if !last.isLeaf {
-            for j in 0 ... index.slot {
-                position += last.children[j].count
-            }
+        index.expectValid(index.path[0].value === root)
+        if index.path.count == 0 {
+            return self.count
         }
-        var i = index.path.count - 1
-        while i > 0 {
-            guard let parent = index.path[i - 1].value else { preconditionFailure("Invalid index") }
-            guard let child = index.path[i].value else { preconditionFailure("Invalid index") }
-            guard let slot = parent.slotOf(child) else { preconditionFailure("Invalid index") }
-            position += slot
-            for j in 0 ..< slot {
-                position += parent.children[j].count
+        guard var last = index.path.last?.value else { index.invalid() }
+        var position = last.positionOfSlot(index.slots.last!)
+        for i in (0 ..< index.path.count - 1).reverse() {
+            guard let node = index.path[i].value else { index.invalid() }
+            let slot = index.slots[i]
+            index.expectValid(node.children[slot] === last)
+            index.expectValid(slot < node.children.count)
+            if slot > 0 {
+                position += node.positionOfSlot(slot - 1) + 1
             }
-            i -= 1
+            last = node
         }
         return position
     }
@@ -263,11 +264,13 @@ public extension BTree {
         precondition(position >= 0 && position < count)
         var position = position
         var path = [Weak(root)]
+        var slots: [Int] = []
         var node = root
         while !node.isLeaf {
             let slot = node.slotOfPosition(position)
+            slots.append(slot.index)
             if slot.match {
-                return Index(path: path, slot: slot.index)
+                return Index(path: path, slots: slots)
             }
             let child = node.children[slot.index]
             path.append(Weak(child))
@@ -275,7 +278,8 @@ public extension BTree {
             node = child
         }
         assert(position < node.elements.count)
-        return Index(path: path, slot: position)
+        slots.append(position)
+        return Index(path: path, slots: slots)
     }
 }
 
