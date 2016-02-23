@@ -1,7 +1,14 @@
 # In-Memory B-Trees and Ordered Collections in Swift
 
+[![Swift 2.1](https://img.shields.io/badge/Swift-2.1-blue.svg)](https://developer.apple.com/swift/)
+[![Documented](https://img.shields.io/cocoapods/metrics/doc-percent/BTree.svg)](http://lorentey.github.io/BTree/api)
+[![License](https://img.shields.io/badge/licence-MIT-blue.svg)](http://cocoapods.org/pods/BTree)
+[![Platform](https://img.shields.io/cocoapods/p/BTree.svg)](http://cocoapods.org/pods/BTree)
+
 [![Build Status](https://travis-ci.org/lorentey/BTree.svg?branch=master)](https://travis-ci.org/lorentey/BTree)
-[![codecov.io](https://codecov.io/github/lorentey/BTree/coverage.svg?branch=master)](https://codecov.io/github/lorentey/BTree?branch=master)
+[![Code Coverage](https://codecov.io/github/lorentey/BTree/coverage.svg?branch=master)](https://codecov.io/github/lorentey/BTree?branch=master)
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage)
+[![Version](https://img.shields.io/cocoapods/v/BTree.svg)](http://cocoapods.org/pods/BTree)
 
 This project provides an efficient in-memory b-tree implementation in pure Swift, and several useful
 collection types that use b-trees for their underlying storage.

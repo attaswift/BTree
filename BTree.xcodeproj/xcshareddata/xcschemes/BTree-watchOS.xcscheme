@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0730"
-   version = "1.8">
+   LastUpgradeVersion = "0720"
+   version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES">
@@ -11,13 +11,12 @@
             buildForRunning = "YES"
             buildForProfiling = "YES"
             buildForArchiving = "YES"
-            buildForAnalyzing = "YES"
-            hideIssues = "NO">
+            buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BB9AE43A1C1FCC35002C5D63"
-               BuildableName = "BTree.framework"
-               BlueprintName = "Mac"
+               BlueprintIdentifier = "BB8FE9981C7C8CDC0051268F"
+               BuildableName = "watchOS.framework"
+               BlueprintName = "watchOS"
                ReferencedContainer = "container:BTree.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -27,29 +26,9 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      codeCoverageEnabled = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BB9AE44B1C1FCE0B002C5D63"
-               BuildableName = "BTreeTests.xctest"
-               BlueprintName = "Tests-Mac"
-               ReferencedContainer = "container:BTree.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BB9AE43A1C1FCC35002C5D63"
-            BuildableName = "BTree.framework"
-            BlueprintName = "Mac"
-            ReferencedContainer = "container:BTree.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -66,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BB9AE43A1C1FCC35002C5D63"
-            BuildableName = "BTree.framework"
-            BlueprintName = "Mac"
+            BlueprintIdentifier = "BB8FE9981C7C8CDC0051268F"
+            BuildableName = "watchOS.framework"
+            BlueprintName = "watchOS"
             ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -84,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BB9AE43A1C1FCC35002C5D63"
-            BuildableName = "BTree.framework"
-            BlueprintName = "Mac"
+            BlueprintIdentifier = "BB8FE9981C7C8CDC0051268F"
+            BuildableName = "watchOS.framework"
+            BlueprintName = "watchOS"
             ReferencedContainer = "container:BTree.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
