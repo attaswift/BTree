@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>OrderedSet Struct Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+
+    <a name="//apple_ref/swift/Struct/OrderedSet" class="dashAnchor"></a>
+
+    <a title="OrderedSet Struct Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="../index.html">
+          BTree Docs
+        </a>
+         (97% documented)
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/lorentey/BTree">
+            <img class="header-icon" src="../img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="dash-feed://https%3A%2F%2Florentey%2Egithub%2Eio%2FBTree%2Freference%2Fdocsets%2FBTree%2Exml">
+            <img class="header-icon" src="../img/dash.png"/>
+            Install in Dash
+          </a>
+        </p>
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="../index.html">BTree Reference</a>
+      <img class="carat" src="../img/carat.png" />
+      OrderedSet Struct Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/BTreeCursor.html">BTreeCursor</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/BTreeKeySelector.html">BTreeKeySelector</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions.html#/s:ZF5BTreeoi2neu0_Rq_Ss10Comparableq0_Ss9Equatable_FTGVS_3Mapq_q0__GS2_q_q0___Sb">!=(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions/!=(_:_:).html">!=(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions.html#/s:ZF5BTreeoi2neuRq_Ss9Equatable_FTGVS_4Listq__GS1_q___Sb">!=(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions/+(_:_:).html">+(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions.html#/s:ZF5BTreeoi1purFTGVS_4Listq__GS0_q___GS0_q__">+(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions/&lt;(_:_:).html">&lt;(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions/==(_:_:).html">==(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions/==(_:_:).html">==(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions/==(_:_:).html">==(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions/==(_:_:).html">==(_:_:)</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Functions/==(_:_:).html">==(_:_:)</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTree.html">BTree</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeGenerator.html">BTreeGenerator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeIndex.html">BTreeIndex</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeKeyGenerator.html">BTreeKeyGenerator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeValueGenerator.html">BTreeValueGenerator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/List.html">List</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/Map.html">Map</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/OrderedSet.html">OrderedSet</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content">
+            <h1>OrderedSet</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">:</span> <span class="kt">Comparable</span><span class="o">&gt;</span></code></pre>
+
+                </div>
+              </div>
+            <p>A sorted collection of unique comparable elements.
+<code>OrderedSet</code> is like <code>Set</code> in the standard library, but it always keeps its elements in ascending order.
+Lookup, insertion and removal of any element has logarithmic complexity.</p>
+
+<p><code>OrderedSet</code> is a struct with copy-on-write value semantics, like Swift&rsquo;s standard collection types.
+It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other ordered sets.
+Mutating a set whose storage is (partially or completely) shared requires copying of only O(log(<code>count</code>)) elements.
+(Thus, mutation of shared ordered sets may be cheaper than ordinary sets, which need to copy all elements.)</p>
+
+<p>Set operations on ordered sets (such as taking the union, intersection or difference) can take as little as
+O(log(n)) time if the elements in the source sets aren&rsquo;t interleaved.</p>
+
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Initializers"></a>
+                <a name="//apple_ref/swift/Section/Initializers" class="dashAnchor"></a>
+                <a href="#/Initializers">
+                  <h3 class="section-name">Initializers</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSetcuRq_Ss10Comparable_FMGS0_q__FT_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSetcuRq_Ss10Comparable_FMGS0_q__FT_GS0_q__">init()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create an empty set.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L35-L37">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSetcu__Rq_Ss10Comparableqd__Ss12SequenceTypezq_qqqd__S2_9GeneratorSs13GeneratorType7Element_FMGS0_q__Fqd__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSetcu__Rq_Ss10Comparableqd__Ss12SequenceTypezq_qqqd__S2_9GeneratorSs13GeneratorType7Element_FMGS0_q__Fqd__GS0_q__">init(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create a set from a finite sequence of items. The sequence need not be sorted.
+If the sequence contains duplicate items, only the last instance will be kept in the set.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<em>n</em> * log(<em>n</em>)), where <em>n</em> is the number of items in the sequence.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">init</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">:</span> <span class="kt">SequenceType</span> <span class="k">where</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Generator</span><span class="o">.</span><span class="kt">Element</span> <span class="o">==</span> <span class="kt">Element</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">elements</span><span class="p">:</span> <span class="kt">S</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L43-L45">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSetcu__Rq_Ss10Comparableqd__Ss12SequenceTypezq_qqqd__S2_9GeneratorSs13GeneratorType7Element_FMGS0_q__FT14sortedElementsqd___GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/init(sortedElements:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSetcu__Rq_Ss10Comparableqd__Ss12SequenceTypezq_qqqd__S2_9GeneratorSs13GeneratorType7Element_FMGS0_q__FT14sortedElementsqd___GS0_q__">init(sortedElements:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create a set from a sorted finite sequence of items.
+If the sequence contains duplicate items, only the last instance will be kept in the set.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<em>n</em>), where <em>n</em> is the number of items in the sequence.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">init</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">:</span> <span class="kt">SequenceType</span> <span class="k">where</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Generator</span><span class="o">.</span><span class="kt">Element</span> <span class="o">==</span> <span class="kt">Element</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sortedElements</span> <span class="nv">elements</span><span class="p">:</span> <span class="kt">S</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L51-L53">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSetcuRq_Ss10Comparable_FMGS0_q__Ft12arrayLiteralGSaq___GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/init(arrayLiteral:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSetcuRq_Ss10Comparable_FMGS0_q__Ft12arrayLiteralGSaq___GS0_q__">init(arrayLiteral:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create a set with the specified list of items.
+If the array literal contains duplicate items, only the last instance will be kept.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">arrayLiteral</span> <span class="nv">elements</span><span class="p">:</span> <span class="kt">Element</span><span class="o">...</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L57-L59">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/CollectionType"></a>
+                <a name="//apple_ref/swift/Section/CollectionType" class="dashAnchor"></a>
+                <a href="#/CollectionType">
+                  <h3 class="section-name">CollectionType</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree10OrderedSet10startIndexGVS_10BTreeIndexq_T__"></a>
+                    <a name="//apple_ref/swift/Property/startIndex" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree10OrderedSet10startIndexGVS_10BTreeIndexq_T__">startIndex</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The index of the first element when non-empty. Otherwise the same as <code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet8endIndexGVS_10BTreeIndexq_T__">endIndex</a></code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">startIndex</span><span class="p">:</span> <span class="kt">Index</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L72-L74">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree10OrderedSet8endIndexGVS_10BTreeIndexq_T__"></a>
+                    <a name="//apple_ref/swift/Property/endIndex" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree10OrderedSet8endIndexGVS_10BTreeIndexq_T__">endIndex</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The <q>past-the-end</q> element index; the successor of the last valid subscript argument.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">endIndex</span><span class="p">:</span> <span class="kt">Index</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L79-L81">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree10OrderedSet5countSi"></a>
+                    <a name="//apple_ref/swift/Property/count" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree10OrderedSet5countSi">count</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The number of elements in this set.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L84-L86">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree10OrderedSet7isEmptySb"></a>
+                    <a name="//apple_ref/swift/Property/isEmpty" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree10OrderedSet7isEmptySb">isEmpty</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>True iff this collection has no elements.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isEmpty</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L89-L91">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet8generateuRq_Ss10Comparable_FGS0_q__FT_GVS_17BTreeKeyGeneratorq__"></a>
+                    <a name="//apple_ref/swift/Method/generate()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet8generateuRq_Ss10Comparable_FGS0_q__FT_GVS_17BTreeKeyGeneratorq__">generate()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a generator over all elements in this map, in ascending key order.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">generate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Generator</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L111-L113">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Algorithms"></a>
+                <a name="//apple_ref/swift/Section/Algorithms" class="dashAnchor"></a>
+                <a href="#/Algorithms">
+                  <h3 class="section-name">Algorithms</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet7forEachuRq_Ss10Comparable_FGS0_q__FzFzq_T_T_"></a>
+                    <a name="//apple_ref/swift/Method/forEach(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet7forEachuRq_Ss10Comparable_FGS0_q__FzFzq_T_T_">forEach(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Call <code>body</code> on each element in <code>self</code> in ascending order.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">forEach</span><span class="p">(</span><span class="kd">@noescape</span> <span class="nv">body</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">rethrows</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L138-L140">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet3mapu__Rq_Ss10Comparable_FGS0_q__FzFzq_qd__GSaqd___"></a>
+                    <a name="//apple_ref/swift/Method/map(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet3mapu__Rq_Ss10Comparable_FGS0_q__FzFzq_qd__GSaqd___">map(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an <code>Array</code> containing the results of mapping transform over <code>self</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">map</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="kd">@noescape</span> <span class="nv">transform</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">T</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L144-L146">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet7flatMapu__Rq_Ss10Comparableqd__Ss12SequenceType_FGS0_q__FzFzq_qd__GSaqqqd__S2_9GeneratorSs13GeneratorType7Element_"></a>
+                    <a name="//apple_ref/swift/Method/flatMap(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet7flatMapu__Rq_Ss10Comparableqd__Ss12SequenceType_FGS0_q__FzFzq_qd__GSaqqqd__S2_9GeneratorSs13GeneratorType7Element_">flatMap(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an <code>Array</code> containing the concatenated results of mapping <code>transform</code> over <code>self</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">flatMap</span><span class="o">&lt;</span><span class="kt">S</span> <span class="p">:</span> <span class="kt">SequenceType</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">transform</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">S</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">S</span><span class="o">.</span><span class="kt">Generator</span><span class="o">.</span><span class="kt">Element</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L150-L152">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet7flatMapu__Rq_Ss10Comparable_FGS0_q__FzFzq_GSqqd___GSaqd___"></a>
+                    <a name="//apple_ref/swift/Method/flatMap(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet7flatMapu__Rq_Ss10Comparable_FGS0_q__FzFzq_GSqqd___GSaqd___">flatMap(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an <code>Array</code> containing the non-<code>nil</code> results of mapping <code>transform</code> over <code>self</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">flatMap</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="kd">@noescape</span> <span class="nv">transform</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">?)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">T</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L156-L158">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet6filteruRq_Ss10Comparable_FGS0_q__FzFzq_SbGSaq__"></a>
+                    <a name="//apple_ref/swift/Method/filter(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet6filteruRq_Ss10Comparable_FGS0_q__FzFzq_SbGSaq__">filter(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an <code>Array</code> containing the elements of <code>self</code>, in ascending order, that satisfy the predicate <code>includeElement</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">filter</span><span class="p">(</span><span class="kd">@noescape</span> <span class="nv">includeElement</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Bool</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Element</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L162-L170">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet6reduceu__Rq_Ss10Comparable_FGS0_q__FzTqd__7combineFzTqd__q__qd___qd__"></a>
+                    <a name="//apple_ref/swift/Method/reduce(_:combine:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet6reduceu__Rq_Ss10Comparable_FGS0_q__FzTqd__7combineFzTqd__q__qd___qd__">reduce(_:combine:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return the result of repeatedly calling <code>combine</code> with an accumulated value initialized to <code>initial</code>
+and each element of <code>self</code>, in turn.
+I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">reduce</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">initial</span><span class="p">:</span> <span class="kt">T</span><span class="p">,</span> <span class="kd">@noescape</span> <span class="nv">combine</span><span class="p">:</span> <span class="p">(</span><span class="kt">T</span><span class="p">,</span> <span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="kt">T</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L176-L178">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Extractions"></a>
+                <a name="//apple_ref/swift/Section/Extractions" class="dashAnchor"></a>
+                <a href="#/Extractions">
+                  <h3 class="section-name">Extractions</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree10OrderedSet5firstGSqq__"></a>
+                    <a name="//apple_ref/swift/Property/first" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree10OrderedSet5firstGSqq__">first</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return the smallest element in the set, or <code>nil</code> if the set is empty.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">first</span><span class="p">:</span> <span class="kt">Element</span><span class="p">?</span> <span class="p">{</span> <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">first</span><span class="p">?</span><span class="o">.</span><span class="mi">0</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L187">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree10OrderedSet4lastGSqq__"></a>
+                    <a name="//apple_ref/swift/Property/last" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree10OrderedSet4lastGSqq__">last</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return the largest element in the set, or <code>nil</code> if the set is empty.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">last</span><span class="p">:</span> <span class="kt">Element</span><span class="p">?</span> <span class="p">{</span> <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">last</span><span class="p">?</span><span class="o">.</span><span class="mi">0</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L192">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet10minElementuRq_Ss10Comparable_FGS0_q__FT_GSqq__"></a>
+                    <a name="//apple_ref/swift/Method/minElement()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet10minElementuRq_Ss10Comparable_FGS0_q__FT_GSqq__">minElement()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return the smallest element in the set, or <code>nil</code> if the set is empty.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">minElement</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span> <span class="p">{</span> <span class="k">return</span> <span class="n">first</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L198">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet10maxElementuRq_Ss10Comparable_FGS0_q__FT_GSqq__"></a>
+                    <a name="//apple_ref/swift/Method/maxElement()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet10maxElementuRq_Ss10Comparable_FGS0_q__FT_GSqq__">maxElement()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return the largest element in the set, or <code>nil</code> if the set is empty.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">maxElement</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span> <span class="p">{</span> <span class="k">return</span> <span class="n">last</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L204">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet9dropFirstuRq_Ss10Comparable_FGS0_q__FT_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/dropFirst()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet9dropFirstuRq_Ss10Comparable_FGS0_q__FT_GS0_q__">dropFirst()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">dropFirst</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L210-L212">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet9dropFirstuRq_Ss10Comparable_FGS0_q__FSiGS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/dropFirst(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet9dropFirstuRq_Ss10Comparable_FGS0_q__FSiGS0_q__">dropFirst(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">dropFirst</span><span class="p">(</span><span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L218-L220">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet8dropLastuRq_Ss10Comparable_FGS0_q__FT_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/dropLast()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet8dropLastuRq_Ss10Comparable_FGS0_q__FT_GS0_q__">dropLast()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">dropLast</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L226-L228">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet8dropLastuRq_Ss10Comparable_FGS0_q__FSiGS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/dropLast(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet8dropLastuRq_Ss10Comparable_FGS0_q__FSiGS0_q__">dropLast(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">dropLast</span><span class="p">(</span><span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L234-L236">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet6prefixuRq_Ss10Comparable_FGS0_q__FSiGS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/prefix(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet6prefixuRq_Ss10Comparable_FGS0_q__FSiGS0_q__">prefix(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a subset, up to <code>maxLength</code> in size, containing the smallest elements in this set.</p>
+
+<p>If <code>maxLength</code> exceeds <code>self.count</code>, the result contains all the elements of <code>self</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">prefix</span><span class="p">(</span><span class="nv">maxLength</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L244-L246">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet13prefixThroughuRq_Ss10Comparable_FGS0_q__FGVS_10BTreeIndexq_T__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/prefixThrough(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet13prefixThroughuRq_Ss10Comparable_FGS0_q__FGVS_10BTreeIndexq_T__GS0_q__">prefixThrough(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a subset containing all members of this set at or before the specified index.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">prefixThrough</span><span class="p">(</span><span class="nv">index</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L252-L254">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet13prefixThroughuRq_Ss10Comparable_FGS0_q__Fq_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/prefixThrough(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet13prefixThroughuRq_Ss10Comparable_FGS0_q__Fq_GS0_q__">prefixThrough(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a subset containing all members of this set less than or equal to the specified element
+(which may or may not be a member of this set).</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">prefixThrough</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L261-L263">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet10prefixUpTouRq_Ss10Comparable_FGS0_q__FGVS_10BTreeIndexq_T__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/prefixUpTo(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet10prefixUpTouRq_Ss10Comparable_FGS0_q__FGVS_10BTreeIndexq_T__GS0_q__">prefixUpTo(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a subset containing all members of this set before the specified index.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">prefixUpTo</span><span class="p">(</span><span class="nv">end</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L269-L271">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet10prefixUpTouRq_Ss10Comparable_FGS0_q__Fq_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/prefixUpTo(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet10prefixUpTouRq_Ss10Comparable_FGS0_q__Fq_GS0_q__">prefixUpTo(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a subset containing all members of this set less than the specified element
+(which may or may not be a member of this set).</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">prefixUpTo</span><span class="p">(</span><span class="nv">end</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L278-L280">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet6suffixuRq_Ss10Comparable_FGS0_q__FSiGS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/suffix(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet6suffixuRq_Ss10Comparable_FGS0_q__FSiGS0_q__">suffix(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a subset, up to <code>maxLength</code> in size, containing the largest elements in this set.</p>
+
+<p>If <code>maxLength</code> exceeds <code>self.count</code>, the result contains all the elements of <code>self</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">suffix</span><span class="p">(</span><span class="nv">maxLength</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L288-L290">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet10suffixFromuRq_Ss10Comparable_FGS0_q__FGVS_10BTreeIndexq_T__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/suffixFrom(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet10suffixFromuRq_Ss10Comparable_FGS0_q__FGVS_10BTreeIndexq_T__GS0_q__">suffixFrom(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a subset containing all members of this set at or after the specified index.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">suffixFrom</span><span class="p">(</span><span class="nv">index</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L296-L298">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet10suffixFromuRq_Ss10Comparable_FGS0_q__Fq_GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/suffixFrom(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet10suffixFromuRq_Ss10Comparable_FGS0_q__Fq_GS0_q__">suffixFrom(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a subset containing all members of this set greater than or equal to the specified element
+(which may or may not be a member of this set).</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">suffixFrom</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L305-L307">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Conversion%20to%20string"></a>
+                <a name="//apple_ref/swift/Section/Conversion to string" class="dashAnchor"></a>
+                <a href="#/Conversion%20to%20string">
+                  <h3 class="section-name">Conversion to string</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree10OrderedSet11descriptionSS"></a>
+                    <a name="//apple_ref/swift/Property/description" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree10OrderedSet11descriptionSS">description</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A textual representation of this set.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">description</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L314-L317">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree10OrderedSet16debugDescriptionSS"></a>
+                    <a name="//apple_ref/swift/Property/debugDescription" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree10OrderedSet16debugDescriptionSS">debugDescription</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A textual representation of this set, suitable for debugging.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">debugDescription</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L320-L322">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Queries"></a>
+                <a name="//apple_ref/swift/Section/Queries" class="dashAnchor"></a>
+                <a href="#/Queries">
+                  <h3 class="section-name">Queries</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet8containsuRq_Ss10Comparable_FGS0_q__Fq_Sb"></a>
+                    <a name="//apple_ref/swift/Method/contains(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet8containsuRq_Ss10Comparable_FGS0_q__Fq_Sb">contains(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return true if the set contains <code>element</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">contains</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L332-L334">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet7indexOfuRq_Ss10Comparable_FGS0_q__Fq_GSqGVS_10BTreeIndexq_T___"></a>
+                    <a name="//apple_ref/swift/Method/indexOf(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet7indexOfuRq_Ss10Comparable_FGS0_q__Fq_GSqGVS_10BTreeIndexq_T___">indexOf(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the index of a given member, or <code>nil</code> if the member is not present in the set.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">indexOf</span><span class="p">(</span><span class="nv">member</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">BTreeIndex</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">,</span> <span class="kt">Void</span><span class="o">&gt;</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L340-L342">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Set%20comparions"></a>
+                <a name="//apple_ref/swift/Section/Set comparions" class="dashAnchor"></a>
+                <a href="#/Set%20comparions">
+                  <h3 class="section-name">Set comparions</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet13elementsEqualuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb"></a>
+                    <a name="//apple_ref/swift/Method/elementsEqual(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet13elementsEqualuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb">elementsEqual(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return <code>true</code> iff <code>self</code> and <code>other</code> contain the same elements.</p>
+
+<p>This method skips over shared subtrees when possible; this can drastically improve performance when the
+two lists are divergent mutations originating from the same value.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">elementsEqual</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L355-L357">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet14isDisjointWithuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb"></a>
+                    <a name="//apple_ref/swift/Method/isDisjointWith(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet14isDisjointWithuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb">isDisjointWith(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns <code>true</code> iff no members in this set are also included in <code>other</code>.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">isDisjointWith</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L369-L371">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet10isSubsetOfuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb"></a>
+                    <a name="//apple_ref/swift/Method/isSubsetOf(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet10isSubsetOfuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb">isSubsetOf(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns <code>true</code> iff all members in this set are also included in <code>other</code>.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">isSubsetOf</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L383-L385">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet16isStrictSubsetOfuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb"></a>
+                    <a name="//apple_ref/swift/Method/isStrictSubsetOf(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet16isStrictSubsetOfuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb">isStrictSubsetOf(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns <code>true</code> iff all members in this set are also included in <code>other</code>, but the two sets aren&rsquo;t equal.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">isStrictSubsetOf</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L397-L399">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet12isSupersetOfuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb"></a>
+                    <a name="//apple_ref/swift/Method/isSupersetOf(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet12isSupersetOfuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb">isSupersetOf(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns <code>true</code> iff all members in <code>other</code> are also included in this set.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">isSupersetOf</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L411-L413">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet18isStrictSupersetOfuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb"></a>
+                    <a name="//apple_ref/swift/Method/isStrictSupersetOf(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet18isStrictSupersetOfuRq_Ss10Comparable_FGS0_q__FGS0_q__Sb">isStrictSupersetOf(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns <code>true</code> iff all members in <code>other</code> are also included in this set, but the two sets aren&rsquo;t equal.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">isStrictSupersetOf</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L425-L427">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Insertion"></a>
+                <a name="//apple_ref/swift/Section/Insertion" class="dashAnchor"></a>
+                <a href="#/Insertion">
+                  <h3 class="section-name">Insertion</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet6insertuRq_Ss10Comparable_FRGS0_q__Fq_T_"></a>
+                    <a name="//apple_ref/swift/Method/insert(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet6insertuRq_Ss10Comparable_FRGS0_q__Fq_T_">insert(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Insert a member into the set.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">insert</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L447-L449">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Removal"></a>
+                <a name="//apple_ref/swift/Section/Removal" class="dashAnchor"></a>
+                <a href="#/Removal">
+                  <h3 class="section-name">Removal</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet6removeuRq_Ss10Comparable_FRGS0_q__Fq_GSqq__"></a>
+                    <a name="//apple_ref/swift/Method/remove(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet6removeuRq_Ss10Comparable_FRGS0_q__Fq_GSqq__">remove(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove the member from the set and return it if it was present.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L458-L460">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet13removeAtIndexuRq_Ss10Comparable_FRGS0_q__FGVS_10BTreeIndexq_T__q_"></a>
+                    <a name="//apple_ref/swift/Method/removeAtIndex(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet13removeAtIndexuRq_Ss10Comparable_FRGS0_q__FGVS_10BTreeIndexq_T__q_">removeAtIndex(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove the member referenced by the given index.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">removeAtIndex</span><span class="p">(</span><span class="nv">index</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L465-L467">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet8popFirstuRq_Ss10Comparable_FRGS0_q__FT_GSqq__"></a>
+                    <a name="//apple_ref/swift/Method/popFirst()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet8popFirstuRq_Ss10Comparable_FRGS0_q__FT_GSqq__">popFirst()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove and return the smallest member in this set, or return <code>nil</code> if the set is empty.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">popFirst</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L486-L488">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet7popLastuRq_Ss10Comparable_FRGS0_q__FT_GSqq__"></a>
+                    <a name="//apple_ref/swift/Method/popLast()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet7popLastuRq_Ss10Comparable_FRGS0_q__FT_GSqq__">popLast()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove and return the largest member in this set, or return <code>nil</code> if the set is empty.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">popLast</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L507-L509">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet9removeAlluRq_Ss10Comparable_FRGS0_q__FT_T_"></a>
+                    <a name="//apple_ref/swift/Method/removeAll()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet9removeAlluRq_Ss10Comparable_FRGS0_q__FT_T_">removeAll()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove all members from this set.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">removeAll</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L512-L514">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Sorting"></a>
+                <a name="//apple_ref/swift/Section/Sorting" class="dashAnchor"></a>
+                <a href="#/Sorting">
+                  <h3 class="section-name">Sorting</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet4sortuRq_Ss10Comparable_FGS0_q__FT_GSaq__"></a>
+                    <a name="//apple_ref/swift/Method/sort()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet4sortuRq_Ss10Comparable_FGS0_q__FT_GSaq__">sort()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an <code>Array</code> containing the members of this set, in ascending order.</p>
+
+<p><code><a href="../Structs/Map.html">Map</a></code> already keeps its elements sorted, so this is equivalent to <code>Array(self)</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/OrderedSet.html#/s:vV5BTree10OrderedSet5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">sort</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Element</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L525-L528">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Set%20operations"></a>
+                <a name="//apple_ref/swift/Section/Set operations" class="dashAnchor"></a>
+                <a href="#/Set%20operations">
+                  <h3 class="section-name">Set operations</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet5unionuRq_Ss10Comparable_FGS0_q__FGS0_q__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/union(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet5unionuRq_Ss10Comparable_FGS0_q__FGS0_q__GS0_q__">union(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a set containing all members in both this set and <code>other</code>.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">union</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L544-L546">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet12unionInPlaceuRq_Ss10Comparable_FRGS0_q__FGS0_q__T_"></a>
+                    <a name="//apple_ref/swift/Method/unionInPlace(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet12unionInPlaceuRq_Ss10Comparable_FRGS0_q__FGS0_q__T_">unionInPlace(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Add all members in <code>other</code> to this set.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">unionInPlace</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L557-L559">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet9intersectuRq_Ss10Comparable_FGS0_q__FGS0_q__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/intersect(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet9intersectuRq_Ss10Comparable_FGS0_q__FGS0_q__GS0_q__">intersect(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a set consisting of all members in <code>other</code> that are also in this set.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">intersect</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L571-L573">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet16intersectInPlaceuRq_Ss10Comparable_FRGS0_q__FGS0_q__T_"></a>
+                    <a name="//apple_ref/swift/Method/intersectInPlace(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet16intersectInPlaceuRq_Ss10Comparable_FRGS0_q__FGS0_q__T_">intersectInPlace(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove all members from this set that are not included in <code>other</code>.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">intersectInPlace</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L584-L586">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet8subtractuRq_Ss10Comparable_FGS0_q__FGS0_q__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/subtract(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet8subtractuRq_Ss10Comparable_FGS0_q__FGS0_q__GS0_q__">subtract(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a set containing those members of this set that aren&rsquo;t also included in <code>other</code>.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">subtract</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L598-L600">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet15subtractInPlaceuRq_Ss10Comparable_FRGS0_q__FGS0_q__T_"></a>
+                    <a name="//apple_ref/swift/Method/subtractInPlace(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet15subtractInPlaceuRq_Ss10Comparable_FRGS0_q__FGS0_q__T_">subtractInPlace(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove all members from this set that are also included in <code>other</code>.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">subtractInPlace</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L611-L613">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet11exclusiveOruRq_Ss10Comparable_FGS0_q__FGS0_q__GS0_q__"></a>
+                    <a name="//apple_ref/swift/Method/exclusiveOr(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet11exclusiveOruRq_Ss10Comparable_FGS0_q__FGS0_q__GS0_q__">exclusiveOr(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a set consisting of members from <code>self</code> and <code>other</code> that aren&rsquo;t in both sets at once.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">exclusiveOr</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L625-L627">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree10OrderedSet18exclusiveOrInPlaceuRq_Ss10Comparable_FRGS0_q__FGS0_q__T_"></a>
+                    <a name="//apple_ref/swift/Method/exclusiveOrInPlace(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree10OrderedSet18exclusiveOrInPlaceuRq_Ss10Comparable_FRGS0_q__FGS0_q__T_">exclusiveOrInPlace(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Replace <code>self</code> with a set consisting of members from <code>self</code> and <code>other</code> that aren&rsquo;t in both sets at once.</p>
+
+<p>The elements of the two input sets may be freely interleaved.
+However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+linked into the result instead of copying, which can drastically improve performance.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <ul>
+<li>O(min(<code>self.count</code>, <code>other.count</code>)) in general.</li>
+<li>O(log(<code>self.count</code> + <code>other.count</code>)) if there are only a constant amount of interleaving element runs.</li>
+</ul>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">exclusiveOrInPlace</span><span class="p">(</span><span class="nv">other</span><span class="p">:</span> <span class="kt">OrderedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v2.0.0/Sources/OrderedSet.swift#L638-L640">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-03-06)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.5.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>

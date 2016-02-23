@@ -1,0 +1,13 @@
+BTreeComparisons.swift
+	public func == <Key: Comparable, Value: Equatable>(a: BTree<Key, Value>, b: BTree<Key, Value>) -> Bool
+	public func != <Key: Comparable, Value: Equatable>(a: BTree<Key, Value>, b: BTree<Key, Value>) -> Bool
+BTreeIndex.swift
+	public func == <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex<Key, Value>) -> Bool
+	public func < <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex<Key, Value>) -> Bool
+OrderedSet.swift
+	public func == <Element: Comparable>(a: OrderedSet<Element>, b: OrderedSet<Element>) -> Bool
+Map.swift
+	public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool
+	public func +<Key: Comparable, Value>(a: Map<Key, Value>, b: Map<Key, Value>) -> Map<Key, Value>
+List.swift
+	public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool
