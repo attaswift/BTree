@@ -406,7 +406,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// - Complexity: O(log(`count` - `position`))
     public func moveToEnd() {
         popFromSlots()
-        while self.count > self.position + path.last!.count {
+        while self.count > self.position {
             popFromPath()
             popFromSlots()
         }

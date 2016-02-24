@@ -180,6 +180,18 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
+    func testMoveToEnd() {
+        var tree = maximalTree(depth: 2, order: 5)
+        let c = tree.count
+        for i in 0 ... c {
+            tree.withCursorAtPosition(i) { cursor in
+                cursor.moveToEnd()
+                XCTAssertTrue(cursor.isAtEnd)
+                XCTAssertEqual(cursor.position, c)
+            }
+        }
+    }
+    
     func testMoveToPosition() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtStart { cursor in
