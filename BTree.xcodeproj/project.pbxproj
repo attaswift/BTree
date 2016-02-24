@@ -126,6 +126,7 @@
 		BB9AE43B1C1FCC35002C5D63 /* BTree.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BTree.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB9AE44C1C1FCE0B002C5D63 /* BTreeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BTreeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB9AE47D1C207303002C5D63 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		BBA55CD51C7E525700455736 /* generate-docs.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "generate-docs.sh"; sourceTree = "<group>"; };
 		BBB224D71C7B9BAA0049FEF6 /* BTreeCursorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeCursorTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BBB224D81C7B9BAA0049FEF6 /* BTreeNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeNodeTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BBB224D91C7B9BAA0049FEF6 /* BTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -216,6 +217,7 @@
 				BB9AE47D1C207303002C5D63 /* Package.swift */,
 				BB0ACC711C7C7E66000C0B98 /* BTree.podspec */,
 				BB8FE9931C7C8BB70051268F /* version.xcconfig */,
+				BBA55CD51C7E525700455736 /* generate-docs.sh */,
 				BB54D0B11C1F0357008A462B /* Sources */,
 				BB54D0BD1C1F0357008A462B /* Tests */,
 				BB54D0B01C1F0357008A462B /* Products */,
@@ -1346,6 +1348,7 @@
 				BB8FE9A21C7C8CDC0051268F /* Unchecked */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BB8FE9C11C7C8E0F0051268F /* Build configuration list for PBXNativeTarget "tvOS" */ = {
 			isa = XCConfigurationList;
@@ -1356,6 +1359,7 @@
 				BB8FE9C51C7C8E0F0051268F /* Unchecked */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BB8FE9C61C7C8E0F0051268F /* Build configuration list for PBXNativeTarget "Tests-tvOS" */ = {
 			isa = XCConfigurationList;
@@ -1366,6 +1370,7 @@
 				BB8FE9CA1C7C8E0F0051268F /* Unchecked */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BB9AE4401C1FCC35002C5D63 /* Build configuration list for PBXNativeTarget "Mac" */ = {
 			isa = XCConfigurationList;
