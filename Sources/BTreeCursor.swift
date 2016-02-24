@@ -47,7 +47,8 @@ extension BTree {
         try withCursorAtPosition(count, body: body)
     }
 
-    /// Call `body` with a cursor at `position` in this tree.
+    /// Call `body` with a cursor positioned at `key` in this tree.
+    /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
     ///   execution of body: it will not appear to have the correct value.
@@ -534,7 +535,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         fixupAfterInsert()
     }
 
-    /// Insert a new element before the cursor's current position, and leave the cursor positioned on the original element.
+    /// Insert a new element at the cursor's current position, and leave the cursor positioned on the original element.
     ///
     /// - Complexity: amortized O(1)
     public func insertBefore(element: Element) {
