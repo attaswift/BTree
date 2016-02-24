@@ -15,12 +15,12 @@
 //
 // Obviously, the optimal node size depends on the hardware we're running on.
 // Benchmarks performed on various systems (Apple A5X, A8X, A9; Intel Core i5 Sandy Bridge, Core i7 Ivy Bridge) 
-// indicate that 8KiB is a good overall choice.
+// indicate that 16KiB is a good overall choice.
 // (This may be related to the size of the L1 cache, which is frequently 16kiB or 32kiB.)
 //
 // It is not a good idea to use powers of two as the b-tree order, as that would lead to Array reallocations just before
 // a node is split. A node size that's just below 2^n seems like a good choice.
-internal let bTreeNodeSize = 8191
+internal let bTreeNodeSize = 16383
 
 //MARK: BTreeNode definition
 
@@ -64,7 +64,7 @@ internal final class BTreeNode<Key: Comparable, Payload>: NonObjectiveCBase {
 
 extension BTreeNode {
     static var defaultOrder: Int {
-        return max(bTreeNodeSize / strideof(Key), 32)
+        return max(bTreeNodeSize / strideof(Element), 8)
     }
 
     convenience init(order: Int = Node.defaultOrder) {
