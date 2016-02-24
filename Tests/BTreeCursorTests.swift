@@ -13,7 +13,7 @@ import XCTest
 class BTreeCursorTests: XCTestCase {
     typealias Tree = BTree<Int, String>
 
-    func testCursorInitWithEmptyTree() {
+    func testCursorWithEmptyTree() {
         func checkEmpty(cursor: BTreeCursor<Int, String>) {
             XCTAssertTrue(cursor.isValid)
             XCTAssertTrue(cursor.isAtStart)
@@ -32,7 +32,7 @@ class BTreeCursorTests: XCTestCase {
         tree.withCursorAt(42, choosing: .Any, body: checkEmpty)
     }
 
-    func testCursorInitAtStart() {
+    func testCursorAtStart() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtStart { cursor in
             XCTAssertTrue(cursor.isAtStart)
@@ -43,7 +43,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorInitAtEnd() {
+    func testCursorAtEnd() {
         var tree = maximalTree(depth: 2, order: 5)
         let count = tree.count
         tree.withCursorAtEnd { cursor in
@@ -149,7 +149,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorMoveForward() {
+    func testMoveForward() {
         var tree = maximalTree(depth: 2, order: 5)
         let count = tree.count
         tree.withCursorAtStart { cursor in
@@ -165,7 +165,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorMoveBackward() {
+    func testMoveBackward() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtEnd { cursor in
             var i = cursor.count
@@ -180,7 +180,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorMoveToPosition() {
+    func testMoveToPosition() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtStart { cursor in
             var i = 0
@@ -209,7 +209,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorMoveToKey() {
+    func testMoveToKey() {
         let count = 42
         var tree = BTree(elements: (0..<count).map { (2 * $0, String(2 * $0)) }, order: 3)
         tree.withCursorAtStart() { cursor in
@@ -245,7 +245,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorUpdatingData() {
+    func testUpdatingData() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtStart { cursor in
             while !cursor.isAtEnd {
@@ -264,7 +264,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorSetPayload() {
+    func testSetPayload() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtStart { cursor in
             var i = 0
@@ -280,7 +280,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorBuildingATreeUsingInsertBefore() {
+    func testBuildingATreeUsingInsertBefore() {
         var tree = Tree(order: 3)
         tree.withCursorAtEnd { cursor in
             XCTAssertTrue(cursor.isAtEnd)
@@ -293,7 +293,7 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0..<30).map { ($0, String($0)) })
     }
 
-    func testCursorBuildingATreeInTwoPassesUsingInsertBefore() {
+    func testBuildingATreeInTwoPassesUsingInsertBefore() {
         var tree = Tree(order: 5)
         let c = 30
         tree.withCursorAtStart() { cursor in
@@ -320,7 +320,7 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0 ..< 2 * c).map { ($0, String($0)) })
     }
 
-    func testCursorBuildingATreeUsingInsertAfter() {
+    func testBuildingATreeUsingInsertAfter() {
         var tree = Tree(order: 5)
         let c = 30
         tree.withCursorAtStart() { cursor in
@@ -336,7 +336,7 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0..<30).map { ($0, String($0)) })
     }
 
-    func testCursorBuildingATreeInTwoPassesUsingInsertAfter() {
+    func testBuildingATreeInTwoPassesUsingInsertAfter() {
         var tree = Tree(order: 5)
         let c = 30
         tree.withCursorAtStart() { cursor in
@@ -362,7 +362,7 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0 ..< 2 * c).map { ($0, String($0)) })
     }
 
-    func testCursorBuildingATreeBackward() {
+    func testBuildingATreeBackward() {
         var tree = Tree(order: 5)
         let c = 30
         tree.withCursorAtStart() { cursor in
@@ -410,7 +410,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testCursorRemoveRangeFromMaximalTree() {
+    func testRemoveRangeFromMaximalTree() {
         let tree = maximalTree(depth: 2, order: 3)
         let count = tree.count
         for i in 0 ..< count {
@@ -428,7 +428,7 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0..<count).map { ($0, String($0)) })
     }
 
-    func testCursorExtractRangeFromMaximalTree() {
+    func testExtractRangeFromMaximalTree() {
         let tree = maximalTree(depth: 2, order: 3)
         let count = tree.count
         for i in 0 ..< count {
@@ -448,7 +448,7 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0..<count).map { ($0, String($0)) })
     }
 
-    func testCursorInsertSequence() {
+    func testInsertSequence() {
         var tree = Tree(order: 3)
         tree.withCursorAtStart { cursor in
             cursor.insert((10 ..< 20).map { ($0, String($0)) })
