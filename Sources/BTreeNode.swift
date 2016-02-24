@@ -284,6 +284,28 @@ extension BTreeNode {
         }
         return count - children[slot + 1 ... c].reduce(c - slot) { $0 + $1.count }
     }
+
+    /// Returns true iff the subtree at this node is guaranteed to contain the specified element 
+    /// with `key` (if it exists).
+    /// Returns false if the key falls into the first or last child subtree, so containment depends
+    /// on the contents of the ancestors of this node.
+    internal func contains(key: Key, choosing selector: BTreeKeySelector) -> Bool {
+        let firstKey = elements.first!.0
+        let lastKey = elements.last!.0
+        if key < firstKey {
+            return false
+        }
+        if key == firstKey {
+            return selector != .First
+        }
+        if key > lastKey {
+            return false
+        }
+        if key == lastKey {
+            return selector != .Last
+        }
+        return true
+    }
 }
 
 //MARK: Editing

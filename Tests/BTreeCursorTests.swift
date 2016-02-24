@@ -209,6 +209,42 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
+    func testCursorMoveToKey() {
+        let count = 42
+        var tree = BTree(elements: (0..<count).map { (2 * $0, String(2 * $0)) }, order: 3)
+        tree.withCursorAtStart() { cursor in
+            var start = 0
+            var end = count - 1
+            while start < end {
+                cursor.moveToKey(2 * end)
+                XCTAssertEqual(cursor.position, end)
+                XCTAssertEqual(cursor.key, 2 * end)
+
+                cursor.moveToKey(2 * start + 1)
+                XCTAssertEqual(cursor.position, start + 1)
+                XCTAssertEqual(cursor.key, 2 * start + 2)
+
+                start += 1
+                end -= 1
+            }
+
+            start = 0
+            end = count - 1
+            while start < end {
+                cursor.moveToKey(2 * end - 1)
+                XCTAssertEqual(cursor.position, end)
+                XCTAssertEqual(cursor.key, 2 * end)
+
+                cursor.moveToKey(2 * start)
+                XCTAssertEqual(cursor.position, start)
+                XCTAssertEqual(cursor.key, 2 * start)
+
+                start += 1
+                end -= 1
+            }
+        }
+    }
+
     func testCursorUpdatingData() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtStart { cursor in

@@ -432,6 +432,20 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         self.descendToPosition(position)
     }
 
+    /// Move this cursor to an element with the specified key. 
+    /// If there are no such elements, the cursor is moved to a spot where .
+    /// If there are multiple such elements, `selector` specified which one to find.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func moveToKey(key: Key, choosing selector: BTreeKeySelector = .Any) {
+        popFromSlots()
+        while path.count > 1 && !path.last!.contains(key, choosing: selector) {
+            popFromPath()
+            popFromSlots()
+        }
+        self.descendToKey(key, choosing: selector)
+    }
+
     private func descendToSlots(slots: [Int]) {
         assert(self.path.count == self.slots.count + 1)
         for i in 0 ..< slots.count {
@@ -459,12 +473,13 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     }
 
     private func descendToKey(key: Key, choosing selector: BTreeKeySelector) {
-        if root.isEmpty {
+        assert(self.path.count == self.slots.count + 1)
+        if count == 0 {
             pushToSlots(0)
             return
         }
 
-        var node = root
+        var node = path.last!
         var match: (depth: Int, slot: Int)? = nil
         while true {
             let slot = node.slotOf(key, choosing: selector)
