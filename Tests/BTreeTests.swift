@@ -366,6 +366,26 @@ class BTreeTests: XCTestCase {
         )
     }
 
+    func testSubtreeFromIndexRange() {
+        let tree = maximalTree(depth: 2, order: 3)
+        let count = tree.count
+        var start = tree.startIndex
+        for i in 0 ... count {
+            var end = start
+            for j in i ... count {
+                let subtree = tree[start..<end]
+                subtree.assertValid()
+                XCTAssertElementsEqual(subtree, (i..<j).map { ($0, String($0)) })
+                if j < count {
+                    end.successorInPlace()
+                }
+            }
+            if i < count {
+                start.successorInPlace()
+            }
+        }
+    }
+
     ////
 
     func testInsertingASingleKey() {

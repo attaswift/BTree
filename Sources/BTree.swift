@@ -605,6 +605,25 @@ extension BTree {
     }
 }
 
+//MARK: Subtree extraction
+
+extension BTree {
+    @warn_unused_result
+    public func subtree(with range: Range<Index>) -> BTree<Key, Payload> {
+        precondition(range.startIndex.root.value === self.root)
+        precondition(range.endIndex.root.value === self.root)
+        let end = self.positionOfIndex(range.endIndex)
+        var result = self
+        result.withCursorAt(range.startIndex) { cursor in
+            let start = cursor.position
+            cursor.removeAllBefore(includingCurrent: false)
+            cursor.moveToPosition(end - start)
+            cursor.removeAllAfter(includingCurrent: true)
+        }
+        return result
+    }
+}
+
 //MARK: Bulk loading
 
 extension BTree {
