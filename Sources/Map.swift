@@ -248,6 +248,7 @@ extension Map {
     /// Returns the position of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func indexOfPosition(position: Int) -> Index {
         return tree.indexOfPosition(position)
     }
@@ -256,6 +257,7 @@ extension Map {
     ///
     /// - Requires: `position >= 0 && position < count`
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func positionOfIndex(index: Index) -> Int {
         return tree.positionOfIndex(index)
     }
@@ -263,6 +265,7 @@ extension Map {
     /// Return the element stored at `position` in this map.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func elementAtPosition(position: Int) -> Element {
         return tree.elementAtPosition(position)
     }
@@ -277,6 +280,7 @@ extension Map {
     /// Return a submap consisting of elements in the specified range of indexes.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func submap(with range: Range<Index>) -> Map {
         return Map(tree.subtree(with: range))
     }
@@ -284,6 +288,7 @@ extension Map {
     /// Return a submap consisting of elements in the specified range of positions.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func submap(with positions: Range<Int>) -> Map {
         return Map(tree.subtree(with: positions))
     }
@@ -291,6 +296,7 @@ extension Map {
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than `end`.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func submap(from start: Key, to end: Key) -> Map {
         return Map(tree.subtree(from: start, to: end))
     }
@@ -298,6 +304,7 @@ extension Map {
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than or equal to `end`.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func submap(from start: Key, through end: Key) -> Map {
         return Map(tree.subtree(from: start, through: end))
     }

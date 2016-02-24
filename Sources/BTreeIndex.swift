@@ -131,6 +131,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     ///
     /// - Requires: self is valid and not the end index.
     /// - Complexity: Amortized O(1).
+    @warn_unused_result
     public func successor() -> BTreeIndex<Key, Payload> {
         var result = self
         result.successorInPlace()
@@ -141,6 +142,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     ///
     /// - Requires: self is valid and not the start index.
     /// - Complexity: Amortized O(1).
+    @warn_unused_result
     public func predecessor() -> BTreeIndex<Key, Payload> {
         var result = self
         result.predecessorInPlace()
@@ -148,6 +150,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     }
 }
 
+@warn_unused_result
 public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
     // Invalid indexes should compare unequal to every index, including themselves.
     guard let ar = a.root.value, br = b.root.value where ar === br else { return false }

@@ -133,6 +133,7 @@ public extension BTree {
     ///
     /// - Requires: `position >= 0 && position < count`
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func elementAtPosition(position: Int) -> Element {
         precondition(position >= 0 && position < count)
         var position = position
@@ -153,6 +154,7 @@ public extension BTree {
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func payloadOf(key: Key, choosing selector: BTreeKeySelector = .Any) -> Payload? {
         switch selector {
         case .Any:
@@ -189,6 +191,7 @@ public extension BTree {
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func indexOf(key: Key, choosing selector: BTreeKeySelector = .Any) -> Index? {
         var node = root
         var path = [Weak(root)]
@@ -221,6 +224,7 @@ public extension BTree {
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func positionOf(key: Key, choosing selector: BTreeKeySelector = .Any) -> Int? {
         var node = root
         var position = 0
@@ -248,6 +252,7 @@ public extension BTree {
     /// Returns the position of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func positionOfIndex(index: Index) -> Int {
         index.expectValid(index.root.value === root)
         if index.path.count == 0 {
@@ -272,6 +277,7 @@ public extension BTree {
     ///
     /// - Requires: `position >= 0 && position <= count`
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func indexOfPosition(position: Int) -> Index {
         precondition(position >= 0 && position <= count)
         if position == count {

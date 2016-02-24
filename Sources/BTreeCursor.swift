@@ -304,6 +304,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         self._position += node.count - node.positionOfSlot(slot)
         return slot
     }
+
     private func popFromPath() -> Node {
         assert(path.count > 1 && path.count == slots.count + 1)
         let child = path.removeLast()
@@ -321,6 +322,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         path.append(child)
         return child
     }
+
     private func pushToSlots(slot: Int, positionOfSlot: Int? = nil) {
         assert(path.count == slots.count + 1)
         let node = path.last!
@@ -830,6 +832,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     ///
     /// - Returns: The extracted elements as a new b-tree.
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     public func extract(n: Int) -> Tree {
         precondition(isValid && n >= 0 && self.position + n <= count)
         if n == 0 {

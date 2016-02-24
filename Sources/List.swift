@@ -200,6 +200,7 @@ extension List {
     /// such value is not found.
     ///
     /// - Complexity: O(`count`)
+    @warn_unused_result
     public func indexOf(@noescape predicate: (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
         try self.tree.forEach { element -> Bool in
@@ -217,6 +218,7 @@ public extension List where Element: Equatable {
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
     ///
     /// - Complexity: O(`count`)
+    @warn_unused_result
     public func indexOf(element: Element) -> Index? {
         var i = 0
         self.tree.forEach { e -> Bool in
@@ -230,6 +232,7 @@ public extension List where Element: Equatable {
     }
 
     /// Return true iff `element` is in `self`.
+    @warn_unused_result
     public func contains(element: Element) -> Bool {
         return indexOf(element) != nil
     }
