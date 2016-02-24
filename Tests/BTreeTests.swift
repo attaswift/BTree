@@ -384,6 +384,18 @@ class BTreeTests: XCTestCase {
         }
     }
 
+    func testSubtreeFromPositionRange() {
+        let tree = maximalTree(depth: 2, order: 3)
+        let count = tree.count
+        for i in 0 ... count {
+            for j in i ... count {
+                let subtree = tree.subtree(with: i ..< j)
+                subtree.assertValid()
+                XCTAssertElementsEqual(subtree, (i..<j).map { ($0, String($0)) })
+            }
+        }
+    }
+
     ////
 
     func testInsertingASingleKey() {
@@ -570,6 +582,7 @@ class BTreeTests: XCTestCase {
         }
         XCTAssertTrue(tree.isEmpty)
     }
+    
     func testRemovingFromEndOfMaximalTreeWithThreeLevels() {
         // This test exercises right rotations.
         var tree = maximalTree(depth: 2, order: order)

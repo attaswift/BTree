@@ -632,6 +632,26 @@ extension BTree {
         }
         return result
     }
+
+    @warn_unused_result
+    public func subtree(with positions: Range<Int>) -> BTree<Key, Payload> {
+        precondition(positions.startIndex >= 0 && positions.endIndex <= count)
+        if positions.count == 0 {
+            return BTree(order: order)
+        }
+        if positions.count == 1 {
+            var result = BTree(order: order)
+            result.insert(elementAtPosition(positions.startIndex))
+            return result
+        }
+        var result = self
+        result.withCursorAtPosition(positions.startIndex) { cursor in
+            cursor.removeAllBefore(includingCurrent: false)
+            cursor.moveToPosition(positions.count)
+            cursor.removeAllAfter(includingCurrent: true)
+        }
+        return result
+    }
 }
 
 //MARK: Bulk loading
