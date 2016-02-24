@@ -1,8 +1,6 @@
 # In-Memory B-Trees and Ordered Collections in Swift
 
-[![Swift 2.1](https://img.shields.io/badge/Swift-2.1-blue.svg)](https://developer.apple.com/swift/)
-<!-- [![Documented](https://img.shields.io/cocoapods/metrics/doc-percent/BTree.svg)](http://lorentey.github.io/BTree/api) -->
-[![Documented](https://img.shields.io/badge/docs-98%-brightgreen.svg)](http://lorentey.github.io/BTree/api)
+[![Swift 2.1](https://img.shields.io/badge/Swift-2.1-blue.svg)](https://developer.apple.com/swift/) <!-- [![Documented](https://img.shields.io/cocoapods/metrics/doc-percent/BTree.svg)](http://lorentey.github.io/BTree/api) --> [![Documented](https://img.shields.io/badge/docs-98%-brightgreen.svg)](http://lorentey.github.io/BTree/api)
 [![License](https://img.shields.io/badge/licence-MIT-blue.svg)](http://cocoapods.org/pods/BTree)
 [![Platform](https://img.shields.io/cocoapods/p/BTree.svg)](http://cocoapods.org/pods/BTree)
 
