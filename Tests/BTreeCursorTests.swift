@@ -380,6 +380,39 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0 ..< c).map { ($0, String($0)) })
     }
 
+
+    func testInsertSequence() {
+        var tree = Tree(order: 3)
+        tree.withCursorAtStart { cursor in
+            cursor.insert((10 ..< 20).map { ($0, String($0)) })
+            XCTAssertEqual(cursor.count, 10)
+            XCTAssertEqual(cursor.position, 10)
+
+            cursor.insert([])
+            XCTAssertEqual(cursor.count, 10)
+            XCTAssertEqual(cursor.position, 10)
+
+            cursor.insert((20 ..< 30).map { ($0, String($0)) })
+            XCTAssertEqual(cursor.count, 20)
+            XCTAssertEqual(cursor.position, 20)
+
+            cursor.moveToPosition(0)
+            cursor.insert((0 ..< 5).map { ($0, String($0)) })
+            XCTAssertEqual(cursor.count, 25)
+            XCTAssertEqual(cursor.position, 5)
+
+            cursor.insert((5 ..< 9).map { ($0, String($0)) })
+            XCTAssertEqual(cursor.count, 29)
+            XCTAssertEqual(cursor.position, 9)
+
+            cursor.insert([(9, "9")])
+            XCTAssertEqual(cursor.count, 30)
+            XCTAssertEqual(cursor.position, 10)
+        }
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, (0 ..< 30).map { ($0, String($0)) })
+    }
+
     func testRemoveAllElementsInOrder() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtStart { cursor in
@@ -448,35 +481,13 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0..<count).map { ($0, String($0)) })
     }
 
-    func testInsertSequence() {
-        var tree = Tree(order: 3)
+    func testRemoveAll() {
+        var tree = maximalTree(depth: 2, order: 3)
         tree.withCursorAtStart { cursor in
-            cursor.insert((10 ..< 20).map { ($0, String($0)) })
-            XCTAssertEqual(cursor.count, 10)
-            XCTAssertEqual(cursor.position, 10)
-
-            cursor.insert([])
-            XCTAssertEqual(cursor.count, 10)
-            XCTAssertEqual(cursor.position, 10)
-
-            cursor.insert((20 ..< 30).map { ($0, String($0)) })
-            XCTAssertEqual(cursor.count, 20)
-            XCTAssertEqual(cursor.position, 20)
-
-            cursor.moveToPosition(0)
-            cursor.insert((0 ..< 5).map { ($0, String($0)) })
-            XCTAssertEqual(cursor.count, 25)
-            XCTAssertEqual(cursor.position, 5)
-
-            cursor.insert((5 ..< 9).map { ($0, String($0)) })
-            XCTAssertEqual(cursor.count, 29)
-            XCTAssertEqual(cursor.position, 9)
-
-            cursor.insert([(9, "9")])
-            XCTAssertEqual(cursor.count, 30)
-            XCTAssertEqual(cursor.position, 10)
+            cursor.removeAll()
+            XCTAssertEqual(cursor.count, 0)
+            XCTAssertTrue(cursor.isAtEnd)
         }
-        tree.assertValid()
-        XCTAssertElementsEqual(tree, (0 ..< 30).map { ($0, String($0)) })
+        XCTAssertTrue(tree.isEmpty)
     }
 }

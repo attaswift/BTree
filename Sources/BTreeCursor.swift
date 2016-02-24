@@ -777,6 +777,13 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         }
     }
 
+    /// Remove all elements.
+    ///
+    /// - Complexity: O(log(`count`)) if nodes of this tree are shared with other trees; O(`count`) otherwise.
+    public func removeAll() {
+        reset(endOf: Node(order: root.order))
+    }
+
     /// Extract `n` elements starting at the cursor's current position, and position the cursor on the successor of
     /// the last element that was removed.
     ///
