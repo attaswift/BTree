@@ -149,13 +149,11 @@ class BTreeTests: XCTestCase {
         let count = 42
         let tree = Tree(sortedElements: (0 ..< count).map { (2 * $0, String(2 * $0)) }, order: 3)
         var index = tree.startIndex
-        var position = 0
-        while position < count {
+        for position in 0 ..< count {
             XCTAssertEqual(tree[index].0, 2 * position)
-            XCTAssertEqual(tree.positionOfIndex(index), position)
             index = index.successor()
-            position += 1
         }
+        XCTAssertEqual(tree.positionOfIndex(index), count)
         XCTAssertEqual(index, tree.endIndex)
     }
 

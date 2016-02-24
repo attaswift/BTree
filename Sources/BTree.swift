@@ -237,7 +237,7 @@ public extension BTree {
     ///
     /// - Complexity: O(log(`count`))
     public func positionOfIndex(index: Index) -> Int {
-        index.expectValid(index.path[0].value === root)
+        index.expectValid(index.root.value === root)
         if index.path.count == 0 {
             return self.count
         }
