@@ -103,6 +103,7 @@ extension List: MutableCollectionType {
     }
 }
 
+/// A generator for elements stored in a `List`.
 public struct ListGenerator<Element>: GeneratorType {
     internal typealias Base = BTreeGenerator<EmptyKey, Element>
     private var base: Base
@@ -111,6 +112,9 @@ public struct ListGenerator<Element>: GeneratorType {
         self.base = base
     }
 
+    /// Advance to the next element and return it, or return `nil` if no next element exists.
+    ///
+    /// - Complexity: Amortized O(1)
     public mutating func next() -> Element? {
         return base.next()?.1
     }
@@ -241,15 +245,18 @@ public extension List where Element: Equatable {
 //MARK: Initializers
 
 extension List {
+    /// Initialize a new list from the given elements.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of elements in the sequence.
     public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
-        self.init()
-        self.appendContentsOf(elements)
+        self.init(Tree(sortedElements: elements.lazy.map { (EmptyKey(), $0) }))
     }
 }
 
 //MARK: Literal conversion
 
 extension List: ArrayLiteralConvertible {
+    /// Initialize a new list from the given elements.
     public init(arrayLiteral elements: Element...) {
         self.init(elements)
     }
@@ -258,6 +265,7 @@ extension List: ArrayLiteralConvertible {
 //MARK: String conversion
 
 extension List: CustomStringConvertible {
+    /// A textual representation of this list.
     public var description: String {
         let contents = self.map { element in String(reflecting: element) }
         return "[" + contents.joinWithSeparator(", ") + "]"
@@ -265,6 +273,7 @@ extension List: CustomStringConvertible {
 }
 
 extension List: CustomDebugStringConvertible {
+    /// A textual representation of this list, suitable for debugging.
     public var debugDescription: String {
         let contents = self.map { element in String(reflecting: element) }
         return "[" + contents.joinWithSeparator(", ") + "]"

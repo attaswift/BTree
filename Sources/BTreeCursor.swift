@@ -140,8 +140,11 @@ public final class BTreeCursor<Key: Comparable, Payload> {
 
     //MARK: Simple properties
 
-    public var isValid: Bool { return !path.isEmpty }
+    /// Return true iff this is a valid cursor.
+    internal var isValid: Bool { return !path.isEmpty }
+    /// Return true iff the cursor is focused on the initial element.
     public var isAtStart: Bool { return _position == 0 }
+    /// Return true iff the cursor is focused on the spot beyond the last element.
     public var isAtEnd: Bool { return _position == count }
 
     //MARK: Initializers

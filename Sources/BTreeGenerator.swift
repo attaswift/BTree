@@ -34,6 +34,8 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
     }
 
     /// Advance to the next element and return it, or return `nil` if no next element exists.
+    ///
+    /// - Complexity: Amortized O(1)
     public mutating func next() -> Element? {
         let level = nodePath.count
         guard level > 0 else { return nil }

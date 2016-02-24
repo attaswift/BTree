@@ -357,12 +357,14 @@ extension Map: CustomDebugStringConvertible {
     }
 }
 
+/// Return true iff `a` is equal to `b`.
 @warn_unused_result
 public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
     guard a.count == b.count else { return false }
     return a.elementsEqual(b, isEquivalent: { ae, be in ae.0 == be.0 && ae.1 == be.1 })
 }
 
+/// Return true iff `a` is not equal to `b`.
 @warn_unused_result
 public func !=<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
     return !(a == b)

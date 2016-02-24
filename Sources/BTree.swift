@@ -629,6 +629,9 @@ extension BTree {
 //MARK: Subtree extraction
 
 extension BTree {
+    /// Return a subtree consisting of elements in the specified range of indexes.
+    ///
+    /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func subtree(with range: Range<Index>) -> BTree<Key, Payload> {
         precondition(range.startIndex.root.value === self.root)
@@ -647,6 +650,9 @@ extension BTree {
         return result
     }
 
+    /// Return a subtree consisting of elements in the specified range of positions.
+    ///
+    /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func subtree(with positions: Range<Int>) -> BTree<Key, Payload> {
         precondition(positions.startIndex >= 0 && positions.endIndex <= count)
@@ -667,6 +673,9 @@ extension BTree {
         return result
     }
 
+    /// Return a subtree consisting of all elements with keys greater than or equal to `start` but less than `end`.
+    ///
+    /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func subtree(from start: Key, to end: Key) -> BTree<Key, Payload> {
         precondition(start <= end)
@@ -679,6 +688,9 @@ extension BTree {
         return result
     }
 
+    /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than or equal to `end`.
+    ///
+    /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func subtree(from start: Key, through stop: Key) -> BTree<Key, Payload> {
         precondition(start <= stop)

@@ -150,6 +150,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     }
 }
 
+/// Return true iff `a` is equal to `b`.
 @warn_unused_result
 public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
     // Invalid indexes should compare unequal to every index, including themselves.
