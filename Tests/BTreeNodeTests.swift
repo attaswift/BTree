@@ -434,4 +434,13 @@ class BTreeNodeTests: XCTestCase {
             checkNode(Node.join(left: l, separator: s, right: r), 0..<c)
         }
     }
+
+    func testJoinWithDuplicateKeys() {
+        let left = BTree(sortedElements: (0..<50).map { (0, $0) }, order: 3).root
+        let sep = (0, 50)
+        let right = BTree(sortedElements: (51..<100).map { (0, $0) }, order: 3).root
+        let node = BTreeNode.join(left: left, separator: sep, right: right)
+        node.assertValid()
+        XCTAssertElementsEqual(node, (0..<100).map { (0, $0) })
+    }
 }
