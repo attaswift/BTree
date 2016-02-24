@@ -26,8 +26,8 @@ characteristics.  The b-tree implementation provided by this package has the fol
   (3) the leaf nodes are all at the same level.
 
 - By default, the tree order (i.e., the maximum number of children for internal nodes) is set such
-  that each node stores about 8KiB data. Larger node sizes make lookups faster, while
-  insertion/removal becomes slower -- 8KiB is a good enough approximation of the optimal node size
+  that each node stores about 16KiB data. Larger node sizes make lookups faster, while
+  insertion/removal becomes slower -- 16KiB is a good enough approximation of the optimal node size
   on most modern systems.  (But you can also set a custom node size if you know better.)
   
 - The `BTree` type provides a full set of hand-tuned high-level operations to work with elements of
