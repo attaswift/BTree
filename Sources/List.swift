@@ -30,6 +30,10 @@ public struct List<Element> {
     /// The b-tree that serves as storage.
     internal private(set) var tree: Tree
 
+    private init(_ tree: Tree) {
+        self.tree = tree
+    }
+    
     /// Initialize an empty list.
     public init() {
         self.tree = Tree()
@@ -46,6 +50,7 @@ internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
 extension List: MutableCollectionType {
     public typealias Index = Int
     public typealias Generator = ListGenerator<Element>
+    public typealias SubSequence = List<Element>
 
     /// Always zero, which is the index of the first element when non-empty.
     public var startIndex: Int {
@@ -76,6 +81,18 @@ extension List: MutableCollectionType {
         }
         set {
             tree.setPayloadAt(index, to: newValue)
+        }
+    }
+
+    /// Return a sublist of this list, or replace a sublist with another list (possibly of a different size).
+    ///
+    /// - Complexity: O(log(`count`)) for the getter, and O(log(`count`) + `range.count`) for the setter.
+    public subscript(range: Range<Int>) -> List<Element> {
+        get {
+            return List(tree.subtree(with: range))
+        }
+        set {
+            self.replaceRange(range, with: newValue)
         }
     }
 
@@ -379,6 +396,17 @@ extension List {
     /// - Complexity: O(`count`)
     public mutating func removeAll() {
         tree = Tree()
+    }
+
+    /// Replace elements in `range` with `elements`.
+    ///
+    /// - Complexity: O(log(`count`) + `range.count`)
+    public mutating func replaceRange(range: Range<Int>, with elements: List<Element>) {
+        precondition(range.startIndex >= 0 && range.endIndex <= count)
+        tree.withCursorAtPosition(range.startIndex) { cursor in
+            cursor.remove(range.count)
+            cursor.insert(elements.tree)
+        }
     }
 
     /// Replace elements in `range` with `elements`.

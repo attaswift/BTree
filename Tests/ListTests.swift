@@ -56,6 +56,32 @@ class ListTests: XCTestCase {
         XCTAssertElementsEqual(list, [0, 2, 4, 6, 8])
     }
 
+    func testGettingSublists() {
+        let count = 20
+        let list = List(0..<count)
+        for i in 0 ... count {
+            for j in i ... count {
+                XCTAssertElementsEqual(list[i ..< j], i ..< j)
+            }
+        }
+    }
+
+    func testSettingSublists() {
+        var list = List(0..<10)
+
+        list[2..<5] = List(8..<11)
+        XCTAssertElementsEqual(list, [0, 1, 8, 9, 10, 5, 6, 7, 8, 9])
+
+        list[0..<3] = List()
+        XCTAssertElementsEqual(list, [9, 10, 5, 6, 7, 8, 9])
+
+        list[4..<7] = List(1 ..< 6)
+        XCTAssertElementsEqual(list, [9, 10, 5, 6, 1, 2, 3, 4, 5])
+
+        list[0..<9] = List()
+        XCTAssertElementsEqual(list, 0 ..< 0)
+    }
+
     func testForEach() {
         let list: List<Int> = [0, 1, 2, 3, 4]
         var i = 0
@@ -294,7 +320,23 @@ class ListTests: XCTestCase {
         XCTAssertElementsEqual(list, [])
     }
 
-    func testReplaceRange() {
+    func testReplaceRangeWithList() {
+        var list = List(0..<10)
+
+        list.replaceRange(2..<5, with: List(8..<11))
+        XCTAssertElementsEqual(list, [0, 1, 8, 9, 10, 5, 6, 7, 8, 9])
+
+        list.replaceRange(0..<3, with: List())
+        XCTAssertElementsEqual(list, [9, 10, 5, 6, 7, 8, 9])
+
+        list.replaceRange(4..<7, with: List(1 ..< 6))
+        XCTAssertElementsEqual(list, [9, 10, 5, 6, 1, 2, 3, 4, 5])
+
+        list.replaceRange(0..<9, with: List())
+        XCTAssertElementsEqual(list, 0 ..< 0)
+    }
+
+    func testReplaceRangeWithSequence() {
         var list = List(0..<10)
         list.replaceRange(2..<8, with: [10, 20, 30])
         XCTAssertElementsEqual(list, [0, 1, 10, 20, 30, 8, 9])
