@@ -295,14 +295,14 @@ extension BTreeNode {
         if key < firstKey {
             return false
         }
-        if key == firstKey {
-            return selector != .First
+        if key == firstKey && selector == .First {
+            return false
         }
         if key > lastKey {
             return false
         }
-        if key == lastKey {
-            return selector != .Last
+        if key == lastKey && selector == .Last {
+            return false
         }
         return true
     }
