@@ -612,6 +612,9 @@ extension BTree {
     public func subtree(with range: Range<Index>) -> BTree<Key, Payload> {
         precondition(range.startIndex.root.value === self.root)
         precondition(range.endIndex.root.value === self.root)
+        if range.startIndex == range.endIndex {
+            return BTree(order: self.order)
+        }
         let end = self.positionOfIndex(range.endIndex)
         var result = self
         result.withCursorAt(range.startIndex) { cursor in
