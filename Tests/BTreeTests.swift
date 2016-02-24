@@ -160,12 +160,11 @@ class BTreeTests: XCTestCase {
     func testIndexOfPosition() {
         let count = 42
         let tree = Tree(sortedElements: (0 ..< count).map { (2 * $0, String(2 * $0)) }, order: 3)
-        var position = 0
-        while position < count {
+        for position in 0 ..< count {
             let index = tree.indexOfPosition(position)
             XCTAssertEqual(tree[index].0, 2 * position)
-            position += 1
         }
+        XCTAssertEqual(tree.indexOfPosition(count), tree.endIndex)
     }
 
     func testInsertAtPosition() {

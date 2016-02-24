@@ -270,10 +270,13 @@ public extension BTree {
 
     /// Returns the index of the element at `position`.
     ///
-    /// - Requires: `position >= 0 && position < count`
+    /// - Requires: `position >= 0 && position <= count`
     /// - Complexity: O(log(`count`))
     public func indexOfPosition(position: Int) -> Index {
-        precondition(position >= 0 && position < count)
+        precondition(position >= 0 && position <= count)
+        if position == count {
+            return endIndex
+        }
         var position = position
         var path = [Weak(root)]
         var slots: [Int] = []
