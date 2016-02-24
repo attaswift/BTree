@@ -473,7 +473,7 @@ extension BTreeNode {
         }
 
         // Graft the scion into the stock by inserting the contents of its root into `node`.
-        assert(node.isLeaf == scion.isLeaf)
+        assert(node.depth == scion.depth)
         if append {
             node.elements.append(separator)
             node.elements.appendContentsOf(right.elements)
