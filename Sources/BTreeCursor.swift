@@ -178,6 +178,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// This operation deactivates the current cursor.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     internal func finishByCutting() -> (left: Tree, separator: Element, right: Tree) {
         precondition(!isAtEnd)
 
@@ -213,6 +214,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// This operation deactivates the current cursor.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     internal func finishAndKeepPrefix() -> Tree {
         precondition(!isAtEnd)
         var left = path.removeLast()
@@ -236,6 +238,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// This operation destroys the current cursor.
     ///
     /// - Complexity: O(log(`count`))
+    @warn_unused_result
     internal func finishAndKeepSuffix() -> Tree {
         precondition(!isAtEnd)
         var right = path.removeLast().split(slots.removeLast()).node
