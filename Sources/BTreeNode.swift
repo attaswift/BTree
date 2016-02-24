@@ -226,14 +226,18 @@ extension BTreeNode {
         }
     }
 
+    /// Return the slot towards of the element at `position` in the subtree rooted at this node.
     internal func slotOfPosition(position: Int) -> (index: Int, match: Bool, position: Int) {
         assert(position >= 0 && position <= count)
+        if position == count {
+            return (index: elements.count, match: true, position: count)
+        }
         if isLeaf {
             return (position, true, position)
         }
-        else {
+        else if position <= count / 2 {
             var p = 0
-            for i in 0 ..< children.count {
+            for i in 0 ..< children.count - 1 {
                 let c = children[i].count
                 if position == p + c {
                     return (index: i, match: true, position: p + c)
@@ -243,16 +247,43 @@ extension BTreeNode {
                 }
                 p += c + 1
             }
-            preconditionFailure("Invalid b-tree")
+            let c = children.last!.count
+            precondition(count == p + c, "Invalid B-Tree")
+            return (index: children.count - 1, match: false, position: count)
+        }
+        else {
+            var p = count
+            for i in (1 ..< children.count).reverse() {
+                let c = children[i].count
+                if position == p - (c + 1) {
+                    return (index: i - 1, match: true, position: position)
+                }
+                if position > p - (c + 1) {
+                    return (index: i, match: false, position: p)
+                }
+                p -= c + 1
+            }
+            let c = children.first!.count
+            precondition(p - c == 0, "Invalid B-Tree")
+            return (index: 0, match: false, position: c)
         }
     }
 
+    /// Return the position of the element at `slot` in the subtree rooted at this node.
     internal func positionOfSlot(slot: Int) -> Int {
-        assert(slot >= 0 && slot <= elements.count)
+        let c = elements.count
+        assert(slot >= 0 && slot <= c)
         guard !isLeaf else {
             return slot
         }
-        return children[0...slot].reduce(slot) { $0 + $1.count }
+        if slot == c {
+            return count
+        }
+        if slot <= c / 2 {
+            return children[0...slot].reduce(slot) { $0 + $1.count }
+        }
+        return count - children[slot + 1 ... c].reduce(c - slot) { $0 + $1.count }
+    }
     }
 }
 

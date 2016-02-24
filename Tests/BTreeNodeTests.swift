@@ -229,22 +229,30 @@ class BTreeNodeTests: XCTestCase {
 
     func testSlotOfPosition() {
         let leaf = maximalNode(depth: 0, order: 5)
-        XCTAssertEqual(leaf.slotOfPosition(2).index, 2)
-        XCTAssertEqual(leaf.slotOfPosition(2).match, true)
-        XCTAssertEqual(leaf.slotOfPosition(2).position, 2)
+        for i in 0 ..< 5 {
+            XCTAssertEqual(leaf.slotOfPosition(i).index, i)
+            XCTAssertEqual(leaf.slotOfPosition(i).match, true)
+            XCTAssertEqual(leaf.slotOfPosition(i).position, i)
+        }
 
         let node = maximalNode(depth: 1, order: 3)
-        XCTAssertEqual(node.slotOfPosition(3).index, 1)
-        XCTAssertEqual(node.slotOfPosition(3).match, false)
-        XCTAssertEqual(node.slotOfPosition(3).position, 5)
+        var p = 0
+        for i in 0 ..< 3 {
+            XCTAssertEqual(node.slotOfPosition(p).index, i)
+            XCTAssertEqual(node.slotOfPosition(p).match, false)
+            XCTAssertEqual(node.slotOfPosition(p).position, p + 2)
 
-        XCTAssertEqual(node.slotOfPosition(5).index, 1)
-        XCTAssertEqual(node.slotOfPosition(5).match, true)
-        XCTAssertEqual(node.slotOfPosition(5).position, 5)
+            XCTAssertEqual(node.slotOfPosition(p + 1).index, i)
+            XCTAssertEqual(node.slotOfPosition(p + 1).match, false)
+            XCTAssertEqual(node.slotOfPosition(p + 1).position, p + 2)
 
-        XCTAssertEqual(node.slotOfPosition(8).index, 2)
-        XCTAssertEqual(node.slotOfPosition(8).match, true)
-        XCTAssertEqual(node.slotOfPosition(8).position, 8)
+            XCTAssertEqual(node.slotOfPosition(p + 2).index, i)
+            XCTAssertEqual(node.slotOfPosition(p + 2).match, true)
+            XCTAssertEqual(node.slotOfPosition(p + 2).position, p + 2)
+
+            p += 3
+        }
+        XCTAssertEqual(p, node.count + 1)
     }
 
     func testPositionOfSlot() {
