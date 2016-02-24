@@ -628,7 +628,7 @@ extension BTree {
             let start = cursor.position
             cursor.removeAllBefore(includingCurrent: false)
             cursor.moveToPosition(end - start)
-            cursor.removeAllAfter(includingCurrent: true)
+            cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
         }
         return result
     }
@@ -648,7 +648,7 @@ extension BTree {
         result.withCursorAtPosition(positions.startIndex) { cursor in
             cursor.removeAllBefore(includingCurrent: false)
             cursor.moveToPosition(positions.count)
-            cursor.removeAllAfter(includingCurrent: true)
+            cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
         }
         return result
     }
@@ -660,7 +660,7 @@ extension BTree {
         result.withCursorAt(start, choosing: .First) { cursor in
             cursor.removeAllBefore(includingCurrent: false)
             cursor.moveToKey(end, choosing: .First)
-            cursor.removeAllAfter(includingCurrent: true)
+            cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
         }
         return result
     }

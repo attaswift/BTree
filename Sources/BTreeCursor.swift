@@ -790,6 +790,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// - Complexity: O(log(`count`)) if nodes of this tree are shared with other trees; O(`count`) otherwise.
     public func removeAllBefore(includingCurrent inclusive: Bool) {
         if isAtEnd {
+            assert(!inclusive)
             reset(endOf: Node(order: root.order))
             return
         }
@@ -807,10 +808,18 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     ///
     /// - Complexity: O(log(`count`)) if nodes of this tree are shared with other trees; O(`count`) otherwise.
     public func removeAllAfter(includingCurrent inclusive: Bool) {
+        if isAtEnd {
+            assert(!inclusive)
+            return
+        }
         if !inclusive {
             moveForward()
+            if isAtEnd {
+                return
+            }
         }
-        if isAtEnd {
+        if isAtStart {
+            reset(endOf: Node(order: root.order))
             return
         }
         reset(endOf: finishAndKeepPrefix().root)
