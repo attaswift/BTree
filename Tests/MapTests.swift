@@ -156,6 +156,15 @@ class MapTests: XCTestCase {
         XCTAssertElementsEqual(m, [(5, "5"), (10, "10"), (25, "25"), (30, "30*"), (40, "40")])
     }
 
+    func testSubscriptRange() {
+        let m = Map(sortedElements: (0..<10).map { ($0, String($0)) })
+        let indexes = Array(m.indices) + [m.endIndex]
+        XCTAssertElementsEqual(m[indexes[0] ..< indexes[10]], m)
+        XCTAssertElementsEqual(m[indexes[2] ..< indexes[4]], [(2, "2"), (3, "3")])
+        XCTAssertElementsEqual(m[indexes[0] ..< indexes[3]], [(0, "0"), (1, "1"), (2, "2")])
+        XCTAssertElementsEqual(m[indexes[7] ..< indexes[10]], [(7, "7"), (8, "8"), (9, "9")])
+    }
+
     func testIndexForKey() {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
 
@@ -199,6 +208,52 @@ class MapTests: XCTestCase {
         m.removeAll()
         XCTAssertTrue(m.isEmpty)
         XCTAssertElementsEqual(m, [])
+    }
+
+    func testIndexOfPosition() {
+        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        for i in 0...100 {
+            XCTAssertEqual(m.indexOfPosition(i), m.startIndex.advancedBy(i))
+        }
+    }
+
+    func testPositionOfIndex() {
+        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        var index = m.startIndex
+        for i in 0 ..< 100 {
+            XCTAssertEqual(m.positionOfIndex(index), i)
+            index = index.successor()
+        }
+        XCTAssertEqual(m.positionOfIndex(index), m.count)
+        XCTAssertEqual(index, m.endIndex)
+    }
+
+    func testElementAtPosition() {
+        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        for i in 0 ..< 100 {
+            let element = m.elementAtPosition(i)
+            XCTAssertEqual(element.0, i)
+            XCTAssertEqual(element.1, String(i))
+        }
+    }
+
+    func testUpdateValueAtPosition() {
+        var m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        for i in 0 ..< 100 {
+            m.updateValue(String(i) + "*", atPosition: i)
+        }
+        XCTAssertElementsEqual(m, (0..<100).map { ($0, String($0) + "*") })
+    }
+
+    func testSubmaps() {
+        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let indexRange = m.startIndex.advancedBy(30) ..< m.startIndex.advancedBy(80)
+        let referenceSeq = (30..<80).map { ($0, String($0)) }
+        XCTAssertElementsEqual(m[indexRange], referenceSeq)
+        XCTAssertElementsEqual(m.submap(with: indexRange), referenceSeq)
+        XCTAssertElementsEqual(m.submap(with: 30..<80), referenceSeq)
+        XCTAssertElementsEqual(m.submap(from: 30, to: 80), referenceSeq)
+        XCTAssertElementsEqual(m.submap(from: 30, through: 79), referenceSeq)
     }
 
     func testInitWithUnsortedSequence() {

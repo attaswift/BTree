@@ -32,8 +32,12 @@ public struct Map<Key: Comparable, Value> {
     // Typealiases
     internal typealias Tree = BTree<Key, Value>
 
-    /// The root node.
+    /// The b-tree that serves as storage.
     internal private(set) var tree: Tree
+
+    private init(_ tree: Tree) {
+        self.tree = tree
+    }
 
     /// Initialize an empty map.
     public init() {
@@ -47,6 +51,7 @@ extension Map: CollectionType {
     public typealias Index = BTreeIndex<Key, Value>
     public typealias Generator = BTreeGenerator<Key, Value>
     public typealias Element = (Key, Value)
+    public typealias SubSequence = Map<Key, Value>
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
     public var startIndex: Index {
@@ -76,6 +81,14 @@ extension Map: CollectionType {
     /// - Complexity: O(1)
     public subscript(index: Index) -> Element {
         return tree[index]
+    }
+
+    /// Return a submap consisting of elements in the given range of indexes.
+    ///
+    /// - Requires: The indexes in `range` originated from an unmutated copy of this map.
+    /// - Complexity: O(log(`count`))
+    public subscript(range: Range<Index>) -> Map<Key, Value> {
+        return Map(tree[range])
     }
 
     /// Return a generator over all (key, value) pairs in this map, in ascending key order.
@@ -228,6 +241,65 @@ extension Map {
     /// - Complexity: O(`count`)
     public mutating func removeAll() {
         tree = Tree()
+    }
+}
+
+extension Map {
+    /// Returns the position of the element at `index`.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func indexOfPosition(position: Int) -> Index {
+        return tree.indexOfPosition(position)
+    }
+
+    /// Returns the index of the element at `position`.
+    ///
+    /// - Requires: `position >= 0 && position < count`
+    /// - Complexity: O(log(`count`))
+    public func positionOfIndex(index: Index) -> Int {
+        return tree.positionOfIndex(index)
+    }
+
+    /// Return the element stored at `position` in this map.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func elementAtPosition(position: Int) -> Element {
+        return tree.elementAtPosition(position)
+    }
+
+    /// Set the value of the element stored at `position` in this map.
+    ///
+    /// - Complexity: O(log(`count`))
+    public mutating func updateValue(value: Value, atPosition position: Int) -> Value {
+        return tree.setPayloadAt(position, to: value)
+    }
+
+    /// Return a submap consisting of elements in the specified range of indexes.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func submap(with range: Range<Index>) -> Map {
+        return Map(tree.subtree(with: range))
+    }
+
+    /// Return a submap consisting of elements in the specified range of positions.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func submap(with positions: Range<Int>) -> Map {
+        return Map(tree.subtree(with: positions))
+    }
+
+    /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than `end`.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func submap(from start: Key, to end: Key) -> Map {
+        return Map(tree.subtree(from: start, to: end))
+    }
+
+    /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than or equal to `end`.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func submap(from start: Key, through end: Key) -> Map {
+        return Map(tree.subtree(from: start, through: end))
     }
 }
 
