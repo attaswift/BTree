@@ -284,7 +284,6 @@ extension BTreeNode {
         }
         return count - children[slot + 1 ... c].reduce(c - slot) { $0 + $1.count }
     }
-    }
 }
 
 //MARK: Editing
