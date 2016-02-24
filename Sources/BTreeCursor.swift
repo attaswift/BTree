@@ -62,6 +62,21 @@ extension BTree {
         defer { self = cursor.finish() }
         try body(cursor)
     }
+
+    /// Call `body` with a cursor positioned at `index` in this tree.
+    ///
+    /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
+    ///   execution of body: it will not appear to have the correct value.
+    ///   Instead, use only the supplied cursor to manipulate the tree.
+    ///
+    public mutating func withCursorAt(index: Index, @noescape body: Cursor throws -> Void) rethrows {
+        makeUnique()
+        let cursor = BTreeCursor(root)
+        cursor.descendToSlots(index.slots)
+        root = Node()
+        defer { self = cursor.finish() }
+        try body(cursor)
+    }
 }
 
 private enum WalkDirection {
@@ -412,6 +427,17 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             popFromSlots()
         }
         self.descendToPosition(position)
+    }
+
+    private func descendToSlots(slots: [Int]) {
+        assert(self.path.count == self.slots.count + 1)
+        for i in 0 ..< slots.count {
+            let slot = slots[i]
+            pushToSlots(slot)
+            if i != slots.count - 1 {
+                pushToPath()
+            }
+        }
     }
 
     private func descendToPosition(position: Int) {
