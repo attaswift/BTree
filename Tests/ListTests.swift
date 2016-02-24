@@ -146,7 +146,6 @@ class ListTests: XCTestCase {
 
         for v in values {
             list.append(v)
-            print(list)
             list.assertValid()
         }
 
@@ -157,7 +156,6 @@ class ListTests: XCTestCase {
     func testInsert() {
         let count = 6
         for inversion in generateInversions(count) {
-            print("Inversion vector = \(inversion)")
             var list = List<Int>()
             var referenceArray: [Int] = []
             for i in inversion {
@@ -220,7 +218,6 @@ class ListTests: XCTestCase {
         let referenceArray = Array<Int>(1...count)
 
         for inversion in generateInversions(count) {
-            print("Inversion vector = \(inversion)")
             var l = list
             var r = referenceArray
 
