@@ -27,7 +27,7 @@
 public struct List<Element> {
     internal typealias Tree = BTree<EmptyKey, Element>
 
-    /// The root node.
+    /// The b-tree that serves as storage.
     internal private(set) var tree: Tree
 
     /// Initialize an empty list.
@@ -36,6 +36,7 @@ public struct List<Element> {
     }
 }
 
+/// A dummy, zero-size key that is useful in b-trees that don't need key-based lookup.
 internal struct EmptyKey: Comparable { }
 internal func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
 internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
@@ -285,7 +286,7 @@ extension List {
         }
     }
 
-    /// Insert the contents of `list` in this list at `index`.
+    /// Insert `list` as a sublist of this list starting at `index`.
     ///
     /// - Complexity: O(log(`self.count + list.count`))
     public mutating func insertContentsOf(list: List<Element>, at index: Int) {
@@ -294,22 +295,34 @@ extension List {
         }
     }
 
+    /// Insert the contents of `elements` into this list starting at `index`.
+    ///
+    /// - Complexity: O(log(`self.count`) + *n*) where *n* is the number of elements inserted.
     public mutating func insertContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S, at index: Int) {
         tree.withCursorAtPosition(index) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
     }
 
+    /// Remove and return the element at `index`.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func removeAtIndex(index: Int) -> Element {
         precondition(index >= 0 && index < count)
         return tree.removeAt(index).1
     }
 
+    /// Remove and return the first element.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func removeFirst() -> Element {
         precondition(count > 0)
         return tree.removeAt(0).1
     }
 
+    /// Remove the first `n` elements.
+    ///
+    /// - Complexity: O(log(`count`) + `n`)
     public mutating func removeFirst(n: Int) {
         precondition(n <= count)
         tree.withCursorAtPosition(0) { cursor in
@@ -317,11 +330,17 @@ extension List {
         }
     }
 
+    /// Remove and return the last element.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func removeLast() -> Element {
         precondition(count > 0)
         return tree.removeAt(count - 1).1
     }
 
+    /// Remove and return the last `n` elements.
+    ///
+    /// - Complexity: O(log(`count`) + `n`)
     public mutating func removeLast(n: Int) {
         precondition(n <= count)
         tree.withCursorAtPosition(count - n) { cursor in
@@ -329,16 +348,25 @@ extension List {
         }
     }
 
+    /// If the list is not empty, remove and return the last element. Otherwise return `nil`.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func popLast() -> Element? {
         guard count > 0 else { return nil }
         return tree.removeAt(count - 1).1
     }
 
+    /// If the list is not empty, remove and return the first element. Otherwise return `nil`.
+    ///
+    /// - Complexity: O(log(`count`))
     public mutating func popFirst() -> Element? {
         guard count > 0 else { return nil }
         return tree.removeAt(0).1
     }
 
+    /// Remove elements in the specified range of indexes.
+    ///
+    /// - Complexity: O(log(`self.count`) + `range.count`)
     public mutating func removeRange(range: Range<Int>) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
         tree.withCursorAtPosition(range.startIndex) { cursor in
@@ -346,10 +374,16 @@ extension List {
         }
     }
 
+    /// Remove all elements.
+    ///
+    /// - Complexity: O(`count`)
     public mutating func removeAll() {
         tree = Tree()
     }
 
+    /// Replace elements in `range` with `elements`.
+    ///
+    /// - Complexity: O(log(`count`) + `max(range.count, elements.count)`)
     public mutating func replaceRange<C: CollectionType where C.Generator.Element == Element>(range: Range<Int>, with elements: C) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
         tree.withCursorAtPosition(range.startIndex) { cursor in
@@ -369,14 +403,15 @@ extension List {
     }
 }
 
+/// Returns true iff the two lists have the same elements in the same order.
 @warn_unused_result
 public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
     guard a.count == b.count else { return false }
     return a.elementsEqual(b)
 }
 
+/// Returns false iff the two lists do not have the same elements in the same order.
 @warn_unused_result
 public func !=<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
     return !(a == b)
 }
-
