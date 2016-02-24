@@ -75,6 +75,7 @@ extension BTree: SequenceType {
 
 extension BTree: CollectionType {
     public typealias Index = BTreeIndex<Key, Payload>
+    public typealias SubSequence = BTree<Key, Payload>
 
     /// The index of the first element of this tree. Elements are sorted by key.
     public var startIndex: Index {
@@ -97,6 +98,12 @@ extension BTree: CollectionType {
             precondition(index.root.value === self.root)
             let node = index.path.last!.value!
             return node.elements[index.slots.last!]
+        }
+    }
+
+    public subscript(range: Range<Index>) -> BTree<Key, Payload> {
+        get {
+            return subtree(with: range)
         }
     }
 }
