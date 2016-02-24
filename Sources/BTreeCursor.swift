@@ -784,6 +784,35 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         reset(endOf: Node(order: root.order))
     }
 
+    /// Remove all elements before (and if `inclusive` is true, including) the current position, and
+    /// position the cursor at the start of the remaining tree.
+    ///
+    /// - Complexity: O(log(`count`)) if nodes of this tree are shared with other trees; O(`count`) otherwise.
+    public func removeAllBefore(includingCurrent inclusive: Bool) {
+        if isAtEnd {
+            reset(endOf: Node(order: root.order))
+            return
+        }
+        if !inclusive {
+            moveBackward()
+        }
+        reset(startOf: finishAndKeepSuffix().root)
+    }
+
+    /// Remove all elements before (and if `inclusive` is true, including) the current position, and
+    /// position the cursor on the end of the remaining tree.
+    ///
+    /// - Complexity: O(log(`count`)) if nodes of this tree are shared with other trees; O(`count`) otherwise.
+    public func removeAllAfter(includingCurrent inclusive: Bool) {
+        if !inclusive {
+            moveForward()
+        }
+        if isAtEnd {
+            return
+        }
+        reset(endOf: finishAndKeepPrefix().root)
+    }
+
     /// Extract `n` elements starting at the cursor's current position, and position the cursor on the successor of
     /// the last element that was removed.
     ///

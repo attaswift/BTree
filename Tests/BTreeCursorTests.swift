@@ -490,4 +490,83 @@ class BTreeCursorTests: XCTestCase {
         }
         XCTAssertTrue(tree.isEmpty)
     }
+
+    func testRemoveAllBefore() {
+        var t1 = maximalTree(depth: 2, order: 3)
+        let c = t1.count
+        t1.withCursorAtEnd { cursor in
+            cursor.removeAllBefore(includingCurrent: false)
+        }
+        XCTAssertTrue(t1.isEmpty)
+
+        var t2 = maximalTree(depth: 2, order: 3)
+        t2.withCursorAtPosition(c - 1) { cursor in
+            cursor.removeAllBefore(includingCurrent: true)
+        }
+        XCTAssertTrue(t2.isEmpty)
+
+        var t3 = maximalTree(depth: 2, order: 3)
+        t3.withCursorAtPosition(c - 1) { cursor in
+            cursor.removeAllBefore(includingCurrent: false)
+        }
+        XCTAssertElementsEqual(t3, [(c - 1, String(c - 1))])
+
+        var t4 = maximalTree(depth: 2, order: 3)
+        t4.withCursorAtPosition(c - 10) { cursor in
+            cursor.removeAllBefore(includingCurrent: true)
+        }
+        XCTAssertElementsEqual(t4, (c - 9 ..< c).map { ($0, String($0)) })
+
+        var t5 = maximalTree(depth: 2, order: 3)
+        t5.withCursorAtPosition(c - 10) { cursor in
+            cursor.removeAllBefore(includingCurrent: false)
+        }
+        XCTAssertElementsEqual(t5, (c - 10 ..< c).map { ($0, String($0)) })
+    }
+
+    func testRemoveAllAfter() {
+        var t1 = maximalTree(depth: 2, order: 3)
+        t1.withCursorAtStart { cursor in
+            cursor.removeAllAfter(includingCurrent: true)
+        }
+        XCTAssertTrue(t1.isEmpty)
+
+        var t2 = maximalTree(depth: 2, order: 3)
+        t2.withCursorAtStart { cursor in
+            cursor.removeAllAfter(includingCurrent: false)
+        }
+        XCTAssertElementsEqual(t2, [(0, "0")])
+
+        var t3 = maximalTree(depth: 2, order: 3)
+        t3.withCursorAtPosition(1) { cursor in
+            cursor.removeAllAfter(includingCurrent: true)
+        }
+        XCTAssertElementsEqual(t3, [(0, "0")])
+
+        var t4 = maximalTree(depth: 2, order: 3)
+        t4.withCursorAtPosition(1) { cursor in
+            cursor.removeAllAfter(includingCurrent: false)
+        }
+        XCTAssertElementsEqual(t4, [(0, "0"), (1, "1")])
+
+        var t5 = maximalTree(depth: 2, order: 3)
+        t5.withCursorAtPosition(10) { cursor in
+            cursor.removeAllAfter(includingCurrent: true)
+        }
+        XCTAssertElementsEqual(t5, (0 ..< 10).map { ($0, String($0)) })
+
+        var t6 = maximalTree(depth: 2, order: 3)
+        t6.withCursorAtPosition(10) { cursor in
+            cursor.removeAllAfter(includingCurrent: false)
+        }
+        XCTAssertElementsEqual(t6, (0 ... 10).map { ($0, String($0)) })
+
+        var t7 = maximalTree(depth: 2, order: 3)
+        let c = t7.count
+        t7.withCursorAtPosition(c - 1) { cursor in
+            cursor.removeAllAfter(includingCurrent: false)
+        }
+        XCTAssertElementsEqual(t7, (0 ..< c).map { ($0, String($0)) })
+    }
+
 }
