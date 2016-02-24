@@ -652,6 +652,30 @@ extension BTree {
         }
         return result
     }
+
+    @warn_unused_result
+    public func subtree(from start: Key, to end: Key) -> BTree<Key, Payload> {
+        precondition(start <= end)
+        var result = self
+        result.withCursorAt(start, choosing: .First) { cursor in
+            cursor.removeAllBefore(includingCurrent: false)
+            cursor.moveToKey(end, choosing: .First)
+            cursor.removeAllAfter(includingCurrent: true)
+        }
+        return result
+    }
+
+    @warn_unused_result
+    public func subtree(from start: Key, through stop: Key) -> BTree<Key, Payload> {
+        precondition(start <= stop)
+        var result = self
+        result.withCursorAt(start, choosing: .First) { cursor in
+            cursor.removeAllBefore(includingCurrent: false)
+            cursor.moveToKey(stop, choosing: .Last)
+            cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd && cursor.key != stop)
+        }
+        return result
+    }
 }
 
 //MARK: Bulk loading

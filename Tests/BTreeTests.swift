@@ -396,6 +396,34 @@ class BTreeTests: XCTestCase {
         }
     }
 
+    func testSubtreeFromHalfOpenKeyRange() {
+        let count = 28
+        let tree = BTree(sortedElements: (0..<count).map { ($0 & ~1, String($0)) }, order: 3)
+        for i in 0 ... count {
+            for j in i ... count {
+                let subtree = tree.subtree(from: i, to: j)
+                subtree.assertValid()
+                let ik = i & 1 == 0 ? i : min(count, i + 1)
+                let jk = j & 1 == 0 ? j : min(count, j + 1)
+                XCTAssertElementsEqual(subtree, (ik ..< jk).map { ($0 & ~1, String($0)) })
+            }
+        }
+    }
+
+    func testSubtreeFromClosedKeyRange() {
+        let count = 28
+        let tree = BTree(sortedElements: (0..<count).map { ($0 & ~1, String($0)) }, order: 3)
+        for i in 0 ..< count {
+            for j in i ..< count {
+                let subtree = tree.subtree(from: i, through: j)
+                subtree.assertValid()
+                let ik = i & 1 == 0 ? i : min(count, i + 1)
+                let jk = j & 1 == 0 ? min(count, j + 2) : min(count, j + 1)
+                XCTAssertElementsEqual(subtree, (ik ..< jk).map { ($0 & ~1, String($0)) })
+            }
+        }
+    }
+
     ////
 
     func testInsertingASingleKey() {
