@@ -93,6 +93,8 @@ extension BTree: CollectionType {
     }
 
     /// Returns the element at `index`.
+    ///
+    /// - Complexity: O(1)
     public subscript(index: Index) -> Element {
         get {
             precondition(index.root.value === self.root)
@@ -101,6 +103,9 @@ extension BTree: CollectionType {
         }
     }
 
+    /// Returns a tree consisting of elements in the specified range of indexes.
+    ///
+    /// - Complexity: O(log(`count`))
     public subscript(range: Range<Index>) -> BTree<Key, Payload> {
         get {
             return subtree(with: range)
