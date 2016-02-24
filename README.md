@@ -95,7 +95,4 @@ modules. (This doesn't impact stdlib, which gets special treatment.)
 Relying on `import` will incur a 10-200x slowdown, which may or may not be OK for your project.  If
 raw performance is essential, you'll need to put the collection implementations in the same module
 as your code. (And don't forget to enable whole module optimization!) I know of no good way to work
-around this with the current compiler. (Other than including these types in the stdlib, that is.)
-
-One way to fix this is to change Swift to include serialized SIL in the compiled code of
-types/methods specially marked in the source. This may or may not happen soon.
+around this with the current compiler. (Other than hacking stdlib to include these types, that is.)
