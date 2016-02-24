@@ -235,7 +235,7 @@ class BTreeCursorTests: XCTestCase {
         tree.withCursorAtEnd { cursor in
             XCTAssertTrue(cursor.isAtEnd)
             for i in 0..<30 {
-                cursor.insertBefore((i, String(i)))
+                cursor.insert((i, String(i)))
                 XCTAssertTrue(cursor.isAtEnd)
             }
         }
@@ -249,7 +249,7 @@ class BTreeCursorTests: XCTestCase {
         tree.withCursorAtStart() { cursor in
             XCTAssertTrue(cursor.isAtEnd)
             for i in 0..<c {
-                cursor.insertBefore((2 * i + 1, String(2 * i + 1)))
+                cursor.insert((2 * i + 1, String(2 * i + 1)))
                 XCTAssertTrue(cursor.isAtEnd)
             }
 
@@ -259,7 +259,7 @@ class BTreeCursorTests: XCTestCase {
                 XCTAssertEqual(cursor.key, 2 * i + 1)
                 XCTAssertEqual(cursor.position, 2 * i)
                 XCTAssertEqual(cursor.count, c + i)
-                cursor.insertBefore((2 * i, String(2 * i)))
+                cursor.insert((2 * i, String(2 * i)))
                 XCTAssertEqual(cursor.key, 2 * i + 1)
                 XCTAssertEqual(cursor.position, 2 * i + 1)
                 XCTAssertEqual(cursor.count, c + i + 1)
@@ -274,7 +274,7 @@ class BTreeCursorTests: XCTestCase {
         var tree = Tree(order: 5)
         let c = 30
         tree.withCursorAtStart() { cursor in
-            cursor.insertBefore((0, "0"))
+            cursor.insert((0, "0"))
             cursor.moveToStart()
             for i in 1 ..< c {
                 cursor.insertAfter((i, String(i)))
@@ -292,7 +292,7 @@ class BTreeCursorTests: XCTestCase {
         tree.withCursorAtStart() { cursor in
             XCTAssertTrue(cursor.isAtEnd)
             for i in 0..<c {
-                cursor.insertBefore((2 * i, String(2 * i)))
+                cursor.insert((2 * i, String(2 * i)))
             }
 
             cursor.moveToStart()
@@ -318,7 +318,7 @@ class BTreeCursorTests: XCTestCase {
         tree.withCursorAtStart() { cursor in
             XCTAssertTrue(cursor.isAtEnd)
             for i in (c - 1).stride(through: 0, by: -1) {
-                cursor.insertBefore((i, String(i)))
+                cursor.insert((i, String(i)))
                 XCTAssertEqual(cursor.count, c - i)
                 XCTAssertEqual(cursor.position, 1)
                 cursor.moveBackward()

@@ -538,7 +538,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// Insert a new element at the cursor's current position, and leave the cursor positioned on the original element.
     ///
     /// - Complexity: amortized O(1)
-    public func insertBefore(element: Element) {
+    public func insert(element: Element) {
         precondition(self.isValid)
         count += 1
         if path.last!.isLeaf {
@@ -622,7 +622,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         let c = root.count
         if c == 0 { return }
         if c == 1 {
-            insertBefore(root.elements[0])
+            insert(root.elements[0])
             return
         }
         if self.count == 0 {
