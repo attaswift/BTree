@@ -534,6 +534,18 @@ class BTreeCursorTests: XCTestCase {
             cursor.removeAllBefore(includingCurrent: false)
         }
         XCTAssertElementsEqual(t5, (c - 10 ..< c).map { ($0, String($0)) })
+
+        var t6 = maximalTree(depth: 2, order: 3)
+        t6.withCursorAtStart { cursor in
+            cursor.removeAllBefore(includingCurrent: false)
+        }
+        XCTAssertElementsEqual(t6, (0 ..< c).map { ($0, String($0)) })
+
+        var t7 = maximalTree(depth: 2, order: 3)
+        t7.withCursorAtStart { cursor in
+            cursor.removeAllBefore(includingCurrent: true)
+        }
+        XCTAssertElementsEqual(t7, (1 ..< c).map { ($0, String($0)) })
     }
 
     func testRemoveAllAfter() {

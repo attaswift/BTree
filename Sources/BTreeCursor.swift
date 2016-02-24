@@ -794,6 +794,9 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             return
         }
         if !inclusive {
+            if isAtStart {
+                return
+            }
             moveBackward()
         }
         reset(startOf: finishAndKeepSuffix().root)
