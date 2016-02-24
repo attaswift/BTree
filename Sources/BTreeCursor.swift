@@ -123,8 +123,20 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// The current count of elements in the tree. This is always kept up to date, while `root.count` is usually invalid.
     public private(set) var count: Int
 
-    /// The position of the currenly focused element in the tree.
+    /// The position of the currently focused element in the tree.
     private var _position: Int
+
+    /// The position of the currently focused element in the tree.
+    ///
+    /// - Complexity: O(1) for the getter, O(log(`count`)) for the setter.
+    public var position: Int {
+        get {
+            return _position
+        }
+        set {
+            moveToPosition(newValue)
+        }
+    }
 
     //MARK: Simple properties
 
@@ -315,15 +327,6 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         let p = positionOfSlot ?? node.positionOfSlot(slot)
         self._position -= node.count - p
         self.slots.append(slot)
-    }
-
-    public var position: Int {
-        get {
-            return _position
-        }
-        set {
-            moveToPosition(newValue)
-        }
     }
 
     /// Position the cursor on the next element in the b-tree.
