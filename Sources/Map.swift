@@ -64,8 +64,6 @@ extension Map: CollectionType {
     }
 
     /// The number of (key, value) pairs in this map.
-    ///
-    /// - Complexity: O(1)
     public var count: Int {
         return tree.count
     }

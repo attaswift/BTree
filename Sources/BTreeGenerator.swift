@@ -10,62 +10,84 @@
 public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
     public typealias Element = (Key, Payload)
     typealias Node = BTreeNode<Key, Payload>
+    typealias State = BTreeStrongPath<Key, Payload>
 
-    var nodePath: [Node]
-    var indexPath: [Int]
+    var state: State
 
-    init(_ root: Node) {
-        if root.count == 0 {
-            self.nodePath = []
-            self.indexPath = []
-        }
-        else {
-            var node = root
-            var path: Array<Node> = []
-            path.reserveCapacity(node.depth + 1)
-            path.append(root)
-            while !node.isLeaf {
-                node = node.children.first!
-                path.append(node)
-            }
-            self.nodePath = path
-            self.indexPath = Array(count: path.count, repeatedValue: 0)
-        }
+    internal init(_ state: State) {
+        self.state = state
     }
 
     /// Advance to the next element and return it, or return `nil` if no next element exists.
     ///
     /// - Complexity: Amortized O(1)
     public mutating func next() -> Element? {
-        let level = nodePath.count
-        guard level > 0 else { return nil }
-        let node = nodePath[level - 1]
-        let index = indexPath[level - 1]
-        let result = node.elements[index]
-        if !node.isLeaf {
-            // Descend
-            indexPath[level - 1] = index + 1
-            var n = node.children[index + 1]
-            nodePath.append(n)
-            indexPath.append(0)
-            while !n.isLeaf {
-                n = n.children.first!
-                nodePath.append(n)
-                indexPath.append(0)
-            }
-        }
-        else if index < node.elements.count - 1 {
-            indexPath[level - 1] = index + 1
-        }
-        else {
-            // Ascend
-            nodePath.removeLast()
-            indexPath.removeLast()
-            while !nodePath.isEmpty && indexPath.last == nodePath.last!.elements.count {
-                nodePath.removeLast()
-                indexPath.removeLast()
-            }
-        }
+        if state.isAtEnd { return nil }
+        let result = state.element
+        state.moveForward()
         return result
+    }
+}
+
+/// A mutable path in a b-tree, holding strong references to nodes on the path.
+/// This path variant does not support modifying the tree itself; it is suitable for use in generators.
+internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
+    typealias Node = BTreeNode<Key, Payload>
+
+    var root: Node
+    var path: [Node]
+    var slots: [Int]
+    var position: Int
+
+    init(_ root: Node) {
+        self.root = root
+        self.path = [root]
+        self.slots = []
+        self.position = root.count
+    }
+
+    var length: Int { return path.count }
+    var count: Int { return root.count }
+
+    var lastNode: Node { return path.last! }
+
+    var lastSlot: Int {
+        get { return slots.last! }
+        set { slots[slots.count - 1] = newValue }
+    }
+
+    mutating func popFromSlots() -> Int {
+        assert(path.count == slots.count)
+        let slot = slots.removeLast()
+        let node = path.last!
+        position += node.count - node.positionOfSlot(slot)
+        return slot
+    }
+
+    mutating func popFromPath() -> Node {
+        assert(path.count > 0 && path.count == slots.count + 1)
+        return path.removeLast()
+    }
+
+    mutating func pushToPath() -> Node {
+        assert(path.count == slots.count)
+        let parent = path.last!
+        let slot = slots.last!
+        let child = parent.children[slot]
+        path.append(child)
+        return child
+    }
+
+    mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
+        assert(path.count == slots.count + 1)
+        let node = path.last!
+        position -= node.count - positionOfSlot
+        slots.append(slot)
+    }
+
+    func forEachAscending(@noescape body: (Node, Int) -> Void) {
+        for i in (0 ..< path.count).reverse() {
+            body(path[i], slots[i])
+        }
     }
 }

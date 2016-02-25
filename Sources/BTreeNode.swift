@@ -126,7 +126,7 @@ extension BTreeNode: SequenceType {
     var isEmpty: Bool { return count == 0 }
 
     func generate() -> Generator {
-        return BTreeGenerator(self)
+        return BTreeGenerator(BTreeStrongPath(root: self, position: 0))
     }
 
     /// Call `body` on each element in self in the same order as a for-in loop.

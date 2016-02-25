@@ -55,7 +55,7 @@ extension BTree: SequenceType {
 
     /// Returns a generator over the elements of this b-tree. Elements are sorted by key.
     public func generate() -> Generator {
-        return Generator(self.root)
+        return Generator(BTreeStrongPath(root: root, position: 0))
     }
 
     /// Call `body` on each element in self in the same order as a for-in loop.
@@ -79,12 +79,12 @@ extension BTree: CollectionType {
 
     /// The index of the first element of this tree. Elements are sorted by key.
     public var startIndex: Index {
-        return Index(startIndexOf: root)
+        return Index(BTreeWeakPath(root: root, position: 0))
     }
 
     /// The index after the last element of this tree. (Equals `startIndex` when the tree is empty.)
     public var endIndex: Index {
-        return Index(endIndexOf: root)
+        return Index(BTreeWeakPath(root: root, position: count))
     }
 
     /// The number of elements in this tree.
@@ -97,9 +97,8 @@ extension BTree: CollectionType {
     /// - Complexity: O(1)
     public subscript(index: Index) -> Element {
         get {
-            precondition(index.root.value === self.root)
-            let node = index.path.last!.value!
-            return node.elements[index.slots.last!]
+            index.state.expectRoot(self.root)
+            return index.state.element
         }
     }
 
@@ -193,31 +192,9 @@ public extension BTree {
     /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func indexOf(key: Key, choosing selector: BTreeKeySelector = .Any) -> Index? {
-        var node = root
-        var path = [Weak(root)]
-        var slots: [Int] = []
-        var match = 0
-        var matchSlot = 0
-        while true {
-            let slot = node.slotOf(key, choosing: selector)
-            if let m = slot.match {
-                match = path.count
-                matchSlot = m
-            }
-            if node.isLeaf {
-                break
-            }
-            node = node.children[slot.descend]
-            slots.append(slot.descend)
-            path.append(Weak(node))
-        }
-        if match == 0 {
-            return nil
-        }
-        path.removeRange(match ..< path.count)
-        slots.removeRange(match - 1 ..< slots.count)
-        slots.append(matchSlot)
-        return Index(path: path, slots: slots)
+        let path = BTreeWeakPath(root: root, key: key, choosing: selector)
+        guard !path.isAtEnd && path.key == key else { return nil }
+        return Index(path)
     }
 
     /// Returns the position of the first element in this tree with the specified key, or `nil` if there is no such element.
@@ -254,23 +231,8 @@ public extension BTree {
     /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func positionOfIndex(index: Index) -> Int {
-        index.expectValid(index.root.value === root)
-        if index.path.count == 0 {
-            return self.count
-        }
-        guard var last = index.path.last?.value else { index.invalid() }
-        var position = last.positionOfSlot(index.slots.last!)
-        for i in (0 ..< index.path.count - 1).reverse() {
-            guard let node = index.path[i].value else { index.invalid() }
-            let slot = index.slots[i]
-            index.expectValid(node.children[slot] === last)
-            index.expectValid(slot < node.children.count)
-            if slot > 0 {
-                position += node.positionOfSlot(slot - 1) + 1
-            }
-            last = node
-        }
-        return position
+        index.state.expectRoot(root)
+        return index.state.position
     }
 
     /// Returns the index of the element at `position`.
@@ -279,28 +241,7 @@ public extension BTree {
     /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func indexOfPosition(position: Int) -> Index {
-        precondition(position >= 0 && position <= count)
-        if position == count {
-            return endIndex
-        }
-        var position = position
-        var path = [Weak(root)]
-        var slots: [Int] = []
-        var node = root
-        while !node.isLeaf {
-            let slot = node.slotOfPosition(position)
-            slots.append(slot.index)
-            if slot.match {
-                return Index(path: path, slots: slots)
-            }
-            let child = node.children[slot.index]
-            path.append(Weak(child))
-            position -= slot.position - child.count
-            node = child
-        }
-        assert(position < node.elements.count)
-        slots.append(position)
-        return Index(path: path, slots: slots)
+        return Index(BTreeWeakPath(root: root, position: position))
     }
 }
 
@@ -634,8 +575,8 @@ extension BTree {
     /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func subtree(with range: Range<Index>) -> BTree<Key, Payload> {
-        precondition(range.startIndex.root.value === self.root)
-        precondition(range.endIndex.root.value === self.root)
+        range.startIndex.state.expectRoot(root)
+        range.endIndex.state.expectRoot(root)
         if range.startIndex == range.endIndex {
             return BTree(order: self.order)
         }
@@ -644,7 +585,7 @@ extension BTree {
         result.withCursorAt(range.startIndex) { cursor in
             let start = cursor.position
             cursor.removeAllBefore(includingCurrent: false)
-            cursor.moveToPosition(end - start)
+            cursor.move(toPosition: end - start)
             cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
         }
         return result
@@ -667,7 +608,7 @@ extension BTree {
         var result = self
         result.withCursorAtPosition(positions.startIndex) { cursor in
             cursor.removeAllBefore(includingCurrent: false)
-            cursor.moveToPosition(positions.count)
+            cursor.move(toPosition: positions.count)
             cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
         }
         return result
@@ -682,7 +623,7 @@ extension BTree {
         var result = self
         result.withCursorAt(start, choosing: .First) { cursor in
             cursor.removeAllBefore(includingCurrent: false)
-            cursor.moveToKey(end, choosing: .First)
+            cursor.move(to: end, choosing: .First)
             cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
         }
         return result
@@ -697,7 +638,7 @@ extension BTree {
         var result = self
         result.withCursorAt(start, choosing: .First) { cursor in
             cursor.removeAllBefore(includingCurrent: false)
-            cursor.moveToKey(stop, choosing: .Last)
+            cursor.move(to: stop, choosing: .Last)
             cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd && cursor.key != stop)
         }
         return result

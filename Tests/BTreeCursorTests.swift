@@ -200,21 +200,21 @@ class BTreeCursorTests: XCTestCase {
             var toggle = false
             while i < j {
                 if toggle {
-                    cursor.moveToPosition(i)
+                    cursor.move(toPosition: i)
                     XCTAssertEqual(cursor.position, i)
                     XCTAssertEqual(cursor.key, i)
                     i += 1
                     toggle = false
                 }
                 else {
-                    cursor.moveToPosition(j)
+                    cursor.move(toPosition: j)
                     XCTAssertEqual(cursor.position, j)
                     XCTAssertEqual(cursor.key, j)
                     j -= 1
                     toggle = true
                 }
             }
-            cursor.moveToPosition(cursor.count)
+            cursor.move(toPosition: cursor.count)
             XCTAssertTrue(cursor.isAtEnd)
             cursor.moveBackward()
             XCTAssertEqual(cursor.key, cursor.count - 1)
@@ -228,11 +228,11 @@ class BTreeCursorTests: XCTestCase {
             var start = 0
             var end = count - 1
             while start < end {
-                cursor.moveToKey(2 * end)
+                cursor.move(to: 2 * end)
                 XCTAssertEqual(cursor.position, end)
                 XCTAssertEqual(cursor.key, 2 * end)
 
-                cursor.moveToKey(2 * start + 1)
+                cursor.move(to: 2 * start + 1)
                 XCTAssertEqual(cursor.position, start + 1)
                 XCTAssertEqual(cursor.key, 2 * start + 2)
 
@@ -243,11 +243,11 @@ class BTreeCursorTests: XCTestCase {
             start = 0
             end = count - 1
             while start < end {
-                cursor.moveToKey(2 * end - 1)
+                cursor.move(to: 2 * end - 1)
                 XCTAssertEqual(cursor.position, end)
                 XCTAssertEqual(cursor.key, 2 * end)
 
-                cursor.moveToKey(2 * start)
+                cursor.move(to: 2 * start)
                 XCTAssertEqual(cursor.position, start)
                 XCTAssertEqual(cursor.key, 2 * start)
 
@@ -408,7 +408,7 @@ class BTreeCursorTests: XCTestCase {
             XCTAssertEqual(cursor.count, 20)
             XCTAssertEqual(cursor.position, 20)
 
-            cursor.moveToPosition(0)
+            cursor.move(toPosition: 0)
             cursor.insert((0 ..< 5).map { ($0, String($0)) })
             XCTAssertEqual(cursor.count, 25)
             XCTAssertEqual(cursor.position, 5)

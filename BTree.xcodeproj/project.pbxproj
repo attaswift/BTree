@@ -59,6 +59,10 @@
 		BB8FE9DC1C7C8F730051268F /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 		BB8FE9DD1C7C8F730051268F /* XCTest extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747771C2897F8002C929C /* XCTest extensions.swift */; };
 		BB9AE4511C1FCE0B002C5D63 /* BTree.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB9AE43B1C1FCC35002C5D63 /* BTree.framework */; };
+		BBA55CDC1C7F5C8E00455736 /* BTreePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA55CDB1C7F5C8E00455736 /* BTreePath.swift */; };
+		BBA55CDD1C7F5C8E00455736 /* BTreePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA55CDB1C7F5C8E00455736 /* BTreePath.swift */; };
+		BBA55CDE1C7F5C8E00455736 /* BTreePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA55CDB1C7F5C8E00455736 /* BTreePath.swift */; };
+		BBA55CDF1C7F5C8E00455736 /* BTreePath.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA55CDB1C7F5C8E00455736 /* BTreePath.swift */; };
 		BBB224E31C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DA1C7B9BAA0049FEF6 /* BTreeTestSupport.swift */; };
 		BBB224E41C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D81C7B9BAA0049FEF6 /* BTreeNodeTests.swift */; };
 		BBB224E51C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D71C7B9BAA0049FEF6 /* BTreeCursorTests.swift */; };
@@ -127,6 +131,7 @@
 		BB9AE44C1C1FCE0B002C5D63 /* BTreeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BTreeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB9AE47D1C207303002C5D63 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		BBA55CD51C7E525700455736 /* generate-docs.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "generate-docs.sh"; sourceTree = "<group>"; };
+		BBA55CDB1C7F5C8E00455736 /* BTreePath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreePath.swift; sourceTree = "<group>"; };
 		BBB224D71C7B9BAA0049FEF6 /* BTreeCursorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeCursorTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BBB224D81C7B9BAA0049FEF6 /* BTreeNodeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeNodeTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BBB224D91C7B9BAA0049FEF6 /* BTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -244,6 +249,7 @@
 				BB7773861C6CA08B00991A06 /* Weak.swift */,
 				BBD622781C77568D00B6BF46 /* BTree.swift */,
 				BB56634E1C46969400F5A118 /* BTreeNode.swift */,
+				BBA55CDB1C7F5C8E00455736 /* BTreePath.swift */,
 				BB7773801C6CA03200991A06 /* BTreeGenerator.swift */,
 				BB7773831C6CA07C00991A06 /* BTreeIndex.swift */,
 				BB77738C1C6E476100991A06 /* BTreeCursor.swift */,
@@ -546,6 +552,7 @@
 				BB7773841C6CA07C00991A06 /* BTreeIndex.swift in Sources */,
 				BBD622791C77568D00B6BF46 /* BTree.swift in Sources */,
 				BB7773871C6CA08B00991A06 /* Weak.swift in Sources */,
+				BBA55CDC1C7F5C8E00455736 /* BTreePath.swift in Sources */,
 				BB7773901C6E57B300991A06 /* BTreeCursor.swift in Sources */,
 				BB097FB31C236EFD00CB718A /* Map.swift in Sources */,
 				BB77738A1C6CBC9100991A06 /* List.swift in Sources */,
@@ -579,6 +586,7 @@
 				BB8FE9A71C7C8D720051268F /* BTreeIndex.swift in Sources */,
 				BB8FE9AA1C7C8D720051268F /* List.swift in Sources */,
 				BB8FE9A61C7C8D720051268F /* BTreeGenerator.swift in Sources */,
+				BBA55CDE1C7F5C8E00455736 /* BTreePath.swift in Sources */,
 				BB8FE9A51C7C8D720051268F /* BTreeNode.swift in Sources */,
 				BB8FE9A91C7C8D720051268F /* Map.swift in Sources */,
 				BB8FE9A41C7C8D720051268F /* BTree.swift in Sources */,
@@ -594,6 +602,7 @@
 				BB8FE9CF1C7C8F6B0051268F /* BTreeIndex.swift in Sources */,
 				BB8FE9D21C7C8F6B0051268F /* List.swift in Sources */,
 				BB8FE9CE1C7C8F6B0051268F /* BTreeGenerator.swift in Sources */,
+				BBA55CDF1C7F5C8E00455736 /* BTreePath.swift in Sources */,
 				BB8FE9CD1C7C8F6B0051268F /* BTreeNode.swift in Sources */,
 				BB8FE9D11C7C8F6B0051268F /* Map.swift in Sources */,
 				BB8FE9CC1C7C8F6B0051268F /* BTree.swift in Sources */,
@@ -627,6 +636,7 @@
 				BB7773851C6CA07C00991A06 /* BTreeIndex.swift in Sources */,
 				BBD6227A1C77568D00B6BF46 /* BTree.swift in Sources */,
 				BB7773881C6CA08B00991A06 /* Weak.swift in Sources */,
+				BBA55CDD1C7F5C8E00455736 /* BTreePath.swift in Sources */,
 				BB097FB91C236F2200CB718A /* Map.swift in Sources */,
 				BB77738F1C6E57B200991A06 /* BTreeCursor.swift in Sources */,
 				BB77738B1C6CBC9100991A06 /* List.swift in Sources */,

@@ -6,11 +6,6 @@
 //  Copyright © 2015–2016 Károly Lőrentey.
 //
 
-private enum WalkDirection {
-    case Forward
-    case Backward
-}
-
 /// An index into a collection that uses a b-tree for storage.
 ///
 /// This index satisfies `CollectionType`'s requirement for O(1) access, but
@@ -21,110 +16,28 @@ private enum WalkDirection {
 public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     public typealias Distance = Int
     typealias Node = BTreeNode<Key, Payload>
+    typealias State = BTreeWeakPath<Key, Payload>
 
-    internal private(set) var root: Weak<Node>
-    internal private(set) var path: [Weak<Node>]
-    internal private(set) var slots: [Int]
+    internal private(set) var state: State
 
-    internal init(startIndexOf root: Node) {
-        self.root = Weak(root)
-        self.path = []
-        self.slots = []
-        guard !root.isEmpty else { return }
-        descend(.Forward, node: root)
-    }
-
-    internal init(endIndexOf root: Node) {
-        self.root = Weak(root)
-        self.path = []
-        self.slots = []
-        path.reserveCapacity(root.depth + 1)
-    }
-
-    internal init(path: [Weak<Node>], slots: [Int]) {
-        precondition(path.count == slots.count)
-        precondition(path.count > 0)
-        self.root = path[0]
-        self.slots = slots
-        self.path = path
-    }
-
-    internal func expectValid(@autoclosure expression: Void->Bool, file: StaticString = __FILE__, line: UInt = __LINE__) {
-        precondition(expression(), "Invalid BTreeCursor", file: file, line: line)
-    }
-
-    @noreturn internal func invalid(file: StaticString = __FILE__, line: UInt = __LINE__) {
-        preconditionFailure("Invalid BTreeCursor", file: file, line: line)
-    }
-
-    private mutating func descend(direction: WalkDirection, node: Node? = nil) {
-        var node = node ?? path.last!.value!.children[slots.last!]
-        path.append(Weak(node))
-        while !node.isLeaf {
-            let slot = direction == .Forward ? 0 : node.children.count - 1
-            slots.append(slot)
-            node = node.children[slot]
-            path.append(Weak(node))
-        }
-        slots.append(direction == .Forward ? 0 : node.elements.count - 1)
-    }
-
-    private mutating func popPath() {
-        guard let n = path.removeLast().value else { invalid() }
-        slots.removeLast()
-        if path.count > 0 {
-            guard let p = path.last!.value else { invalid() }
-            let s = slots.last!
-            expectValid(s < p.children.count && p.children[s] === n)
-        }
-    }
-
-    internal mutating func successorInPlace() {
-        guard root.value != nil else { invalid() }
-        guard let node = self.path.last?.value else { invalid() }
-        if node.isLeaf {
-            if slots.last! < node.elements.count - 1 {
-                slots[slots.count - 1] += 1
-            }
-            else {
-                // Ascend
-                popPath()
-                while slots.count > 0 && slots.last! == path.last!.value!.elements.count {
-                    popPath()
-                }
-            }
-        }
-        else {
-            slots[slots.count - 1] += 1
-            descend(.Forward)
-        }
+    internal init(_ state: State) {
+        self.state = state
     }
     
-    internal mutating func predecessorInPlace() {
-        expectValid(root.value != nil)
-        if path.count == 0 {
-            descend(.Backward, node: root.value!)
-            return
-        }
-        guard let node = self.path.last!.value else { invalid() }
-        if node.isLeaf {
-            if slots.last! > 0 {
-                slots[slots.count - 1] -= 1
-            }
-            else {
-                // Ascend
-                popPath()
-                while slots.count > 0 && slots.last! == 0 {
-                    popPath()
-                }
-                if slots.count > 0 {
-                    slots[slots.count - 1] -= 1
-                }
-            }
-        }
-        else {
-            descend(.Backward)
-        }
+    /// Advance to the next index.
+    ///
+    /// - Requires: self is valid and not the end index.
+    /// - Complexity: Amortized O(1).
+    public mutating func successorInPlace() {
+        state.moveForward()
+    }
+    
+    /// Advance to the previous index.
+    ///
+    /// - Requires: self is valid and not the start index.
+    /// - Complexity: Amortized O(1).
+    public mutating func predecessorInPlace() {
+        state.moveBackward()
     }
 
     /// Return the next index after `self` in its collection.
@@ -132,7 +45,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     /// - Requires: self is valid and not the end index.
     /// - Complexity: Amortized O(1).
     @warn_unused_result
-    public func successor() -> BTreeIndex<Key, Payload> {
+    public func successor() -> BTreeIndex {
         var result = self
         result.successorInPlace()
         return result
@@ -143,7 +56,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
     /// - Requires: self is valid and not the start index.
     /// - Complexity: Amortized O(1).
     @warn_unused_result
-    public func predecessor() -> BTreeIndex<Key, Payload> {
+    public func predecessor() -> BTreeIndex {
         var result = self
         result.predecessorInPlace()
         return result
@@ -153,11 +66,102 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
 /// Return true iff `a` is equal to `b`.
 @warn_unused_result
 public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
-    // Invalid indexes should compare unequal to every index, including themselves.
-    guard let ar = a.root.value, br = b.root.value where ar === br else { return false }
-    guard a.slots == b.slots else { return false }
-    for i in 0 ..< a.path.count {
-        guard a.path[i].value === b.path[i].value else { return false }
+    guard let ar = a.state._root.value else { a.state.invalid() }
+    guard let br = b.state._root.value else { b.state.invalid() }
+    precondition(ar === br, "Indices to different trees cannot be compared")
+    return a.state.position == b.state.position
+}
+
+/// A mutable path in a b-tree, holding weak references to nodes on the path.
+/// This path variant does not support modifying the tree itself; it is suitable for use in indices.
+///
+/// After a path of this kind has been created, the original tree might mutated in a way that invalidates
+/// the path, setting some of its weak references to nil, or breaking the consistency of its trail of slot indices.
+/// The path checks for this during navigation, and traps if it finds itself invalidated.
+///
+internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
+    typealias Node = BTreeNode<Key, Payload>
+
+    var _root: Weak<Node>
+    var path: [Weak<Node>]
+    var slots: [Int]
+    var position: Int
+
+    var root: Node {
+        guard let root = _root.value else { invalid() }
+        return root
     }
-    return true
+    var length: Int { return path.count }
+    var count: Int { return root.count }
+
+    init(_ root: Node) {
+        self._root = Weak(root)
+        self.path = [Weak(root)]
+        self.slots = []
+        self.position = root.count
+    }
+
+    internal func expectRoot(root: Node) {
+        expectValid(_root.value === root)
+    }
+
+    internal func expectValid(@autoclosure expression: Void->Bool, file: StaticString = __FILE__, line: UInt = __LINE__) {
+        precondition(expression(), "Invalid BTreeCursor", file: file, line: line)
+    }
+
+    @noreturn internal func invalid(file: StaticString = __FILE__, line: UInt = __LINE__) {
+        preconditionFailure("Invalid BTreeCursor", file: file, line: line)
+    }
+
+    var lastSlot: Int {
+        get { return slots.last! }
+        set { slots[slots.count - 1] = newValue }
+    }
+
+    var lastNode: Node {
+        guard let node = path.last!.value else { invalid() }
+        return node
+    }
+
+    mutating func popFromSlots() -> Int {
+        assert(path.count == slots.count)
+        let slot = slots.removeLast()
+        let node = lastNode
+        position += node.count - node.positionOfSlot(slot)
+        return slot
+    }
+
+    mutating func popFromPath() -> Node {
+        assert(path.count > 0 && path.count == slots.count + 1)
+        guard let child = path.removeLast().value else { invalid() }
+        expectValid(path.count == 0 || lastNode.children[slots.last!] === child)
+        return child
+    }
+
+    mutating func pushToPath() -> Node {
+        assert(path.count == slots.count)
+        let parent = lastNode
+        let slot = slots.last!
+        let child = parent.children[slot]
+        path.append(Weak(child))
+        return child
+    }
+
+    mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
+        assert(path.count == slots.count + 1)
+        let node = lastNode
+        position -= node.count - positionOfSlot
+        slots.append(slot)
+    }
+
+    func forEachAscending(@noescape body: (Node, Int) -> Void) {
+        var child: Node? = nil
+        for i in (0 ..< path.count).reverse() {
+            guard let node = path[i].value else { invalid() }
+            let slot = slots[i]
+            expectValid(child == nil || node.children[slot] === child)
+            child = node
+            body(node, slot)
+        }
+    }
 }
