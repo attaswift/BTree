@@ -570,6 +570,82 @@ extension BTree {
 //MARK: Subtree extraction
 
 extension BTree {
+    /// Returns a tree containing the initial `maxLength` elements in this tree.
+    ///
+    /// If `maxLength` exceeds `self.count`, the result contains all the elements of `self`.
+    public func prefix(maxLength: Int) -> BTree {
+        precondition(maxLength >= 0)
+        if maxLength == 0 {
+            return BTree(order: order)
+        }
+        if maxLength >= count {
+            return self
+        }
+        return BTreeStrongPath(root: root, position: maxLength).prefix()
+    }
+
+    public func dropLast(n: Int) -> BTree {
+        precondition(n >= 0)
+        return prefix(max(0, count - n))
+    }
+
+    public func prefixUpTo(end: Index) -> BTree {
+        end.state.expectRoot(root)
+        return end.state.prefix()
+    }
+
+    public func prefixUpTo(end: Key) -> BTree {
+        return BTreeStrongPath(root: root, key: end, choosing: .First).prefix()
+    }
+
+    public func prefixThrough(stop: Index) -> BTree {
+        return prefixUpTo(stop.successor())
+    }
+
+    public func prefixThrough(stop: Key) -> BTree {
+        var path = BTreeStrongPath(root: root, key: stop, choosing: .Last)
+        if !path.isAtEnd && path.key == stop {
+            path.moveForward()
+        }
+        return path.prefix()
+    }
+
+    /// Returns a tree containing the final `maxLength` elements in this tree.
+    ///
+    /// If `maxLength` exceeds `self.count`, the result contains all the elements of `self`.
+    public func suffix(maxLength: Int) -> BTree {
+        precondition(maxLength >= 0)
+        if maxLength == 0 {
+            return BTree()
+        }
+        if maxLength >= count {
+            return self
+        }
+        return BTreeStrongPath(root: root, position: count - maxLength - 1).suffix()
+    }
+
+    public func dropFirst(n: Int) -> BTree {
+        precondition(n >= 0)
+        return suffix(max(0, count - n))
+    }
+
+    public func suffixFrom(start: Index) -> BTree {
+        start.state.expectRoot(root)
+        if start.state.position == 0 {
+            return self
+        }
+        return start.predecessor().state.suffix()
+    }
+
+    public func suffixFrom(start: Key) -> BTree {
+        var path = BTreeStrongPath(root: root, key: start, choosing: .First)
+        if path.isAtStart {
+            return self
+        }
+        path.moveBackward()
+        return path.suffix()
+    }
+
     /// Return a subtree consisting of elements in the specified range of indexes.
     ///
     /// - Complexity: O(log(`count`))
