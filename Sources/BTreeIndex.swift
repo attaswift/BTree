@@ -40,6 +40,13 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
         state.moveBackward()
     }
 
+    /// Advance this index by `distance` elements.
+    ///
+    /// - Complexity: O(log(*n*)) where *n* is the number of elements in the tree.
+    public mutating func advance(by distance: Int) {
+        state.move(toPosition: state.position + distance)
+    }
+
     /// Return the next index after `self` in its collection.
     ///
     /// - Requires: self is valid and not the end index.
@@ -60,6 +67,38 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
         var result = self
         result.predecessorInPlace()
         return result
+    }
+
+    /// Return the result of advancing `self` by `n` positions.
+    /// 
+    /// - Complexity: O(log(`n`))
+    @warn_unused_result
+    public func advancedBy(n: Int) -> BTreeIndex {
+        var result = self
+        result.advance(by: n)
+        return result
+    }
+
+    /// Return the result of advancing `self` by `n` positions.
+    ///
+    /// - Complexity: O(log(`n`))
+    @warn_unused_result
+    public func advancedBy(n: Int, limit: BTreeIndex) -> BTreeIndex {
+        state.expectRoot(limit.state.root)
+        let d = self.distanceTo(limit)
+        if d == 0 || (d > 0 ? d <= n : d >= n) {
+            return limit
+        }
+        return self.advancedBy(n)
+    }
+
+    /// Return the result of advancing self by `n` positions, or until it equals `limit`.
+    ///
+    /// - Complexity: O(1)
+    @warn_unused_result
+    public func distanceTo(end: BTreeIndex) -> Int {
+        state.expectRoot(end.state.root)
+        return end.state.position - state.position
     }
 }
 
