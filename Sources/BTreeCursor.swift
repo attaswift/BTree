@@ -17,13 +17,13 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursorAtPosition(position: Int, @noescape body: Cursor throws -> Void) rethrows {
+    public mutating func withCursorAtPosition<R>(position: Int, @noescape body: Cursor throws -> R) rethrows -> R {
         precondition(position >= 0 && position <= count)
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, position: position))
         root = Node()
         defer { self = cursor.finish() }
-        try body(cursor)
+        return try body(cursor)
     }
 
     /// Call `body` with a cursor at the start of this tree.
@@ -32,8 +32,8 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursorAtStart(@noescape body: Cursor throws -> Void) rethrows {
-        try withCursorAtPosition(0, body: body)
+    public mutating func withCursorAtStart<R>(@noescape body: Cursor throws -> R) rethrows -> R {
+        return try withCursorAtPosition(0, body: body)
     }
 
     /// Call `body` with a cursor at the end of this tree.
@@ -42,8 +42,8 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursorAtEnd(@noescape body: Cursor throws -> Void) rethrows {
-        try withCursorAtPosition(count, body: body)
+    public mutating func withCursorAtEnd<R>(@noescape body: Cursor throws -> R) rethrows -> R {
+        return try withCursorAtPosition(count, body: body)
     }
 
     /// Call `body` with a cursor positioned at `key` in this tree.
@@ -53,12 +53,12 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursorAt(key: Key, choosing selector: BTreeKeySelector = .Any, @noescape body: Cursor throws -> Void) rethrows {
+    public mutating func withCursorAt<R>(key: Key, choosing selector: BTreeKeySelector = .Any, @noescape body: Cursor throws -> R) rethrows -> R {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, key: key, choosing: selector))
         root = Node()
         defer { self = cursor.finish() }
-        try body(cursor)
+        return try body(cursor)
     }
 
     /// Call `body` with a cursor positioned at `index` in this tree.
@@ -67,12 +67,12 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursorAt(index: Index, @noescape body: Cursor throws -> Void) rethrows {
+    public mutating func withCursorAt<R>(index: Index, @noescape body: Cursor throws -> R) rethrows -> R {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, slots: index.state.slots))
         root = Node()
         defer { self = cursor.finish() }
-        try body(cursor)
+        return try body(cursor)
     }
 }
 
