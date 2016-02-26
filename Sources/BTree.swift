@@ -671,18 +671,16 @@ extension BTree {
     public func subtree(with range: Range<Index>) -> BTree<Key, Payload> {
         range.startIndex.state.expectRoot(root)
         range.endIndex.state.expectRoot(root)
-        if range.startIndex == range.endIndex {
+        let start = range.startIndex.state.position
+        let end = range.endIndex.state.position
+        precondition(0 <= start && start <= end && end <= self.count)
+        if start == end {
             return BTree(order: self.order)
         }
-        let end = self.positionOfIndex(range.endIndex)
-        var result = self
-        result.withCursorAt(range.startIndex) { cursor in
-            let start = cursor.position
-            cursor.removeAllBefore(includingCurrent: false)
-            cursor.move(toPosition: end - start)
-            cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
+        if start == 0 {
+            return prefixUpTo(range.endIndex)
         }
-        return result
+        return suffixFrom(range.startIndex).prefix(end - start)
     }
 
     /// Return a subtree consisting of elements in the specified range of positions.
@@ -694,18 +692,7 @@ extension BTree {
         if positions.count == 0 {
             return BTree(order: order)
         }
-        if positions.count == 1 {
-            var result = BTree(order: order)
-            result.insert(elementAtPosition(positions.startIndex))
-            return result
-        }
-        var result = self
-        result.withCursorAtPosition(positions.startIndex) { cursor in
-            cursor.removeAllBefore(includingCurrent: false)
-            cursor.move(toPosition: positions.count)
-            cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
-        }
-        return result
+        return dropFirst(positions.startIndex).prefix(positions.count)
     }
 
     /// Return a subtree consisting of all elements with keys greater than or equal to `start` but less than `end`.
@@ -714,13 +701,7 @@ extension BTree {
     @warn_unused_result
     public func subtree(from start: Key, to end: Key) -> BTree<Key, Payload> {
         precondition(start <= end)
-        var result = self
-        result.withCursorAt(start, choosing: .First) { cursor in
-            cursor.removeAllBefore(includingCurrent: false)
-            cursor.move(to: end, choosing: .First)
-            cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd)
-        }
-        return result
+        return suffixFrom(start).prefixUpTo(end)
     }
 
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than or equal to `end`.
@@ -729,13 +710,7 @@ extension BTree {
     @warn_unused_result
     public func subtree(from start: Key, through stop: Key) -> BTree<Key, Payload> {
         precondition(start <= stop)
-        var result = self
-        result.withCursorAt(start, choosing: .First) { cursor in
-            cursor.removeAllBefore(includingCurrent: false)
-            cursor.move(to: stop, choosing: .Last)
-            cursor.removeAllAfter(includingCurrent: !cursor.isAtEnd && cursor.key != stop)
-        }
-        return result
+        return suffixFrom(start).prefixThrough(stop)
     }
 }
 
