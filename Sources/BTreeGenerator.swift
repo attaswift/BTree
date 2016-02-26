@@ -71,17 +71,14 @@ internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
 
     mutating func pushToPath() -> Node {
         assert(path.count == slots.count)
-        let parent = path.last!
-        let slot = slots.last!
-        let child = parent.children[slot]
+        let child = lastNode.children[lastSlot]
         path.append(child)
         return child
     }
 
     mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
         assert(path.count == slots.count + 1)
-        let node = path.last!
-        position -= node.count - positionOfSlot
+        position -= lastNode.count - positionOfSlot
         slots.append(slot)
     }
 

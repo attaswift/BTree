@@ -200,7 +200,7 @@ class BTreeCursorTests: XCTestCase {
             var toggle = false
             while i < j {
                 if toggle {
-                    cursor.move(toPosition: i)
+                    cursor.position = i
                     XCTAssertEqual(cursor.position, i)
                     XCTAssertEqual(cursor.key, i)
                     i += 1
@@ -591,6 +591,13 @@ class BTreeCursorTests: XCTestCase {
             cursor.removeAllAfter(includingCurrent: false)
         }
         XCTAssertElementsEqual(t7, (0 ..< c).map { ($0, String($0)) })
+
+        var t8 = maximalTree(depth: 2, order: 3)
+        t8.withCursorAtEnd { cursor in
+            cursor.removeAllAfter(includingCurrent: false)
+        }
+        XCTAssertElementsEqual(t8, maximalTree(depth: 2, order: 3))
+
     }
 
 }

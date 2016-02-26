@@ -326,10 +326,6 @@ extension BTreeNode {
 internal struct BTreeSplinter<Key: Comparable, Payload> {
     let separator: (Key, Payload)
     let node: BTreeNode<Key, Payload>
-
-    var exploded: (separator: (Key, Payload), node: BTreeNode<Key, Payload>) {
-        return (separator, node)
-    }
 }
 
 extension BTreeNode {

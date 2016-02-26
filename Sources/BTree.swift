@@ -319,7 +319,7 @@ extension BTree {
                     pos -= node.count - slot.position
                     return slot.index
                 }
-                else if node.isLeaf {
+                if node.isLeaf {
                     // Found the insertion point. Insert, then start ascending.
                     node.insert(element, inSlot: slot.index)
                     if node.isTooLarge {
@@ -327,13 +327,11 @@ extension BTree {
                     }
                     return nil
                 }
-                else {
-                    // For internal nodes, put the new element in place of the old at the same position,
-                    // then continue descending toward the next position, inserting the old element.
-                    element = node.setElementInSlot(slot.index, to: element)
-                    pos = node.children[slot.index + 1].count
-                    return slot.index + 1
-                }
+                // For internal nodes, put the new element in place of the old at the same position,
+                // then continue descending toward the next position, inserting the old element.
+                element = node.setElementInSlot(slot.index, to: element)
+                pos = node.children[slot.index + 1].count
+                return slot.index + 1
             },
             ascend: { node, slot in
                 node.count += 1
@@ -501,19 +499,17 @@ extension BTree {
                     pos -= node.count - slot.position
                     return slot.index
                 }
-                else if node.isLeaf {
+                if node.isLeaf {
                     // The position we're looking for is in a leaf node; we can remove it directly.
                     old = node.removeSlot(slot.index)
                     return nil
                 }
-                else {
-                    // When the position happens to fall into an internal node, remember the match and continue
-                    // removing the next position (which is guaranteed to be in a leaf node).
-                    // We'll replace the removed element with this one during the ascend.
-                    matching = (node, slot.index)
-                    pos = node.children[slot.index + 1].count
-                    return slot.index + 1
-                }
+                // When the position happens to fall into an internal node, remember the match and continue
+                // removing the next position (which is guaranteed to be in a leaf node).
+                // We'll replace the removed element with this one during the ascend.
+                matching = (node, slot.index)
+                pos = node.children[slot.index + 1].count
+                return slot.index + 1
             },
             ascend: { node, slot in
                 node.count -= 1
@@ -588,9 +584,11 @@ extension BTree {
 //MARK: Subtree extraction
 
 extension BTree {
-    /// Returns a tree containing the initial `maxLength` elements in this tree.
+    /// Returns a subtree containing the initial `maxLength` elements in this tree.
     ///
     /// If `maxLength` exceeds `self.count`, the result contains all the elements of `self`.
+    ///
+    /// - Complexity: O(log(`count`))
     public func prefix(maxLength: Int) -> BTree {
         precondition(maxLength >= 0)
         if maxLength == 0 {
@@ -602,28 +600,53 @@ extension BTree {
         return BTreeStrongPath(root: root, position: maxLength).prefix()
     }
 
+    /// Returns a subtree containing all but the last `n` elements.
+    ///
+    /// - Complexity: O(log(`count`))
     public func dropLast(n: Int) -> BTree {
         precondition(n >= 0)
         return prefix(max(0, count - n))
     }
 
+    /// Returns a subtree containing all elements before the specified index.
+    ///
+    /// - Complexity: O(log(`count`))
     public func prefixUpTo(end: Index) -> BTree {
         end.state.expectRoot(root)
+        if end.state.isAtEnd {
+            return self
+        }
         return end.state.prefix()
     }
 
+    /// Returns a subtree containing all elements whose key is less than `key`.
+    ///
+    /// - Complexity: O(log(`count`))
     public func prefixUpTo(end: Key) -> BTree {
-        return BTreeStrongPath(root: root, key: end, choosing: .First).prefix()
+        let path = BTreeStrongPath(root: root, key: end, choosing: .First)
+        if path.isAtEnd {
+            return self
+        }
+        return path.prefix()
     }
 
+    /// Returns a subtree containing all elements at or before the specified index.
+    ///
+    /// - Complexity: O(log(`count`))
     public func prefixThrough(stop: Index) -> BTree {
         return prefixUpTo(stop.successor())
     }
 
+    /// Returns a subtree containing all elements whose key is less than or equal to `key`.
+    ///
+    /// - Complexity: O(log(`count`))
     public func prefixThrough(stop: Key) -> BTree {
         var path = BTreeStrongPath(root: root, key: stop, choosing: .Last)
         if !path.isAtEnd && path.key == stop {
             path.moveForward()
+        }
+        if path.isAtEnd {
+            return self
         }
         return path.prefix()
     }
@@ -631,10 +654,12 @@ extension BTree {
     /// Returns a tree containing the final `maxLength` elements in this tree.
     ///
     /// If `maxLength` exceeds `self.count`, the result contains all the elements of `self`.
+    ///
+    /// - Complexity: O(log(`count`))
     public func suffix(maxLength: Int) -> BTree {
         precondition(maxLength >= 0)
         if maxLength == 0 {
-            return BTree()
+            return BTree(order: order)
         }
         if maxLength >= count {
             return self
@@ -642,11 +667,17 @@ extension BTree {
         return BTreeStrongPath(root: root, position: count - maxLength - 1).suffix()
     }
 
+    /// Returns a subtree containing all but the first `n` elements.
+    ///
+    /// - Complexity: O(log(`count`))
     public func dropFirst(n: Int) -> BTree {
         precondition(n >= 0)
         return suffix(max(0, count - n))
     }
 
+    /// Returns a subtree containing all elements at or after the specified index.
+    ///
+    /// - Complexity: O(log(`count`))
     public func suffixFrom(start: Index) -> BTree {
         start.state.expectRoot(root)
         if start.state.position == 0 {
@@ -655,6 +686,9 @@ extension BTree {
         return start.predecessor().state.suffix()
     }
 
+    /// Returns a subtree containing all elements whose key is greater than or equal to `key`.
+    ///
+    /// - Complexity: O(log(`count`))
     public func suffixFrom(start: Key) -> BTree {
         var path = BTreeStrongPath(root: root, key: start, choosing: .First)
         if path.isAtStart {

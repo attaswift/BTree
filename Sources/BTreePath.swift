@@ -61,6 +61,9 @@ internal protocol BTreePath {
 
     /// Call `body` for each node and associated slot on the way from the currently selected element up to the root node.
     func forEachAscending(@noescape body: (Node, Int) -> Void)
+
+    /// Finish working with the path and return the root node.
+    mutating func finish() -> BTree<Key, Payload>
 }
 
 extension BTreePath {
@@ -96,6 +99,10 @@ extension BTreePath {
     /// Push the specified slot onto `slots`, completing the path.
     mutating func pushToSlots(slot: Int) {
         pushToSlots(slot, positionOfSlot: lastNode.positionOfSlot(slot))
+    }
+
+    mutating func finish() -> Tree {
+        return Tree(root)
     }
 
     /// Return the element at the current position.
@@ -330,7 +337,7 @@ extension BTreePath {
     /// - Complexity: O(log(`count`))
     @warn_unused_result
     func prefix() -> Tree {
-        if isAtEnd { return Tree(root) }
+        precondition(!isAtEnd)
         var prefix: Node? = nil
         forEachAscending { node, slot in
             if prefix == nil {

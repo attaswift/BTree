@@ -39,6 +39,6 @@ func XCTAssertElementsEqual<T1: Equatable, T2: Equatable, S1: SequenceType, S2: 
     let aa = Array(a)
     let ba = Array(b)
     if !aa.elementsEqual(ba, isEquivalent: { a, b in a.0 == b.0 && a.1 == b.1 }) {
-        XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(b)\"", file: file, line: line)
+        XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(ba)\"", file: file, line: line)
     }
 }

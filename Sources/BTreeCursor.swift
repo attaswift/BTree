@@ -202,8 +202,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
     mutating func pushToPath() -> Node {
         assert(path.count == slots.count)
         let parent = lastNode
-        let slot = lastSlot
-        let child = parent.makeChildUnique(slot)
+        let child = parent.makeChildUnique(lastSlot)
         parent.count -= child.count
         path.append(child)
         return child
@@ -211,8 +210,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
 
     mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
         assert(path.count == slots.count + 1)
-        let node = lastNode
-        position -= node.count - positionOfSlot
+        position -= lastNode.count - positionOfSlot
         slots.append(slot)
     }
 
@@ -297,16 +295,6 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     @warn_unused_result
     internal func finish() -> Tree {
         return state.finish()
-    }
-
-    /// Cut the tree into two separate b-trees and a separator at the current position.
-    /// This operation deactivates the current cursor.
-    ///
-    /// - Complexity: O(log(`count`))
-    @warn_unused_result
-    internal func finishByCutting() -> (prefix: Tree, separator: Element, suffix: Tree) {
-        defer { state.invalidate() }
-        return state.split()
     }
 
     //MARK: Navigation
