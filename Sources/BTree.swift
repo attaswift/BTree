@@ -58,6 +58,24 @@ extension BTree: SequenceType {
         return Generator(BTreeStrongPath(root: root, position: 0))
     }
 
+    /// Returns a generator starting at a specific index.
+    public func generate(from index: Index) -> Generator {
+        index.state.expectRoot(root)
+        return Generator(BTreeStrongPath(root: root, slots: index.state.slots))
+    }
+
+    /// Returns a generator starting at a specific position.
+    public func generate(fromPosition position: Int) -> Generator {
+        return Generator(BTreeStrongPath(root: root, position: position))
+    }
+
+    /// Returns a generator starting at the element with the specified key.
+    /// If the tree contains no such element, the generator is positioned at the first element with a larger key.
+    /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
+    public func generate(from key: Key, choosing selector: BTreeKeySelector = .Any) -> Generator {
+        return Generator(BTreeStrongPath(root: root, key: key, choosing: selector))
+    }
+
     /// Call `body` on each element in self in the same order as a for-in loop.
     public func forEach(@noescape body: (Element) throws -> ()) rethrows {
         try root.forEach(body)
