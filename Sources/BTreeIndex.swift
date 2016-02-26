@@ -13,7 +13,7 @@
 /// invalidate all existing indexes.
 /// 
 /// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a b-tree.
-public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType {
+public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType, Comparable {
     public typealias Distance = Int
     typealias Node = BTreeNode<Key, Payload>
     typealias State = BTreeWeakPath<Key, Payload>
@@ -109,6 +109,15 @@ public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeI
     guard let br = b.state._root.value else { b.state.invalid() }
     precondition(ar === br, "Indices to different trees cannot be compared")
     return a.state.position == b.state.position
+}
+
+/// Return true iff `a` is less than `b`.
+@warn_unused_result
+public func < <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
+    guard let ar = a.state._root.value else { a.state.invalid() }
+    guard let br = b.state._root.value else { b.state.invalid() }
+    precondition(ar === br, "Indices to different trees cannot be compared")
+    return a.state.position < b.state.position
 }
 
 /// A mutable path in a b-tree, holding weak references to nodes on the path.
