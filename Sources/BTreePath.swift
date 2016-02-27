@@ -21,6 +21,7 @@ internal protocol BTreePath {
     typealias Key: Comparable
     typealias Payload
 
+    /// Create a new incomplete path focusing at the root of a tree.
     init(_ root: Node)
 
     /// The root node of the underlying b-tree.
@@ -35,10 +36,11 @@ internal protocol BTreePath {
     /// The number of nodes on the path from the root to the node that holds the focused element, including both ends.
     var length: Int { get }
 
-    var slot: Int? { get set }
-
     /// The final node on the path; i.e., the node that holds the currently focused element.
     var node: BTreeNode<Key, Payload> { get }
+
+    /// The final slot on the path, or `nil` if the path is currently incomplete.
+    var slot: Int? { get set }
 
     /// Pop and return the last slot in `slots`, creating an incomplete path.
     /// The path's `position` is updated to the position of the element following the subtree at the last node.
