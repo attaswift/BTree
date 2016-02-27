@@ -61,7 +61,7 @@ extension BTree: SequenceType {
     /// Returns a generator starting at a specific index.
     public func generate(from index: Index) -> Generator {
         index.state.expectRoot(root)
-        return Generator(BTreeStrongPath(root: root, slots: index.state.slots))
+        return Generator(BTreeStrongPath(path: index.state))
     }
 
     /// Returns a generator starting at a specific position.

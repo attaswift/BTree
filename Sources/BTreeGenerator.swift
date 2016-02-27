@@ -35,56 +35,79 @@ internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
     typealias Node = BTreeNode<Key, Payload>
 
     var root: Node
-    var path: [Node]
-    var slots: [Int]
     var position: Int
+
+    var _path: [Node]
+    var _slots: [Int]
+    var node: Node
+    var slot: Int?
 
     init(_ root: Node) {
         self.root = root
-        self.path = [root]
-        self.slots = []
         self.position = root.count
+        self._path = []
+        self._slots = []
+        self.node = root
+        self.slot = nil
     }
 
-    var length: Int { return path.count }
     var count: Int { return root.count }
-
-    var lastNode: Node { return path.last! }
-
-    var lastSlot: Int {
-        get { return slots.last! }
-        set { slots[slots.count - 1] = newValue }
-    }
+    var length: Int { return _path.count + 1 }
 
     mutating func popFromSlots() -> Int {
-        assert(path.count == slots.count)
-        let slot = slots.removeLast()
-        let node = path.last!
+        assert(self.slot != nil)
+        let slot = self.slot!
         position += node.count - node.positionOfSlot(slot)
+        self.slot = nil
         return slot
     }
 
     mutating func popFromPath() -> Node {
-        assert(path.count > 0 && path.count == slots.count + 1)
-        return path.removeLast()
-    }
-
-    mutating func pushToPath() -> Node {
-        assert(path.count == slots.count)
-        let child = lastNode.children[lastSlot]
-        path.append(child)
+        assert(_path.count > 0 && slot == nil)
+        let child = node
+        node = _path.removeLast()
+        slot = _slots.removeLast()
         return child
     }
 
-    mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
-        assert(path.count == slots.count + 1)
-        position -= lastNode.count - positionOfSlot
-        slots.append(slot)
+    mutating func pushToPath() {
+        assert(slot != nil)
+        let child = node.children[slot!]
+        _path.append(node)
+        node = child
+        _slots.append(slot!)
+        slot = nil
     }
 
-    func forEachAscending(@noescape body: (Node, Int) -> Void) {
-        for i in (0 ..< path.count).reverse() {
-            body(path[i], slots[i])
+    mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
+        assert(self.slot == nil)
+        position -= node.count - positionOfSlot
+        self.slot = slot
+    }
+
+    func forEach(ascending ascending: Bool, @noescape body: (Node, Int) -> Void) {
+        if ascending {
+            body(node, slot!)
+            for i in (0 ..< _path.count).reverse() {
+                body(_path[i], _slots[i])
+            }
+        }
+        else {
+            for i in 0 ..< _path.count {
+                body(_path[i], _slots[i])
+            }
+            body(node, slot!)
+        }
+    }
+
+    func forEachSlot(ascending ascending: Bool, @noescape body: Int -> Void) {
+        if ascending {
+            body(slot!)
+            _slots.reverse().forEach(body)
+        }
+        else {
+            _slots.forEach(body)
+            body(slot!)
         }
     }
 }

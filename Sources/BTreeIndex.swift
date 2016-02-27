@@ -131,24 +131,39 @@ internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
     typealias Node = BTreeNode<Key, Payload>
 
     var _root: Weak<Node>
-    var path: [Weak<Node>]
-    var slots: [Int]
     var position: Int
+
+    var _path: [Weak<Node>]
+    var _slots: [Int]
+    var _node: Weak<Node>
+    var slot: Int?
+
+    init(_ root: Node) {
+        self._root = Weak(root)
+        self.position = root.count
+        self._path = []
+        self._slots = []
+        self._node = Weak(root)
+        self.slot = nil
+    }
 
     var root: Node {
         guard let root = _root.value else { invalid() }
         return root
     }
-    var length: Int { return path.count }
     var count: Int { return root.count }
+    var length: Int { return _path.count + 1}
 
-    init(_ root: Node) {
-        self._root = Weak(root)
-        self.path = [Weak(root)]
-        self.slots = []
-        self.position = root.count
+    var node: Node {
+        get {
+            guard let node = _node.value else { invalid() }
+            return node
+        }
+        set {
+            _node = Weak(newValue)
+        }
     }
-
+    
     internal func expectRoot(root: Node) {
         expectValid(_root.value === root)
     }
@@ -161,55 +176,70 @@ internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
         preconditionFailure("Invalid BTreeIndex", file: file, line: line)
     }
 
-    var lastSlot: Int {
-        get { return slots.last! }
-        set { slots[slots.count - 1] = newValue }
-    }
-
-    var lastNode: Node {
-        guard let node = path.last!.value else { invalid() }
-        return node
-    }
-
     mutating func popFromSlots() -> Int {
-        assert(path.count == slots.count)
-        let slot = slots.removeLast()
-        let node = lastNode
+        assert(self.slot != nil)
+        let node = self.node
+        let slot = self.slot!
         position += node.count - node.positionOfSlot(slot)
+        self.slot = nil
         return slot
     }
 
     mutating func popFromPath() -> Node {
-        assert(path.count > 0 && path.count == slots.count + 1)
-        guard let child = path.removeLast().value else { invalid() }
-        expectValid(path.count == 0 || lastNode.children[slots.last!] === child)
+        assert(_path.count > 0 && slot == nil)
+        let child = node
+        _node = _path.removeLast()
+        expectValid(node.children[_slots.last!] === child)
+        slot = _slots.removeLast()
         return child
     }
 
-    mutating func pushToPath() -> Node {
-        assert(path.count == slots.count)
-        let parent = lastNode
-        let slot = slots.last!
-        let child = parent.children[slot]
-        path.append(Weak(child))
-        return child
+    mutating func pushToPath() {
+        assert(self.slot != nil)
+        let child = node.children[slot!]
+        _path.append(_node)
+        _node = Weak(child)
+        _slots.append(slot!)
+        slot = nil
     }
 
     mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
-        assert(path.count == slots.count + 1)
-        let node = lastNode
+        assert(self.slot == nil)
         position -= node.count - positionOfSlot
-        slots.append(slot)
+        self.slot = slot
     }
 
-    func forEachAscending(@noescape body: (Node, Int) -> Void) {
-        var child: Node? = nil
-        for i in (0 ..< path.count).reverse() {
-            guard let node = path[i].value else { invalid() }
-            let slot = slots[i]
-            expectValid(child == nil || node.children[slot] === child)
-            child = node
-            body(node, slot)
+    func forEach(ascending ascending: Bool, @noescape body: (Node, Int) -> Void) {
+        if ascending {
+            var child: Node? = node
+            body(child!, slot!)
+            for i in (0 ..< _path.count).reverse() {
+                guard let node = _path[i].value else { invalid() }
+                let slot = _slots[i]
+                expectValid(node.children[slot] === child)
+                child = node
+                body(node, slot)
+            }
+        }
+        else {
+            for i in 0 ..< _path.count {
+                guard let node = _path[i].value else { invalid() }
+                let slot = _slots[i]
+                expectValid(node.children[slot] === (i < _path.count - 1 ? _path[i + 1].value : _node.value))
+                body(node, slot)
+            }
+            body(node, slot!)
+        }
+    }
+
+    func forEachSlot(ascending ascending: Bool, @noescape body: Int -> Void) {
+        if ascending {
+            body(slot!)
+            _slots.reverse().forEach(body)
+        }
+        else {
+            _slots.forEach(body)
+            body(slot!)
         }
     }
 }

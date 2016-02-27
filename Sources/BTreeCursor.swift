@@ -68,8 +68,9 @@ extension BTree {
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
     public mutating func withCursorAt<R>(index: Index, @noescape body: Cursor throws -> R) rethrows -> R {
+        index.state.expectRoot(root)
         makeUnique()
-        let cursor = BTreeCursor(BTreeCursorPath(root: root, slots: index.state.slots))
+        let cursor = BTreeCursor(BTreeCursorPath(path: index.state))
         root = Node()
         defer { self = cursor.finish() }
         return try body(cursor)
@@ -97,139 +98,196 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
     /// each node on the current path has an invalid `count` field. (Other b-tree invariants are kept, though.)
     var root: Node
 
-    /// The current path in the tree that is being edited.
-    ///
-    /// Only the last node on the path has correct `count`; the element count of the currently focused descendant
-    /// subtree is subtracted from each ancestor's count.
-    /// I.e., `path[i].count = realCount(path[i]) - realCount(path[i+1])`.
-    var path: [Node]
-
-    /// The slots on the path to the currently focused part of the tree.
-    var slots: [Int]
-
     /// The current count of elements in the tree. This is always kept up to date, while `root.count` is usually invalid.
     var count: Int
 
     /// The position of the currently focused element in the tree.
     var position: Int
+    
+    /// The current path in the tree that is being edited.
+    ///
+    /// Only the last node on the path has correct `count`; the element count of the currently focused descendant
+    /// subtree is subtracted from each ancestor's count.
+    /// I.e., `path[i].count = realCount(path[i]) - realCount(path[i+1])`.
+    var _path: [Node]
+    var node: Node
+
+    /// The slots on the path to the currently focused part of the tree.
+    var _slots: [Int]
+    var slot: Int?
 
     init(_ root: Node) {
         self.root = root
-        self.path = [root]
-        self.slots = []
         self.position = root.count
         self.count = root.count
+        self._path = []
+        self.node = root
+        self._slots = []
+        self.slot = nil
     }
 
-    var length: Int { return path.count }
-
-    var lastNode: Node { return path.last! }
-
-    var lastSlot: Int {
-        get { return slots.last! }
-        set { slots[slots.count - 1] = newValue }
-    }
+    var length: Int { return _path.count + 1}
 
     var element: Element {
-        get {
-            precondition(!isAtEnd)
-            return lastNode.elements[lastSlot]
-        }
-        set {
-            precondition(!isAtEnd)
-            lastNode.elements[lastSlot] = newValue
-        }
+        get { return node.elements[slot!] }
+        set { node.elements[slot!] = newValue }
     }
 
     var key: Key {
-        get {
-            precondition(!isAtEnd)
-            return lastNode.elements[lastSlot].0
-        }
-        set {
-            precondition(!isAtEnd)
-            lastNode.elements[lastSlot].0 = newValue
-        }
+        get { return node.elements[slot!].0 }
+        set { node.elements[slot!].0 = newValue }
     }
 
     var payload: Payload {
-        get {
-            precondition(!isAtEnd)
-            return lastNode.elements[lastSlot].1
-        }
-        set {
-            precondition(!isAtEnd)
-            lastNode.elements[lastSlot].1 = newValue
-        }
+        get { return node.elements[slot!].1 }
+        set { node.elements[slot!].1 = newValue }
     }
 
     func setPayload(payload: Payload) -> Payload {
         precondition(!isAtEnd)
-        let node = lastNode
-        let slot = lastSlot
-        let old = node.elements[slot].1
-        node.elements[slot].1 = payload
+        let old = node.elements[slot!].1
+        node.elements[slot!].1 = payload
         return old
     }
-
 
     /// Invalidate this cursor.
     mutating func invalidate() {
         root = Node()
         count = 0
         position = 0
-        path = []
-        slots = []
+        _path = []
+        node = root
+        _slots = []
+        slot = nil
     }
 
     mutating func popFromSlots() -> Int {
-        assert(path.count == slots.count)
-        let slot = slots.removeLast()
-        let node = lastNode
+        assert(self.slot != nil)
+        let slot = self.slot!
         position += node.count - node.positionOfSlot(slot)
+        self.slot = nil
         return slot
     }
 
     mutating func popFromPath() -> Node {
-        assert(path.count > 0 && path.count == slots.count + 1)
-        let child = path.removeLast()
-        if let parent = path.last {
-            parent.count += child.count
-        }
+        assert(_path.count > 0 && slot == nil)
+        let child = node
+        node = _path.removeLast()
+        node.count += child.count
+        slot = _slots.removeLast()
         return child
     }
 
-    mutating func pushToPath() -> Node {
-        assert(path.count == slots.count)
-        let parent = lastNode
-        let child = parent.makeChildUnique(lastSlot)
-        parent.count -= child.count
-        path.append(child)
-        return child
+    mutating func pushToPath() {
+        assert(self.slot != nil)
+        let parent = node
+        _path.append(parent)
+        node = parent.makeChildUnique(self.slot!)
+        parent.count -= node.count
+        _slots.append(slot!)
+        slot = nil
     }
 
     mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
-        assert(path.count == slots.count + 1)
-        position -= lastNode.count - positionOfSlot
-        slots.append(slot)
+        assert(self.slot == nil)
+        position -= node.count - positionOfSlot
+        self.slot = slot
     }
 
-    func forEachAscending(@noescape body: (Node, Int) -> Void) {
-        for i in (0 ..< path.count).reverse() {
-            body(path[i], slots[i])
+    func forEach(ascending ascending: Bool, @noescape body: (Node, Int) -> Void) {
+        if ascending {
+            body(node, slot!)
+            for i in (0 ..< _path.count).reverse() {
+                body(_path[i], _slots[i])
+            }
+        }
+        else {
+            for i in 0 ..< _path.count {
+                body(_path[i], _slots[i])
+            }
+            body(node, slot!)
+        }
+    }
+
+    func forEachSlot(ascending ascending: Bool, @noescape body: Int -> Void) {
+        if ascending {
+            body(slot!)
+            _slots.reverse().forEach(body)
+        }
+        else {
+            _slots.forEach(body)
+            body(slot!)
         }
     }
 
     mutating func finish() -> Tree {
-        var childCount = 0
-        while !path.isEmpty {
-            let node = path.removeLast()
+        var childCount = self.node.count
+        while !_path.isEmpty {
+            let node = _path.removeLast()
             node.count += childCount
             childCount = node.count
         }
         assert(root.count == count)
         defer { invalidate() }
         return Tree(root)
+    }
+
+    /// Restore b-tree invariants after a single-element insertion produced an oversize leaf node.
+    private mutating func fixupAfterInsert() {
+        guard node.isTooLarge else { return }
+
+        _path.append(self.node)
+        _slots.append(self.slot!)
+
+        // Split nodes on the way to the root until we restore the b-tree's size constraints.
+        var i = _path.count - 1
+        while _path[i].isTooLarge {
+            // Split path[i], which must have correct count.
+            let left = _path[i]
+            let slot = _slots[i]
+            let splinter = left.split()
+            let right = splinter.node
+            if slot > left.elements.count {
+                // Focused element is in the new branch; adjust self accordingly.
+                _slots[i] = slot - left.elements.count - 1
+                _path[i] = right
+            }
+            else if slot == left.elements.count {
+                // Focused element is the new separator; adjust self accordingly.
+                assert(i == _path.count - 1)
+                _path.removeLast()
+                _slots.removeLast()
+            }
+
+            if i > 0 {
+                // Insert splinter into parent node and fix its count field.
+                let parent = _path[i - 1]
+                let pslot = _slots[i - 1]
+                parent.insert(splinter, inSlot: pslot)
+                parent.count += left.count + right.count + 1
+                if slot > left.elements.count {
+                    // Focused element is in the new branch; update self accordingly.
+                    _slots[i - 1] = pslot + 1
+                }
+                i -= 1
+            }
+            else {
+                // Create new root node.
+                self.root = Node(left: left, separator: splinter.separator, right: right)
+                _path.insert(self.root, atIndex: 0)
+                _slots.insert(slot > left.elements.count ? 1 : 0, atIndex: 0)
+            }
+        }
+
+        // Size constraints are now OK, but counts on path have become valid, so we need to restore
+        // cursor state by subtracting focused children.
+        while i < _path.count - 1 {
+            _path[i].count -= _path[i + 1].count
+            i += 1
+        }
+
+        node = _path.removeLast()
+        slot = _slots.removeLast()
     }
 }
 
@@ -380,20 +438,18 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     public func insertAfter(element: Element) {
         precondition(!self.isAtEnd)
         state.count += 1
-        if state.lastNode.isLeaf {
-            let node = state.lastNode
-            let slot = state.lastSlot
-            node.insert(element, inSlot: slot + 1)
-            state.lastSlot = slot + 1
+        if state.node.isLeaf {
+            let slot = state.slot!
+            state.node.insert(element, inSlot: slot + 1)
+            state.slot = slot + 1
             state.position += 1
         }
         else {
             moveForward()
-            let node = state.lastNode
-            assert(node.isLeaf && state.lastSlot == 0)
-            node.insert(element, inSlot: 0)
+            assert(state.node.isLeaf && state.slot == 0)
+            state.node.insert(element, inSlot: 0)
         }
-        fixupAfterInsert()
+        state.fixupAfterInsert()
     }
 
     /// Insert a new element at the cursor's current position, and leave the cursor positioned on the original element.
@@ -402,80 +458,32 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     public func insert(element: Element) {
         precondition(self.isValid)
         state.count += 1
-        if state.lastNode.isLeaf {
-            let node = state.lastNode
-            let slot = state.lastSlot
-            node.insert(element, inSlot: slot)
+        if state.node.isLeaf {
+            state.node.insert(element, inSlot: state.slot!)
         }
         else {
             moveBackward()
-            let node = state.lastNode
-            assert(node.isLeaf && state.lastSlot == node.elements.count - 1)
-            node.append(element)
-            state.lastSlot = node.elements.count - 1
+            assert(state.node.isLeaf && state.slot == state.node.elements.count - 1)
+            state.node.append(element)
+            state.slot = state.node.elements.count - 1
             state.position += 1
         }
-        fixupAfterInsert()
+        state.fixupAfterInsert()
         moveForward()
-    }
-
-    private func fixupAfterInsert() {
-        guard state.lastNode.isTooLarge else { return }
-
-        // Split nodes on the way to the root until we restore the b-tree's size constraints.
-        var i = state.path.count - 1
-        while state.path[i].isTooLarge {
-            // Split path[i], which must have correct count.
-            let left = state.path[i]
-            let slot = state.slots[i]
-            let splinter = left.split()
-            let right = splinter.node
-            if slot > left.elements.count {
-                // Focused element is in the new branch; adjust state accordingly.
-                state.slots[i] = slot - left.elements.count - 1
-                state.path[i] = right
-            }
-            else if slot == left.elements.count {
-                // Focused element is the new separator; adjust state accordingly.
-                assert(i == state.path.count - 1)
-                state.path.removeLast()
-                state.slots.removeLast()
-            }
-
-            if i > 0 {
-                // Insert splinter into parent node and fix its count field.
-                let parent = state.path[i - 1]
-                let pslot = state.slots[i - 1]
-                parent.insert(splinter, inSlot: pslot)
-                parent.count += left.count + right.count + 1
-                if slot > left.elements.count {
-                    // Focused element is in the new branch; update state accordingly.
-                    state.slots[i - 1] = pslot + 1
-                }
-                i -= 1
-            }
-            else {
-                // Create new root node.
-                state.root = Node(left: left, separator: splinter.separator, right: right)
-                state.path.insert(state.root, atIndex: 0)
-                state.slots.insert(slot > left.elements.count ? 1 : 0, atIndex: 0)
-            }
-        }
-
-        // Size constraints are now OK, but counts on path have become valid, so we need to restore 
-        // cursor state by subtracting focused children.
-        while i < state.path.count - 1 {
-            state.path[i].count -= state.path[i + 1].count
-            i += 1
-        }
     }
 
     /// Insert the contents of `tree` before the currently focused element, keeping the cursor's position on it.
     ///
     /// - Complexity: O(log(`count + tree.count`))
     public func insert(tree: Tree) {
-        let root = tree.root.clone()
-        insertWithoutCloning(root)
+        insert(tree.root)
+    }
+
+    /// Insert the contents of `node` before the currently focused element, keeping the cursor's position on it.
+    ///
+    /// - Complexity: O(log(`count + node.count`))
+    internal func insert(node: Node) {
+        insertWithoutCloning(node.clone())
     }
 
     /// Insert all elements in a sequence before the currently focused element, keeping the cursor's position on it.
@@ -486,7 +494,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         insertWithoutCloning(BTree(sortedElements: elements).root)
     }
 
-    private func insertWithoutCloning(root: Node) {
+    internal func insertWithoutCloning(root: Node) {
         precondition(isValid)
         let c = root.count
         if c == 0 { return }
@@ -532,10 +540,8 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// - Complexity: O(log(`count`))
     public func remove() -> Element {
         precondition(!isAtEnd)
-        var node = state.lastNode
-        let slot = state.lastSlot
-        let result = node.elements[slot]
-        if !node.isLeaf {
+        let result = state.element
+        if !state.node.isLeaf {
             // For internal nodes, remove the (leaf) predecessor instead, then put it back in place of the element
             // that we actually want to remove.
             moveBackward()
@@ -546,26 +552,24 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             return result
         }
         let targetPosition = self.position
-        node.elements.removeAtIndex(slot)
-        node.count -= 1
+        state.node.elements.removeAtIndex(state.slot!)
+        state.node.count -= 1
         state.count -= 1
         state.popFromSlots()
 
-        while node !== state.root && node.isTooSmall {
+        while state.node !== state.root && state.node.isTooSmall {
             state.popFromPath()
-            node = state.lastNode
             let slot = state.popFromSlots()
-            node.fixDeficiency(slot)
+            state.node.fixDeficiency(slot)
         }
-        while targetPosition != count && targetPosition == self.position && node !== state.root {
+        while targetPosition != count && targetPosition == self.position && state.node !== state.root {
             state.popFromPath()
-            node = state.lastNode
             state.popFromSlots()
         }
-        if node === state.root && node.elements.count == 0 && node.children.count == 1 {
-            assert(state.path.count == 1 && state.slots.count == 0)
-            state.root = node.makeChildUnique(0)
-            state.path[0] = state.root
+        if state.node === state.root && state.node.elements.count == 0 && state.node.children.count == 1 {
+            assert(state.length == 1 && state.slot == nil)
+            state.root = state.node.makeChildUnique(0)
+            state.node = state.root
         }
         state.descend(toPosition: targetPosition)
         return result
