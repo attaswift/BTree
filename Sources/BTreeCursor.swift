@@ -161,21 +161,18 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
         slot = nil
     }
 
-    mutating func popFromSlots() -> Int {
+    mutating func popFromSlots() {
         assert(self.slot != nil)
-        let slot = self.slot!
-        position += node.count - node.positionOfSlot(slot)
-        self.slot = nil
-        return slot
+        position += node.count - node.positionOfSlot(slot!)
+        slot = nil
     }
 
-    mutating func popFromPath() -> Node {
+    mutating func popFromPath() {
         assert(_path.count > 0 && slot == nil)
         let child = node
         node = _path.removeLast()
         node.count += child.count
         slot = _slots.removeLast()
-        return child
     }
 
     mutating func pushToPath() {
@@ -569,7 +566,8 @@ public final class BTreeCursor<Key: Comparable, Payload> {
 
         while state.node !== state.root && state.node.isTooSmall {
             state.popFromPath()
-            let slot = state.popFromSlots()
+            let slot = state.slot!
+            state.popFromSlots()
             state.node.fixDeficiency(slot)
         }
         while targetPosition != count && targetPosition == self.position && state.node !== state.root {

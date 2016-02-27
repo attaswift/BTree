@@ -171,22 +171,19 @@ internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
         preconditionFailure("Invalid BTreeIndex", file: file, line: line)
     }
 
-    mutating func popFromSlots() -> Int {
+    mutating func popFromSlots() {
         assert(self.slot != nil)
         let node = self.node
-        let slot = self.slot!
-        position += node.count - node.positionOfSlot(slot)
-        self.slot = nil
-        return slot
+        position += node.count - node.positionOfSlot(slot!)
+        slot = nil
     }
 
-    mutating func popFromPath() -> Node {
+    mutating func popFromPath() {
         assert(_path.count > 0 && slot == nil)
         let child = node
         _node = _path.removeLast()
         expectValid(node.children[_slots.last!] === child)
         slot = _slots.removeLast()
-        return child
     }
 
     mutating func pushToPath() {

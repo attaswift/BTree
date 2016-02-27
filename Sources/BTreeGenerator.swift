@@ -54,20 +54,16 @@ internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
     var count: Int { return root.count }
     var length: Int { return _path.count + 1 }
 
-    mutating func popFromSlots() -> Int {
+    mutating func popFromSlots() {
         assert(self.slot != nil)
-        let slot = self.slot!
-        position += node.count - node.positionOfSlot(slot)
-        self.slot = nil
-        return slot
+        position += node.count - node.positionOfSlot(slot!)
+        slot = nil
     }
 
-    mutating func popFromPath() -> Node {
+    mutating func popFromPath() {
         assert(_path.count > 0 && slot == nil)
-        let child = node
         node = _path.removeLast()
         slot = _slots.removeLast()
-        return child
     }
 
     mutating func pushToPath() {

@@ -42,13 +42,13 @@ internal protocol BTreePath {
     /// The final slot on the path, or `nil` if the path is currently incomplete.
     var slot: Int? { get set }
 
-    /// Pop and return the last slot in `slots`, creating an incomplete path.
+    /// Pop the last slot in `slots`, creating an incomplete path.
     /// The path's `position` is updated to the position of the element following the subtree at the last node.
-    mutating func popFromSlots() -> Int
+    mutating func popFromSlots()
 
-    /// Pop and return the last node in an incomplete path, focusing the element following its subtree.
+    /// Pop the last node in an incomplete path, focusing the element following its subtree.
     /// This restores the path to a completed state.
-    mutating func popFromPath() -> Node
+    mutating func popFromPath()
 
     /// Push the child node before the currently focused element on the path, creating an incomplete path.
     mutating func pushToPath()
