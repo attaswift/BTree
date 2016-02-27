@@ -246,7 +246,7 @@ public extension BTree {
 
     /// Returns the position of the element at `index`.
     ///
-    /// - Complexity: O(log(`count`))
+    /// - Complexity: O(1)
     @warn_unused_result
     public func positionOfIndex(index: Index) -> Int {
         index.state.expectRoot(root)
