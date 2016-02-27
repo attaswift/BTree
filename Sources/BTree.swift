@@ -140,6 +140,8 @@ public enum BTreeKeySelector {
     case First
     /// Look for the last element that matches the key, or insert a new element after existing matches.
     case Last
+    /// Look for the first element that has a greater key, or insert a new element after existing matches.
+    case After
     /// Accept any element that matches the key. This is sometimes faster, because the search may stop before reaching
     /// a leaf node.
     case Any
@@ -202,7 +204,7 @@ public extension BTree {
                 node = node.children[slot.descend]
             }
             return nil
-        case .First, .Last:
+        default:
             var node = root
             var lastmatch: Payload? = nil
             while true {
@@ -226,7 +228,7 @@ public extension BTree {
     @warn_unused_result
     public func indexOf(key: Key, choosing selector: BTreeKeySelector = .Any) -> Index? {
         let path = BTreeWeakPath(root: root, key: key, choosing: selector)
-        guard !path.isAtEnd && path.key == key else { return nil }
+        guard !path.isAtEnd && (selector == .After || path.key == key) else { return nil }
         return Index(path)
     }
 
@@ -398,7 +400,7 @@ extension BTree {
     /// - Complexity: O(log(`count`))
     public mutating func insert(element: Element, at selector: BTreeKeySelector = .Any) {
         makeUnique()
-        let selector = selector == .Any ? .Last : selector
+        let selector: BTreeKeySelector = (selector == .First ? .First : .After)
         var splinter: BTreeSplinter<Key, Payload>? = nil
         edit(
             descend: { node in
@@ -432,6 +434,7 @@ extension BTree {
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
     public mutating func insertOrReplace(element: Element, at selector: BTreeKeySelector = .Any) -> Payload? {
+        let selector = (selector == .After ? .Last : selector)
         makeUnique()
         var old: Payload? = nil
         var match: (node: Node, slot: Int)? = nil
@@ -554,6 +557,7 @@ extension BTree {
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
     public mutating func remove(key: Key, at selector: BTreeKeySelector = .Any) -> Payload? {
+        let selector = (selector == .After ? .Last : selector)
         makeUnique()
         var old: Element? = nil
         var matching: (node: Node, slot: Int)? = nil
@@ -656,10 +660,7 @@ extension BTree {
     ///
     /// - Complexity: O(log(`count`))
     public func prefixThrough(stop: Key) -> BTree {
-        var path = BTreeStrongPath(root: root, key: stop, choosing: .Last)
-        if !path.isAtEnd && path.key == stop {
-            path.moveForward()
-        }
+        let path = BTreeStrongPath(root: root, key: stop, choosing: .After)
         if path.isAtEnd {
             return self
         }

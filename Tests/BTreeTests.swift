@@ -92,6 +92,19 @@ class BTreeTests: XCTestCase {
         }
     }
 
+    func testGenerateFromKeyAfter() {
+        let c = 26
+        let reference = (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }
+        let tree = Tree(sortedElements: reference, order: 3)
+        for i in 0 ... c {
+            let g1 = tree.generate(from: 2 * i, choosing: .After)
+            XCTAssertElementsEqual(GeneratorSequence(g1), reference.suffixFrom(2 * i + 2))
+
+            let g2 = tree.generate(from: 2 * i + 1, choosing: .After)
+            XCTAssertElementsEqual(GeneratorSequence(g2), reference.suffixFrom(2 * i + 2))
+        }
+    }
+
     func testForEach() {
         let tree = maximalTree(depth: 2, order: order)
         var values: Array<Int> = []
@@ -217,13 +230,22 @@ class BTreeTests: XCTestCase {
     func testPayloadOfKey() {
         let count = 42
         let tree = Tree(sortedElements: (0 ..< count).map { (2 * $0, String(2 * $0)) }, order: 3)
+
         for selector: BTreeKeySelector in [.Any, .First, .Last] {
             for k in (0 ..< count).lazy.map({ 2 * $0 }) {
                 XCTAssertEqual(tree.payloadOf(k, choosing: selector), String(k), String(selector))
                 XCTAssertNil(tree.payloadOf(k + 1, choosing: selector))
             }
             XCTAssertNil(tree.payloadOf(-1, choosing: selector))
+            XCTAssertNil(tree.payloadOf(2 * count, choosing: selector))
         }
+
+        for k in (0 ..< count - 1).lazy.map({ 2 * $0 }) {
+            XCTAssertEqual(tree.payloadOf(k, choosing: .After), String(k + 2))
+            XCTAssertEqual(tree.payloadOf(k + 1, choosing: .After), String(k + 2))
+        }
+        XCTAssertEqual(tree.payloadOf(-1, choosing: .After), String(0))
+        XCTAssertNil(tree.payloadOf(2 * (count - 1), choosing: .After))
     }
 
     func testIndexOfKey() {
@@ -239,7 +261,17 @@ class BTreeTests: XCTestCase {
                 XCTAssertEqual(tree[index].0, k)
             }
             XCTAssertNil(tree.indexOf(-1, choosing: selector))
+            XCTAssertNil(tree.indexOf(2 * count, choosing: selector))
         }
+
+        for k in (0 ..< count - 1).lazy.map({ 2 * $0 }) {
+            let even = tree.indexOf(k, choosing: .After)
+            XCTAssertTrue(even != nil && tree.startIndex.distanceTo(even!) == k / 2 + 1, "\(k): \(tree.startIndex.distanceTo(even!))")
+            let odd = tree.indexOf(k + 1, choosing: .After)
+            XCTAssertTrue(odd != nil && tree.startIndex.distanceTo(odd!) == k / 2 + 1, "\(k): \(tree.startIndex.distanceTo(odd!))")
+        }
+        XCTAssertEqual(tree.indexOf(-1, choosing: .After), tree.startIndex)
+        XCTAssertNil(tree.indexOf(2 * count - 2, choosing: .After))
     }
 
     func testPositionOfKey() {
@@ -256,6 +288,13 @@ class BTreeTests: XCTestCase {
             }
             XCTAssertNil(tree.positionOf(-1, choosing: selector))
         }
+
+        for k in (0 ..< count - 1).lazy.map({ 2 * $0 }) {
+            XCTAssertEqual(tree.positionOf(k, choosing: .After), k / 2 + 1)
+            XCTAssertEqual(tree.positionOf(k + 1, choosing: .After), k / 2 + 1)
+        }
+        XCTAssertEqual(tree.positionOf(-1, choosing: .After), 0)
+        XCTAssertNil(tree.positionOf(2 * count - 2, choosing: .After))
     }
 
     func testPositionOfIndex() {
@@ -316,24 +355,16 @@ class BTreeTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0 ..< count).reverse().map { (0, String($0)) })
     }
 
-    func testInsertElementLast() {
-        let count = 42
-        var tree = Tree(order: 3)
-        for i in 0 ..< count {
-            tree.insert((0, String(i)), at: .Last)
-            tree.assertValid()
+    func testInsertElementLastOrAfterOrAny() {
+        for selector: BTreeKeySelector in [.Last, .After, .Any] {
+            let count = 42
+            var tree = Tree(order: 3)
+            for i in 0 ..< count {
+                tree.insert((0, String(i)), at: selector)
+                tree.assertValid()
+            }
+            XCTAssertElementsEqual(tree, (0 ..< count).map { (0, String($0)) })
         }
-        XCTAssertElementsEqual(tree, (0 ..< count).map { (0, String($0)) })
-    }
-
-    func testInsertElementAny() { // Same as .Last
-        let count = 42
-        var tree = Tree(order: 3)
-        for i in 0 ..< count {
-            tree.insert((0, String(i)))
-            tree.assertValid()
-        }
-        XCTAssertElementsEqual(tree, (0 ..< count).map { (0, String($0)) })
     }
 
     func testInsertOrReplaceAny() {
@@ -370,22 +401,24 @@ class BTreeTests: XCTestCase {
         })
     }
 
-    func testInsertOrReplaceLast() {
-        var tree = Tree(order: 3)
-        for k in 0 ..< 42 {
-            tree.insert((k, String(k) + "/1"))
-            tree.insert((k, String(k) + "/2"))
-            tree.insert((k, String(k) + "/3"))
-        }
-        tree.assertValid()
-        for k in 0 ..< 42 {
-            tree.insertOrReplace((k, String(k) + "/3*"), at: .Last)
+    func testInsertOrReplaceLastOrAfter() {
+        for selector: BTreeKeySelector in [.Last, .After] {
+            var tree = Tree(order: 3)
+            for k in 0 ..< 42 {
+                tree.insert((k, String(k) + "/1"))
+                tree.insert((k, String(k) + "/2"))
+                tree.insert((k, String(k) + "/3"))
+            }
             tree.assertValid()
+            for k in 0 ..< 42 {
+                tree.insertOrReplace((k, String(k) + "/3*"), at: selector)
+                tree.assertValid()
+            }
+            XCTAssertElementsEqual(tree.map { $0.1 }, (0 ..< 42).flatMap { key -> [String] in
+                let ks = String(key)
+                return [ks + "/1", ks + "/2", ks + "/3*"]
+                })
         }
-        XCTAssertElementsEqual(tree.map { $0.1 }, (0 ..< 42).flatMap { key -> [String] in
-            let ks = String(key)
-            return [ks + "/1", ks + "/2", ks + "/3*"]
-            })
     }
 
     func testRemoveAtPosition() {
@@ -403,77 +436,56 @@ class BTreeTests: XCTestCase {
         }
     }
 
-    func testRemoveKeyFirst() {
-        let count = 42
-        var tree = Tree(order: 3)
-        for k in (0 ..< count).map({ 2 * $0 }) {
-            tree.insert((k, String(k) + "/1"))
-            tree.insert((k, String(k) + "/2"))
-            tree.insert((k, String(k) + "/3"))
-        }
-        tree.assertValid()
-
-        for k in 0 ..< count {
-            XCTAssertNil(tree.remove(2 * k + 1, at: .First))
-            guard let old = tree.remove(2 * k, at: .First) else { XCTFail(String(2 * k)); continue }
-            XCTAssertEqual(old, String(2 * k) + "/1")
-            tree.assertValid()
-        }
-
-        XCTAssertElementsEqual(tree.map { $0.1 }, (0 ..< count).flatMap { key -> [String] in
-            let ks = String(2 * key)
-            return [ks + "/2", ks + "/3"]
+    func testRemoveKeyFirstOrAny() {
+        for selector: BTreeKeySelector in [.First, .Any] {
+            let count = 42
+            var tree = Tree(order: 3)
+            for k in (0 ..< count).map({ 2 * $0 }) {
+                tree.insert((k, String(k) + "/1"))
+                tree.insert((k, String(k) + "/2"))
+                tree.insert((k, String(k) + "/3"))
             }
-        )
+            tree.assertValid()
+
+            for k in 0 ..< count {
+                XCTAssertNil(tree.remove(2 * k + 1, at: selector))
+                guard let old = tree.remove(2 * k, at: selector) else { XCTFail(String(2 * k)); continue }
+                XCTAssertEqual(old, String(2 * k) + "/1")
+                tree.assertValid()
+            }
+
+            XCTAssertElementsEqual(tree.map { $0.1 }, (0 ..< count).flatMap { key -> [String] in
+                let ks = String(2 * key)
+                return [ks + "/2", ks + "/3"]
+                }
+            )
+        }
     }
 
-    func testRemoveKeyLast() {
-        let count = 42
-        var tree = Tree(order: 3)
-        for k in (0 ..< count).map({ 2 * $0 }) {
-            tree.insert((k, String(k) + "/1"))
-            tree.insert((k, String(k) + "/2"))
-            tree.insert((k, String(k) + "/3"))
-        }
-        tree.assertValid()
-
-        for k in 0 ..< count {
-            XCTAssertNil(tree.remove(2 * k + 1, at: .Last))
-            guard let old = tree.remove(2 * k, at: .Last) else { XCTFail(String(2 * k)); continue }
-            XCTAssertEqual(old, String(2 * k) + "/3")
-            tree.assertValid()
-        }
-
-        XCTAssertElementsEqual(tree.map { $0.1 }, (0 ..< count).flatMap { key -> [String] in
-            let ks = String(2 * key)
-            return [ks + "/1", ks + "/2"]
+    func testRemoveKeyLastOrAfter() {
+        for selector: BTreeKeySelector in [.Last, .After] {
+            let count = 42
+            var tree = Tree(order: 3)
+            for k in (0 ..< count).map({ 2 * $0 }) {
+                tree.insert((k, String(k) + "/1"))
+                tree.insert((k, String(k) + "/2"))
+                tree.insert((k, String(k) + "/3"))
             }
-        )
-    }
-
-
-    func testRemoveKeyAny() { // Same as .First
-        let count = 42
-        var tree = Tree(order: 3)
-        for k in (0 ..< count).map({ 2 * $0 }) {
-            tree.insert((k, String(k) + "/1"))
-            tree.insert((k, String(k) + "/2"))
-            tree.insert((k, String(k) + "/3"))
-        }
-        tree.assertValid()
-
-        for k in 0 ..< count {
-            XCTAssertNil(tree.remove(2 * k + 1))
-            guard let old = tree.remove(2 * k) else { XCTFail(String(2 * k)); continue }
-            XCTAssertEqual(old, String(2 * k) + "/1")
             tree.assertValid()
-        }
 
-        XCTAssertElementsEqual(tree.map { $0.1 }, (0 ..< count).flatMap { key -> [String] in
-            let ks = String(2 * key)
-            return [ks + "/2", ks + "/3"]
+            for k in 0 ..< count {
+                XCTAssertNil(tree.remove(2 * k + 1, at: selector))
+                guard let old = tree.remove(2 * k, at: selector) else { XCTFail(String(2 * k)); continue }
+                XCTAssertEqual(old, String(2 * k) + "/3")
+                tree.assertValid()
             }
-        )
+
+            XCTAssertElementsEqual(tree.map { $0.1 }, (0 ..< count).flatMap { key -> [String] in
+                let ks = String(2 * key)
+                return [ks + "/1", ks + "/2"]
+                }
+            )
+        }
     }
 
     func testPrefix() {
@@ -552,7 +564,6 @@ class BTreeTests: XCTestCase {
             XCTAssertElementsEqual(suffix, reference.suffix(i))
         }
     }
-
 
     func testDropFirst() {
         let tree = maximalTree(depth: 2, order: 3)

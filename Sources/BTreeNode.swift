@@ -223,6 +223,19 @@ extension BTreeNode {
                 }
             }
             return (start >= 0 && elements[start].0 == key ? start : nil, start + 1)
+        case .After:
+            var start = 0
+            var end = elements.count
+            while start < end {
+                let mid = start + (end - start) / 2
+                if elements[mid].0 <= key {
+                    start = mid + 1
+                }
+                else {
+                    end = mid
+                }
+            }
+            return (start < elements.count ? start : nil, start)
         }
     }
 
@@ -301,7 +314,7 @@ extension BTreeNode {
         if key > lastKey {
             return false
         }
-        if key == lastKey && selector == .Last {
+        if key == lastKey && (selector == .Last || selector == .After) {
             return false
         }
         return true

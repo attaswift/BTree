@@ -29,6 +29,7 @@ class BTreeCursorTests: XCTestCase {
         tree.withCursorAtPosition(0, body: checkEmpty)
         tree.withCursorAt(42, choosing: .First, body: checkEmpty)
         tree.withCursorAt(42, choosing: .Last, body: checkEmpty)
+        tree.withCursorAt(42, choosing: .After, body: checkEmpty)
         tree.withCursorAt(42, choosing: .Any, body: checkEmpty)
     }
 
@@ -108,6 +109,28 @@ class BTreeCursorTests: XCTestCase {
                 XCTAssertEqual(cursor.position, 3 * i + 2)
                 XCTAssertEqual(cursor.key, 2 * i)
                 XCTAssertEqual(cursor.payload, String(2 * i) + "/3")
+            }
+        }
+    }
+
+    func testCursorAtKeyAfter() {
+        let count = 42
+        var tree = Tree(order: 3)
+        for k in (0 ... count).map({ 2 * $0 }) {
+            tree.insert((k, String(k) + "/1"))
+            tree.insert((k, String(k) + "/2"))
+            tree.insert((k, String(k) + "/3"))
+        }
+        tree.assertValid()
+
+        for i in 0 ..< count {
+            tree.withCursorAt(2 * i + 1, choosing: .After) { cursor in
+                XCTAssertEqual(cursor.position, 3 * (i + 1))
+            }
+            tree.withCursorAt(2 * i, choosing: .After) { cursor in
+                XCTAssertEqual(cursor.position, 3 * (i + 1))
+                XCTAssertEqual(cursor.key, 2 * (i + 1))
+                XCTAssertEqual(cursor.payload, String(2 * (i + 1)) + "/1")
             }
         }
     }

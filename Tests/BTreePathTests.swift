@@ -113,6 +113,32 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
         }
     }
 
+    func testInitKeyAfter() {
+        let c = 26
+        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        for i in 0 ..< c {
+            withClone(tree) { node in
+                var path = Path(root: node, key: 2 * i, choosing: .After)
+                XCTAssertTrue(path.isValid)
+                XCTAssertEqual(path.position, 2 * i + 2)
+                XCTAssertEqual(path.key, 2 * i + 2)
+                XCTAssertEqual(path.payload, String(2 * i + 2))
+                return path.finish()
+            }
+        }
+
+        for i in 0 ..< c {
+            withClone(tree) { node in
+                var path = Path(root: node, key: 2 * i + 1, choosing: .After)
+                XCTAssertTrue(path.isValid)
+                XCTAssertEqual(path.position, 2 * i + 2)
+                XCTAssertEqual(path.key, 2 * i + 2)
+                XCTAssertEqual(path.payload, String(2 * i + 2))
+                return path.finish()
+            }
+        }
+    }
+
     func testInitKeyAny() {
         let c = 26
         let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
@@ -279,6 +305,35 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
         }
     }
 
+    func testMoveToKeyAfter() {
+        let c = 26
+        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        withClone(tree) { node in
+            var path = Path(endOf: node)
+            for i in 0...c {
+                path.move(to: 2 * i, choosing: .After)
+                XCTAssertEqual(path.position, 2 * i + 2)
+                if i < c {
+                    XCTAssertEqual(path.key, 2 * i + 2)
+                }
+                else {
+                    XCTAssertTrue(path.isAtEnd)
+                }
+
+                let j = c - i
+                path.move(to: 2 * j + 1, choosing: .After)
+                XCTAssertEqual(path.position, 2 * j + 2)
+                if i > 0 {
+                    XCTAssertEqual(path.key, 2 * j + 2)
+                }
+                else {
+                    XCTAssertTrue(path.isAtEnd)
+                }
+            }
+            return path.finish()
+        }
+    }
+
     func testMoveToKeyAny() {
         let c = 26
         let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
@@ -371,6 +426,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
             ("testInitPosition", testInitPosition),
             ("testInitKeyFirst", testInitKeyFirst),
             ("testInitKeyLast", testInitKeyLast),
+            ("testInitKeyAfter", testInitKeyAfter),
             ("testInitKeyAny", testInitKeyAny),
             ("testMoveForward", testMoveForward),
             ("testMoveBackward", testMoveBackward),
@@ -379,6 +435,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
             ("testMoveToPosition", testMoveToPosition),
             ("testMoveToKeyFirst", testMoveToKeyFirst),
             ("testMoveToKeyLast", testMoveToKeyLast),
+            ("testMoveToKeyAfter", testMoveToKeyAfter),
             ("testMoveToKeyAny", testMoveToKeyAny),
             ("testSplit", testSplit),
             ("testPrefix", testPrefix),
