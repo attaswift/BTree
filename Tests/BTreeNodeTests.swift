@@ -53,6 +53,7 @@ class BTreeNodeTests: XCTestCase {
         let node = Node(node: source, slotRange: 1..<3)
 
         XCTAssertElementsEqual(node.elements, [(9, "9"), (14, "14")])
+        XCTAssertEqual(node.depth, 1)
         XCTAssertEqual(node.children.count, 3)
         XCTAssertTrue(node.children[0] === source.children[1])
         XCTAssertTrue(node.children[1] === source.children[2])
@@ -67,8 +68,17 @@ class BTreeNodeTests: XCTestCase {
         XCTAssertEqual(node2.count, 2)
         XCTAssertEqual(node2.order, 5)
         XCTAssertEqual(node2.depth, 0)
+
+        let node3 = Node(node: source, slotRange: 1..<1)
+        XCTAssertElementsEqual(node3.elements, [(5, "5"), (6, "6"), (7, "7"), (8, "8")])
+        XCTAssertEqual(node3.depth, 0)
+        XCTAssertEqual(node3.children.count, 0)
+        XCTAssertEqual(node3.count, 4)
+        XCTAssertEqual(node3.order, 5)
+        XCTAssertEqual(node3.depth, 0)
+
     }
-    
+
     func testMakeChildUnique() {
         let node = maximalNode(depth: 1, order: 5)
         weak var origChild2: Node? = node.children[2]

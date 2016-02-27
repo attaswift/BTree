@@ -298,20 +298,20 @@ extension BTreePath {
         var right: Node? = nil
         forEach(ascending: true) { node, slot in
             if separator == nil {
-                left = (slot == 0 && !node.isLeaf ? node.children[0].clone() : Node(node: node, slotRange: 0 ..< slot))
+                left = Node(node: node, slotRange: 0 ..< slot)
                 separator = node.elements[slot]
                 let c = node.elements.count
-                right = (slot == c - 1 && !node.isLeaf ? node.children[c].clone() : Node(node: node, slotRange: slot + 1 ..< c))
+                right = Node(node: node, slotRange: slot + 1 ..< c)
             }
             else {
                 if slot >= 1 {
-                    let l = slot == 1 ? node.children[0].clone() : Node(node: node, slotRange: 0 ..< slot - 1)
+                    let l = Node(node: node, slotRange: 0 ..< slot - 1)
                     let s = node.elements[slot - 1]
                     left = Node.join(left: l, separator: s, right: left!)
                 }
                 let c = node.elements.count
                 if slot <= c - 1 {
-                    let r = slot == c - 1 ? node.children[c].clone() : Node(node: node, slotRange: slot + 1 ..< c)
+                    let r = Node(node: node, slotRange: slot + 1 ..< c)
                     let s = node.elements[slot]
                     right = Node.join(left: right!, separator: s, right: r)
                 }
@@ -329,10 +329,10 @@ extension BTreePath {
         var prefix: Node? = nil
         forEach(ascending: true) { node, slot in
             if prefix == nil {
-                prefix = (slot == 0 && !node.isLeaf ? node.children[0].clone() : Node(node: node, slotRange: 0 ..< slot))
+                prefix = Node(node: node, slotRange: 0 ..< slot)
             }
             else if slot >= 1 {
-                let l = slot == 1 ? node.children[0].clone() : Node(node: node, slotRange: 0 ..< slot - 1)
+                let l = Node(node: node, slotRange: 0 ..< slot - 1)
                 let s = node.elements[slot - 1]
                 prefix = Node.join(left: l, separator: s, right: prefix!)
             }
@@ -350,12 +350,12 @@ extension BTreePath {
         forEach(ascending: true) { node, slot in
             if suffix == nil {
                 let c = node.elements.count
-                suffix = (slot == c - 1 && !node.isLeaf ? node.children[c].clone() : Node(node: node, slotRange: slot + 1 ..< c))
+                suffix = Node(node: node, slotRange: slot + 1 ..< c)
                 return
             }
             let c = node.elements.count
             if slot <= c - 1 {
-                let r = slot == c - 1 ? node.children[c].clone() : Node(node: node, slotRange: slot + 1 ..< c)
+                let r = Node(node: node, slotRange: slot + 1 ..< c)
                 let s = node.elements[slot]
                 suffix = Node.join(left: suffix!, separator: s, right: r)
             }

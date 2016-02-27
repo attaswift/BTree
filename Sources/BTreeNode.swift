@@ -82,10 +82,20 @@ extension BTreeNode {
     }
 
     internal convenience init(node: BTreeNode, slotRange: Range<Int>) {
-        let elements = Array(node.elements[slotRange])
-        let children = node.isLeaf ? [] : Array(node.children[slotRange.startIndex ... slotRange.endIndex])
-        let count = children.reduce(elements.count) { $0 + $1.count }
-        self.init(order: node.order, elements: elements, children: children, count: count)
+        if node.isLeaf {
+            let elements = Array(node.elements[slotRange])
+            self.init(order: node.order, elements: elements, children: [], count: elements.count)
+        }
+        else if slotRange.count == 0 {
+            let n = node.children[slotRange.startIndex]
+            self.init(order: n.order, elements: n.elements, children: n.children, count: n.count)
+        }
+        else {
+            let elements = Array(node.elements[slotRange])
+            let children = Array(node.children[slotRange.startIndex ... slotRange.endIndex])
+            let count = children.reduce(elements.count) { $0 + $1.count }
+            self.init(order: node.order, elements: elements, children: children, count: count)
+        }
     }
 }
 
@@ -374,7 +384,7 @@ extension BTreeNode {
     @warn_unused_result
     internal func split() -> BTreeSplinter<Key, Payload> {
         assert(isTooLarge)
-        return split(elements.count / 2)
+        return split(at: elements.count / 2)
     }
 
     /// Split this node into two at the key at index `median`, removing all elements at or above `median` 
@@ -382,7 +392,7 @@ extension BTreeNode {
     ///
     /// - Returns: A splinter containing the higher half of the original node.
     @warn_unused_result
-    internal func split(median: Int) -> BTreeSplinter<Key, Payload> {
+    internal func split(at median: Int) -> BTreeSplinter<Key, Payload> {
         let count = elements.count
         let separator = elements[median]
         let node = BTreeNode(node: self, slotRange: median + 1 ..< count)
