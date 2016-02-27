@@ -146,6 +146,21 @@ public enum BTreeKeySelector {
 }
 
 public extension BTree {
+
+    /// Returns the first element in this tree, or `nil` if the tree is empty.
+    ///
+    /// - Complexity: O(log(`count`))
+    public var first: Element? {
+        return root.first
+    }
+
+    /// Returns the last element in this tree, or `nil` if the tree is empty.
+    ///
+    /// - Complexity: O(log(`count`))
+    public var last: Element? {
+        return root.last
+    }
+
     /// Returns the element at `position`.
     ///
     /// - Requires: `position >= 0 && position < count`

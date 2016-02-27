@@ -189,6 +189,22 @@ class BTreeTests: XCTestCase {
         }
     }
 
+    func testFirst() {
+        XCTAssertNil(Tree().first)
+
+        let tree = maximalTree(depth: 3, order: 3)
+        XCTAssertEqual(tree.first?.0, 0)
+        XCTAssertEqual(tree.first?.1, "0")
+    }
+
+    func testLast() {
+        XCTAssertNil(Tree().last)
+
+        let tree = maximalTree(depth: 3, order: 3)
+        XCTAssertEqual(tree.last?.0, tree.count - 1)
+        XCTAssertEqual(tree.last?.1, String(tree.count - 1))
+    }
+
     func testElementAtPosition() {
         let tree = maximalTree(depth: 3, order: 3)
         for p in 0 ..< tree.count {

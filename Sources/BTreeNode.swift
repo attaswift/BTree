@@ -308,6 +308,32 @@ extension BTreeNode {
     }
 }
 
+//MARK: Lookups
+
+extension BTreeNode {
+    /// Returns the first element at or under this node, or `nil` if this node is empty.
+    ///
+    /// - Complexity: O(log(`count`))
+    var first: Element? {
+        var node = self
+        while let child = node.children.first {
+            node = child
+        }
+        return node.elements.first
+    }
+
+    /// Returns the last element at or under this node, or `nil` if this node is empty.
+    ///
+    /// - Complexity: O(log(`count`))
+    var last: Element? {
+        var node = self
+        while let child = node.children.last {
+            node = child
+        }
+        return node.elements.last
+    }
+}
+
 //MARK: Editing
 
 extension BTreeNode {
