@@ -181,6 +181,8 @@ class BTreeCursorTests: XCTestCase {
                 XCTAssertEqual(cursor.position, i)
                 XCTAssertEqual(cursor.key, i)
                 XCTAssertEqual(cursor.payload, String(i))
+                XCTAssertEqual(cursor.element.0, i)
+                XCTAssertEqual(cursor.element.1, String(i))
                 cursor.moveForward()
                 i += 1
             }
@@ -276,6 +278,25 @@ class BTreeCursorTests: XCTestCase {
 
                 start += 1
                 end -= 1
+            }
+        }
+    }
+
+    func testReplacingElement() {
+        var tree = maximalTree(depth: 2, order: 5)
+        tree.withCursorAtStart { cursor in
+            while !cursor.isAtEnd {
+                let k = cursor.key
+                cursor.element = (2 * k, String(2 * k))
+                cursor.moveForward()
+            }
+            let tree = cursor.finish()
+            tree.assertValid()
+            var i = 0
+            for (key, payload) in tree {
+                XCTAssertEqual(key, 2 * i)
+                XCTAssertEqual(payload, String(2 * i))
+                i += 1
             }
         }
     }

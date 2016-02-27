@@ -406,6 +406,16 @@ public final class BTreeCursor<Key: Comparable, Payload> {
 
     //MARK: Editing
 
+    /// Get or replace the currently focused element.
+    ///
+    /// - Warning: Changing the key is potentially dangerous; it is the caller's responsibility to ensure that
+    /// keys remain in ascending order. This is not verified at runtime.
+    /// - Complexity: O(1)
+    public var element: Element {
+        get { return state.element }
+        set { state.element = newValue }
+    }
+
     /// Get or set the key of the currently focused element.
     ///
     /// - Warning: Changing the key is potentially dangerous; it is the caller's responsibility to ensure that
