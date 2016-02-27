@@ -155,13 +155,8 @@ internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
     var length: Int { return _path.count + 1}
 
     var node: Node {
-        get {
-            guard let node = _node.value else { invalid() }
-            return node
-        }
-        set {
-            _node = Weak(newValue)
-        }
+        guard let node = _node.value else { invalid() }
+        return node
     }
     
     internal func expectRoot(root: Node) {

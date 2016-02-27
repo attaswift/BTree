@@ -280,7 +280,7 @@ class BTreeCursorTests: XCTestCase {
         }
     }
 
-    func testUpdatingData() {
+    func testReplacingKeyAndPayload() {
         var tree = maximalTree(depth: 2, order: 5)
         tree.withCursorAtStart { cursor in
             while !cursor.isAtEnd {

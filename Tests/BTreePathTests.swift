@@ -419,6 +419,46 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
         }
     }
 
+    func testForEach() {
+        let tree = maximalTree(depth: 3, order: 3)
+        withClone(tree) { node in
+            var path = Path(startOf: node)
+            var p: [(Node, Int)] = []
+            path.forEach(ascending: false) { node, slot in
+                if !p.isEmpty {
+                    let (n, s) = p.last!
+                    XCTAssertTrue(n.children[s] === node)
+                }
+                XCTAssertEqual(slot, 0)
+                p.append(node, slot)
+            }
+            XCTAssertTrue(p.last!.0.isLeaf)
+
+            path.forEach(ascending: true) { node, slot in
+                let (n, s) = p.removeLast()
+                XCTAssertTrue(node === n)
+                XCTAssertEqual(slot, s)
+            }
+
+            return path.finish()
+        }
+    }
+
+    func testForEachSlot() {
+        let tree = maximalTree(depth: 3, order: 3)
+        withClone(tree) { node in
+            var path = Path(startOf: node)
+            path.forEachSlot(ascending: false) { slot in
+                XCTAssertEqual(slot, 0)
+            }
+            path.forEachSlot(ascending: true) { slot in
+                XCTAssertEqual(slot, 0)
+            }
+
+            return path.finish()
+        }
+    }
+
     var testCases: [(String, Void -> Void)] {
         return [
             ("testInitStartOf", testInitStartOf),
@@ -440,6 +480,8 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
             ("testSplit", testSplit),
             ("testPrefix", testPrefix),
             ("testSuffix", testSuffix),
+            ("testForEach", testForEach),
+            ("testForEachSlot", testForEachSlot),
         ]
     }
 
