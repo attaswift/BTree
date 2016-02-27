@@ -421,6 +421,23 @@ class BTreeTests: XCTestCase {
         }
     }
 
+    func testRemoveFirstAndLast() {
+        var empty = Tree()
+        XCTAssertNil(empty.popFirst())
+        XCTAssertNil(empty.popLast())
+
+        var tree = BTree(sortedElements: (0..<20).map { ($0, String($0)) }, order: 3)
+        XCTAssertEqual(tree.popFirst()?.0, 0)
+        tree.assertValid()
+        XCTAssertEqual(tree.removeFirst().0, 1)
+        tree.assertValid()
+        XCTAssertEqual(tree.popLast()?.0, 19)
+        tree.assertValid()
+        XCTAssertEqual(tree.removeLast().0, 18)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, (2..<18).map { ($0, String($0)) })
+    }
+
     func testRemoveAtPosition() {
         var tree = maximalTree(depth: 3, order: 3)
         let c = tree.count

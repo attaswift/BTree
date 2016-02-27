@@ -497,6 +497,36 @@ extension BTree {
 //MARK: Removal
 
 extension BTree {
+    /// Remove and return the first element.
+    ///
+    /// - Complexity: O(log(`count`))
+    public mutating func removeFirst() -> Element {
+        return removeAt(0)
+    }
+
+    /// Remove and return the last element.
+    ///
+    /// - Complexity: O(log(`count`))
+    public mutating func removeLast() -> Element {
+        return removeAt(count - 1)
+    }
+
+    /// Remove and return the first element, or return `nil` if the tree is empty.
+    ///
+    /// - Complexity: O(log(`count`))
+    public mutating func popFirst() -> Element? {
+        guard !isEmpty else { return nil }
+        return removeAt(0)
+    }
+
+    /// Remove and return the first element, or return `nil` if the tree is empty.
+    ///
+    /// - Complexity: O(log(`count`))
+    public mutating func popLast() -> Element? {
+        guard !isEmpty else { return nil }
+        return removeAt(count - 1)
+    }
+
     /// Remove and return the element at the specified position.
     ///
     /// - Note: When you need to perform multiple modifications on the same tree,
