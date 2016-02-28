@@ -99,14 +99,14 @@ extension BTree: CollectionType {
     ///
     /// - Complexity: O(log(`count`))
     public var startIndex: Index {
-        return Index(BTreeWeakPath(root: root, position: 0))
+        return Index(BTreeWeakPath(startOf: root))
     }
 
     /// The index after the last element of this tree. (Equals `startIndex` when the tree is empty.)
     ///
-    /// - Complexity: O(log(`count`))
+    /// - Complexity: O(1)
     public var endIndex: Index {
-        return Index(BTreeWeakPath(root: root, position: count))
+        return Index(BTreeWeakPath(endOf: root))
     }
 
     /// The number of elements in this tree.

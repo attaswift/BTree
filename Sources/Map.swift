@@ -62,7 +62,7 @@ extension Map: CollectionType {
 
     /// The "past-the-end" element index; the successor of the last valid subscript argument.
     ///
-    /// - Complexity: O(log(`count`))
+    /// - Complexity: O(1)
     public var endIndex: Index {
         return tree.endIndex
     }

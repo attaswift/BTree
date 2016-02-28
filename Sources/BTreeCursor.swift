@@ -43,7 +43,11 @@ extension BTree {
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
     public mutating func withCursorAtEnd<R>(@noescape body: Cursor throws -> R) rethrows -> R {
-        return try withCursorAtPosition(count, body: body)
+        makeUnique()
+        let cursor = BTreeCursor(BTreeCursorPath(endOf: root))
+        root = Node()
+        defer { self = cursor.finish() }
+        return try body(cursor)
     }
 
     /// Call `body` with a cursor positioned at `key` in this tree.

@@ -70,8 +70,17 @@ extension BTreePath {
     internal typealias Tree = BTree<Key, Payload>
     internal typealias Node = BTreeNode<Key, Payload>
 
-    init(startOf root: Node) { self.init(root: root, position: 0) }
-    init(endOf root: Node) { self.init(root: root, position: root.count) }
+    init(startOf root: Node) {
+        self.init(root: root, position: 0)
+    }
+
+    init(endOf root: Node) {
+        // The end position can be anywhere on the rightmost path of the tree,
+        // so let's try the spot after the last element of the root.
+        // This can spare us O(log(n)) steps if this path is only used for reference.
+        self.init(root)
+        pushToSlots(root.elements.count, positionOfSlot: root.count)
+    }
     
     init(root: Node, position: Int) {
         self.init(root)
