@@ -122,7 +122,7 @@ extension BTreeNode {
     internal var maxKeys: Int { return maxChildren - 1 }
     internal var minKeys: Int { return minChildren - 1 }
 
-    internal var isLeaf: Bool { return children.isEmpty }
+    internal var isLeaf: Bool { return depth == 0 }
     internal var isTooSmall: Bool { return elements.count < minKeys }
     internal var isTooLarge: Bool { return elements.count > maxKeys }
     internal var isBalanced: Bool { return elements.count >= minKeys && elements.count <= maxKeys }
