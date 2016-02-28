@@ -29,6 +29,40 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
     }
 }
 
+/// A generator for the payloads stored in a b-tree with an empty key.
+public struct BTreePayloadGenerator<Payload>: GeneratorType {
+    internal typealias Base = BTreeGenerator<EmptyKey, Payload>
+    private var base: Base
+
+    internal init(_ base: Base) {
+        self.base = base
+    }
+
+    /// Advance to the next element and return it, or return `nil` if no next element exists.
+    ///
+    /// - Complexity: Amortized O(1)
+    public mutating func next() -> Payload? {
+        return base.next()?.1
+    }
+}
+
+/// A generator for the keys stored in a b-tree without a payload.
+public struct BTreeKeyGenerator<Key: Comparable>: GeneratorType {
+    internal typealias Base = BTreeGenerator<Key, Void>
+    private var base: Base
+
+    internal init(_ base: Base) {
+        self.base = base
+    }
+
+    /// Advance to the next element and return it, or return `nil` if no next element exists.
+    ///
+    /// - Complexity: Amortized O(1)
+    public mutating func next() -> Key? {
+        return base.next()?.0
+    }
+}
+
 /// A mutable path in a b-tree, holding strong references to nodes on the path.
 /// This path variant does not support modifying the tree itself; it is suitable for use in generators.
 internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {

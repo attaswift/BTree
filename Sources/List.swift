@@ -49,7 +49,7 @@ internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
 
 extension List: MutableCollectionType {
     public typealias Index = Int
-    public typealias Generator = ListGenerator<Element>
+    public typealias Generator = BTreePayloadGenerator<Element>
     public typealias SubSequence = List<Element>
 
     /// Always zero, which is the index of the first element when non-empty.
@@ -99,24 +99,7 @@ extension List: MutableCollectionType {
     /// Return a generator over all elements in this list.
     @warn_unused_result
     public func generate() -> Generator {
-        return ListGenerator(tree.generate())
-    }
-}
-
-/// A generator for elements stored in a `List`.
-public struct ListGenerator<Element>: GeneratorType {
-    internal typealias Base = BTreeGenerator<EmptyKey, Element>
-    private var base: Base
-
-    private init(_ base: Base) {
-        self.base = base
-    }
-
-    /// Advance to the next element and return it, or return `nil` if no next element exists.
-    ///
-    /// - Complexity: Amortized O(1)
-    public mutating func next() -> Element? {
-        return base.next()?.1
+        return Generator(tree.generate())
     }
 }
 
