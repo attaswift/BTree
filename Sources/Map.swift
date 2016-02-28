@@ -222,8 +222,7 @@ extension Map {
     ///
     /// - Complexity: O(log(`count`))
     public mutating func removeAtIndex(index: Index) -> (Key, Value) {
-        let key = self[index].0
-        return (key, self.removeValueForKey(key)!)
+        return tree.removeAtIndex(index)
     }
 
     /// Remove a given key and the associated value from this map.
@@ -233,7 +232,7 @@ extension Map {
     ///
     /// - Complexity: O(log(`count`))
     public mutating func removeValueForKey(key: Key) -> Value? {
-        return tree.remove(key)
+        return tree.remove(key)?.1
     }
 
     /// Remove all elements from this map.

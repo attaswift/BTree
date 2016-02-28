@@ -586,11 +586,11 @@ extension BTree {
     /// Remove an element with the specified key, if it exists.
     /// If there are multiple elements with the same key, `selector` indicates which matching element to remove.
     ///
-    /// - Returns: The payload of the removed element, or `nil` if there was no element with `key` in the tree.
+    /// - Returns: The removed element, or `nil` if there was no element with `key` in the tree.
     /// - Note: When you need to perform multiple modifications on the same tree,
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
-    public mutating func remove(key: Key, at selector: BTreeKeySelector = .Any) -> Payload? {
+    public mutating func remove(key: Key, at selector: BTreeKeySelector = .Any) -> Element? {
         let selector = (selector == .After ? .Last : selector)
         makeUnique()
         var old: Element? = nil
@@ -630,7 +630,7 @@ extension BTree {
             assert(root.elements.count == 0)
             root = root.children[0]
         }
-        return old?.1
+        return old
     }
 }
 

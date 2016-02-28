@@ -467,7 +467,8 @@ class BTreeTests: XCTestCase {
             for k in 0 ..< count {
                 XCTAssertNil(tree.remove(2 * k + 1, at: selector))
                 guard let old = tree.remove(2 * k, at: selector) else { XCTFail(String(2 * k)); continue }
-                XCTAssertEqual(old, String(2 * k) + "/1")
+                XCTAssertEqual(old.0, 2 * k)
+                XCTAssertEqual(old.1, String(2 * k) + "/1")
                 tree.assertValid()
             }
 
@@ -493,7 +494,8 @@ class BTreeTests: XCTestCase {
             for k in 0 ..< count {
                 XCTAssertNil(tree.remove(2 * k + 1, at: selector))
                 guard let old = tree.remove(2 * k, at: selector) else { XCTFail(String(2 * k)); continue }
-                XCTAssertEqual(old, String(2 * k) + "/3")
+                XCTAssertEqual(old.0, 2 * k)
+                XCTAssertEqual(old.1, String(2 * k) + "/3")
                 tree.assertValid()
             }
 
@@ -696,7 +698,7 @@ class BTreeTests: XCTestCase {
     func testRemovingTheSingleKey() {
         var tree = Tree(order: order)
         tree.insert((1, "One"))
-        XCTAssertEqual(tree.remove(1), "One")
+        XCTAssertEqual(tree.remove(1)?.1, "One")
         tree.assertValid()
 
         XCTAssertTrue(tree.isEmpty)
@@ -720,14 +722,14 @@ class BTreeTests: XCTestCase {
         XCTAssertEqual(tree.payloadOf(2), "Two")
         XCTAssertNil(tree.payloadOf(3))
 
-        XCTAssertEqual(tree.remove(1), "One")
+        XCTAssertEqual(tree.remove(1)?.1, "One")
         tree.assertValid()
 
         XCTAssertFalse(tree.isEmpty)
         XCTAssertEqual(tree.count, 1)
         XCTAssertElementsEqual(tree, [(2, "Two")])
 
-        XCTAssertEqual(tree.remove(2), "Two")
+        XCTAssertEqual(tree.remove(2)?.1, "Two")
         tree.assertValid()
 
         XCTAssertTrue(tree.isEmpty)
@@ -825,7 +827,7 @@ class BTreeTests: XCTestCase {
         }
 
         for i in 0 ..< c {
-            XCTAssertEqual(tree.remove(i), "\(i)")
+            XCTAssertEqual(tree.remove(i)?.1, "\(i)")
             tree.assertValid()
         }
         XCTAssertElementsEqual(tree, [])
@@ -838,7 +840,7 @@ class BTreeTests: XCTestCase {
             tree.insert((i, String(i)))
             tree.assertValid()
         }
-        XCTAssertEqual(tree.remove(c / 2), "\(c/2)")
+        XCTAssertEqual(tree.remove(c / 2)?.1, "\(c/2)")
         tree.assertValid()
         XCTAssertEqual(tree.depth, 1)
     }
@@ -856,7 +858,7 @@ class BTreeTests: XCTestCase {
         // This test exercises left rotations.
         var tree = maximalTree(depth: 2, order: order)
         for key in 0..<tree.count {
-            XCTAssertEqual(tree.remove(key), String(key))
+            XCTAssertEqual(tree.remove(key)?.1, String(key))
             tree.assertValid()
         }
         XCTAssertTrue(tree.isEmpty)
@@ -866,7 +868,7 @@ class BTreeTests: XCTestCase {
         // This test exercises right rotations.
         var tree = maximalTree(depth: 2, order: order)
         for key in (0..<tree.count).reverse() {
-            XCTAssertEqual(tree.remove(key), String(key))
+            XCTAssertEqual(tree.remove(key)?.1, String(key))
             tree.assertValid()
         }
         XCTAssertTrue(tree.isEmpty)
