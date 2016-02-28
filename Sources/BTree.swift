@@ -96,11 +96,15 @@ extension BTree: CollectionType {
     public typealias SubSequence = BTree<Key, Payload>
 
     /// The index of the first element of this tree. Elements are sorted by key.
+    ///
+    /// - Complexity: O(log(`count`))
     public var startIndex: Index {
         return Index(BTreeWeakPath(root: root, position: 0))
     }
 
     /// The index after the last element of this tree. (Equals `startIndex` when the tree is empty.)
+    ///
+    /// - Complexity: O(log(`count`))
     public var endIndex: Index {
         return Index(BTreeWeakPath(root: root, position: count))
     }

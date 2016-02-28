@@ -54,11 +54,15 @@ extension Map: CollectionType {
     public typealias SubSequence = Map<Key, Value>
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
+    ///
+    /// - Complexity: O(log(`count`))
     public var startIndex: Index {
         return tree.startIndex
     }
 
     /// The "past-the-end" element index; the successor of the last valid subscript argument.
+    ///
+    /// - Complexity: O(log(`count`))
     public var endIndex: Index {
         return tree.endIndex
     }
