@@ -632,6 +632,20 @@ extension BTree {
         }
         return old
     }
+
+    /// Remove and return the element referenced by the given index.
+    ///
+    /// - Complexity: O(log(`count`))
+    public mutating func removeAtIndex(index: Index) -> Element {
+        return withCursorAt(index) { cursor in
+            return cursor.remove()
+        }
+    }
+
+    /// Remove all elements from this tree.
+    public mutating func removeAll() {
+        root = Node(order: root.order)
+    }
 }
 
 //MARK: Subtree extraction

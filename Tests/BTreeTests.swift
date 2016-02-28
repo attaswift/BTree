@@ -507,6 +507,30 @@ class BTreeTests: XCTestCase {
         }
     }
 
+    func testRemoveAtIndex() {
+        let tree = maximalTree(depth: 2, order: 3)
+        let c = tree.count
+        for i in 0 ..< c {
+            var copy = tree
+
+            let index = copy.startIndex.advancedBy(i)
+            copy.removeAtIndex(index)
+
+            var reference = (0 ..< c).map { ($0, String($0)) }
+            reference.removeAtIndex(i)
+
+            XCTAssertElementsEqual(copy, reference)
+        }
+        XCTAssertElementsEqual(tree.map { $0.0 }, 0..<c)
+    }
+
+    func testRemoveAll() {
+        var tree = maximalTree(depth: 2, order: 3)
+        tree.removeAll()
+        XCTAssertTrue(tree.isEmpty)
+        XCTAssertElementsEqual(tree, [])
+    }
+
     func testPrefix() {
         let tree = maximalTree(depth: 2, order: 3)
         let count = tree.count
