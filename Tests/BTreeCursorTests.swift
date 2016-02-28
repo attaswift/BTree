@@ -248,7 +248,7 @@ class BTreeCursorTests: XCTestCase {
 
     func testMoveToKey() {
         let count = 42
-        var tree = BTree(elements: (0..<count).map { (2 * $0, String(2 * $0)) }, order: 3)
+        var tree = BTree((0..<count).map { (2 * $0, String(2 * $0)) }, order: 3)
         tree.withCursorAtStart() { cursor in
             var start = 0
             var end = count - 1

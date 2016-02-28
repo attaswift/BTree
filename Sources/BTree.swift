@@ -801,16 +801,31 @@ extension BTree {
 //MARK: Bulk loading
 
 extension BTree {
-    /// Create a new b-tree from elements of an unsorted sequence.
+    /// Create a new b-tree from elements of an unsorted sequence, using a stable sort algorithm.
     ///
     /// - Parameter elements: An unsorted sequence of arbitrary length.
     /// - Parameter order: The desired b-tree order. If not specified (recommended), the default order is used.
-    /// - Parameter fillFactor: The desired fill factor in each node of the new tree. Must be between 0.5 and 1.0.
-    ///      If not specified, a value of 1.0 is used, i.e., nodes will be loaded with as many elements as possible.
     /// - Complexity: O(count * log(`count`))
     /// - SeeAlso: `init(sortedElements:order:fillFactor:)` for a (faster) variant that can be used if the sequence is already sorted.
-    public init<S: SequenceType where S.Generator.Element == Element>(elements: S, order: Int = Node.defaultOrder, fillFactor: Double = 1) {
-        self.init(sortedElements: elements.sort { $0.0 < $1.0 }, order: order, fillFactor: fillFactor)
+    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder) {
+        self.init(Node(order: order))
+        withCursorAtEnd { cursor in
+            for element in elements {
+                cursor.move(to: element.0, choosing: .Last)
+                let match = !cursor.isAtEnd && cursor.key == element.0
+                if match {
+                    if dropDuplicates {
+                        cursor.element = element
+                    }
+                    else {
+                        cursor.insertAfter(element)
+                    }
+                }
+                else {
+                    cursor.insert(element)
+                }
+            }
+        }
     }
 
     /// Create a new b-tree from elements of a sequence sorted by key.
@@ -821,15 +836,46 @@ extension BTree {
     ///      If not specified, a value of 1.0 is used, i.e., nodes will be loaded with as many elements as possible.
     /// - Complexity: O(count)
     /// - SeeAlso: `init(elements:order:fillFactor:)` for a (slower) unsorted variant.
-    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S, order: Int = Node.defaultOrder, fillFactor: Double = 1) {
+    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder, fillFactor: Double = 1) {
         var generator = elements.generate()
-        self.init(order: order, fillFactor: fillFactor, next: { generator.next() })
+        self.init(order: order, fillFactor: fillFactor, dropDuplicates: dropDuplicates, next: { generator.next() })
     }
 
-    internal init(order: Int = Node.defaultOrder, fillFactor: Double = 1, @noescape next: () -> Element?) {
+    internal init(order: Int = Node.defaultOrder, fillFactor: Double = 1, dropDuplicates: Bool = false, @noescape next: () -> Element?) {
         precondition(order > 1)
         precondition(fillFactor >= 0.5 && fillFactor <= 1)
         let keysPerNode = Int(fillFactor * Double(order - 1) + 0.5)
+        assert(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
+
+        if dropDuplicates {
+            var buffer: Element? = next()
+            self.init(order: order, keysPerNode: keysPerNode) {
+                guard buffer != nil else { return nil }
+                while let element = next() {
+                    precondition(buffer!.0 <= element.0)
+                    if buffer!.0 < element.0 {
+                        defer { buffer = element }
+                        return buffer!
+                    }
+                    buffer = element
+                }
+                defer { buffer = nil }
+                return buffer!
+            }
+        }
+        else {
+            var lastKey: Key? = nil
+            self.init(order: order, keysPerNode: keysPerNode) {
+                guard let element = next() else { return nil }
+                precondition(lastKey <= element.0)
+                lastKey = element.0
+                return element
+            }
+        }
+    }
+
+    private init(order: Int, keysPerNode: Int, @noescape next: () -> Element?) {
+        precondition(order > 1)
         assert(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
 
         // This bulk loading algorithm works growing a line of perfectly loaded saplings, in order of decreasing depth,
@@ -842,21 +888,16 @@ extension BTree {
         var saplings: [Node] = []
         var separators: [Element] = []
 
-        var lastKey: Key? = nil
         var seedling = Node(order: order)
         outer: while true {
             // Create new separator.
             if saplings.count > 0 {
                 guard let element = next() else { break outer }
-                precondition(lastKey <= element.0)
-                lastKey = element.0
                 separators.append(element)
             }
             // Load new seedling.
             while seedling.elements.count < keysPerNode {
                 guard let element = next() else { break outer }
-                precondition(lastKey <= element.0)
-                lastKey = element.0
                 seedling.elements.append(element)
                 seedling.count += 1
             }

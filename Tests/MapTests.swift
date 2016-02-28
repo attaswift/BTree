@@ -257,8 +257,13 @@ class MapTests: XCTestCase {
     }
 
     func testInitWithUnsortedSequence() {
-        let m = Map<Int, String>(elements: [(4, "4"), (2, "2"), (1, "1"), (3, "3"), (0, "0")])
-        XCTAssertElementsEqual(m, [(0, "0"), (1, "1"), (2, "2"), (3, "3"), (4, "4")])
+        let m = Map<Int, String>([(2, "2"), (2, "2"), (2, "2"), (4, "4"), (2, "2*"), (4, "4"), (1, "1"), (1, "1*"), (3, "3*"), (0, "0"), (4, "4*"), (0, "0*")])
+        XCTAssertElementsEqual(m, [(0, "0*"), (1, "1*"), (2, "2*"), (3, "3*"), (4, "4*")])
+    }
+
+    func testInitWithSortedSequence() {
+        let m = Map<Int, String>([(0, "0"), (0, "0*"), (1, "1"), (1, "1*"), (2, "2"), (2, "2"), (2, "2"), (2, "2*"), (4, "4"), (3, "3*"), (4, "4"), (4, "4*")])
+        XCTAssertElementsEqual(m, [(0, "0*"), (1, "1*"), (2, "2*"), (3, "3*"), (4, "4*")])
     }
 
     func testDescription() {

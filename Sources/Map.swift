@@ -313,25 +313,29 @@ extension Map {
 }
 
 extension Map {
-    /// Initialize a new map from an unsorted sequence of elements.
+    /// Initialize a new map from an unsorted sequence of elements, using a stable sort algorithm.
+    ///
+    /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
     ///
     /// - Complexity: O(*n* * log(*n*)) where *n* is the number of items in `elements`.
-    public init<S: SequenceType where S.Generator.Element == Element>(elements: S) {
-        self.tree = Tree(elements: elements)
+    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
+        self.tree = Tree(elements, dropDuplicates: true)
     }
 
     /// Initialize a new map from a sorted sequence of elements.
     ///
+    /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
+    ///
     /// - Complexity: O(*n*) where *n* is the number of items in `elements`.
     public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S) {
-        self.tree = Tree(sortedElements: elements)
+        self.tree = Tree(sortedElements: elements, dropDuplicates: true)
     }
 }
 
 extension Map: DictionaryLiteralConvertible {
     /// Initialize a new map from the given elements.
     public init(dictionaryLiteral elements: (Key, Value)...) {
-        self.tree = Tree(elements: elements)
+        self.tree = Tree(elements, dropDuplicates: true)
     }
 }
 

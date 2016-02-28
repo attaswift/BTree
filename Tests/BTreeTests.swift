@@ -890,7 +890,7 @@ class BTreeTests: XCTestCase {
     }
 
     func testUnsortedSequenceConversion() {
-        let tree = Tree(elements: [(3, "3"), (1, "1"), (4, "4"), (2, "2"), (0, "0")])
+        let tree = Tree([(3, "3"), (1, "1"), (4, "4"), (2, "2"), (0, "0")])
         tree.assertValid()
         XCTAssertElementsEqual(tree, [(0, "0"), (1, "1"), (2, "2"), (3, "3"), (4, "4")])
     }
@@ -915,5 +915,29 @@ class BTreeTests: XCTestCase {
         checkDepth(1)
         checkDepth(2)
         checkDepth(3)
+    }
+
+    func testUnsortedSequenceConversionKeepingDuplicates() {
+        let tree = Tree([(1, "1"), (3, "3"), (3, "3*"), (0, "0"), (1, "1*"), (4, "4*"), (2, "2*"), (0, "0*")])
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, [(0, "0"), (0, "0*"), (1, "1"), (1, "1*"), (2, "2*"), (3, "3"), (3, "3*"), (4, "4*")])
+    }
+
+    func testSortedSequenceConversionKeepingDuplicates() {
+        let tree = Tree(sortedElements: [(0, "0"), (0, "0*"), (1, "1*"), (2, "2"), (2, "2"), (2, "2"), (2, "2*"), (3, "3*"), (4, "4"), (4, "4"), (4, "4"), (4, "4*")])
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, [(0, "0"), (0, "0*"), (1, "1*"), (2, "2"), (2, "2"), (2, "2"), (2, "2*"), (3, "3*"), (4, "4"), (4, "4"), (4, "4"), (4, "4*")])
+    }
+
+    func testUnsortedSequenceConversionRemovingDuplicates() {
+        let tree = Tree([(1, "1"), (3, "3"), (3, "3*"), (0, "0"), (1, "1*"), (4, "4*"), (2, "2*"), (0, "0*")], dropDuplicates: true)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, [(0, "0*"), (1, "1*"), (2, "2*"), (3, "3*"), (4, "4*")])
+    }
+
+    func testSortedSequenceConversionRemovingDuplicates() {
+        let tree = Tree(sortedElements: [(0, "0"), (0, "0*"), (1, "1*"), (2, "2"), (2, "2"), (2, "2"), (2, "2*"), (3, "3*"), (4, "4"), (4, "4"), (4, "4"), (4, "4*")], dropDuplicates: true)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree, [(0, "0*"), (1, "1*"), (2, "2*"), (3, "3*"), (4, "4*")])
     }
 }
