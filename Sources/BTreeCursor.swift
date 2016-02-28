@@ -74,7 +74,7 @@ extension BTree {
     public mutating func withCursorAt<R>(index: Index, @noescape body: Cursor throws -> R) rethrows -> R {
         index.state.expectRoot(root)
         makeUnique()
-        let cursor = BTreeCursor(BTreeCursorPath(path: index.state))
+        let cursor = BTreeCursor(BTreeCursorPath(root: root, slotsFrom: index.state))
         root = Node()
         defer { self = cursor.finish() }
         return try body(cursor)

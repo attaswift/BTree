@@ -92,8 +92,8 @@ extension BTreePath {
         descend(to: key, choosing: selector)
     }
 
-    init<Path: BTreePath where Path.Key == Key, Path.Payload == Payload>(path: Path) {
-        self.init(path.root)
+    init<Path: BTreePath where Path.Key == Key, Path.Payload == Payload>(root: Node, slotsFrom path: Path) {
+        self.init(root)
         path.forEachSlot(ascending: false) { slot in
             if self.slot != nil {
                 pushToPath()
