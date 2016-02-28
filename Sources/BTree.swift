@@ -861,98 +861,29 @@ extension BTree {
         let keysPerNode = Int(fillFactor * Double(order - 1) + 0.5)
         assert(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
 
+        var builder = BTreeBuilder<Key, Payload>(order: order, keysPerNode: keysPerNode)
         if dropDuplicates {
-            var buffer: Element? = next()
-            self.init(order: order, keysPerNode: keysPerNode) {
-                guard buffer != nil else { return nil }
-                while let element = next() {
-                    precondition(buffer!.0 <= element.0)
-                    if buffer!.0 < element.0 {
-                        defer { buffer = element }
-                        return buffer!
-                    }
-                    buffer = element
-                }
-                defer { buffer = nil }
-                return buffer!
+            guard var buffer = next() else {
+                self.init(Node(order: order))
+                return
             }
+            while let element = next() {
+                precondition(buffer.0 <= element.0)
+                if buffer.0 < element.0 {
+                    builder.append(buffer)
+                }
+                buffer = element
+            }
+            builder.append(buffer)
         }
         else {
             var lastKey: Key? = nil
-            self.init(order: order, keysPerNode: keysPerNode) {
-                guard let element = next() else { return nil }
+            while let element = next() {
                 precondition(lastKey <= element.0)
                 lastKey = element.0
-                return element
+                builder.append(element)
             }
         }
-    }
-
-    private init(order: Int, keysPerNode: Int, @noescape next: () -> Element?) {
-        precondition(order > 1)
-        assert(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
-
-        // This bulk loading algorithm works growing a line of perfectly loaded saplings, in order of decreasing depth,
-        // with a separator element between each of them.
-        // In each step, a new separator and a new 0-depth, fully loaded node is loaded from the sequence as a new seedling.
-        // The seedling is then appended to or recursively merged into the list of saplings.
-        // Finally, at the end of the sequence, the final list of saplings plus the last partial seedling is joined
-        // into a single tree, which becomes the root.
-
-        var saplings: [Node] = []
-        var separators: [Element] = []
-
-        var seedling = Node(order: order)
-        outer: while true {
-            // Create new separator.
-            if saplings.count > 0 {
-                guard let element = next() else { break outer }
-                separators.append(element)
-            }
-            // Load new seedling.
-            while seedling.elements.count < keysPerNode {
-                guard let element = next() else { break outer }
-                seedling.elements.append(element)
-                seedling.count += 1
-            }
-            // Append seedling into saplings, combining the last few seedlings when possible.
-            while !saplings.isEmpty && seedling.elements.count == keysPerNode {
-                let sapling = saplings.last!
-                assert(sapling.depth >= seedling.depth)
-                if sapling.depth == seedling.depth + 1 && sapling.elements.count < keysPerNode {
-                    // Graft current seedling under the last sapling, as a new child branch.
-                    saplings.removeLast()
-                    let separator = separators.removeLast()
-                    sapling.elements.append(separator)
-                    sapling.children.append(seedling)
-                    sapling.count += seedling.count + 1
-                    seedling = sapling
-                }
-                else if sapling.depth == seedling.depth && sapling.elements.count == keysPerNode {
-                    // We have two full nodes; add them as two branches of a new, deeper seedling.
-                    saplings.removeLast()
-                    let separator = separators.removeLast()
-                    seedling = Node(left: sapling, separator: separator, right: seedling)
-                }
-                else {
-                    break
-                }
-            }
-            saplings.append(seedling)
-            seedling = Node(order: order)
-        }
-
-        // Merge saplings and seedling into a single tree.
-        if separators.count == saplings.count - 1 {
-            assert(seedling.count == 0)
-            self.root = saplings.removeLast()
-        }
-        else {
-            self.root = seedling
-        }
-        assert(separators.count == saplings.count)
-        while !saplings.isEmpty {
-            self.root = Node.join(left: saplings.removeLast(), separator: separators.removeLast(), right: self.root)
-        }
+        self.init(builder.finish())
     }
 }

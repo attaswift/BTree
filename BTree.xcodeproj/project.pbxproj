@@ -23,6 +23,10 @@
 		BB5B27C61C807C6200ED8D38 /* BTreePathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27C51C807C6200ED8D38 /* BTreePathTests.swift */; };
 		BB5B27C71C807C6200ED8D38 /* BTreePathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27C51C807C6200ED8D38 /* BTreePathTests.swift */; };
 		BB5B27C81C807C6200ED8D38 /* BTreePathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27C51C807C6200ED8D38 /* BTreePathTests.swift */; };
+		BB5B27D01C8334A500ED8D38 /* BTreeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */; };
+		BB5B27D11C8334A500ED8D38 /* BTreeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */; };
+		BB5B27D21C8334A500ED8D38 /* BTreeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */; };
+		BB5B27D31C8334A500ED8D38 /* BTreeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */; };
 		BB7773811C6CA03200991A06 /* BTreeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773801C6CA03200991A06 /* BTreeGenerator.swift */; };
 		BB7773821C6CA03200991A06 /* BTreeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773801C6CA03200991A06 /* BTreeGenerator.swift */; };
 		BB7773841C6CA07C00991A06 /* BTreeIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773831C6CA07C00991A06 /* BTreeIndex.swift */; };
@@ -122,6 +126,7 @@
 		BB54D0C01C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB56634E1C46969400F5A118 /* BTreeNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeNode.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB5B27C51C807C6200ED8D38 /* BTreePathTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreePathTests.swift; sourceTree = "<group>"; };
+		BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeBuilder.swift; sourceTree = "<group>"; };
 		BB7773801C6CA03200991A06 /* BTreeGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeGenerator.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB7773831C6CA07C00991A06 /* BTreeIndex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeIndex.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB7773861C6CA08B00991A06 /* Weak.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Weak.swift; sourceTree = "<group>"; };
@@ -257,6 +262,7 @@
 				BB7773801C6CA03200991A06 /* BTreeGenerator.swift */,
 				BB7773831C6CA07C00991A06 /* BTreeIndex.swift */,
 				BB77738C1C6E476100991A06 /* BTreeCursor.swift */,
+				BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */,
 				BB097FB21C236EFD00CB718A /* Map.swift */,
 				BB7773891C6CBC9100991A06 /* List.swift */,
 				BB54D0B41C1F0357008A462B /* Info.plist */,
@@ -562,6 +568,7 @@
 				BB097FB31C236EFD00CB718A /* Map.swift in Sources */,
 				BB77738A1C6CBC9100991A06 /* List.swift in Sources */,
 				BB56634F1C46969400F5A118 /* BTreeNode.swift in Sources */,
+				BB5B27D01C8334A500ED8D38 /* BTreeBuilder.swift in Sources */,
 				BB7773811C6CA03200991A06 /* BTreeGenerator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -597,6 +604,7 @@
 				BB8FE9A91C7C8D720051268F /* Map.swift in Sources */,
 				BB8FE9A41C7C8D720051268F /* BTree.swift in Sources */,
 				BB8FE9A81C7C8D720051268F /* BTreeCursor.swift in Sources */,
+				BB5B27D21C8334A500ED8D38 /* BTreeBuilder.swift in Sources */,
 				BB8FE9A31C7C8D720051268F /* Weak.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -613,6 +621,7 @@
 				BB8FE9D11C7C8F6B0051268F /* Map.swift in Sources */,
 				BB8FE9CC1C7C8F6B0051268F /* BTree.swift in Sources */,
 				BB8FE9D01C7C8F6B0051268F /* BTreeCursor.swift in Sources */,
+				BB5B27D31C8334A500ED8D38 /* BTreeBuilder.swift in Sources */,
 				BB8FE9CB1C7C8F6B0051268F /* Weak.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -648,6 +657,7 @@
 				BB77738F1C6E57B200991A06 /* BTreeCursor.swift in Sources */,
 				BB77738B1C6CBC9100991A06 /* List.swift in Sources */,
 				BB5663501C46969400F5A118 /* BTreeNode.swift in Sources */,
+				BB5B27D11C8334A500ED8D38 /* BTreeBuilder.swift in Sources */,
 				BB7773821C6CA03200991A06 /* BTreeGenerator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
