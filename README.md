@@ -118,7 +118,7 @@ large element counts.
 [benchmark tweet]: https://twitter.com/lorentey/status/687973876391931904
 
 Arrays are the epitome of reference locality, so the Swift stdlib's heavy emphasis on `Array` as the
-universal collection type is well-deserved.
+universal collection type is well justified.
 
 For example, using a single array to hold a sorted list of items has quite horrible asymptotical
 complexity when there are many elements. However, up to a certain maximum size, a simple array is in fact 
