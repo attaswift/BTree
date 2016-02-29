@@ -44,9 +44,9 @@ ordered collection types that use b-trees for their underlying storage.
     isn't provided by default (such as a MultiMap or a Bag), 
     or if you need to use an operation that isn't exposed by the wrappers.
     
-All of these collections are structs and implement the same copy-on-write value semantics as
+All of these collections are structs and they implement the same copy-on-write value semantics as
 standard Swift collection types like `Array` and `Dictionary`. (In fact, copy-on-write works even
-better with these than standard collections; read on to find out why!)
+better with these than standard collections; continue reading to find out why!)
 
 [Map]: http://lorentey.github.io/BTree/api/Structs/Map.html
 [List]: http://lorentey.github.io/BTree/api/Structs/List.html
