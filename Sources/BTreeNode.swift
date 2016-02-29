@@ -378,11 +378,13 @@ internal struct BTreeSplinter<Key: Comparable, Payload> {
 }
 
 extension BTreeNode {
+    typealias Splinter = BTreeSplinter<Key, Payload>
+
     /// Split this node into two, removing the high half of the nodes and putting them in a splinter.
     ///
     /// - Returns: A splinter containing the higher half of the original node.
     @warn_unused_result
-    internal func split() -> BTreeSplinter<Key, Payload> {
+    internal func split() -> Splinter {
         assert(isTooLarge)
         return split(at: elements.count / 2)
     }
@@ -392,7 +394,7 @@ extension BTreeNode {
     ///
     /// - Returns: A splinter containing the higher half of the original node.
     @warn_unused_result
-    internal func split(at median: Int) -> BTreeSplinter<Key, Payload> {
+    internal func split(at median: Int) -> Splinter {
         let count = elements.count
         let separator = elements[median]
         let node = BTreeNode(node: self, slotRange: median + 1 ..< count)
@@ -405,10 +407,10 @@ extension BTreeNode {
             self.count = median + children.reduce(0, combine: { $0 + $1.count })
         }
         assert(node.depth == self.depth)
-        return BTreeSplinter(separator: separator, node: node)
+        return Splinter(separator: separator, node: node)
     }
 
-    internal func insert(splinter: BTreeSplinter<Key, Payload>, inSlot slot: Int) {
+    internal func insert(splinter: Splinter, inSlot slot: Int) {
         elements.insert(splinter.separator, atIndex: slot)
         children.insert(splinter.node, atIndex: slot + 1)
     }
