@@ -274,22 +274,20 @@ extension BTreeNode {
             precondition(count == p + c, "Invalid B-Tree")
             return (index: children.count - 1, match: false, position: count)
         }
-        else {
-            var p = count
-            for i in (1 ..< children.count).reverse() {
-                let c = children[i].count
-                if position == p - (c + 1) {
-                    return (index: i - 1, match: true, position: position)
-                }
-                if position > p - (c + 1) {
-                    return (index: i, match: false, position: p)
-                }
-                p -= c + 1
+        var p = count
+        for i in (1 ..< children.count).reverse() {
+            let c = children[i].count
+            if position == p - (c + 1) {
+                return (index: i - 1, match: true, position: position)
             }
-            let c = children.first!.count
-            precondition(p - c == 0, "Invalid B-Tree")
-            return (index: 0, match: false, position: c)
+            if position > p - (c + 1) {
+                return (index: i, match: false, position: p)
+            }
+            p -= c + 1
         }
+        let c = children.first!.count
+        precondition(p - c == 0, "Invalid B-Tree")
+        return (index: 0, match: false, position: c)
     }
 
     /// Return the position of the element at `slot` in the subtree rooted at this node.
