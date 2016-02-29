@@ -17,6 +17,12 @@ private func assertEqual<Key: Comparable, Payload, S: SequenceType where S.Gener
     XCTAssertElementsEqual(t1.map { $0.0 }, s, file: file, line: line)
 }
 
+private extension SequenceType {
+    func repeatEach(count: Int) -> Array<Generator.Element> {
+        return flatMap { Array<Generator.Element>(count: count, repeatedValue: $0) }
+    }
+}
+
 class BTreeMergeTests: XCTestCase {
     typealias Builder = BTreeBuilder<Int, Void>
     typealias Node = BTreeNode<Int, Void>
@@ -88,16 +94,44 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_Union_longDuplicates() {
-        let first = makeTree((0 ..< 90).map { $0 / 20 })
-        let second = makeTree((90 ..< 200).map { $0 / 20 })
+        let first = makeTree((0 ..< 90).repeatEach(20))
+        let second = makeTree((90 ..< 200).repeatEach(20))
 
         let u1 = Tree.union(first, second)
         u1.assertValid()
-        assertEqual(u1, (0 ..< 200).map { $0 / 20 })
+        assertEqual(u1, (0 ..< 200).repeatEach(20))
 
         let u2 = Tree.union(second, first)
         u2.assertValid()
-        assertEqual(u2, (0 ..< 200).map { $0 / 20 })
+        assertEqual(u2, (0 ..< 200).repeatEach(20))
+    }
+
+    func test_Union_duplicateResolution() {
+        let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
+        let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
+
+        let u1 = Tree.union(first, second)
+        u1.assertValid()
+        assertEqual(u1, [0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
+
+        let u2 = Tree.union(second, first)
+        u2.assertValid()
+        assertEqual(u2, [0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
+    }
+
+    func test_Union_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursorAtPosition(140) { $0.remove(20) }
+        second.withCursorAtPosition(60) { $0.remove(20) }
+
+        let u1 = Tree.union(first, second)
+        u1.assertValid()
+        assertEqual(u1, [0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
+
+        let u2 = Tree.union(second, first)
+        u2.assertValid()
+        assertEqual(u2, [0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
     }
 
     //MARK: Distinct Union
@@ -149,16 +183,16 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_DistinctUnion_longDuplicates() {
-        let first = makeTree((0 ..< 100).map { $0 / 20 })
-        let second = makeTree((100 ..< 200).map { $0 / 20 })
+        let first = makeTree((0 ..< 100).repeatEach(20))
+        let second = makeTree((100 ..< 200).repeatEach(20))
 
         let u1 = Tree.distinctUnion(first, second)
         u1.assertValid()
-        assertEqual(u1, (0 ..< 200).map { $0 / 20 })
+        assertEqual(u1, (0 ..< 200).repeatEach(20))
 
         let u2 = Tree.distinctUnion(second, first)
         u2.assertValid()
-        assertEqual(u2, (0 ..< 200).map { $0 / 20 })
+        assertEqual(u2, (0 ..< 200).repeatEach(20))
     }
 
     func test_DistinctUnion_duplicateResolution() {
@@ -172,6 +206,21 @@ class BTreeMergeTests: XCTestCase {
         let u2 = Tree.distinctUnion(second, first)
         u2.assertValid()
         assertEqual(u2, [0, 0, 0, 0, 1, 1, 3, 4, 6, 6, 6, 6, 7, 7, 8])
+    }
+
+    func test_DistinctUnion_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursorAtPosition(140) { $0.remove(20) }
+        second.withCursorAtPosition(60) { $0.remove(20) }
+
+        let u1 = Tree.distinctUnion(first, second)
+        u1.assertValid()
+        assertEqual(u1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
+
+        let u2 = Tree.distinctUnion(second, first)
+        u2.assertValid()
+        assertEqual(u2, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
     }
 
     //MARK: Subtract
@@ -223,16 +272,17 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_Subtract_longDuplicates() {
-        let first = makeTree((0 ..< 90).map { $0 / 20 })
-        let second = makeTree((90 ..< 200).map { $0 / 20 })
+        let keys = (0 ..< 10).repeatEach(20)
+        let first = makeTree(keys[0 ..< 90])
+        let second = makeTree(keys[90 ..< 200])
 
         let u1 = Tree.subtract(first, second)
         u1.assertValid()
-        assertEqual(u1, (0 ..< 80).map { $0 / 20 })
+        assertEqual(u1, (0 ..< 4).repeatEach(20))
 
         let u2 = Tree.subtract(second, first)
         u2.assertValid()
-        assertEqual(u2, (100 ..< 200).map { $0 / 20 })
+        assertEqual(u2, (5 ..< 10).repeatEach(20))
     }
 
     func test_Subtract_duplicateResolution() {
@@ -248,6 +298,21 @@ class BTreeMergeTests: XCTestCase {
         assertEqual(u2, [1, 1, 8])
     }
 
+    func test_Subtract_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursorAtPosition(140) { $0.remove(20) }
+        second.withCursorAtPosition(60) { $0.remove(20) }
+
+        let u1 = Tree.subtract(first, second)
+        u1.assertValid()
+        assertEqual(u1, [3].repeatEach(20))
+
+        let u2 = Tree.subtract(second, first)
+        u2.assertValid()
+        assertEqual(u2, [7].repeatEach(20))
+    }
+    
     //MARK: Exclusive Or
 
     func test_ExclusiveOr_simple() {
@@ -297,16 +362,17 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_ExclusiveOr_longDuplicates() {
-        let first = makeTree((0 ..< 90).map { $0 / 20 })
-        let second = makeTree((90 ..< 200).map { $0 / 20 })
+        let keys = (0 ..< 10).repeatEach(20)
+        let first = makeTree(keys[0 ..< 90])
+        let second = makeTree(keys[90 ..< 200])
 
         let u1 = Tree.exclusiveOr(first, second)
         u1.assertValid()
-        assertEqual(u1, (0 ..< 80).map { $0 / 20 } + (100 ..< 200).map { $0 / 20 })
+        assertEqual(u1, (0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
 
         let u2 = Tree.exclusiveOr(second, first)
         u2.assertValid()
-        assertEqual(u2, (0 ..< 80).map { $0 / 20 } + (100 ..< 200).map { $0 / 20 })
+        assertEqual(u2, (0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
     }
 
     func test_ExclusiveOr_duplicateResolution() {
@@ -321,6 +387,22 @@ class BTreeMergeTests: XCTestCase {
         u2.assertValid()
         assertEqual(u2, [1, 1, 4, 7, 7, 8])
     }
+
+    func test_ExclusiveOr_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursorAtPosition(140) { $0.remove(20) }
+        second.withCursorAtPosition(60) { $0.remove(20) }
+
+        let u1 = Tree.exclusiveOr(first, second)
+        u1.assertValid()
+        assertEqual(u1, [3, 7].repeatEach(20))
+
+        let u2 = Tree.exclusiveOr(second, first)
+        u2.assertValid()
+        assertEqual(u2, [3, 7].repeatEach(20))
+    }
+
 
     //MARK: Intersect
 
@@ -371,16 +453,17 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_Intersect_longDuplicates() {
-        let first = makeTree((0 ..< 90).map { $0 / 20 })
-        let second = makeTree((90 ..< 200).map { $0 / 20 })
+        let keys = (0 ..< 10).repeatEach(20)
+        let first = makeTree(keys[0 ..< 90])
+        let second = makeTree(keys[90 ..< 200])
 
         let u1 = Tree.intersect(first, second)
         u1.assertValid()
-        assertEqual(u1, (90 ..< 100).map { $0 / 20 })
+        assertEqual(u1, [4].repeatEach(10))
 
         let u2 = Tree.intersect(second, first)
         u2.assertValid()
-        assertEqual(u2, (90 ..< 100).map { $0 / 20 })
+        assertEqual(u2, [4].repeatEach(10))
     }
 
     func test_Intersect_duplicateResolution() {
@@ -396,4 +479,18 @@ class BTreeMergeTests: XCTestCase {
         assertEqual(u2, [0, 0, 0, 0, 3, 6, 6, 6, 6])
     }
 
+    func test_Intersect_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursorAtPosition(140) { $0.remove(20) }
+        second.withCursorAtPosition(60) { $0.remove(20) }
+
+        let u1 = Tree.intersect(first, second)
+        u1.assertValid()
+        assertEqual(u1, [0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
+
+        let u2 = Tree.intersect(second, first)
+        u2.assertValid()
+        assertEqual(u2, [0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
+    }
 }

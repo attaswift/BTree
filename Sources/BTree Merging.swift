@@ -131,6 +131,143 @@ extension BTreeBuilder {
     }
 }
 
+enum BTreeCopyLimit {
+    case IncludingOtherKey
+    case ExcludingOtherKey
+
+    var inclusive: Bool { return self == .IncludingOtherKey }
+
+    func match<Key: Comparable>(key: Key, with reference: Key) -> Bool {
+        switch self {
+        case .IncludingOtherKey:
+            return key <= reference
+        case .ExcludingOtherKey:
+            return key < reference
+        }
+    }
+}
+
+struct BTreeMerger<Key: Comparable, Payload> {
+    var a: BTreeStrongPath<Key, Payload>
+    var b: BTreeStrongPath<Key, Payload>
+    var builder: BTreeBuilder<Key, Payload>
+    var done: Bool
+
+    init(first: BTree<Key, Payload>, second: BTree<Key, Payload>) {
+        precondition(first.order == second.order)
+        self.a = BTreeStrongPath(startOf: first.root)
+        self.b = BTreeStrongPath(startOf: second.root)
+        self.builder = BTreeBuilder(order: first.order, keysPerNode: first.root.maxKeys)
+        self.done = false // Can't use a/b until eveything has been initialized. :-/
+
+        self.done = a.isAtEnd || b.isAtEnd
+    }
+
+    mutating func finish() -> BTree<Key, Payload> {
+        return BTree(builder.finish())
+    }
+
+    mutating func appendA() {
+        guard !a.isAtEnd else { return }
+        builder.append(a.element)
+        builder.append(a.suffix().root)
+        a.moveToEnd()
+        done = true
+    }
+
+    mutating func appendB() {
+        guard !b.isAtEnd else { return }
+        builder.append(b.element)
+        builder.append(b.suffix().root)
+        b.moveToEnd()
+        done = true
+    }
+
+    mutating func copyFromFirst(limit: BTreeCopyLimit) {
+        while !done && limit.match(a.key, with: b.key) {
+            builder.append(a.nextPart(until: b.key, inclusive: limit.inclusive))
+            done = a.isAtEnd
+        }
+    }
+
+    mutating func copyFromSecond(limit: BTreeCopyLimit) {
+        while !done && limit.match(b.key, with: a.key) {
+            builder.append(b.nextPart(until: a.key, inclusive: limit.inclusive))
+            done = b.isAtEnd
+        }
+    }
+    mutating func skipFromFirst(limit: BTreeCopyLimit) {
+        while !done && limit.match(a.key, with: b.key) {
+            a.nextPart(until: b.key, inclusive: limit.inclusive)
+            done = a.isAtEnd
+        }
+    }
+
+    mutating func skipFromSecond(limit: BTreeCopyLimit) {
+        while !done && limit.match(b.key, with: a.key) {
+            b.nextPart(until: a.key, inclusive: limit.inclusive)
+            done = b.isAtEnd
+        }
+    }
+
+    mutating func copyCommonElementsFromSecond() {
+        while !done && a.key == b.key {
+            if a.node === b.node && a.node.isLeaf && a.slot == 0 && b.slot == 0 {
+                repeat {
+                    if a.ascendOneLevel() { done = true }
+                    if b.ascendOneLevel() { done = true }
+                } while !done && a.node === b.node && a.slot == 0 && b.slot == 0
+                builder.append(b.isAtEnd ? b.root : b.node.children[b.slot!])
+                if !a.isAtEnd { a.ascendToKey() }
+                if !b.isAtEnd { b.ascendToKey() }
+            }
+            else {
+                let key = a.key
+                var doneA = false
+                while !doneA && a.key == key {
+                    a.nextPart(until: key, inclusive: true)
+                    doneA = a.isAtEnd
+                }
+                var doneB = false
+                while !doneB && b.key == key {
+                    builder.append(b.nextPart(until: key, inclusive: true))
+                    doneB = b.isAtEnd
+                }
+                done = doneA || doneB
+            }
+        }
+    }
+
+    mutating func skipCommonElements() {
+        while !done && a.key == b.key {
+            if a.node === b.node {
+                assert(a.node.isLeaf && b.node.isLeaf)
+                while !done && a.node === b.node {
+                    assert(a.slot == b.slot)
+                    if a.ascendOneLevel() { done = true }
+                    if b.ascendOneLevel() { done = true }
+                }
+                if !a.isAtEnd { a.ascendToKey() }
+                if !b.isAtEnd { b.ascendToKey() }
+            }
+            else {
+                let key = a.key
+                var doneA = false
+                while !doneA && a.key == key {
+                    a.nextPart(until: key, inclusive: true)
+                    doneA = a.isAtEnd
+                }
+                var doneB = false
+                while !doneB && b.key == key {
+                    b.nextPart(until: key, inclusive: true)
+                    doneB = b.isAtEnd
+                }
+                done = doneA || doneB
+            }
+        }
+    }
+}
+
 extension BTree {
     /// Merge all elements from two trees into a new tree, and return it.
     ///
@@ -144,34 +281,14 @@ extension BTree {
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
     public static func union(first: BTree, _ second: BTree) -> BTree {
-        precondition(first.order == second.order)
-        var a = BTreeStrongPath(startOf: first.root)
-        var b = BTreeStrongPath(startOf: second.root)
-        var builder = BTreeBuilder<Key, Payload>(order: first.order, keysPerNode: first.root.maxKeys)
-        if !a.isAtEnd && !b.isAtEnd {
-            outer: while true {
-                // Include elements from `a` until we take over `b`.
-                while a.key <= b.key {
-                    builder.append(a.nextPart(until: b.key, inclusive: true))
-                    if a.isAtEnd { break outer }
-                }
-                // Include elements from `b` until we take over `a`.
-                while b.key < a.key {
-                    builder.append(b.nextPart(until: a.key, inclusive: false))
-                    if b.isAtEnd { break outer }
-                }
-            }
+        var m = BTreeMerger(first: first, second: second)
+        while !m.done {
+            m.copyFromFirst(.IncludingOtherKey)
+            m.copyFromSecond(.ExcludingOtherKey)
         }
-        let result = builder.finish()
-        // Append leftover elements from either tree.
-        if !a.isAtEnd {
-            assert(b.isAtEnd)
-            return BTree(Node.join(left: result, separator: a.element, right: a.suffix().root))
-        }
-        if !b.isAtEnd {
-            return BTree(Node.join(left: result, separator: b.element, right: b.suffix().root))
-        }
-        return BTree(result)
+        m.appendA()
+        m.appendB()
+        return BTree(m.finish())
     }
 
     /// Calculate the distinct union of two trees, and return the result.
@@ -188,39 +305,15 @@ extension BTree {
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
     public static func distinctUnion(first: BTree, _ second: BTree) -> BTree {
-        precondition(first.order == second.order)
-        var a = BTreeStrongPath(startOf: first.root)
-        var b = BTreeStrongPath(startOf: second.root)
-        var builder = BTreeBuilder<Key, Payload>(order: first.order, keysPerNode: first.root.maxKeys)
-        if !a.isAtEnd && !b.isAtEnd {
-            outer: while true {
-                // Include elements in `a` whose keys aren't in `b`.
-                while a.key < b.key {
-                    builder.append(a.nextPart(until: b.key, inclusive: false))
-                    if a.isAtEnd { break outer }
-                }
-                // Skip elements in `a` whose keys are in `b`.
-                while a.key == b.key {
-                    a.nextPart(until: b.key, inclusive: true)
-                    if a.isAtEnd { break outer }
-                }
-                // Include elements in `b` until we catch up with `a`.
-                while b.key < a.key {
-                    builder.append(b.nextPart(until: a.key, inclusive: false))
-                    if b.isAtEnd { break outer }
-                }
-            }
+        var m = BTreeMerger(first: first, second: second)
+        while !m.done {
+            m.copyFromFirst(.ExcludingOtherKey)
+            m.copyFromSecond(.ExcludingOtherKey)
+            m.copyCommonElementsFromSecond()
         }
-        let result = builder.finish()
-        // Append leftover elements from either tree.
-        if !a.isAtEnd {
-            assert(b.isAtEnd)
-            return BTree(Node.join(left: result, separator: a.element, right: a.suffix().root))
-        }
-        if !b.isAtEnd {
-            return BTree(Node.join(left: result, separator: b.element, right: b.suffix().root))
-        }
-        return BTree(result)
+        m.appendA()
+        m.appendB()
+        return m.finish()
     }
 
     /// Return a tree with the same elements as `first` except those whose keys are also in `second`.
@@ -233,36 +326,14 @@ extension BTree {
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
     public static func subtract(first: BTree, _ second: BTree) -> BTree {
-        precondition(first.order == second.order)
-        var a = BTreeStrongPath(startOf: first.root)
-        var b = BTreeStrongPath(startOf: second.root)
-        var builder = BTreeBuilder<Key, Payload>(order: first.order, keysPerNode: first.root.maxKeys)
-        if !a.isAtEnd && !b.isAtEnd {
-            outer: while true {
-                // Include elements in `a` whose keys aren't in `b`.
-                while a.key < b.key {
-                    builder.append(a.nextPart(until: b.key, inclusive: false))
-                    if a.isAtEnd { break outer }
-                }
-                // Skip elements in `a` whose keys are in `b`.
-                while a.key == b.key {
-                    a.nextPart(until: b.key, inclusive: true)
-                    if a.isAtEnd { break outer }
-                }
-                // Skip elements in `b` until we catch up with `a`.
-                while b.key < a.key {
-                    b.nextPart(until: a.key, inclusive: false)
-                    if b.isAtEnd { break outer }
-                }
-            }
+        var m = BTreeMerger(first: first, second: second)
+        while !m.done {
+            m.copyFromFirst(.ExcludingOtherKey)
+            m.skipFromSecond(.ExcludingOtherKey)
+            m.skipCommonElements()
         }
-        let result = builder.finish()
-        // Append elements left over from `a`.
-        if !a.isAtEnd {
-            assert(b.isAtEnd)
-            return BTree(Node.join(left: result, separator: a.element, right: a.suffix().root))
-        }
-        return BTree(result)
+        m.appendA()
+        return m.finish()
     }
 
     /// Return a tree combining the elements of two input trees except those whose keys appear in both inputs.
@@ -275,45 +346,15 @@ extension BTree {
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
     public static func exclusiveOr(first: BTree, _ second: BTree) -> BTree {
-        precondition(first.order == second.order)
-        var a = BTreeStrongPath(startOf: first.root)
-        var b = BTreeStrongPath(startOf: second.root)
-        var builder = BTreeBuilder<Key, Payload>(order: first.order, keysPerNode: first.root.maxKeys)
-        if !a.isAtEnd && !b.isAtEnd {
-            outer: while true {
-                // Include elements in `a` whose keys aren't in `b`.
-                while a.key < b.key {
-                    builder.append(a.nextPart(until: b.key, inclusive: false))
-                    if a.isAtEnd { break outer }
-                }
-                // Skip over elements with matching keys in both trees.
-                if a.key == b.key {
-                    let key = a.key
-                    repeat {
-                        a.nextPart(until: key, inclusive: true)
-                    } while !a.isAtEnd && a.key == key
-                    repeat {
-                        b.nextPart(until: key, inclusive: true)
-                    } while !b.isAtEnd && b.key == key
-                    if a.isAtEnd || b.isAtEnd { break outer }
-                }
-                // Include elements in `b` whose keys aren't in `a`.
-                while b.key < a.key {
-                    builder.append(b.nextPart(until: a.key, inclusive: false))
-                    if b.isAtEnd { break outer }
-                }
-            }
+        var m = BTreeMerger(first: first, second: second)
+        while !m.done {
+            m.copyFromFirst(.ExcludingOtherKey)
+            m.copyFromSecond(.ExcludingOtherKey)
+            m.skipCommonElements()
         }
-        let result = builder.finish()
-        // Append leftover elements from either tree.
-        if !a.isAtEnd {
-            assert(b.isAtEnd)
-            return BTree(Node.join(left: result, separator: a.element, right: a.suffix().root))
-        }
-        if !b.isAtEnd {
-            return BTree(Node.join(left: result, separator: b.element, right: b.suffix().root))
-        }
-        return BTree(result)
+        m.appendA()
+        m.appendB()
+        return m.finish()
     }
 
 
@@ -327,36 +368,12 @@ extension BTree {
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
     public static func intersect(first: BTree, _ second: BTree) -> BTree {
-        precondition(first.order == second.order)
-        var a = BTreeStrongPath(startOf: first.root)
-        var b = BTreeStrongPath(startOf: second.root)
-        var builder = BTreeBuilder<Key, Payload>(order: first.order, keysPerNode: first.root.maxKeys)
-        if !a.isAtEnd && !b.isAtEnd {
-            outer: while true {
-                // Skip over elements in `a` whose keys aren't in `b`.
-                while a.key < b.key {
-                    a.nextPart(until: b.key, inclusive: false)
-                    if a.isAtEnd { break outer }
-                }
-                if a.key == b.key {
-                    let key = a.key
-                    // Skip elements in `a` whose keys are shared with `b`.
-                    repeat {
-                        a.nextPart(until: key, inclusive: true)
-                    } while !a.isAtEnd && a.key == key
-                    // Include elements in `b` whose keys are shared with `a`.
-                    repeat {
-                        builder.append(b.nextPart(until: key, inclusive: true))
-                    } while !b.isAtEnd && b.key == key
-                    if a.isAtEnd || b.isAtEnd { break outer }
-                }
-                // Skip over elements in `b` whose keys aren't in `a`.
-                while !b.isAtEnd && b.key < a.key {
-                    b.nextPart(until: a.key, inclusive: false)
-                    if b.isAtEnd { break outer }
-                }
-            }
+        var m = BTreeMerger(first: first, second: second)
+        while !m.done {
+            m.skipFromFirst(.ExcludingOtherKey)
+            m.skipFromSecond(.ExcludingOtherKey)
+            m.copyCommonElementsFromSecond()
         }
-        return BTree(builder.finish())
+        return m.finish()
     }
 }
