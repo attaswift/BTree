@@ -263,7 +263,7 @@ Let's enumerate:
     value semantics, even if the tree was entirely shared before the mutation.
 
 3.  Storage management in B-trees is granular; you do not need to reserve space for a B-tree in advance, and
-    they never allocate more memory than they need to store the actual number of elements they contain.
+    it never allocates more memory than it needs to store the actual number of elements it contains.
     
     Storage is gradually allocated and released in small increments as the tree grows and shrinks.
     Storage is only copied when mutating shared elements, and even then it is done in small batches.
