@@ -92,6 +92,25 @@ extension BTreeNode {
             child.forEachNode(operation)
         }
     }
+
+    var dump: String {
+        var r = "("
+        if isLeaf {
+            let keys = elements.lazy.map { String($0.0) }
+            r += keys.joinWithSeparator(" ")
+        }
+        else {
+            for i in 0 ..< elements.count {
+                r += children[i].dump
+                r += " "
+                r += String(elements[i].0)
+                r += " "
+            }
+            r += children[elements.count].dump
+        }
+        r += ")"
+        return r
+    }
 }
 
 func uniformNode(depth depth: Int, order: Int, keysPerNode: Int, offset: Int = 0) -> BTreeNode<Int, String> {
