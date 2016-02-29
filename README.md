@@ -211,7 +211,7 @@ exhibit suboptimal behavior:
 
 5.  Hashing collections require their keys to be `Hashable`. If you want to use your own type as the key, 
     you need to write a hash function yourself. It is annoyingly hard to write a good hash function, and 
-    it is even harder to test that it is not produces too many collisions for the sets of values your code 
+    it is even harder to test that it doesn't produce too many collisions for the sets of values your code 
     will typically use.
 
 6.  The possibility of hash collisions make `Dictionary` and `Set` badly suited for tasks which require
