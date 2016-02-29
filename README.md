@@ -202,7 +202,7 @@ exhibit suboptimal behavior:
 
     Appending a new element to an array, or inserting a new element into a dictionary or a set are 
     usually constant time operations, but they sometimes take O(*n*) time when the collection exhausts its allocated capacity.
-    These spikes in execution time cause are often undesired, but preventing them requires careful size analysis.  
+    These spikes in execution time are often undesired, but preventing them requires careful size analysis.  
     If you reserve too little space, you'll still get spikes; if you reserve too much, you're wasting memory.
     
 4.  The order of elements in a `Dictionary` or a `Set` is undefined, and it isn't even stable:
