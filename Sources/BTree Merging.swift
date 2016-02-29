@@ -271,15 +271,20 @@ struct BTreeMerger<Key: Comparable, Payload> {
 extension BTree {
     /// Merge all elements from two trees into a new tree, and return it.
     ///
-    /// This is the non-distinct union operation: all elements from both trees are kept, regardless of duplicate keys.
+    /// This is the non-distinct union operation: all elements from both trees are kept.
+    /// The result may have duplicate keys, even if the input trees only had unique keys on their own.
     ///
-    /// The elements of the two input trees may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// linked into the result instead of elementwise processing. This drastically improves performance.
     ///
+    /// This function does not perform special handling of shared nodes between the two trees, because
+    /// the semantics of the operation require individual processing of all keys that appear in both trees.
+    ///
+    /// - SeeAlso: `distinctUnion(_:)` for the distinct variant of the same operation.
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
+    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant number of interleaving element runs.
     public func union(other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
@@ -297,10 +302,15 @@ extension BTree {
     ///
     /// If neither input trees had duplicate keys on its own, the result won't have any duplicates, either.
     ///
-    /// The elements of the two input trees may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be simply 
-    /// linked into the result instead of copying, which can drastically improve performance.
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// linked into the result instead of elementwise processing. This drastically improves performance.
     ///
+    /// This function also detects shared subtrees between the two trees,
+    /// and links them directly into the result when possible.
+    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - SeeAlso: `union(_:)` for the non-distinct variant of the same operation.
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
@@ -318,9 +328,12 @@ extension BTree {
 
     /// Return a tree with the same elements as `first` except those whose keys are also in `second`.
     ///
-    /// The elements of the two input trees may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// skipped or linked into the result instead of elementwise processing. This drastically improves performance.
+    ///
+    /// This function also detects and skips over shared subtrees between the two trees.
+    /// (Keys that appear in both trees otherwise require individual processing.)
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
@@ -338,9 +351,12 @@ extension BTree {
 
     /// Return a tree combining the elements of two input trees except those whose keys appear in both inputs.
     ///
-    /// The elements of the two input trees may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// linked into the result instead of elementwise processing. This drastically improves performance.
+    ///
+    /// This function also detects and skips over shared subtrees between the two trees.
+    /// (Keys that appear in both trees otherwise require individual processing.)
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
@@ -360,9 +376,13 @@ extension BTree {
 
     /// Return a tree with the same elements as `second` except those whose keys are not also in `first`.
     ///
-    /// The elements of the two input trees may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// skipped instead of elementwise processing. This drastically improves performance.
+    ///
+    /// This function also detects shared subtrees between the two trees, 
+    /// and links them directly into the result when possible.
+    /// (Keys that appear in both trees otherwise require individual processing.)
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
