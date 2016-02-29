@@ -6,7 +6,7 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
-extension BTreeStrongPath {
+private extension BTreeStrongPath {
     /// The parent of `node` and the slot of `node` in its parent, or `nil` if `node` is the root node.
     private var parent: (Node, Int)? {
         guard !_path.isEmpty else { return nil }
@@ -35,7 +35,30 @@ extension BTreeStrongPath {
         }
     }
 
-    /// Return the next part in this tree that consists of elements less than `key`. If `inclusive` is true, also 
+    /// Remove the deepest path component, leaving the path at the element following the node that was previously focused,
+    /// or the spot after all elements if the node was the rightmost child.
+    mutating func ascendOneLevel() -> Bool {
+        if length == 1 {
+            position = count
+            slot = node.elements.count
+            return true
+        }
+        popFromSlots()
+        popFromPath()
+        return isAtEnd
+    }
+
+    /// If this path got to a slot at the end of a node but it hasn't reached the end of the tree yet,
+    /// ascend to the ancestor that holds the key corresponding to the current position.
+    mutating func ascendToKey() {
+        assert(!isAtEnd)
+        while slot == node.elements.count {
+            slot = nil
+            popFromPath()
+        }
+    }
+
+    /// Return the next part in this tree that consists of elements less than `key`. If `inclusive` is true, also
     /// include elements matching `key`.
     /// The part returned is either a single element, or a range of elements in a node, including their associated subtrees.
     ///

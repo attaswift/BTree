@@ -295,24 +295,6 @@ extension BTreePath {
         }
     }
 
-    /// Remove the deepest path component, leaving the path at the element following the node that was previously focused,
-    /// or the spot after all elements if the node was the rightmost child.
-    mutating func ascendOneLevel() {
-        assert(length > 1)
-        popFromSlots()
-        popFromPath()
-    }
-
-    /// If this path got to a slot at the end of a node but it hasn't reached the end of the tree yet,
-    /// ascend to the ancestor that holds the key corresponding to the current position.
-    mutating func ascendToKey() {
-        assert(!isAtEnd)
-        while slot == node.elements.count {
-            slot = nil
-            popFromPath()
-        }
-    }
-
     /// Return a tuple containing a tree with all elements before the current position,
     /// the currently focused element, and a tree with all elements after the currrent position.
     ///
