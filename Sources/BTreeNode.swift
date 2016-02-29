@@ -548,7 +548,7 @@ extension BTreeNode {
             node.elements.insertContentsOf(self.elements.suffix(delta - 1), at: 0)
             node.count += delta
 
-            self.elements.removeLast(delta)
+            self.elements.removeRange(lc - delta ..< lc)
             self.count -= delta
 
             if !self.isLeaf {
@@ -557,7 +557,7 @@ extension BTreeNode {
                 node.children.insertContentsOf(children, at: 0)
                 node.count += dc
 
-                self.children.removeLast(delta)
+                self.children.removeRange(lc - delta ..< lc)
                 self.count -= dc
             }
         }
