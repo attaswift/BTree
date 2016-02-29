@@ -6,8 +6,6 @@
 //  Copyright © 2015–2016 Károly Lőrentey.
 //
 
-import Foundation
-
 /// An ordered mapping from comparable keys to arbitrary values. 
 /// Works like `Dictionary`, but provides a well-defined ordering for its elements.
 ///
