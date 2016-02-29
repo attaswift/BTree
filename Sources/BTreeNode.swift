@@ -490,7 +490,84 @@ extension BTreeNode {
 //MARK: Join
 
 extension BTreeNode {
-    /// Create and return a new b-tree consisting of elements of `left`,`separator` and the elements of `right`, 
+    /// Shift slots between `self` and `node` such that the number of elements in `self` becomes `target`.
+    internal func shiftSlots(separator separator: Element, node: BTreeNode, target: Int) -> Splinter? {
+        assert(self.depth == node.depth)
+
+        let forward = target > self.elements.count
+        let delta = abs(target - self.elements.count)
+        if delta == 0 {
+            return Splinter(separator: separator, node: node)
+        }
+        let lc = self.elements.count
+        let rc = node.elements.count
+
+        if (forward && delta >= rc + 1) || (!forward && delta >= lc + 1) {
+            // Melt the entire right node into self.
+            self.elements.append(separator)
+            self.elements.appendContentsOf(node.elements)
+            self.children.appendContentsOf(node.children)
+            node.elements = []
+            node.children = []
+            self.count += 1 + node.count
+            return nil
+        }
+
+        let rsep: Element
+        if forward { // Transfer slots from right to left
+            assert(lc + delta < self.order)
+            assert(delta <= rc)
+
+            rsep = node.elements[delta - 1]
+
+            self.elements.append(separator)
+            self.elements.appendContentsOf(node.elements.prefix(delta - 1))
+            self.count += delta
+
+            node.elements.removeFirst(delta)
+            node.count -= delta
+
+            if !self.isLeaf {
+                let children = node.children.prefix(delta)
+                let dc = children.reduce(0) { $0 + $1.count }
+                self.children.appendContentsOf(children)
+                self.count += dc
+
+                node.children.removeFirst(delta)
+                node.count -= dc
+            }
+        }
+        else {
+            // Transfer slots from left to right
+            assert(rc + delta < node.order)
+            assert(delta <= lc)
+
+            rsep = self.elements[lc - delta]
+
+            node.elements.insert(separator, atIndex: 0)
+            node.elements.insertContentsOf(self.elements.suffix(delta - 1), at: 0)
+            node.count += delta
+
+            self.elements.removeLast(delta)
+            self.count -= delta
+
+            if !self.isLeaf {
+                let children = self.children.suffix(delta)
+                let dc = children.reduce(0) { $0 + $1.count }
+                node.children.insertContentsOf(children, at: 0)
+                node.count += dc
+
+                self.children.removeLast(delta)
+                self.count -= dc
+            }
+        }
+        if node.children.count == 1 {
+            return Splinter(separator: rsep, node: node.children[0])
+        }
+        return Splinter(separator: rsep, node: node)
+    }
+
+    /// Create and return a new b-tree consisting of elements of `left`,`separator` and the elements of `right`,
     /// in this order.
     ///
     /// If you need to keep `left` and `right` intact, clone them before calling this function.
