@@ -127,16 +127,31 @@ the most efficient way to represent a sorted list.
 ![Typical benchmark results for ordered collections](http://lorentey.github.io/BTree/images/Ordered%20Collections%20in%20Swift.png)
 
 The benchmark above demonstrates this really well: insertion into a sorted array is O(n^2) when there are
-many elements, but it is still much faster than a red-black tree with its attractive-looking O(n * log(n)) 
-solution. At the beginning of the curve, up to about *eighteen thousand elements*, a sorted array 
+many items, but it is still much faster than a red-black tree with its attractive-looking O(n * log(n)) 
+solution. At the beginning of the curve, up to about *eighteen thousand items*, a sorted array 
 implementation imported from an external module is very consistently about 6-7 faster than a red-black tree, 
-with a slope that is indistinguishable from O(n * log(n)).
+with a slope that is indistinguishable from O(n * log(n)). Even after it catches up to quadratic complexity, 
+it takes about a *hundred thousand items* for the sorted array to become slower than the red-black tree!
+This is remarkable.
 
-B-trees use arrays (or array-like buffers) to hold elements inside nodes, and guarantee that these arrays 
-never get longer than the optimal maximum. So B-trees make perfect sense as an in-memory data structure.
+> The benchmark is based on [my own red-black tree implementation][red-black tree] that uses a single flat array to store
+> node data. A [more typical implementation][airspeed-velocity] would store each node in a separately allocated object, so
+> it would likely be even slower than this.
 
-(Here is a question to think about, thogh: how many times do you need to work with twenty thousand
-items in a typical app?)
+[airspeed-velocity]: http://airspeedvelocity.net/2015/07/22/a-persistent-tree-using-indirect-enums-in-swift/
+
+Inside their nodes, B-trees use arrays (or array-like contiguous buffers) to hold item data. 
+They guarantee that these arrays never get longer than the optimal maximum; when they would grow larger,
+a new node is split off. So B-trees make perfect sense as an in-memory data structure.
+
+(Here is a question to think about, thogh: how many times do you need to work with a hundred thousand
+items in a typical app? Or even twenty thousand?)
+
+> The chart above is a [log-log plot][loglog] which makes it easy to compare the polynomial exponents of 
+> the complexity curves of competing algorithms at a glance. The slope of an O(*n^2*) algorithm 
+> (like insertion into a sorted array, green curves) on a log-log chart is twice of that of a 
+> O(*n*) (like appending *n* items to an unsorted array, light blue curve) or O(*n* * log(*n*)) one 
+> (like inserting into a red-black tree, red curve).
 
 > Note that the big gap between collections imported from
 > stdlib and those imported from external modules is caused by a [limitation in the current Swift compiler/ABI](#perf) 
@@ -145,15 +160,11 @@ items in a typical app?)
 > The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
 > of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
 > When/if the Swift compiler learns to specialize non-stdlib generics across module boundaries,
-> imported collections will become consistently faster, which will reduce the optimal element count.
+> imported collections will become consistently faster (especially for value types), which will reduce 
+> the optimal element count. 
+
 > (This effect is already visible on the benchmark for the "inlined" sorted array (light green), which was implemented
 > in the same module as the benchmarking loop. That line starts curving up much sooner, at about 2000 elements.)
-
-> The chart above is a [log-log plot][loglog] which makes it easy to compare the polynomial exponents of 
-> the complexity curves of competing algorithms at a glance. The slope of an O(*n^2*) algorithm 
-> (like insertion into a sorted array, green curves) on a log-log chart is twice of that of a 
-> O(*n*) (like appending to an unsorted array, light blue curve) or O(*n* * log(*n*)) one 
-> (like inserting into a red-black tree, red curve).
 
 [loglog]: https://en.wikipedia.org/wiki/Log–log_plot
 
