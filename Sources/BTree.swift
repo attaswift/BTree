@@ -651,6 +651,18 @@ extension BTree {
 //MARK: Subtree extraction
 
 extension BTree {
+    /// Append all elements in `tree` to the end of this tree.
+    ///
+    /// - Requires: The last key in this tree must be less than or equal to the first key in `tree`.
+    /// - Complexity: O(log(`self.count` + `tree.count`))
+    internal mutating func appendContentsOf(tree: BTree) {
+        precondition(tree.order == order)
+        if tree.isEmpty { return }
+        guard let separator = popLast() else { self = tree; return }
+        precondition(separator.0 <= tree.first!.0)
+        self.root = Node.join(left: self.root, separator: separator, right: tree.root)
+    }
+
     /// Returns a subtree containing the initial `maxLength` elements in this tree.
     ///
     /// If `maxLength` exceeds `self.count`, the result contains all the elements of `self`.
