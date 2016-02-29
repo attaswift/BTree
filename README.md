@@ -155,7 +155,7 @@ items in a typical app? Or even twenty thousand?)
 
 > Note that the big gap between collections imported from
 > stdlib and those imported from external modules is caused by a [limitation in the current Swift compiler/ABI](#perf) 
-> that will probably get (at least partially) solved in future compuler versions.)
+> that will probably get (at least partially) solved in future compiler versions.)
 
 > The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
 > of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
