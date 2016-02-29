@@ -268,7 +268,8 @@ Let's enumerate:
     The performance of B-trees is extremely stable, with no irregular spikes ever.
     
     (Note that there is a bit of leeway in allocations to make balancing the tree fast. 
-    In the worst case, a B-tree may only be filled at 50% of space it allocates.)
+    In the worst case, a B-tree may only fill 50% of space it allocates. The ratio is typically 
+    much higher than that, though.)
 
 4.  B-trees always keep their items sorted in ascending key order, and they provide efficient positional lookups.
     You can get the *i*th smallest/largest item in a tree in O(log(*n*)) time.
@@ -296,8 +297,10 @@ Let's enumerate:
     If the input trees are mutated versions of the same original tree, these operations are also able 
     to skip elementwise processing of entire subtrees that are shared between the inputs.
 
-9.  The `SubSequence` of a B-tree is also a B-tree. You can slice and dice B-trees to your liking:
+9.  The `SubSequence` of a B-tree is also a B-tree. You can slice and dice B-trees any way you like:
     getting a fully independent copy of any prefix, suffix or subrange in a tree only takes O(log(*n*)) time.
+    You can then take the subtree you extracted and insert it into another tree; this also costs O(log(*n*)), 
+    no matter where in the tree you want to put it. (You do need to keep the order of keys correct, though.)
 
 
 ### Notes on the Code
