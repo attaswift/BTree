@@ -147,6 +147,15 @@ a new node is split off. So B-trees make perfect sense as an in-memory data stru
 (Here is a question to think about, thogh: how many times do you need to work with a hundred thousand
 items in a typical app? Or even twenty thousand?)
 
+> The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
+> of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
+> When/if the Swift compiler learns to specialize non-stdlib generics across module boundaries,
+> imported collections will become consistently faster (especially for value types), which will reduce 
+> the optimal element count. 
+
+> (This effect is already visible on the benchmark for the "inlined" sorted array (light green), which was implemented
+> in the same module as the benchmarking loop. That line starts curving up much sooner, at about 2000 elements.)
+
 > The chart above is a [log-log plot][loglog] which makes it easy to compare the polynomial exponents of 
 > the complexity curves of competing algorithms at a glance. The slope of an O(*n^2*) algorithm 
 > (like insertion into a sorted array, green curves) on a log-log chart is twice of that of a 
@@ -157,14 +166,6 @@ items in a typical app? Or even twenty thousand?)
 > stdlib and those imported from external modules is caused by a [limitation in the current Swift compiler/ABI](#perf) 
 > that will probably get (at least partially) solved in future compiler versions.)
 
-> The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
-> of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
-> When/if the Swift compiler learns to specialize non-stdlib generics across module boundaries,
-> imported collections will become consistently faster (especially for value types), which will reduce 
-> the optimal element count. 
-
-> (This effect is already visible on the benchmark for the "inlined" sorted array (light green), which was implemented
-> in the same module as the benchmarking loop. That line starts curving up much sooner, at about 2000 elements.)
 
 [loglog]: https://en.wikipedia.org/wiki/Log–log_plot
 
