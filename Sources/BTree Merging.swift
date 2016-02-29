@@ -31,11 +31,7 @@ extension BTreeStrongPath {
         position += n
         slot! += n
         if position != count {
-            // Ascend
-            while slot == node.elements.count {
-                popFromSlots()
-                popFromPath()
-            }
+            ascendToKey()
         }
     }
 
@@ -59,8 +55,7 @@ extension BTreeStrongPath {
             while slot == 0 {
                 guard let pk = parentKey else { break }
                 guard match(pk) else { break }
-                popFromSlots()
-                popFromPath()
+                ascendOneLevel()
                 includeLeftmostSubtree = true
             }
         }
