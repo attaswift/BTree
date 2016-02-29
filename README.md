@@ -1,4 +1,4 @@
-# Fast Ordered Collections for Swift Using In-Memory B-Trees 
+# Fast Ordered Collections for Swift<br> Using In-Memory B-Trees 
 
 [![Swift 2.1](https://img.shields.io/badge/Swift-2.1-blue.svg)](https://developer.apple.com/swift/) [![Documented](https://img.shields.io/badge/docs-97%-brightgreen.svg)](http://lorentey.github.io/BTree/api)
 [![License](https://img.shields.io/badge/licence-MIT-blue.svg)](http://cocoapods.org/pods/BTree)
