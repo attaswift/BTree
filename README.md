@@ -136,7 +136,7 @@ This is remarkable.
 
 > The benchmark is based on [my own red-black tree implementation][red-black tree] that uses a single flat array to store
 > node data. A [more typical implementation][airspeed-velocity] would store each node in a separately allocated object, so
-> it would likely be even slower than this.
+> it would likely be even slower.
 
 [airspeed-velocity]: http://airspeedvelocity.net/2015/07/22/a-persistent-tree-using-indirect-enums-in-swift/
 
