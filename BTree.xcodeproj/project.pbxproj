@@ -27,6 +27,9 @@
 		BB5B27D11C8334A500ED8D38 /* BTreeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */; };
 		BB5B27D21C8334A500ED8D38 /* BTreeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */; };
 		BB5B27D31C8334A500ED8D38 /* BTreeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */; };
+		BB5B27D51C83B99800ED8D38 /* BTreeBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27D41C83B99800ED8D38 /* BTreeBuilderTests.swift */; };
+		BB5B27D61C83B99900ED8D38 /* BTreeBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27D41C83B99800ED8D38 /* BTreeBuilderTests.swift */; };
+		BB5B27D71C83B99900ED8D38 /* BTreeBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5B27D41C83B99800ED8D38 /* BTreeBuilderTests.swift */; };
 		BB7773811C6CA03200991A06 /* BTreeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773801C6CA03200991A06 /* BTreeGenerator.swift */; };
 		BB7773821C6CA03200991A06 /* BTreeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773801C6CA03200991A06 /* BTreeGenerator.swift */; };
 		BB7773841C6CA07C00991A06 /* BTreeIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7773831C6CA07C00991A06 /* BTreeIndex.swift */; };
@@ -127,6 +130,7 @@
 		BB56634E1C46969400F5A118 /* BTreeNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeNode.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB5B27C51C807C6200ED8D38 /* BTreePathTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreePathTests.swift; sourceTree = "<group>"; };
 		BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeBuilder.swift; sourceTree = "<group>"; };
+		BB5B27D41C83B99800ED8D38 /* BTreeBuilderTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeBuilderTests.swift; sourceTree = "<group>"; };
 		BB7773801C6CA03200991A06 /* BTreeGenerator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeGenerator.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB7773831C6CA07C00991A06 /* BTreeIndex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeIndex.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BB7773861C6CA08B00991A06 /* Weak.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Weak.swift; sourceTree = "<group>"; };
@@ -279,6 +283,7 @@
 				BB5B27C51C807C6200ED8D38 /* BTreePathTests.swift */,
 				BBB224D71C7B9BAA0049FEF6 /* BTreeCursorTests.swift */,
 				BBB224D91C7B9BAA0049FEF6 /* BTreeTests.swift */,
+				BB5B27D41C83B99800ED8D38 /* BTreeBuilderTests.swift */,
 				BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */,
 				BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */,
 				BB1747481C289539002C929C /* Reusable Test Helpers */,
@@ -589,6 +594,7 @@
 				BBB224E41C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */,
 				BBB224E61C7B9ED60049FEF6 /* BTreeTests.swift in Sources */,
 				BB17475D1C289539002C929C /* Random.swift in Sources */,
+				BB5B27D51C83B99800ED8D38 /* BTreeBuilderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,6 +648,7 @@
 				BB8FE9D81C7C8F730051268F /* ListTests.swift in Sources */,
 				BB8FE9DC1C7C8F730051268F /* String Manipulation.swift in Sources */,
 				BB8FE9D91C7C8F730051268F /* Random.swift in Sources */,
+				BB5B27D71C83B99900ED8D38 /* BTreeBuilderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -678,6 +685,7 @@
 				BBB224EA1C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */,
 				BBB224EC1C7B9ED60049FEF6 /* BTreeTests.swift in Sources */,
 				BB17475E1C289539002C929C /* Random.swift in Sources */,
+				BB5B27D61C83B99900ED8D38 /* BTreeBuilderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
