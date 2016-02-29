@@ -280,8 +280,8 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public static func union(first: BTree, _ second: BTree) -> BTree {
-        var m = BTreeMerger(first: first, second: second)
+    public func union(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.IncludingOtherKey)
             m.copyFromSecond(.ExcludingOtherKey)
@@ -304,8 +304,8 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public static func distinctUnion(first: BTree, _ second: BTree) -> BTree {
-        var m = BTreeMerger(first: first, second: second)
+    public func distinctUnion(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.ExcludingOtherKey)
             m.copyFromSecond(.ExcludingOtherKey)
@@ -325,8 +325,8 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public static func subtract(first: BTree, _ second: BTree) -> BTree {
-        var m = BTreeMerger(first: first, second: second)
+    public func subtract(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.ExcludingOtherKey)
             m.skipFromSecond(.ExcludingOtherKey)
@@ -345,8 +345,8 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public static func exclusiveOr(first: BTree, _ second: BTree) -> BTree {
-        var m = BTreeMerger(first: first, second: second)
+    public func exclusiveOr(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.ExcludingOtherKey)
             m.copyFromSecond(.ExcludingOtherKey)
@@ -367,8 +367,8 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public static func intersect(first: BTree, _ second: BTree) -> BTree {
-        var m = BTreeMerger(first: first, second: second)
+    public func intersect(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.skipFromFirst(.ExcludingOtherKey)
             m.skipFromSecond(.ExcludingOtherKey)

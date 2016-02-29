@@ -50,19 +50,19 @@ class BTreeMergeTests: XCTestCase {
     func test_Union_simple() {
         let even = makeTree(0.stride(to: 100, by: 2))
 
-        let u0 = Tree.union(empty, empty)
+        let u0 = empty.union(empty)
         u0.assertValid()
         assertEqual(u0, empty)
 
-        let u1 = Tree.union(even, empty)
+        let u1 = even.union(empty)
         u1.assertValid()
         assertEqual(u1, even)
 
-        let u2 = Tree.union(empty, even)
+        let u2 = empty.union(even)
         u2.assertValid()
         assertEqual(u2, even)
 
-        let u3 = Tree.union(even, even)
+        let u3 = even.union(even)
         u3.assertValid()
         assertEqual(u3, (0 ..< 100).map { $0 & ~1 })
     }
@@ -71,11 +71,11 @@ class BTreeMergeTests: XCTestCase {
         let even = makeTree(0.stride(to: 100, by: 2))
         let odd = makeTree(1.stride(to: 100, by: 2))
 
-        let u1 = Tree.union(even, odd)
+        let u1 = even.union(odd)
         u1.assertValid()
         assertEqual(u1, 0 ..< 100)
 
-        let u2 = Tree.union(odd, even)
+        let u2 = odd.union(even)
         u2.assertValid()
         assertEqual(u2, 0 ..< 100)
     }
@@ -84,11 +84,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = Tree.union(first, second)
+        let u1 = first.union(second)
         u1.assertValid()
         assertEqual(u1, 0 ..< 100)
 
-        let u2 = Tree.union(second, first)
+        let u2 = second.union(first)
         u2.assertValid()
         assertEqual(u2, 0 ..< 100)
     }
@@ -97,11 +97,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree((0 ..< 90).repeatEach(20))
         let second = makeTree((90 ..< 200).repeatEach(20))
 
-        let u1 = Tree.union(first, second)
+        let u1 = first.union(second)
         u1.assertValid()
         assertEqual(u1, (0 ..< 200).repeatEach(20))
 
-        let u2 = Tree.union(second, first)
+        let u2 = second.union(first)
         u2.assertValid()
         assertEqual(u2, (0 ..< 200).repeatEach(20))
     }
@@ -110,11 +110,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = Tree.union(first, second)
+        let u1 = first.union(second)
         u1.assertValid()
         assertEqual(u1, [0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
 
-        let u2 = Tree.union(second, first)
+        let u2 = second.union(first)
         u2.assertValid()
         assertEqual(u2, [0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
     }
@@ -125,11 +125,11 @@ class BTreeMergeTests: XCTestCase {
         first.withCursorAtPosition(140) { $0.remove(20) }
         second.withCursorAtPosition(60) { $0.remove(20) }
 
-        let u1 = Tree.union(first, second)
+        let u1 = first.union(second)
         u1.assertValid()
         assertEqual(u1, [0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
 
-        let u2 = Tree.union(second, first)
+        let u2 = second.union(first)
         u2.assertValid()
         assertEqual(u2, [0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
     }
@@ -139,19 +139,19 @@ class BTreeMergeTests: XCTestCase {
     func test_DistinctUnion_simple() {
         let even = makeTree(0.stride(to: 100, by: 2))
 
-        let u0 = Tree.distinctUnion(empty, empty)
+        let u0 = empty.distinctUnion(empty)
         u0.assertValid()
         assertEqual(u0, empty)
 
-        let u1 = Tree.distinctUnion(even, empty)
+        let u1 = even.distinctUnion(empty)
         u1.assertValid()
         assertEqual(u1, even)
 
-        let u2 = Tree.distinctUnion(empty, even)
+        let u2 = empty.distinctUnion(even)
         u2.assertValid()
         assertEqual(u2, even)
 
-        let u3 = Tree.distinctUnion(even, even)
+        let u3 = even.distinctUnion(even)
         u3.assertValid()
         assertEqual(u3, 0.stride(to: 100, by: 2))
     }
@@ -160,11 +160,11 @@ class BTreeMergeTests: XCTestCase {
         let even = makeTree(0.stride(to: 100, by: 2))
         let odd = makeTree(1.stride(to: 100, by: 2))
 
-        let u1 = Tree.distinctUnion(even, odd)
+        let u1 = even.distinctUnion(odd)
         u1.assertValid()
         assertEqual(u1, 0 ..< 100)
 
-        let u2 = Tree.distinctUnion(odd, even)
+        let u2 = odd.distinctUnion(even)
         u2.assertValid()
         assertEqual(u2, 0 ..< 100)
     }
@@ -173,11 +173,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = Tree.distinctUnion(first, second)
+        let u1 = first.distinctUnion(second)
         u1.assertValid()
         assertEqual(u1, 0 ..< 100)
 
-        let u2 = Tree.distinctUnion(second, first)
+        let u2 = second.distinctUnion(first)
         u2.assertValid()
         assertEqual(u2, 0 ..< 100)
     }
@@ -186,11 +186,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree((0 ..< 100).repeatEach(20))
         let second = makeTree((100 ..< 200).repeatEach(20))
 
-        let u1 = Tree.distinctUnion(first, second)
+        let u1 = first.distinctUnion(second)
         u1.assertValid()
         assertEqual(u1, (0 ..< 200).repeatEach(20))
 
-        let u2 = Tree.distinctUnion(second, first)
+        let u2 = second.distinctUnion(first)
         u2.assertValid()
         assertEqual(u2, (0 ..< 200).repeatEach(20))
     }
@@ -199,11 +199,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = Tree.distinctUnion(first, second)
+        let u1 = first.distinctUnion(second)
         u1.assertValid()
         assertEqual(u1, [0, 0, 1, 1, 3, 3, 4, 6, 7, 7, 8])
 
-        let u2 = Tree.distinctUnion(second, first)
+        let u2 = second.distinctUnion(first)
         u2.assertValid()
         assertEqual(u2, [0, 0, 0, 0, 1, 1, 3, 4, 6, 6, 6, 6, 7, 7, 8])
     }
@@ -214,11 +214,11 @@ class BTreeMergeTests: XCTestCase {
         first.withCursorAtPosition(140) { $0.remove(20) }
         second.withCursorAtPosition(60) { $0.remove(20) }
 
-        let u1 = Tree.distinctUnion(first, second)
+        let u1 = first.distinctUnion(second)
         u1.assertValid()
         assertEqual(u1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
 
-        let u2 = Tree.distinctUnion(second, first)
+        let u2 = second.distinctUnion(first)
         u2.assertValid()
         assertEqual(u2, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
     }
@@ -228,19 +228,19 @@ class BTreeMergeTests: XCTestCase {
     func test_Subtract_simple() {
         let even = makeTree(0.stride(to: 100, by: 2))
 
-        let u0 = Tree.subtract(empty, empty)
+        let u0 = empty.subtract(empty)
         u0.assertValid()
         assertEqual(u0, empty)
 
-        let u1 = Tree.subtract(even, empty)
+        let u1 = even.subtract(empty)
         u1.assertValid()
         assertEqual(u1, even)
 
-        let u2 = Tree.subtract(empty, even)
+        let u2 = empty.subtract(even)
         u2.assertValid()
         assertEqual(u2, empty)
 
-        let u3 = Tree.subtract(even, even)
+        let u3 = even.subtract(even)
         u3.assertValid()
         assertEqual(u3, empty)
     }
@@ -249,11 +249,11 @@ class BTreeMergeTests: XCTestCase {
         let even = makeTree(0.stride(to: 100, by: 2))
         let odd = makeTree(1.stride(to: 100, by: 2))
 
-        let u1 = Tree.subtract(even, odd)
+        let u1 = even.subtract(odd)
         u1.assertValid()
         assertEqual(u1, even)
 
-        let u2 = Tree.subtract(odd, even)
+        let u2 = odd.subtract(even)
         u2.assertValid()
         assertEqual(u2, odd)
     }
@@ -262,11 +262,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = Tree.subtract(first, second)
+        let u1 = first.subtract(second)
         u1.assertValid()
         assertEqual(u1, first)
 
-        let u2 = Tree.subtract(second, first)
+        let u2 = second.subtract(first)
         u2.assertValid()
         assertEqual(u2, second)
     }
@@ -276,11 +276,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
 
-        let u1 = Tree.subtract(first, second)
+        let u1 = first.subtract(second)
         u1.assertValid()
         assertEqual(u1, (0 ..< 4).repeatEach(20))
 
-        let u2 = Tree.subtract(second, first)
+        let u2 = second.subtract(first)
         u2.assertValid()
         assertEqual(u2, (5 ..< 10).repeatEach(20))
     }
@@ -289,11 +289,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = Tree.subtract(first, second)
+        let u1 = first.subtract(second)
         u1.assertValid()
         assertEqual(u1, [4, 7, 7])
 
-        let u2 = Tree.subtract(second, first)
+        let u2 = second.subtract(first)
         u2.assertValid()
         assertEqual(u2, [1, 1, 8])
     }
@@ -304,11 +304,11 @@ class BTreeMergeTests: XCTestCase {
         first.withCursorAtPosition(140) { $0.remove(20) }
         second.withCursorAtPosition(60) { $0.remove(20) }
 
-        let u1 = Tree.subtract(first, second)
+        let u1 = first.subtract(second)
         u1.assertValid()
         assertEqual(u1, [3].repeatEach(20))
 
-        let u2 = Tree.subtract(second, first)
+        let u2 = second.subtract(first)
         u2.assertValid()
         assertEqual(u2, [7].repeatEach(20))
     }
@@ -318,19 +318,19 @@ class BTreeMergeTests: XCTestCase {
     func test_ExclusiveOr_simple() {
         let even = makeTree(0.stride(to: 100, by: 2))
 
-        let u0 = Tree.exclusiveOr(empty, empty)
+        let u0 = empty.exclusiveOr(empty)
         u0.assertValid()
         assertEqual(u0, empty)
 
-        let u1 = Tree.exclusiveOr(even, empty)
+        let u1 = even.exclusiveOr(empty)
         u1.assertValid()
         assertEqual(u1, even)
 
-        let u2 = Tree.exclusiveOr(empty, even)
+        let u2 = empty.exclusiveOr(even)
         u2.assertValid()
         assertEqual(u2, even)
 
-        let u3 = Tree.exclusiveOr(even, even)
+        let u3 = even.exclusiveOr(even)
         u3.assertValid()
         assertEqual(u3, empty)
     }
@@ -339,11 +339,11 @@ class BTreeMergeTests: XCTestCase {
         let even = makeTree(0.stride(to: 100, by: 2))
         let odd = makeTree(1.stride(to: 100, by: 2))
 
-        let u1 = Tree.exclusiveOr(even, odd)
+        let u1 = even.exclusiveOr(odd)
         u1.assertValid()
         assertEqual(u1, 0 ..< 100)
 
-        let u2 = Tree.exclusiveOr(odd, even)
+        let u2 = odd.exclusiveOr(even)
         u2.assertValid()
         assertEqual(u2, 0 ..< 100)
     }
@@ -352,11 +352,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = Tree.exclusiveOr(first, second)
+        let u1 = first.exclusiveOr(second)
         u1.assertValid()
         assertEqual(u1, 0 ..< 100)
 
-        let u2 = Tree.exclusiveOr(second, first)
+        let u2 = second.exclusiveOr(first)
         u2.assertValid()
         assertEqual(u2, 0 ..< 100)
     }
@@ -366,11 +366,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
 
-        let u1 = Tree.exclusiveOr(first, second)
+        let u1 = first.exclusiveOr(second)
         u1.assertValid()
         assertEqual(u1, (0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
 
-        let u2 = Tree.exclusiveOr(second, first)
+        let u2 = second.exclusiveOr(first)
         u2.assertValid()
         assertEqual(u2, (0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
     }
@@ -379,11 +379,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = Tree.exclusiveOr(first, second)
+        let u1 = first.exclusiveOr(second)
         u1.assertValid()
         assertEqual(u1, [1, 1, 4, 7, 7, 8])
 
-        let u2 = Tree.exclusiveOr(second, first)
+        let u2 = second.exclusiveOr(first)
         u2.assertValid()
         assertEqual(u2, [1, 1, 4, 7, 7, 8])
     }
@@ -394,11 +394,11 @@ class BTreeMergeTests: XCTestCase {
         first.withCursorAtPosition(140) { $0.remove(20) }
         second.withCursorAtPosition(60) { $0.remove(20) }
 
-        let u1 = Tree.exclusiveOr(first, second)
+        let u1 = first.exclusiveOr(second)
         u1.assertValid()
         assertEqual(u1, [3, 7].repeatEach(20))
 
-        let u2 = Tree.exclusiveOr(second, first)
+        let u2 = second.exclusiveOr(first)
         u2.assertValid()
         assertEqual(u2, [3, 7].repeatEach(20))
     }
@@ -409,19 +409,19 @@ class BTreeMergeTests: XCTestCase {
     func test_Intersect_simple() {
         let even = makeTree(0.stride(to: 100, by: 2))
 
-        let u0 = Tree.intersect(empty, empty)
+        let u0 = empty.intersect(empty)
         u0.assertValid()
         assertEqual(u0, empty)
 
-        let u1 = Tree.intersect(even, empty)
+        let u1 = even.intersect(empty)
         u1.assertValid()
         assertEqual(u1, empty)
 
-        let u2 = Tree.intersect(empty, even)
+        let u2 = empty.intersect(even)
         u2.assertValid()
         assertEqual(u2, empty)
 
-        let u3 = Tree.intersect(even, even)
+        let u3 = even.intersect(even)
         u3.assertValid()
         assertEqual(u3, even)
     }
@@ -430,11 +430,11 @@ class BTreeMergeTests: XCTestCase {
         let even = makeTree(0.stride(to: 100, by: 2))
         let odd = makeTree(1.stride(to: 100, by: 2))
 
-        let u1 = Tree.intersect(even, odd)
+        let u1 = even.intersect(odd)
         u1.assertValid()
         assertEqual(u1, empty)
 
-        let u2 = Tree.intersect(odd, even)
+        let u2 = odd.intersect(even)
         u2.assertValid()
         assertEqual(u2, empty)
     }
@@ -443,11 +443,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = Tree.intersect(first, second)
+        let u1 = first.intersect(second)
         u1.assertValid()
         assertEqual(u1, empty)
 
-        let u2 = Tree.intersect(second, first)
+        let u2 = second.intersect(first)
         u2.assertValid()
         assertEqual(u2, empty)
     }
@@ -457,11 +457,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
 
-        let u1 = Tree.intersect(first, second)
+        let u1 = first.intersect(second)
         u1.assertValid()
         assertEqual(u1, [4].repeatEach(10))
 
-        let u2 = Tree.intersect(second, first)
+        let u2 = second.intersect(first)
         u2.assertValid()
         assertEqual(u2, [4].repeatEach(10))
     }
@@ -470,11 +470,11 @@ class BTreeMergeTests: XCTestCase {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = Tree.intersect(first, second)
+        let u1 = first.intersect(second)
         u1.assertValid()
         assertEqual(u1, [0, 0, 3, 3, 6])
 
-        let u2 = Tree.intersect(second, first)
+        let u2 = second.intersect(first)
         u2.assertValid()
         assertEqual(u2, [0, 0, 0, 0, 3, 6, 6, 6, 6])
     }
@@ -485,11 +485,11 @@ class BTreeMergeTests: XCTestCase {
         first.withCursorAtPosition(140) { $0.remove(20) }
         second.withCursorAtPosition(60) { $0.remove(20) }
 
-        let u1 = Tree.intersect(first, second)
+        let u1 = first.intersect(second)
         u1.assertValid()
         assertEqual(u1, [0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
 
-        let u2 = Tree.intersect(second, first)
+        let u2 = second.intersect(first)
         u2.assertValid()
         assertEqual(u2, [0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
     }
