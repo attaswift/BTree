@@ -341,7 +341,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
 
     //MARK: Initializers
 
-    private init(_ state: BTreeCursorPath<Key, Payload>) {
+    internal init(_ state: BTreeCursorPath<Key, Payload>) {
         self.state = state
     }
 
