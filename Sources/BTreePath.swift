@@ -62,7 +62,7 @@ internal protocol BTreePath {
     func forEachSlot(ascending ascending: Bool, @noescape body: Int -> Void)
 
     /// Finish working with the path and return the root node.
-    mutating func finish() -> BTree<Key, Payload>
+    mutating func finish() -> BTreeNode<Key, Payload>
 }
 
 extension BTreePath {
@@ -114,8 +114,8 @@ extension BTreePath {
         pushToSlots(slot, positionOfSlot: node.positionOfSlot(slot))
     }
 
-    mutating func finish() -> Tree {
-        return Tree(root)
+    mutating func finish() -> Node {
+        return root
     }
 
     /// Return the element at the current position.

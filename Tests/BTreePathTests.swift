@@ -34,7 +34,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
         XCTAssertEqual(path.position, node.count)
     }
 
-    func withClone(tree: Tree, @noescape body: Node->Tree) {
+    func withClone(tree: Tree, @noescape body: Node->Node) {
         let node = tree.root.clone()
         withExtendedLifetime(node) {
             let result = body(node)
@@ -258,7 +258,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
     }
 
     func testMoveToKeyFirst() {
-        let c = 26
+        let c = 30
         let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
         withClone(tree) { node in
             var path = Path(endOf: node)

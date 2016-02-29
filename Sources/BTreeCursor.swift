@@ -22,7 +22,7 @@ extension BTree {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, position: position))
         root = Node()
-        defer { self = cursor.finish() }
+        defer { self.root = cursor.finish() }
         return try body(cursor)
     }
 
@@ -46,7 +46,7 @@ extension BTree {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(endOf: root))
         root = Node()
-        defer { self = cursor.finish() }
+        defer { self.root = cursor.finish() }
         return try body(cursor)
     }
 
@@ -61,7 +61,7 @@ extension BTree {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, key: key, choosing: selector))
         root = Node()
-        defer { self = cursor.finish() }
+        defer { self.root = cursor.finish() }
         return try body(cursor)
     }
 
@@ -76,7 +76,7 @@ extension BTree {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, slotsFrom: index.state))
         root = Node()
-        defer { self = cursor.finish() }
+        defer { self.root = cursor.finish() }
         return try body(cursor)
     }
 }
@@ -221,7 +221,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
         }
     }
 
-    mutating func finish() -> Tree {
+    mutating func finish() -> Node {
         var childCount = self.node.count
         while !_path.isEmpty {
             let node = _path.removeLast()
@@ -230,7 +230,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
         }
         assert(root.count == count)
         defer { invalidate() }
-        return Tree(root)
+        return root
     }
 
     /// Restore b-tree invariants after a single-element insertion produced an oversize leaf node.
@@ -352,7 +352,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    internal func finish() -> Tree {
+    internal func finish() -> Node {
         return state.finish()
     }
 
@@ -523,15 +523,13 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             // Append
             moveBackward()
             let separator = remove()
-            let left = finish()
-            let j = Node.join(left: left.root, separator: separator, right: root)
+            let j = Node.join(left: finish(), separator: separator, right: root)
             state = State(endOf: j)
         }
         else if position == 0 {
             // Prepend
             let separator = remove()
-            let right = finish()
-            let j = Node.join(left: root, separator: separator, right: right.root)
+            let j = Node.join(left: root, separator: separator, right: finish())
             state = State(root: j, position: position + c)
         }
         else {
@@ -683,9 +681,9 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             return tree
         }
         if n == count {
-            let tree = state.finish()
-            state = State(startOf: Node(order: tree.order))
-            return tree
+            let node = state.finish()
+            state = State(startOf: Node(order: node.order))
+            return Tree(node)
         }
 
         let position = self.position

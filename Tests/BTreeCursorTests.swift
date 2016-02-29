@@ -19,8 +19,8 @@ class BTreeCursorTests: XCTestCase {
             XCTAssertTrue(cursor.isAtStart)
             XCTAssertTrue(cursor.isAtEnd)
             XCTAssertEqual(cursor.count, 0)
-            let tree = cursor.finish()
-            XCTAssertElementsEqual(tree, [])
+            let node = cursor.finish()
+            XCTAssertElementsEqual(node, [])
         }
 
         var tree = Tree()
@@ -290,10 +290,10 @@ class BTreeCursorTests: XCTestCase {
                 cursor.element = (2 * k, String(2 * k))
                 cursor.moveForward()
             }
-            let tree = cursor.finish()
-            tree.assertValid()
+            let node = cursor.finish()
+            node.assertValid()
             var i = 0
-            for (key, payload) in tree {
+            for (key, payload) in node {
                 XCTAssertEqual(key, 2 * i)
                 XCTAssertEqual(payload, String(2 * i))
                 i += 1
@@ -309,10 +309,10 @@ class BTreeCursorTests: XCTestCase {
                 cursor.payload = String(cursor.key)
                 cursor.moveForward()
             }
-            let tree = cursor.finish()
-            tree.assertValid()
+            let node = cursor.finish()
+            node.assertValid()
             var i = 0
-            for (key, payload) in tree {
+            for (key, payload) in node {
                 XCTAssertEqual(key, 2 * i)
                 XCTAssertEqual(payload, String(2 * i))
                 i += 1
