@@ -149,9 +149,6 @@ ordered items in a typical app? Or even twenty thousand? Or even just two thousa
 
 > The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
 > of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
-> When/if the Swift compiler learns to specialize non-stdlib generics across module boundaries,
-> imported collections will become consistently faster (especially for value types), which will reduce 
-> the optimal element count. 
 
 > (This effect is already visible on the benchmark for the "inlined" sorted array (light green), which was implemented
 > in the same module as the benchmarking loop. That line starts curving up much sooner, at about 2000 elements.)
@@ -165,7 +162,16 @@ ordered items in a typical app? Or even twenty thousand? Or even just two thousa
 > Note that the big gap between collections imported from
 > stdlib and those imported from external modules is caused by a [limitation in the current Swift compiler/ABI](#perf) 
 > that will probably get (at least partially) solved in future compiler versions.)
-
+> When/if the Swift compiler learns to specialize non-stdlib generics across module boundaries,
+> imported collections will become considerably faster, which will reduce the element count at which
+> they get to reap the benefits of their lower asymptotic complexity.
+>
+> (This effect is already visible on the benchmark for the "inlined" sorted array (light green), 
+> which is essentially the same code as the regular one (dark green) except it was implemented
+> in the same module as the benchmarking loop, so the compiler has more options to optimize away
+> witness tables and other levels of abstraction. That line starts curving up much sooner, at about 2000 
+> items--imagine having a B-tree implementation that's equally fast! Or better, try it yourself and report your
+> results. Producing benchmarks like this takes a lot of time and effort.) :-)
 
 [loglog]: https://en.wikipedia.org/wiki/Log–log_plot
 
