@@ -144,8 +144,8 @@ Inside their nodes, B-trees use arrays (or array-like contiguous buffers) to hol
 They guarantee that these arrays never get longer than the optimal maximum; when they would grow larger,
 a new node is split off. So B-trees make perfect sense as an in-memory data structure.
 
-(Here is a question to think about, thogh: how many times do you need to work with a hundred thousand
-items in a typical app? Or even twenty thousand?)
+(Think about this, though: how many times do you need to work with a hundred thousand
+ordered items in a typical app? Or even twenty thousand? Or even just two thousand?)
 
 > The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
 > of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
