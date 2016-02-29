@@ -19,6 +19,20 @@ class BTreeBuilderTests: XCTestCase {
         return range.map { ($0, String($0)) }
     }
 
+    func testBTreeInitDropDuplicatesEmpty() {
+        let tree = Tree(sortedElements: [], dropDuplicates: true, order: 5)
+        tree.assertValid()
+        assert(tree.order == 5)
+        XCTAssertElementsEqual(tree, [])
+    }
+
+    func testBTreeInitDropDuplicates() {
+        let tree = Tree(sortedElements: [(0, "0"), (0, "1"), (0, "2"), (1, "3"), (1, "4")], dropDuplicates: true, order: 5)
+        tree.assertValid()
+        assert(tree.order == 5)
+        XCTAssertElementsEqual(tree, [(0, "2"), (1, "4")])
+    }
+
     func testEmpty() {
         var builder = Builder(order: 5, keysPerNode: 3)
         let tree = builder.finish()
