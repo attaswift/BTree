@@ -557,7 +557,7 @@ extension BTreeNode {
                 node.children.insertContentsOf(children, at: 0)
                 node.count += dc
 
-                self.children.removeRange(lc - delta ..< lc)
+                self.children.removeRange(lc + 1 - delta ..< lc + 1)
                 self.count -= dc
             }
         }
