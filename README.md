@@ -278,7 +278,7 @@ Let's enumerate:
 6.  Adversaries (or blind chance) will never produce a set of elements for which B-trees behave especially badly.
     The performance of B-trees only depends on the size of the tree, not its contents. 
     (Provided that key comparison also behaves uniformly, of course. 
-    You may get an unpleasant surprise if you allow multi-megabyte strings as keys.)
+    If you allow multi-megabyte strings as keys, you're gonna have a bad time.)
 
 7.  Concatenation of any two B-trees takes O(log(*n*)) time. For trees that aren't of a trivial size, the result 
     will share some of its nodes with the input trees, deferring most copying until the time the tree needs to be modified.
