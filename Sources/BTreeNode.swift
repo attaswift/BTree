@@ -567,6 +567,14 @@ extension BTreeNode {
         return Splinter(separator: rsep, node: node)
     }
 
+    func swapContents(other: Node) {
+        swap(&self.elements, &other.elements)
+        swap(&self.children, &other.children)
+        swap(&self.count, &other.count)
+        swap(&self._depth, &other._depth)
+        swap(&self._order, &other._order)
+    }
+
     /// Create and return a new b-tree consisting of elements of `left`,`separator` and the elements of `right`,
     /// in this order.
     ///
@@ -576,6 +584,8 @@ extension BTreeNode {
     /// - Complexity: O(log(left.count + right.count))
     internal static func join(left left: BTreeNode, separator: (Key, Payload), right: BTreeNode) -> BTreeNode {
         precondition(left.order == right.order)
+
+        let order = left.order
         let depthDelta = left.depth - right.depth
         let append = depthDelta >= 0
         
@@ -587,29 +597,21 @@ extension BTreeNode {
         var path = [stock]
         var node = stock
         let c = scion.count
-        node.count += c + 1
         for _ in 0 ..< abs(depthDelta) {
+            node.count += c + 1
             node = node.makeChildUnique(append ? node.children.count - 1 : 0)
             path.append(node)
-            node.count += c + 1
         }
 
         // Graft the scion into the stock by inserting the contents of its root into `node`.
+        if !append { node.swapContents(scion) }
         assert(node.depth == scion.depth)
-        if append {
-            node.elements.append(separator)
-            node.elements.appendContentsOf(right.elements)
-            node.children.appendContentsOf(right.children)
-        }
-        else {
-            node.elements = left.elements + [separator] + node.elements
-            node.children = left.children + node.children
-        }
-
-        // Split nodes if necessary to restore balance.
-        if node.isTooLarge {
+        let slotCount = node.elements.count + 1 + scion.elements.count
+        let target = slotCount < order ? slotCount : slotCount / 2
+        var splinter = node.shiftSlots(separator: separator, node: scion, target: target)
+        if splinter != nil {
+            assert(splinter!.node.isBalanced)
             path.removeLast()
-            var splinter = Optional(node.split())
             while let s = splinter where !path.isEmpty {
                 let node = path.removeLast()
                 node.insert(s, inSlot: append ? node.elements.count : 0)
