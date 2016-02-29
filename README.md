@@ -150,9 +150,6 @@ ordered items in a typical app? Or even twenty thousand? Or even just two thousa
 > The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
 > of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
 
-> (This effect is already visible on the benchmark for the "inlined" sorted array (light green), which was implemented
-> in the same module as the benchmarking loop. That line starts curving up much sooner, at about 2000 elements.)
-
 > The chart above is a [log-log plot][loglog] which makes it easy to compare the polynomial exponents of 
 > the complexity curves of competing algorithms at a glance. The slope of an O(*n^2*) algorithm 
 > (like insertion into a sorted array, green curves) on a log-log chart is twice of that of a 
