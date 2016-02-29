@@ -183,7 +183,7 @@ a huge class of problems is easily and efficiently solved by simple combinations
 However, they aren't without drawbacks: you have probably run into cases when the standard collections
 exhibit suboptimal behavior:
 
-1.  Efficient insertion/removal from the middle of an `Array` is not possible.
+1.  Insertion/removal to/from the middle of an `Array` can be slow when there are many items. (Keep the previous section in mind, though.)
 
 2.  The all-or-nothing [copy-on-write behavior][cow] of `Array`, `Dictionary` and `Set` can lead to performance problems
     that are hard to detect and fix.
