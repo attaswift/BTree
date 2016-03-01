@@ -151,9 +151,9 @@ ordered items in a typical app? Or even twenty thousand? Or even just two thousa
 > of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
 
 > The chart above is a [log-log plot][loglog] which makes it easy to compare the polynomial exponents of 
-> the complexity curves of competing algorithms at a glance. The slope of an O(*n^2*) algorithm 
-> (like insertion into a sorted array, green curves) on a log-log chart is twice of that of a 
-> O(*n*) (like appending *n* items to an unsorted array, light blue curve) or O(*n* * log(*n*)) one 
+> the complexity curves of competing algorithms at a glance. The slope of a quadratic algorithm on a log-log chart
+> (like insertion into a sorted array---the green curves) is twice of that of a 
+> linear algorithm (like appending *n* items to an unsorted array---light blue curve) or a quasilinear one 
 > (like inserting into a red-black tree, red curve).
 
 > Note that the big gap between collections imported from
