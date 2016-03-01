@@ -1,5 +1,5 @@
 //
-//  BTree Merging.swift
+//  BTreeMerger.swift
 //  BTree
 //
 //  Created by Károly Lőrentey on 2016-02-27.
