@@ -416,7 +416,7 @@ Let's enumerate:
 [BTreeKeySelector]: http://lorentey.github.io/BTree/api/Enums/BTreeKeySelector.html
 [BTreeGenerator]: http://lorentey.github.io/BTree/api/Structs/BTreeGenerator.html
 [BTreeIndex]: http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html
-[BTreeCursor]: http://lorentey.github.io/BTree/api/Structs/BTreeCursor.html
+[BTreeCursor]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html
 [BTree.elementAtPosition]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree17elementAtPositionu0_Rq_Ss10Comparable_FGS0_q_q0__FSiTq_q0__
 [BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachu0_Rq_Ss10Comparable_FGS0_q_q0__FzFzTq_q0__T_T_
 [BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT14sortedElementsqd__5orderSi10fillFactorSd_GS0_q_q0__
