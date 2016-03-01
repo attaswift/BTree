@@ -6,128 +6,133 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
-private extension BTreeStrongPath {
-    /// The parent of `node` and the slot of `node` in its parent, or `nil` if `node` is the root node.
-    private var parent: (Node, Int)? {
-        guard !_path.isEmpty else { return nil }
-        return (_path.last!, _slots.last!)
-    }
-
-    /// The key following the `node` at the same slot in its parent, or `nil` if there is no such key.
-    private var parentKey: Key? {
-        guard let parent = self.parent else { return nil }
-        guard parent.1 < parent.0.elements.count else { return nil }
-        return parent.0.elements[parent.1].0
-    }
-
-    /// Move sideways `n` slots to the right, skipping over subtrees along the way.
-    private mutating func skipForward(n: Int) {
-        if !node.isLeaf {
-            for i in 0 ..< n {
-                let s = slot! + i
-                position += node.children[s + 1].count
-            }
-        }
-        position += n
-        slot! += n
-        if position != count {
-            ascendToKey()
-        }
-    }
-
-    /// Remove the deepest path component, leaving the path at the element following the node that was previously focused,
-    /// or the spot after all elements if the node was the rightmost child.
-    mutating func ascendOneLevel() -> Bool {
-        if length == 1 {
-            position = count
-            slot = node.elements.count
-            return true
-        }
-        popFromSlots()
-        popFromPath()
-        return isAtEnd
-    }
-
-    /// If this path got to a slot at the end of a node but it hasn't reached the end of the tree yet,
-    /// ascend to the ancestor that holds the key corresponding to the current position.
-    mutating func ascendToKey() {
-        assert(!isAtEnd)
-        while slot == node.elements.count {
-            slot = nil
-            popFromPath()
-        }
-    }
-
-    /// Return the next part in this tree that consists of elements less than `key`. If `inclusive` is true, also
-    /// include elements matching `key`.
-    /// The part returned is either a single element, or a range of elements in a node, including their associated subtrees.
+extension BTree {
+    /// Merge all elements from two trees into a new tree, and return it.
     ///
-    /// - Requires: The current position is not at the end of the tree, and the current key is matching the condition above.
-    /// - Complexity: O(log(*n*)) where *n* is the number of elements in the returned part.
-    mutating func nextPart(until key: Key, inclusive: Bool) -> BTreePart<Key, Payload> {
-        func match(k: Key) -> Bool {
-            return (inclusive && k <= key) || (!inclusive && k < key)
+    /// This is the non-distinct union operation: all elements from both trees are kept.
+    /// The result may have duplicate keys, even if the input trees only had unique keys on their own.
+    ///
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// linked into the result instead of elementwise processing. This drastically improves performance.
+    ///
+    /// This function does not perform special handling of shared nodes between the two trees, because
+    /// the semantics of the operation require individual processing of all keys that appear in both trees.
+    ///
+    /// - SeeAlso: `distinctUnion(_:)` for the distinct variant of the same operation.
+    /// - Complexity:
+    ///    - O(min(`self.count`, `tree.count`)) in general.
+    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant number of interleaving element runs.
+    public func union(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
+        while !m.done {
+            m.copyFromFirst(.IncludingOtherKey)
+            m.copyFromSecond(.ExcludingOtherKey)
         }
-
-        assert(!isAtEnd && match(self.key))
-
-        // Find furthest ancestor whose entire leftmost subtree is guaranteed to consist of matching elements.
-        assert(!isAtEnd)
-        var includeLeftmostSubtree = false
-        if slot == 0 && node.isLeaf {
-            while slot == 0 {
-                guard let pk = parentKey else { break }
-                guard match(pk) else { break }
-                ascendOneLevel()
-                includeLeftmostSubtree = true
-            }
-        }
-        if !includeLeftmostSubtree && !node.isLeaf {
-            defer { moveForward() }
-            return .Element(self.element)
-        }
-
-        // Find range of matching elements in `node`.
-        assert(match(self.key))
-        let startSlot = slot!
-        var endSlot = startSlot + 1
-        while endSlot < node.elements.count && match(node.elements[endSlot].0) {
-            endSlot += 1
-        }
-
-        // See if we can include the subtree following the last matching element.
-        // This is a log(n) check but it's worth it.
-        let includeRightmostSubtree = node.isLeaf || match(node.children[endSlot].last!.0)
-        if includeRightmostSubtree {
-            defer { skipForward(endSlot - startSlot) }
-            return .NodeRange(node, startSlot ..< endSlot)
-        }
-        // If the last subtree has non-matching elements, leave off `endSlot - 1` from the returned range.
-        if endSlot == startSlot + 1 {
-            let n = node.children[slot!]
-            return .Node(n)
-        }
-        defer { skipForward(endSlot - startSlot - 1) }
-        return .NodeRange(node, startSlot ..< endSlot - 1)
+        m.appendFirst()
+        m.appendSecond()
+        return BTree(m.finish())
     }
-}
 
-internal enum BTreePart<Key: Comparable, Payload> {
-    case Element((Key, Payload))
-    case Node(BTreeNode<Key, Payload>)
-    case NodeRange(BTreeNode<Key, Payload>, Range<Int>)
-}
-
-extension BTreeBuilder {
-    mutating func append(part: BTreePart<Key, Payload>) {
-        switch part {
-        case .Element(let element):
-            self.append(element)
-        case .Node(let node):
-            self.appendWithoutCloning(node.clone())
-        case .NodeRange(let node, let range):
-            self.appendWithoutCloning(Node(node: node, slotRange: range))
+    /// Calculate the distinct union of two trees, and return the result.
+    /// If the same key appears in both trees, only the matching element(s) in the second tree will be
+    /// included in the result.
+    ///
+    /// If neither input trees had duplicate keys on its own, the result won't have any duplicates, either.
+    ///
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// linked into the result instead of elementwise processing. This drastically improves performance.
+    ///
+    /// This function also detects shared subtrees between the two trees,
+    /// and links them directly into the result when possible.
+    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - SeeAlso: `union(_:)` for the non-distinct variant of the same operation.
+    /// - Complexity:
+    ///    - O(min(`self.count`, `tree.count`)) in general.
+    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
+    public func distinctUnion(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
+        while !m.done {
+            m.copyFromFirst(.ExcludingOtherKey)
+            m.copyFromSecond(.ExcludingOtherKey)
+            m.copyCommonElementsFromSecond()
         }
+        m.appendFirst()
+        m.appendSecond()
+        return m.finish()
+    }
+
+    /// Return a tree with the same elements as `first` except those whose keys are also in `second`.
+    ///
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// skipped or linked into the result instead of elementwise processing. This drastically improves performance.
+    ///
+    /// This function also detects and skips over shared subtrees between the two trees.
+    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `tree.count`)) in general.
+    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
+    public func subtract(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
+        while !m.done {
+            m.copyFromFirst(.ExcludingOtherKey)
+            m.skipFromSecond(.ExcludingOtherKey)
+            m.skipCommonElements()
+        }
+        m.appendFirst()
+        return m.finish()
+    }
+
+    /// Return a tree combining the elements of two input trees except those whose keys appear in both inputs.
+    ///
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// linked into the result instead of elementwise processing. This drastically improves performance.
+    ///
+    /// This function also detects and skips over shared subtrees between the two trees.
+    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `tree.count`)) in general.
+    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
+    public func exclusiveOr(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
+        while !m.done {
+            m.copyFromFirst(.ExcludingOtherKey)
+            m.copyFromSecond(.ExcludingOtherKey)
+            m.skipCommonElements()
+        }
+        m.appendFirst()
+        m.appendSecond()
+        return m.finish()
+    }
+
+
+    /// Return a tree with the same elements as `second` except those whose keys are not also in `first`.
+    ///
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// skipped instead of elementwise processing. This drastically improves performance.
+    ///
+    /// This function also detects shared subtrees between the two trees,
+    /// and links them directly into the result when possible.
+    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `tree.count`)) in general.
+    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
+    public func intersect(other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
+        while !m.done {
+            m.skipFromFirst(.ExcludingOtherKey)
+            m.skipFromSecond(.ExcludingOtherKey)
+            m.copyCommonElementsFromSecond()
+        }
+        return m.finish()
     }
 }
 
@@ -150,7 +155,7 @@ enum BTreeCopyLimit {
 /// An abstraction for elementwise/subtreewise merging some of the elements from two trees into a new third tree.
 ///
 /// Merging starts at the beginning of each tree, then proceeds in order from smaller to larger keys.
-/// At each step you can decide which tree to merge elements/subtrees from next, until we reach the end of 
+/// At each step you can decide which tree to merge elements/subtrees from next, until we reach the end of
 /// one of the trees.
 struct BTreeMerger<Key: Comparable, Payload> {
     private var a: BTreeStrongPath<Key, Payload>
@@ -319,7 +324,7 @@ struct BTreeMerger<Key: Comparable, Payload> {
         }
     }
 
-    /// Ignore and jump over the longest possible sequence of elements that share the same key in both trees, 
+    /// Ignore and jump over the longest possible sequence of elements that share the same key in both trees,
     /// starting at the current positions.
     ///
     /// This method does not care how many duplicate keys it finds for each key. For example, with
@@ -335,7 +340,7 @@ struct BTreeMerger<Key: Comparable, Payload> {
             if a.node === b.node {
                 /// We're inside a shared subtree. Find the ancestor at which the shared subtree
                 /// starts, and append it in a single step.
-                /// 
+                ///
                 /// This variant doesn't care about where we're in the shared subtree.
                 /// It assumes that if we ignore one set of common keys, we're ignoring all.
                 assert(a.node.isLeaf && b.node.isLeaf)
@@ -367,134 +372,136 @@ struct BTreeMerger<Key: Comparable, Payload> {
     }
 }
 
+internal enum BTreePart<Key: Comparable, Payload> {
+    case Element((Key, Payload))
+    case Node(BTreeNode<Key, Payload>)
+    case NodeRange(BTreeNode<Key, Payload>, Range<Int>)
+}
+
+extension BTreeBuilder {
+    mutating func append(part: BTreePart<Key, Payload>) {
+        switch part {
+        case .Element(let element):
+            self.append(element)
+        case .Node(let node):
+            self.appendWithoutCloning(node.clone())
+        case .NodeRange(let node, let range):
+            self.appendWithoutCloning(Node(node: node, slotRange: range))
+        }
+    }
+}
+
+private extension BTreeStrongPath {
+    /// The parent of `node` and the slot of `node` in its parent, or `nil` if `node` is the root node.
+    private var parent: (Node, Int)? {
+        guard !_path.isEmpty else { return nil }
+        return (_path.last!, _slots.last!)
+    }
+
+    /// The key following the `node` at the same slot in its parent, or `nil` if there is no such key.
+    private var parentKey: Key? {
+        guard let parent = self.parent else { return nil }
+        guard parent.1 < parent.0.elements.count else { return nil }
+        return parent.0.elements[parent.1].0
+    }
+
+    /// Move sideways `n` slots to the right, skipping over subtrees along the way.
+    private mutating func skipForward(n: Int) {
+        if !node.isLeaf {
+            for i in 0 ..< n {
+                let s = slot! + i
+                position += node.children[s + 1].count
+            }
+        }
+        position += n
+        slot! += n
+        if position != count {
+            ascendToKey()
+        }
+    }
+
+    /// Remove the deepest path component, leaving the path at the element following the node that was previously focused,
+    /// or the spot after all elements if the node was the rightmost child.
+    mutating func ascendOneLevel() -> Bool {
+        if length == 1 {
+            position = count
+            slot = node.elements.count
+            return true
+        }
+        popFromSlots()
+        popFromPath()
+        return isAtEnd
+    }
+
+    /// If this path got to a slot at the end of a node but it hasn't reached the end of the tree yet,
+    /// ascend to the ancestor that holds the key corresponding to the current position.
+    mutating func ascendToKey() {
+        assert(!isAtEnd)
+        while slot == node.elements.count {
+            slot = nil
+            popFromPath()
+        }
+    }
+
+    /// Return the next part in this tree that consists of elements less than `key`. If `inclusive` is true, also
+    /// include elements matching `key`.
+    /// The part returned is either a single element, or a range of elements in a node, including their associated subtrees.
+    ///
+    /// - Requires: The current position is not at the end of the tree, and the current key is matching the condition above.
+    /// - Complexity: O(log(*n*)) where *n* is the number of elements in the returned part.
+    mutating func nextPart(until key: Key, inclusive: Bool) -> BTreePart<Key, Payload> {
+        func match(k: Key) -> Bool {
+            return (inclusive && k <= key) || (!inclusive && k < key)
+        }
+
+        assert(!isAtEnd && match(self.key))
+
+        // Find furthest ancestor whose entire leftmost subtree is guaranteed to consist of matching elements.
+        assert(!isAtEnd)
+        var includeLeftmostSubtree = false
+        if slot == 0 && node.isLeaf {
+            while slot == 0 {
+                guard let pk = parentKey else { break }
+                guard match(pk) else { break }
+                ascendOneLevel()
+                includeLeftmostSubtree = true
+            }
+        }
+        if !includeLeftmostSubtree && !node.isLeaf {
+            defer { moveForward() }
+            return .Element(self.element)
+        }
+
+        // Find range of matching elements in `node`.
+        assert(match(self.key))
+        let startSlot = slot!
+        var endSlot = startSlot + 1
+        while endSlot < node.elements.count && match(node.elements[endSlot].0) {
+            endSlot += 1
+        }
+
+        // See if we can include the subtree following the last matching element.
+        // This is a log(n) check but it's worth it.
+        let includeRightmostSubtree = node.isLeaf || match(node.children[endSlot].last!.0)
+        if includeRightmostSubtree {
+            defer { skipForward(endSlot - startSlot) }
+            return .NodeRange(node, startSlot ..< endSlot)
+        }
+        // If the last subtree has non-matching elements, leave off `endSlot - 1` from the returned range.
+        if endSlot == startSlot + 1 {
+            let n = node.children[slot!]
+            return .Node(n)
+        }
+        defer { skipForward(endSlot - startSlot - 1) }
+        return .NodeRange(node, startSlot ..< endSlot - 1)
+    }
+}
+
+
+
+
+
 extension BTree {
-    /// Merge all elements from two trees into a new tree, and return it.
-    ///
-    /// This is the non-distinct union operation: all elements from both trees are kept.
-    /// The result may have duplicate keys, even if the input trees only had unique keys on their own.
-    ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This drastically improves performance.
-    ///
-    /// This function does not perform special handling of shared nodes between the two trees, because
-    /// the semantics of the operation require individual processing of all keys that appear in both trees.
-    ///
-    /// - SeeAlso: `distinctUnion(_:)` for the distinct variant of the same operation.
-    /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant number of interleaving element runs.
-    public func union(other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.copyFromFirst(.IncludingOtherKey)
-            m.copyFromSecond(.ExcludingOtherKey)
-        }
-        m.appendFirst()
-        m.appendSecond()
-        return BTree(m.finish())
-    }
-
-    /// Calculate the distinct union of two trees, and return the result.
-    /// If the same key appears in both trees, only the matching element(s) in the second tree will be 
-    /// included in the result.
-    ///
-    /// If neither input trees had duplicate keys on its own, the result won't have any duplicates, either.
-    ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This drastically improves performance.
-    ///
-    /// This function also detects shared subtrees between the two trees,
-    /// and links them directly into the result when possible.
-    /// (Keys that appear in both trees otherwise require individual processing.)
-    ///
-    /// - SeeAlso: `union(_:)` for the non-distinct variant of the same operation.
-    /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func distinctUnion(other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.copyFromFirst(.ExcludingOtherKey)
-            m.copyFromSecond(.ExcludingOtherKey)
-            m.copyCommonElementsFromSecond()
-        }
-        m.appendFirst()
-        m.appendSecond()
-        return m.finish()
-    }
-
-    /// Return a tree with the same elements as `first` except those whose keys are also in `second`.
-    ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// skipped or linked into the result instead of elementwise processing. This drastically improves performance.
-    ///
-    /// This function also detects and skips over shared subtrees between the two trees.
-    /// (Keys that appear in both trees otherwise require individual processing.)
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func subtract(other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.copyFromFirst(.ExcludingOtherKey)
-            m.skipFromSecond(.ExcludingOtherKey)
-            m.skipCommonElements()
-        }
-        m.appendFirst()
-        return m.finish()
-    }
-
-    /// Return a tree combining the elements of two input trees except those whose keys appear in both inputs.
-    ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This drastically improves performance.
-    ///
-    /// This function also detects and skips over shared subtrees between the two trees.
-    /// (Keys that appear in both trees otherwise require individual processing.)
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func exclusiveOr(other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.copyFromFirst(.ExcludingOtherKey)
-            m.copyFromSecond(.ExcludingOtherKey)
-            m.skipCommonElements()
-        }
-        m.appendFirst()
-        m.appendSecond()
-        return m.finish()
-    }
-
-
-    /// Return a tree with the same elements as `second` except those whose keys are not also in `first`.
-    ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// skipped instead of elementwise processing. This drastically improves performance.
-    ///
-    /// This function also detects shared subtrees between the two trees, 
-    /// and links them directly into the result when possible.
-    /// (Keys that appear in both trees otherwise require individual processing.)
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func intersect(other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.skipFromFirst(.ExcludingOtherKey)
-            m.skipFromSecond(.ExcludingOtherKey)
-            m.copyCommonElementsFromSecond()
-        }
-        return m.finish()
-    }
 
     //MARK: Comparison
 
