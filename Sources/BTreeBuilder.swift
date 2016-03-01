@@ -6,6 +6,82 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
+//MARK: Bulk loading
+
+extension BTree {
+    /// Create a new b-tree from elements of an unsorted sequence, using a stable sort algorithm.
+    ///
+    /// - Parameter elements: An unsorted sequence of arbitrary length.
+    /// - Parameter order: The desired b-tree order. If not specified (recommended), the default order is used.
+    /// - Complexity: O(count * log(`count`))
+    /// - SeeAlso: `init(sortedElements:order:fillFactor:)` for a (faster) variant that can be used if the sequence is already sorted.
+    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder) {
+        self.init(Node(order: order))
+        withCursorAtEnd { cursor in
+            for element in elements {
+                cursor.move(to: element.0, choosing: .Last)
+                let match = !cursor.isAtEnd && cursor.key == element.0
+                if match {
+                    if dropDuplicates {
+                        cursor.element = element
+                    }
+                    else {
+                        cursor.insertAfter(element)
+                    }
+                }
+                else {
+                    cursor.insert(element)
+                }
+            }
+        }
+    }
+
+    /// Create a new b-tree from elements of a sequence sorted by key.
+    ///
+    /// - Parameter sortedElements: A sequence of arbitrary length, sorted by key.
+    /// - Parameter order: The desired b-tree order. If not specified (recommended), the default order is used.
+    /// - Parameter fillFactor: The desired fill factor in each node of the new tree. Must be between 0.5 and 1.0.
+    ///      If not specified, a value of 1.0 is used, i.e., nodes will be loaded with as many elements as possible.
+    /// - Complexity: O(count)
+    /// - SeeAlso: `init(elements:order:fillFactor:)` for a (slower) unsorted variant.
+    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder, fillFactor: Double = 1) {
+        var generator = elements.generate()
+        self.init(order: order, fillFactor: fillFactor, dropDuplicates: dropDuplicates, next: { generator.next() })
+    }
+
+    internal init(order: Int = Node.defaultOrder, fillFactor: Double = 1, dropDuplicates: Bool = false, @noescape next: () -> Element?) {
+        precondition(order > 1)
+        precondition(fillFactor >= 0.5 && fillFactor <= 1)
+        let keysPerNode = Int(fillFactor * Double(order - 1) + 0.5)
+        assert(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
+
+        var builder = BTreeBuilder<Key, Payload>(order: order, keysPerNode: keysPerNode)
+        if dropDuplicates {
+            guard var buffer = next() else {
+                self.init(Node(order: order))
+                return
+            }
+            while let element = next() {
+                precondition(buffer.0 <= element.0)
+                if buffer.0 < element.0 {
+                    builder.append(buffer)
+                }
+                buffer = element
+            }
+            builder.append(buffer)
+        }
+        else {
+            var lastKey: Key? = nil
+            while let element = next() {
+                precondition(lastKey <= element.0)
+                lastKey = element.0
+                builder.append(element)
+            }
+        }
+        self.init(builder.finish())
+    }
+}
+
 private enum BuilderState {
     /// The builder needs a separator element.
     case Separator
