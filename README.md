@@ -267,8 +267,8 @@ Let's enumerate:
     
     The performance of B-trees is extremely stable, with no irregular spikes ever.
     
-    (Note that there is a bit of leeway in allocations to make balancing the tree fast. 
-    In the worst case, a B-tree may only fill 50% of space it allocates. The ratio is typically 
+    (Note that there is a bit of leeway in allocations to make it easy to balance the tree. 
+    In the worst case, a B-tree may only fill 50% of the space it allocates. The ratio is typically 
     much higher than that, though.)
 
 4.  B-trees always keep their items sorted in ascending key order, and they provide efficient positional lookups.
