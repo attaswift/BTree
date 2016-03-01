@@ -11,7 +11,16 @@
 
 <!-- [![Documented](https://img.shields.io/cocoapods/metrics/doc-percent/BTree.svg)](http://lorentey.github.io/BTree/api) -->
 
-## Overview
+* [Overview](#overview)
+* [Reference Documentation](#api)
+* [What Are B-Trees?](#what)
+* [Why In-Memory B-Trees?](#why)
+* [Laundry List of Issues with Standard Collection Types](#boo)
+* [B-Trees to the Rescue!](#yay)
+* [Implementation Notes](#notes)
+* [Remark on Performance of Imported Generics](#generics)
+
+### <a name="overview">Overview</a>
 
 This project provides an efficient in-memory b-tree implementation in pure Swift, and several useful
 ordered collection types that use b-trees for their underlying storage.
@@ -51,14 +60,14 @@ better with these than standard collections; continue reading to find out why!)
 [Map]: http://lorentey.github.io/BTree/api/Structs/Map.html
 [List]: http://lorentey.github.io/BTree/api/Structs/List.html
 
-### [Reference Documentation][doc]
+### <a name="api">[Reference Documentation][doc]</a>
 
 The project includes [a nicely formatted reference document][doc] generated from the documentation comments
 embedded in its source code.
 
 [doc]: http://lorentey.github.io/BTree/api
 
-## What Are B-Trees?
+### <a name="what">What Are B-Trees?</a>
 
 [B-trees][b-tree wiki] are search trees that provide an ordered key-value store with excellent performance
 characteristics.  In essence, each node maintains a sorted array of its own elements, and
@@ -86,7 +95,7 @@ This makes the tree an [order statistic tree], where efficient positional lookup
 [order statistic tree]: https://en.wikipedia.org/wiki/Order_statistic_tree
 [b-plus tree]: https://en.wikipedia.org/wiki/B%2B_tree
 
-## Why In-Memory B-Trees?
+### <a name="why">Why In-Memory B-Trees?</a>
 
 The Swift standard library offers heavily optimized arrays and hash tables, but omits linked lists and
 tree-based data structures. This is a result of the Swift engineering team spending resources 
@@ -206,7 +215,7 @@ benefits of B-trees often occur at element counts over a hundred thousand. (Howe
 much slower than arrays for low element counts (remember, they *are* arrays in that case), so it makes sense to use them
 when there's even a slight chance that the count will grow large.)
 
-### Laundry List of Issues with Standard Collection Types
+### <a name="boo">Laundry List of Issues with Standard Collection Types</a>
 
 The data structures implemented by `Array`, `Dictionary` and `Set` are remarkably versatile:
 a huge class of problems is easily and efficiently solved by simple combinations of these abstractions.
@@ -274,7 +283,7 @@ and it would be too painful to work around them.
 [cow]: https://en.wikipedia.org/wiki/Copy-on-write
 
 
-### B-Trees to the Rescue! 
+### <a name="yay">B-Trees to the Rescue!</a>
 
 B-trees solve all of the issues above. 
 (Of course, they come with a set of different issues of their own. Life is hard.)
@@ -336,7 +345,7 @@ Let's enumerate:
     no matter where in the tree you want to put it. (You do need to keep the order of keys correct, though.)
 
 
-### Notes on the Code
+### <a name="notes">Implementation Notes</a>
 
 -   [`BTree`][BTree] is a generic struct with copy-on-write value semantics.  Internally, it stores its data in
     nodes with a fixed maximum size, arranged in a tree.  `BTree` type provides a full set of hand-tuned 
@@ -423,8 +432,7 @@ Let's enumerate:
 [BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertu0_Rq_Ss10Comparable_FGS0_q_q0__FGVS_5BTreeq_q0__T_
 [BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeu0_Rq_Ss10Comparable_FGS0_q_q0__FT4fromq_2toq__GS0_q_q0__
 
-
-## Remark on Performance of Imported Generics
+### <a name="generics">Remark on Performance of Imported Generics</a>
 <a name="perf"></a>
 
 Current versions of the Swift compiler are unable to specialize generic types that are imported from 
