@@ -373,20 +373,6 @@ Let's enumerate:
       
     - The root node is never shared between trees that are not equal.
 
-
--   There is a [`BTreeGenerator`][BTreeGenerator] and a [`BTreeIndex`][BTreeIndex] that provide the
-    usual generator/indexing semantics. While individual element lookup usually takes O(log(n))
-    operations, iterating over all elements via these interfaces requires linear time. Note that
-    [`forEach`][BTree.forEach] has a specialized recursive implementation, which makes it the fastest
-    way to iterate over b-trees.
-
--   [`BTreeCursor`][BTreeCursor] is an easy-to-use, general-purpose batch editing facility that allows you to
-    manipulate the elements of a b-tree conveniently and highly efficiently. You can use a cursor to
-    walk over the contents of a tree, modifying/inserting/removing elements as needed without a
-    per-element log(n) lookup overhead. If you need to insert or remove a bunch or consecutive elements,
-    it is better to use the provided bulk removal/insertion methods than to process them individually 
-    (Range operations have O(log(*n*)) complexity vs. elementwise processing takes O(*k* * log(n)).)
-
 -   [`BTree`][BTree] allows elements with duplicate keys to be stored in the tree. 
     (In fact, `List` works by using the same (empty) key for all elements.) 
 
@@ -400,16 +386,87 @@ Let's enumerate:
     [efficient positional lookup][BTree.elementAtPosition]
     is possible.  For any *i*, you can get, set, remove or insert the *i*th item in the tree in log(n) time.
 
+-   There is a [`BTreeGenerator`][BTreeGenerator] and a [`BTreeIndex`][BTreeIndex] that provide the
+    usual generator/indexing semantics. While individual element lookup usually takes O(log(n))
+    operations, iterating over all elements via these interfaces requires linear time. Using the
+    generator is faster than indexing, so you should prefer using it whenever possible. 
+    There are methods to start a generator from the middle of the tree: 
+    from any position, any index, or any key.
+    
+-   Note that [`forEach`][BTree.forEach] has a specialized recursive implementation, 
+    which makes it the fastest way to iterate over b-trees. There is even a variant that allows you
+    to stop the iteration when you had seen enough items and want to get off the carousel.
+
+-   [`BTreeCursor`][BTreeCursor] is an easy-to-use, general-purpose batch editing facility that allows you to
+    manipulate the elements of a b-tree conveniently and highly efficiently. You can use a cursor to
+    walk over the contents of a tree, modifying/inserting/removing elements as needed without a
+    per-element log(n) lookup overhead. If you need to insert or remove a bunch or consecutive elements,
+    it is better to use the provided bulk removal/insertion methods than to process them individually 
+    (Range operations have O(log(*n*)) complexity vs. elementwise processing takes O(*k* * log(n)).)
+    
+-   Internally, navigation in a B-Tree is based on abstract primitives that maintain a path to a particular
+    position in the tree, as described by the [`BTreePath`][BTreePath] protocol. The methods directly
+    provided by this protocol are too low-level for convenient use, but the protocol has extension methods
+    built on top of these that support familiar concepts like moving back and forth step by step, jumping to
+    a specific position in the tree, or looking up a particular key.
+    
+    Indexes, generators and cursors use their particular implementation of `BTreePath` to represent their
+    own path flavors. All three of them maintain a path of nodes from the root of the tree to a particular
+    slot of a particular node, but the details are very different:
+    
+    - A [`BTreeIndex`][BTreeIndex] may not hold a strong reference to its tree, because that would 
+      interfere with copy-on-write when you want to mutate the tree at a certain index. Thus, indices
+      are wrappers around a [`BTreeWeakPath`][BTreeWeakPath], which uses weak references, and 
+      needs to tread very carefully in order to detect when one of its references gets out of date.
+      
+    - Meanwhile a [`BTreeGenerator`][BTreeGenerator] is supposed to support standalone iteration over the
+      contents of the tree, so it must contain strong references. It uses a
+      [`BTreeStrongPath`][BTreeStrongPath] to represent the path of its next element. While a generator only
+      needs to be able to move one step forward, `BTreeStrongPath` supports the full tree navigation API,
+      making it very useful elsewhere in the codebase whenever we need a kind of read-only cursor into a
+      tree. For example, the tree merging algorithm uses strong paths to represent its current positions in
+      its input trees.
+      
+    - Finally, a [`BTreeCursor`][BTreeCursor] needs to maintain a path where each node is uniquely
+      held by the cursor, ready for mutation. (A cursor owns its own copy of the tree, and does
+      not share it with the outside world until it is finished.) 
+      This special path flavor is implemented by [`BTreeCursorPath`][BTreeCursorPath].
+      To speed things up, this struct intentionally breaks the node counts on its current path, 
+      to allow for super speedy elementwise insertions and removals. The counts are carefully recalculated
+      whenever the path moves off a node's branch in the tree.
+          
+[BTreePath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreePath.swift
+[BTreeWeakPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeIndex.swift#L130
+[BTreeStrongPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeGenerator.swift#L68
+[BTreeCursorPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeCursor.swift#L96
+
+-   It would be overkill to create an explicit path to look up or modify a single element in the tree
+    on its own, so `BTree` also provides a [set of recursive methods][BTree-lookups] that 
+    implement the same sort of lookups and simple mutations. 
+    This are faster when called for a single item, but they aren't efficient when called repeatedly.
+    
+[BTree-lookups]: https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L137
+
 -   `BTree` includes a [bulk loading algorithm][BTree.bulkLoad] that efficiently initializes fully loaded
     trees from any sorted sequence. You can also specify a fill factor that's less than 100% if you expect to
     insert data into the middle of the tree later; leaving some space available may reduce work to keep the
     tree balanced. The bulk loader can optionally filter out duplicate keys for you. It verifies that the
     elements are in the correct order and traps if they aren't.
     
+    The bulk loader is based on a general [`BTreeBuilder`][BTreeBuilder] struct that specializes on
+    appending elements to a newly created tree. Beside individual elements, it also supports efficiently 
+    appending entire B-trees. This comes useful in optimized tree merging algorithms.
+
+[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT14sortedElementsqd__5orderSi10fillFactorSd_GS0_q_q0__
+[BTreeBuilder]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeBuilder.swift
+    
 -   Constructing a B-tree from an unsorted sequence of elements inserts the elements into the tree one by
     one; no buffer is allocated to sort elements before loading them into the tree. This is done more
-    efficiently than calling `BTree.insert` with each element one by one, but it is likely still slower than
+    efficiently than calling [`BTree.insert`][BTree.insert] with each element one by one, but it is likely still slower than
     a quicksort. (So sort elements on your own if you can spare the extra memory.)
+
+[BTree.insert]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree6insertu0_Rq_Ss10Comparable_FRGS0_q_q0__FTTq_q0__2atSi_T_
+[BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT8elementsqd__5orderSi10fillFactorSd_GS0_q_q0__
 
 -   The package contains O(log(n)) methods to [extract a range of elements as a new b-tree][BTree.subtree]
     and to [insert a b-tree into another b-tree][BTreeCursor.insertTree]. (Keys need to remain ordered
@@ -418,7 +475,8 @@ Let's enumerate:
 -   Merge operations (such as `BTree.union` and `BTree.exclusiveOr`) are highly tuned to detect when
     they can skip over entire subtrees on their input, linking them into the result or skipping their contents
     as required. For input trees that contain long runs of distinct elements, these operations
-    can finish in as little as O(log(*n*)) time.
+    can finish in as little as O(log(*n*)) time. These algorithms are expressed on top of a general
+    tree merging construct called [`BTreeMerger`][BTreeMerger].
 
 [BTree]: http://lorentey.github.io/BTree/api/Structs/BTree.html
 [BTreeNode]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift
@@ -428,9 +486,9 @@ Let's enumerate:
 [BTreeCursor]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html
 [BTree.elementAtPosition]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree17elementAtPositionu0_Rq_Ss10Comparable_FGS0_q_q0__FSiTq_q0__
 [BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachu0_Rq_Ss10Comparable_FGS0_q_q0__FzFzTq_q0__T_T_
-[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT14sortedElementsqd__5orderSi10fillFactorSd_GS0_q_q0__
 [BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertu0_Rq_Ss10Comparable_FGS0_q_q0__FGVS_5BTreeq_q0__T_
 [BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeu0_Rq_Ss10Comparable_FGS0_q_q0__FT4fromq_2toq__GS0_q_q0__
+[BTreeMerger]: https://github.com/lorentey/BTree/blob/master/Sources/BTree%20Merging.swift#L150
 
 ### <a name="generics">Remark on Performance of Imported Generics</a>
 <a name="perf"></a>
