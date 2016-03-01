@@ -147,12 +147,22 @@ enum BTreeCopyLimit {
     }
 }
 
+/// An abstraction for elementwise/subtreewise merging some of the elements from two trees into a new third tree.
+///
+/// Merging starts at the beginning of each tree, then proceeds in order from smaller to larger keys.
+/// At each step you can decide which tree to merge elements/subtrees from next, until we reach the end of 
+/// one of the trees.
 struct BTreeMerger<Key: Comparable, Payload> {
-    var a: BTreeStrongPath<Key, Payload>
-    var b: BTreeStrongPath<Key, Payload>
-    var builder: BTreeBuilder<Key, Payload>
-    var done: Bool
+    private var a: BTreeStrongPath<Key, Payload>
+    private var b: BTreeStrongPath<Key, Payload>
+    private var builder: BTreeBuilder<Key, Payload>
 
+    /// This flag is set to `true` when we've reached the end of one of the trees.
+    /// When this flag is set, you may only call `appendFirst` and/or `appendSecond` to append the remaining parts
+    /// of whichever tree has elements left, or you may call `finish` to stop merging.
+    internal var done: Bool
+
+    /// Construct a new merger starting at the starts of the specified two trees.
     init(first: BTree<Key, Payload>, second: BTree<Key, Payload>) {
         precondition(first.order == second.order)
         self.a = BTreeStrongPath(startOf: first.root)
@@ -163,11 +173,19 @@ struct BTreeMerger<Key: Comparable, Payload> {
         self.done = a.isAtEnd || b.isAtEnd
     }
 
+    /// Stop merging and return the merged result.
     mutating func finish() -> BTree<Key, Payload> {
         return BTree(builder.finish())
     }
 
-    mutating func appendA() {
+    /// Append the rest of the first tree to the end of the result tree, jump to the end of the first tree, and
+    /// set `done` to true.
+    ///
+    /// You may call this method even when `done` has been set to true by an earlier operation. It does nothing
+    /// if the merger has already reached the end of the first tree.
+    ///
+    /// - Complexity: O(log(first.count))
+    mutating func appendFirst() {
         guard !a.isAtEnd else { return }
         builder.append(a.element)
         builder.append(a.suffix().root)
@@ -175,7 +193,14 @@ struct BTreeMerger<Key: Comparable, Payload> {
         done = true
     }
 
-    mutating func appendB() {
+    /// Append the rest of the second tree to the end of the result tree, jump to the end of the second tree, and
+    /// set `done` to true.
+    ///
+    /// You may call this method even when `done` has been set to true by an earlier operation. It does nothing
+    /// if the merger has already reached the end of the second tree.
+    ///
+    /// - Complexity: O(log(first.count))
+    mutating func appendSecond() {
         guard !b.isAtEnd else { return }
         builder.append(b.element)
         builder.append(b.suffix().root)
@@ -183,6 +208,15 @@ struct BTreeMerger<Key: Comparable, Payload> {
         done = true
     }
 
+    /// Copy elements from the first tree (starting at the current position) that are less than (or, when `limit`
+    /// is `.IncludingOtherKey`, less than or equal to) the key in the second tree at its the current position.
+    ///
+    /// This method will link entire subtrees to the result whenever possible, which can considerably speed up the operation.
+    ///
+    /// This method does nothing if `done` has been set to `true` by an earlier operation. It sets `done` to true
+    /// if it reaches the end of the first tree.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of elements copied.
     mutating func copyFromFirst(limit: BTreeCopyLimit) {
         while !done && limit.match(a.key, with: b.key) {
             builder.append(a.nextPart(until: b.key, inclusive: limit.inclusive))
@@ -190,12 +224,31 @@ struct BTreeMerger<Key: Comparable, Payload> {
         }
     }
 
+    /// Copy elements from the second tree (starting at the current position) that are less than (or, when `limit`
+    /// is `.IncludingOtherKey`, less than or equal to) the key in the first tree at its the current position.
+    ///
+    /// This method will link entire subtrees to the result whenever possible, which can considerably speed up the operation.
+    ///
+    /// This method does nothing if `done` has been set to `true` by an earlier operation. It sets `done` to true
+    /// if it reaches the end of the second tree.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of elements copied.
     mutating func copyFromSecond(limit: BTreeCopyLimit) {
         while !done && limit.match(b.key, with: a.key) {
             builder.append(b.nextPart(until: a.key, inclusive: limit.inclusive))
             done = b.isAtEnd
         }
     }
+
+    /// Skip elements from the first tree (starting at the current position) that are less than (or, when `limit`
+    /// is `.IncludingOtherKey`, less than or equal to) the key in the second tree at its the current position.
+    ///
+    /// This method will jump over entire subtrees to the result whenever possible, which can considerably speed up the operation.
+    ///
+    /// This method does nothing if `done` has been set to `true` by an earlier operation. It sets `done` to true
+    /// if it reaches the end of the first tree.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of elements skipped.
     mutating func skipFromFirst(limit: BTreeCopyLimit) {
         while !done && limit.match(a.key, with: b.key) {
             a.nextPart(until: b.key, inclusive: limit.inclusive)
@@ -203,6 +256,15 @@ struct BTreeMerger<Key: Comparable, Payload> {
         }
     }
 
+    /// Skip elements from the second tree (starting at the current position) that are less than (or, when `limit`
+    /// is `.IncludingOtherKey`, less than or equal to) the key in the first tree at its the current position.
+    ///
+    /// This method will jump over entire subtrees to the result whenever possible, which can considerably speed up the operation.
+    ///
+    /// This method does nothing if `done` has been set to `true` by an earlier operation. It sets `done` to true
+    /// if it reaches the end of the second tree.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of elements skipped.
     mutating func skipFromSecond(limit: BTreeCopyLimit) {
         while !done && limit.match(b.key, with: a.key) {
             b.nextPart(until: a.key, inclusive: limit.inclusive)
@@ -210,9 +272,26 @@ struct BTreeMerger<Key: Comparable, Payload> {
         }
     }
 
+    /// Take the longest possible sequence of elements that share the same key in both trees; ignore elements from
+    /// the first tree, but append elements from the second tree to the end of the result tree.
+    ///
+    /// This method does not care how many duplicate keys it finds for each key. For example, with
+    /// `first = [0, 0, 1, 2, 2, 5, 6, 7]`, `second = [0, 1, 1, 1, 2, 2, 6, 8]`, it appends `[0, 1, 1, 1, 2, 2]`
+    /// to the result, and leaves the first tree at `[5, 6, 7]` and the second at `[6, 8]`.
+    ///
+    /// This method recognizes nodes that are shared between the two trees, and links them to the result in one step.
+    /// This can considerably speed up the operation.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of elements processed.
     mutating func copyCommonElementsFromSecond() {
         while !done && a.key == b.key {
             if a.node === b.node && a.node.isLeaf && a.slot == 0 && b.slot == 0 {
+                /// We're at the first element of a shared subtree. Find the ancestor at which the shared subtree
+                /// starts, and append it in a single step.
+                ///
+                /// It might happen that a shared node begins with a key that we've already fully processed in one of the trees.
+                /// In this case, we cannot skip elementwise processing, since the trees are at different positions in
+                /// the shared subtree. The slot & leaf checks above & below ensure that this isn't the case.
                 repeat {
                     if a.ascendOneLevel() { done = true }
                     if b.ascendOneLevel() { done = true }
@@ -222,6 +301,8 @@ struct BTreeMerger<Key: Comparable, Payload> {
                 if !b.isAtEnd { b.ascendToKey() }
             }
             else {
+                // Process the next run of equal keys in both trees, skipping them in `first`, but copying them from `second`.
+                // Note that we cannot leave matching elements in either tree, even if we reach the end of the other.
                 let key = a.key
                 var doneA = false
                 while !doneA && a.key == key {
@@ -238,9 +319,25 @@ struct BTreeMerger<Key: Comparable, Payload> {
         }
     }
 
+    /// Ignore and jump over the longest possible sequence of elements that share the same key in both trees, 
+    /// starting at the current positions.
+    ///
+    /// This method does not care how many duplicate keys it finds for each key. For example, with
+    /// `first = [0, 0, 1, 2, 2, 5, 6, 7]`, `second = [0, 1, 1, 1, 2, 2, 6, 8]`, it skips to
+    /// `[5, 6, 7]` in the first tree, and `[6, 8]` in the second.
+    ///
+    /// This method recognizes nodes that are shared between the two trees, and jumps over them in one step.
+    /// This can considerably speed up the operation.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of elements processed.
     mutating func skipCommonElements() {
         while !done && a.key == b.key {
             if a.node === b.node {
+                /// We're inside a shared subtree. Find the ancestor at which the shared subtree
+                /// starts, and append it in a single step.
+                /// 
+                /// This variant doesn't care about where we're in the shared subtree.
+                /// It assumes that if we ignore one set of common keys, we're ignoring all.
                 assert(a.node.isLeaf && b.node.isLeaf)
                 while !done && a.node === b.node {
                     assert(a.slot == b.slot)
@@ -251,6 +348,8 @@ struct BTreeMerger<Key: Comparable, Payload> {
                 if !b.isAtEnd { b.ascendToKey() }
             }
             else {
+                // Process the next run of equal keys in both trees, skipping them in both trees.
+                // Note that we cannot leave matching elements in either tree, even if we reach the end of the other.
                 let key = a.key
                 var doneA = false
                 while !doneA && a.key == key {
@@ -291,8 +390,8 @@ extension BTree {
             m.copyFromFirst(.IncludingOtherKey)
             m.copyFromSecond(.ExcludingOtherKey)
         }
-        m.appendA()
-        m.appendB()
+        m.appendFirst()
+        m.appendSecond()
         return BTree(m.finish())
     }
 
@@ -321,8 +420,8 @@ extension BTree {
             m.copyFromSecond(.ExcludingOtherKey)
             m.copyCommonElementsFromSecond()
         }
-        m.appendA()
-        m.appendB()
+        m.appendFirst()
+        m.appendSecond()
         return m.finish()
     }
 
@@ -345,7 +444,7 @@ extension BTree {
             m.skipFromSecond(.ExcludingOtherKey)
             m.skipCommonElements()
         }
-        m.appendA()
+        m.appendFirst()
         return m.finish()
     }
 
@@ -368,8 +467,8 @@ extension BTree {
             m.copyFromSecond(.ExcludingOtherKey)
             m.skipCommonElements()
         }
-        m.appendA()
-        m.appendB()
+        m.appendFirst()
+        m.appendSecond()
         return m.finish()
     }
 
