@@ -135,9 +135,9 @@ The benchmark above demonstrates this really well: insertion into a sorted array
 many items, but for many reasonably sized data sets, it is still much faster than a red-black tree with its 
 fancypants O(n * log(n)) solution. 
 
-Near the beginning of the curve, up to about *eighteen thousand items*, a sorted array 
-implementation imported from an external module is very consistently about 5-7 faster than a red-black tree, 
-with a slope that is indistinguishable from O(n * log(n)). 
+Near the beginning of the curve, up to about *eighteen thousand items*, a sorted array implementation
+imported from an external module is very consistently about 6-7 times faster than a red-black tree, with a
+slope that is indistinguishable from O(n * log(n)).
 
 Even after it catches up to quadratic complexity, in this particular benchmark, 
 it takes about a *hundred thousand items* for the sorted
@@ -176,7 +176,7 @@ array to become slower than the red-black tree!
 This remarkable result is due in large part to the vast number of (to a CPU, random-looking) memory 
 references that are needed to operate on red-black trees. 
 Their [intricate ballet of tree rotations][rbtree-animation] looks mighty impressive 
-in a lecture on Algorithms 101, but to the delicate caches of your poor CPU, 
+during a lecture on Data Structures, but to the delicate caches of your poor CPU, 
 it looks more like a drunken elephant [moshing at a thrash metal concert][moshing].
 
 [rbtree-animation]: https://youtu.be/m9tse9Gr2pE?t=209
