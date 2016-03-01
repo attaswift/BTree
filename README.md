@@ -123,13 +123,19 @@ the most efficient way to represent a sorted list.
 ![Typical benchmark results for ordered collections](http://lorentey.github.io/BTree/images/Ordered%20Collections%20in%20Swift.png)
 
 The benchmark above demonstrates this really well: insertion into a sorted array is O(n^2) when there are
-many items, but it is still much faster than a red-black tree with its attractive-looking O(n * log(n)) 
-solution. At the beginning of the curve, up to about *eighteen thousand items*, a sorted array 
-implementation imported from an external module is very consistently about 6-7 faster than a red-black tree, 
-with a slope that is indistinguishable from O(n * log(n)). Even after it catches up to quadratic complexity, 
-it takes about a *hundred thousand items* for the sorted array to become slower than the red-black tree!
-This remarkable result is due in large part to the vast number of (to a CPU, random-looking) memory references that are
-needed to operate on red-black trees.
+many items, but for many reasonably sized data sets, it is still much faster than a red-black tree with its 
+fancypants O(n * log(n)) solution. 
+
+Near the beginning of the curve, up to about *eighteen thousand items*, a sorted array 
+implementation imported from an external module is very consistently about 5-7 faster than a red-black tree, 
+with a slope that is indistinguishable from O(n * log(n)). 
+
+Even after it catches up to quadratic complexity, in this particular benchmark, 
+it takes about a *hundred thousand items* for the sorted
+array to become slower than the red-black tree! 
+
+> The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
+> of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
 
 > The benchmark is based on [my own red-black tree implementation][red-black tree] that uses a single flat array to store
 > node data. A [more typical implementation][airspeed-velocity] would store each node in a separately allocated object, so
@@ -137,21 +143,13 @@ needed to operate on red-black trees.
 
 [airspeed-velocity]: http://airspeedvelocity.net/2015/07/22/a-persistent-tree-using-indirect-enums-in-swift/
 
-Inside their nodes, B-trees use arrays (or array-like contiguous buffers) to hold item data. 
-They guarantee that these arrays never get longer than the optimal maximum; when they would grow larger,
-a new node is split off. So B-trees make perfect sense as an in-memory data structure.
-
-(Think about this, though: how many times do you need to work with a hundred thousand
-ordered items in a typical app? Or even twenty thousand? Or even just two thousand?)
-
-> The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
-> of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.
-
 > The chart above is a [log-log plot][loglog] which makes it easy to compare the polynomial exponents of 
 > the complexity curves of competing algorithms at a glance. The slope of a quadratic algorithm on a log-log chart
 > (like insertion into a sorted array---the green curves) is twice of that of a 
 > linear algorithm (like appending *n* items to an unsorted array---light blue curve) or a quasilinear one 
 > (like inserting into a red-black tree, red curve).
+
+[loglog]: https://en.wikipedia.org/wiki/Log–log_plot
 
 > Note that the big gap between collections imported from
 > stdlib and those imported from external modules is caused by a [limitation in the current Swift compiler/ABI](#perf):
@@ -165,8 +163,48 @@ ordered items in a typical app? Or even twenty thousand? Or even just two thousa
 > items--imagine having a B-tree implementation that's equally fast! Or better, try it yourself and report your
 > results. Producing benchmarks like this takes a lot of time and effort.) :-)
 
-[loglog]: https://en.wikipedia.org/wiki/Log–log_plot
 
+This remarkable result is due in large part to the vast number of (to a CPU, random-looking) memory 
+references that are needed to operate on red-black trees. 
+Their [intricate ballet of tree rotations][rbtree-animation] looks mighty impressive 
+in a lecture on Algorithms 101, but to the delicate caches of your poor CPU, 
+it looks more like a drunken elephant [moshing at a thrash metal concert][moshing].
+
+[rbtree-animation]: https://youtu.be/m9tse9Gr2pE?t=209
+[moshing]: https://en.wikipedia.org/wiki/Moshing
+
+Meanwhile, the humble `Array` does the only thing it knows: sliding around
+long contiguous memory regions. It does this over and over, ad nauseum. It doesn't look impressive,
+but (up to a point) it fits well with how computers work.
+
+So a small `Array` is perfect for maintaining a sorted list. But what if the list gets too long?
+The B-tree's answer is to simply cut the array in half, and to create a new index tree node on top to allow 
+it to quickly find its way around this more complex list structure. 
+These internal index nodes can also consist of arrays of elements and node references, 
+creating a nice recursive data structure.
+
+Because their fanout number is so high, B-trees are extremely shallow: for a B-tree with order 100 (which
+is actually rather on the low end), you can fit a billion items into a tree that's not more than five levels deep.
+
+Once you accept that small arrays are fast, it is easy to see why B-trees work so well: unless it holds more
+elements than its order, a B-tree quite literally **is** just an `Array`. 
+So it has the same performance behavior as an `Array` for a small number of elements, 
+and when it grows larger it prevents a quadratic upswing by never allowing its arrays to get too large.
+The yellow curve on the benchmark above demonstrates this behavior well.
+
+Consider that each node in a typical B-tree can hold about *ten full levels of a red-black tree* 
+(or AVL trees or whatever binary tree you like). 
+Looking up an item in a B-tree node still requires a binary search of the node
+array, but this search works on a contiguous memory region, while the conventional search tree
+is fiddling around with loading pointer values and dereferencing them.
+
+So B-trees make perfect sense to use as an in-memory data structure.
+
+Think about this, though: how many times do you need to work with a hundred thousand
+ordered items in a typical app? Or even twenty thousand? Or even just two thousand? The most interesting 
+benefits of B-trees often occur at element counts over a hundred thousand. (However, B-trees are not
+much slower than arrays for low element counts (remember, they *are* arrays in that case), so it makes sense to use them
+when there's even a slight chance that the count will grow large.)
 
 ### Laundry List of Issues with Standard Collection Types
 
