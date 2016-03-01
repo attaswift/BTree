@@ -21,7 +21,7 @@ extension BTree {
         precondition(position >= 0 && position <= count)
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, position: position))
-        root = Node()
+        root = Node(order: self.order)
         defer { self.root = cursor.finish() }
         return try body(cursor)
     }
@@ -45,7 +45,7 @@ extension BTree {
     public mutating func withCursorAtEnd<R>(@noescape body: Cursor throws -> R) rethrows -> R {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(endOf: root))
-        root = Node()
+        root = Node(order: self.order)
         defer { self.root = cursor.finish() }
         return try body(cursor)
     }
@@ -60,7 +60,7 @@ extension BTree {
     public mutating func withCursorAt<R>(key: Key, choosing selector: BTreeKeySelector = .Any, @noescape body: Cursor throws -> R) rethrows -> R {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, key: key, choosing: selector))
-        root = Node()
+        root = Node(order: self.order)
         defer { self.root = cursor.finish() }
         return try body(cursor)
     }
@@ -75,7 +75,7 @@ extension BTree {
         index.state.expectRoot(root)
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, slotsFrom: index.state))
-        root = Node()
+        root = Node(order: self.order)
         defer { self.root = cursor.finish() }
         return try body(cursor)
     }
@@ -156,7 +156,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
 
     /// Invalidate this cursor.
     mutating func invalidate() {
-        root = Node()
+        root = Node(order: root.order)
         count = 0
         position = 0
         _path = []
