@@ -501,6 +501,8 @@ extension BTree {
 //MARK: Removal
 
 extension BTree {
+    //MARK: Removal
+    
     /// Remove and return the first element.
     ///
     /// - Complexity: O(log(`count`))
@@ -529,6 +531,34 @@ extension BTree {
     public mutating func popLast() -> Element? {
         guard !isEmpty else { return nil }
         return removeAt(count - 1)
+    }
+
+    /// Remove the first `n` elements from this tree.
+    ///
+    /// - Complexity: O(log(`count`) + `n`)
+    public mutating func removeFirst(n: Int) {
+        precondition(n >= 0 && n <= count)
+        switch n {
+        case 0: break
+        case 1: removeFirst()
+        case count: removeAll()
+        default:
+            self = suffix(count - n)
+        }
+    }
+
+    /// Remove the last `n` elements from this tree.
+    ///
+    /// - Complexity: O(log(`count`) + `n`)
+    public mutating func removeLast(n: Int) {
+        precondition(n >= 0 && n <= count)
+        switch n {
+        case 0: break
+        case 1: removeLast()
+        case count: removeAll()
+        default:
+            self = prefix(count - n)
+        }
     }
 
     /// Remove and return the element at the specified position.

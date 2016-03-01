@@ -454,6 +454,46 @@ class BTreeTests: XCTestCase {
         XCTAssertElementsEqual(tree, (2..<18).map { ($0, String($0)) })
     }
 
+    func testRemoveFirstN() {
+        var tree = BTree(sortedElements: (0 ..< 20).map { ($0, String($0)) }, order: 3)
+
+        tree.removeFirst(0)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree.map { $0.0 }, 0 ..< 20)
+
+        tree.removeFirst(1)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree.map { $0.0 }, 1 ..< 20)
+
+        tree.removeFirst(5)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree.map { $0.0 }, 6 ..< 20)
+
+        tree.removeFirst(14)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree.map { $0.0 }, [])
+    }
+
+    func testRemoveLastN() {
+        var tree = BTree(sortedElements: (0 ..< 20).map { ($0, String($0)) }, order: 3)
+
+        tree.removeLast(0)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree.map { $0.0 }, 0 ..< 20)
+
+        tree.removeLast(1)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree.map { $0.0 }, 0 ..< 19)
+
+        tree.removeLast(5)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree.map { $0.0 }, 0 ..< 14)
+
+        tree.removeLast(14)
+        tree.assertValid()
+        XCTAssertElementsEqual(tree.map { $0.0 }, [])
+    }
+
     func testRemoveAtPosition() {
         var tree = maximalTree(depth: 3, order: 3)
         let c = tree.count
