@@ -154,13 +154,11 @@ ordered items in a typical app? Or even twenty thousand? Or even just two thousa
 > (like inserting into a red-black tree, red curve).
 
 > Note that the big gap between collections imported from
-> stdlib and those imported from external modules is caused by a [limitation in the current Swift compiler/ABI](#perf) 
-> that will probably get (at least partially) solved in future compiler versions.)
-> When/if the Swift compiler learns to specialize non-stdlib generics across module boundaries,
-> imported collections will become considerably faster, which will reduce the element count at which
-> they get to reap the benefits of their lower asymptotic complexity.
->
-> (This effect is already visible on the benchmark for the "inlined" sorted array (light green), 
+> stdlib and those imported from external modules is caused by a [limitation in the current Swift compiler/ABI](#perf):
+> when this limitation is lifted, the gap will narrow considerably, which will reduce the element count
+> at which you'll be able to reap the benefits of lower asymptotic complexity.
+
+> (This effect is already visible (albeit in reverse) on the benchmark for the "inlined" sorted array (light green), 
 > which is essentially the same code as the regular one (dark green) except it was implemented
 > in the same module as the benchmarking loop, so the compiler has more options to optimize away
 > witness tables and other levels of abstraction. That line starts curving up much sooner, at about 2000 
@@ -391,11 +389,34 @@ Let's enumerate:
 ## Remark on Performance of Imported Generics
 <a name="perf"></a>
 
-The Swift compiler is not yet able to specialize generics across module boundaries, which puts a
-considerable limit on the performance achievable by collection types imported from external
-modules. (This doesn't impact stdlib, which gets special treatment.)
+Current versions of the Swift compiler are unable to specialize generic types that are imported from 
+external modules other than the standard library. (In fact, it is not entirely incorrect to say that 
+the standard library works as if it was compiled each time anew as part of every Swift module rather than linked in 
+as an opaque external binary.)
 
-Relying on `import` will incur a 10-200x slowdown, which may or may not be OK for your project.  If
-raw performance is essential, you'll need to put the collection implementations in the same module
-as your code. (And don't forget to enable whole module optimization!) I know of no good way to work
-around this with the current compiler. (Other than hacking stdlib to include these types, that is.)
+This limitation puts a considerable limit on the raw performance achievable by collection types imported
+from external modules, especially if they are parameterized with simple, extremely optimizable 
+value types such as `Int` or even `String`.
+Relying on `import` will incur a *10-200x slowdown* when your collection is holding these most basic 
+value types. (The effect is much reduced for reference types, though.)
+
+Without access to the full source code of the collection, the compiler is unable to optimize away abstractions
+like virtual dispatch tables, function calls and the rest of the *fluff* we've learned to pretty much don't care about 
+for stuff inside a module. In cross-module generics, even retrieving a single `Int` will necessarily go through 
+at least one lookup to a virtual table. This is because the code that implements the unspecialized generic also executes 
+for type parameters that contain reference types, whose reference count needs to be maintained.
+
+If raw performance is essential, currently the only way out of this pit is to put the collection's code inside 
+your module. (Other than hacking stdlib to include these extra types, of course -- but that is a bad idea
+for a thousand obvious reasons.) However, having each module maintain its own set of collections would smell 
+horrible, plus it would make it hard or impossible to transfer collection instances across module boundaries.
+Plus, if this strategy would be used across many modules, it would lead to a C++ templates-style (or worse) code explosion.
+A better (but still rather unsatisfactory) workaround is to compile the collection code with the single module 
+that benefits most from specialization. The rest of the modules will still have access to it, if in a much slower way.
+
+The Swift compiler team, true to their nature, have come up with a remarkably nice, pragmatic solution to this 
+problem: a future compiler version will likely support a new attribute (`@_specialize`) that will allow library 
+developers like myself to explicitly list a set of types for which their public generics would be specialized in the 
+compiled package. This will allow us to have super fast, template-like generics for the handful of type combinations that 
+really benefit from it, but still allows generics to be compiled just once and reused many times. 
+(Thus, compilation will be super fast -- in stark contrast to C++ templates.)
