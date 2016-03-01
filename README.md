@@ -111,11 +111,7 @@ which is a glacially slow device compared to the main memory.)
 
 Today's computers have multi-tiered memory architectures; they rely on caching to keep the system
 performant. This means that locality of reference has become a hugely important property for in-memory
-data structures, too. The referencing overhead can be so significant that 
-[red-black trees are often slower than a primitive sorted array][benchmark tweet] even for surprisingly 
-large element counts.
-
-[benchmark tweet]: https://twitter.com/lorentey/status/687973876391931904
+data structures, too.
 
 Arrays are the epitome of reference locality, so the Swift stdlib's heavy emphasis on `Array` as the
 universal collection type is well justified.
@@ -132,7 +128,8 @@ solution. At the beginning of the curve, up to about *eighteen thousand items*, 
 implementation imported from an external module is very consistently about 6-7 faster than a red-black tree, 
 with a slope that is indistinguishable from O(n * log(n)). Even after it catches up to quadratic complexity, 
 it takes about a *hundred thousand items* for the sorted array to become slower than the red-black tree!
-This is remarkable.
+This remarkable result is due in large part to the vast number of (to a CPU, random-looking) memory references that are
+needed to operate on red-black trees.
 
 > The benchmark is based on [my own red-black tree implementation][red-black tree] that uses a single flat array to store
 > node data. A [more typical implementation][airspeed-velocity] would store each node in a separately allocated object, so
