@@ -457,7 +457,7 @@ Let's enumerate:
     appending elements to a newly created tree. Beside individual elements, it also supports efficiently 
     appending entire B-trees. This comes useful in optimized tree merging algorithms.
 
-[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT14sortedElementsqd__5orderSi10fillFactorSd_GS0_q_q0__
+[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_q_q0__
 [BTreeBuilder]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeBuilder.swift
     
 -   Constructing a B-tree from an unsorted sequence of elements inserts the elements into the tree one by
@@ -465,8 +465,8 @@ Let's enumerate:
     efficiently than calling [`BTree.insert`][BTree.insert] with each element one by one, but it is likely still slower than
     a quicksort. (So sort elements on your own if you can spare the extra memory.)
 
-[BTree.insert]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree6insertu0_Rq_Ss10Comparable_FRGS0_q_q0__FTTq_q0__2atSi_T_
-[BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT8elementsqd__5orderSi10fillFactorSd_GS0_q_q0__
+[BTree.insert]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree6insertu0_Rq_Ss10Comparable_FRGS0_q_q0__FTTq_q0__2atOS_16BTreeKeySelector_T_
+[BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FTqd__14dropDuplicatesSb5orderSi_GS0_q_q0__
 
 -   The package contains O(log(n)) methods to [extract a range of elements as a new b-tree][BTree.subtree]
     and to [insert a b-tree into another b-tree][BTreeCursor.insertTree]. (Keys need to remain ordered
