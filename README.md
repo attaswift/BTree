@@ -131,9 +131,9 @@ the most efficient way to represent a sorted list.
 
 ![Typical benchmark results for ordered collections](http://lorentey.github.io/BTree/images/Ordered%20Collections%20in%20Swift.png)
 
-The benchmark above demonstrates this really well: insertion into a sorted array is O(n^2) when there are
-many items, but for many reasonably sized data sets, it is still much faster than a red-black tree with its 
-fancypants O(n * log(n)) solution. 
+The benchmark above demonstrates this really well: insertion of *n* elements into a sorted array 
+costs O(n^2) when there are many items, but for many reasonably sized data sets, it is still much faster 
+than creating a red-black tree with its fancypants O(n * log(n)) complexity. 
 
 Near the beginning of the curve, up to about *eighteen thousand items*, a sorted array implementation
 imported from an external module is very consistently about 6-7 times faster than a red-black tree, with a
@@ -207,13 +207,13 @@ Looking up an item in a B-tree node still requires a binary search of the node
 array, but this search works on a contiguous memory region, while the conventional search tree
 is fiddling around with loading pointer values and dereferencing them.
 
-So B-trees make perfect sense to use as an in-memory data structure.
+So it makes perfect sense to employ B-trees as an in-memory data structure.
 
 Think about this, though: how many times do you need to work with a hundred thousand
 ordered items in a typical app? Or even twenty thousand? Or even just two thousand? The most interesting 
-benefits of B-trees often occur at element counts over a hundred thousand. (However, B-trees are not
-much slower than arrays for low element counts (remember, they *are* arrays in that case), so it makes sense to use them
-when there's even a slight chance that the count will grow large.)
+benefits of B-trees often occur at element counts well over a hundred thousand.
+However, B-trees are not much slower than arrays for low element counts (remember, they *are* arrays in that
+case), so it makes sense to use them when there's even a slight chance that the count will get large.
 
 ### <a name="boo">Laundry List of Issues with Standard Collection Types</a>
 
