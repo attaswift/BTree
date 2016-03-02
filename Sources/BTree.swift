@@ -8,6 +8,8 @@
 
 /// B-trees are search trees that provide an ordered key-value store with excellent performance characteristics.
 public struct BTree<Key: Comparable, Payload> {
+    //MARK: Definition
+
     public typealias Element = (Key, Payload)
     internal typealias Node = BTreeNode<Key, Payload>
 
@@ -30,24 +32,29 @@ public struct BTree<Key: Comparable, Payload> {
     public var depth: Int { return root.depth }
 }
 
-//MAKE: Uniquing
-
 public extension BTree {
+    //MARK: Uniquing
+
+    /// Return `true` iff this tree holds the only strong reference to its root node.
     internal var isUnique: Bool {
         mutating get {
             return isUniquelyReferenced(&root)
         }
     }
 
+    /// Clones the root node if others also hold strong references to it, preparing it for a mutation.
+    /// You must call this before modifying anything in `root`.
+    ///
+    /// - SeeAlso: `BTreeNode.makeChildUnique(_:)` for the equi
     internal mutating func makeUnique() {
         guard !isUnique else { return }
         root = root.clone()
     }
 }
 
-//MARK: SequenceType
-
 extension BTree: SequenceType {
+    //MARK: SequenceType
+    
     public typealias Generator = BTreeGenerator<Key, Payload>
 
     /// Returns true iff this tree has no elements.
@@ -89,9 +96,9 @@ extension BTree: SequenceType {
     }
 }
 
-//MARK: CollectionType
-
 extension BTree: CollectionType {
+    //MARK: CollectionType
+    
     public typealias Index = BTreeIndex<Key, Payload>
     public typealias SubSequence = BTree<Key, Payload>
 
@@ -134,24 +141,36 @@ extension BTree: CollectionType {
     }
 }
 
-//MARK: Lookups
-
 /// When the tree contains multiple elements with the same key, you can use a key selector to specify
-/// that you want to use the first or last matching element, or that you don't care which element you get.
-/// (The latter is sometimes faster.)
+/// which matching element you want to work with.
 public enum BTreeKeySelector {
-    /// Look for the first element that matches the key, or insert a new element before existing matches.
+    /// Look for the first element that matches the key.
+    ///
+    /// Insertions with `.First` insert the new element before existing matches.
+    /// Removals remove the first matching element.
     case First
-    /// Look for the last element that matches the key, or insert a new element after existing matches.
+
+    /// Look for the last element that matches the key.
+    ///
+    /// Insertions with `.Last` insert the new element after existing matches.
+    /// Removals remove the last matching element.
     case Last
-    /// Look for the first element that has a greater key, or insert a new element after existing matches.
+
+    /// Look for the first element that has a greater key.
+    ///
+    /// For insertions and removals, this works the same as `.Last`.
     case After
-    /// Accept any element that matches the key. This is sometimes faster, because the search may stop before reaching
-    /// a leaf node.
+
+    /// Accept any element that matches the key.
+    /// This can be faster when there are lots of duplicate keys: the search may stop before reaching a leaf node.
+    ///
+    /// (This may also happen for distinct keys, but since the vast majority of elements are stored in leaf nodes,
+    /// its effect is not very significant.)
     case Any
 }
 
 public extension BTree {
+    //MARK: Lookups
 
     /// Returns the first element in this tree, or `nil` if the tree is empty.
     ///
@@ -285,10 +304,10 @@ public extension BTree {
 }
 
 
-//MARK: Editing
-
 extension BTree {
-    /// Edit the tree at a path that is to be discovered on the way down, ensuring that all nodes on the path are 
+    //MARK: Editing
+    
+    /// Edit the tree at a path that is to be discovered on the way down, ensuring that all nodes on the path are
     /// uniquely held by this tree. 
     /// This is a simple (but not easy, alas) interface that allows implementing basic editing operations using 
     /// recursion without adding a separate method on `BTreeNode` for each operation.
@@ -314,9 +333,39 @@ extension BTree {
     }
 }
 
-//MARK: Insertion
 
 extension BTree {
+    /// Set the payload at `position`, and return the payload originally stored there.
+    ///
+    /// - Requires: `position < count`
+    /// - Note: When you need to perform multiple modifications on the same tree,
+    ///   `BTreeCursor` provides an alternative interface that's often more efficient.
+    /// - Complexity: O(log(`count`))
+    public mutating func setPayloadAt(position: Int, to payload: Payload) -> Payload {
+        precondition(position >= 0 && position < count)
+        makeUnique()
+        var pos = count - position
+        var old: Payload? = nil
+        edit(
+            descend: { node in
+                let slot = node.slotOfPosition(node.count - pos)
+                if !slot.match {
+                    // Continue descending.
+                    pos -= node.count - slot.position
+                    return slot.index
+                }
+                old = node.elements[slot.index].1
+                node.elements[slot.index].1 = payload
+                return nil
+            },
+            ascend: { node, slot in
+            }
+        )
+        return old!
+    }
+
+    //MARK: Insertion
+    
     /// Insert the specified element into the tree at `position`.
     ///
     /// - Requires: The key of the supplied element does not violate the b-tree's ordering requirement.
@@ -365,35 +414,6 @@ extension BTree {
         if let s = splinter {
             root = Node(left: root, separator: s.separator, right: s.node)
         }
-    }
-
-    /// Set the payload at `position`, and return the payload originally stored there.
-    ///
-    /// - Requires: `position < count`
-    /// - Note: When you need to perform multiple modifications on the same tree,
-    ///   `BTreeCursor` provides an alternative interface that's often more efficient.
-    /// - Complexity: O(log(`count`))
-    public mutating func setPayloadAt(position: Int, to payload: Payload) -> Payload {
-        precondition(position >= 0 && position < count)
-        makeUnique()
-        var pos = count - position
-        var old: Payload? = nil
-        edit(
-            descend: { node in
-                let slot = node.slotOfPosition(node.count - pos)
-                if !slot.match {
-                    // Continue descending.
-                    pos -= node.count - slot.position
-                    return slot.index
-                }
-                old = node.elements[slot.index].1
-                node.elements[slot.index].1 = payload
-                return nil
-            },
-            ascend: { node, slot in
-            }
-        )
-        return old!
     }
 
     /// Insert `element` into the tree as a new element.
@@ -497,8 +517,6 @@ extension BTree {
         return old
     }
 }
-
-//MARK: Removal
 
 extension BTree {
     //MARK: Removal
@@ -678,9 +696,9 @@ extension BTree {
     }
 }
 
-//MARK: Subtree extraction
-
 extension BTree {
+    //MARK: Subtree extraction
+    
     /// Append all elements in `tree` to the end of this tree.
     ///
     /// - Requires: The last key in this tree must be less than or equal to the first key in `tree`.
