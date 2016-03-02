@@ -355,19 +355,6 @@ extension BTreeNode {
     }
 }
 
-//MARK: Editing
-
-extension BTreeNode {
-    internal func edit(@noescape descend descend: Node -> Int?, @noescape ascend: (Node, Int) -> Void) {
-        guard let slot = descend(self) else { return }
-        do {
-            let child = makeChildUnique(slot)
-            child.edit(descend: descend, ascend: ascend)
-        }
-        ascend(self, slot)
-    }
-}
-
 //MARK: Splitting
 
 internal struct BTreeSplinter<Key: Comparable, Payload> {
