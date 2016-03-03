@@ -291,7 +291,7 @@ class BTreeNodeTests: XCTestCase {
             XCTAssertEqual(node.slotOfPosition(p + 1).position, p + 2)
 
             XCTAssertEqual(node.slotOfPosition(p + 2).index, i)
-            XCTAssertEqual(node.slotOfPosition(p + 2).match, true)
+            XCTAssertEqual(node.slotOfPosition(p + 2).match, i != 2)
             XCTAssertEqual(node.slotOfPosition(p + 2).position, p + 2)
 
             p += 3

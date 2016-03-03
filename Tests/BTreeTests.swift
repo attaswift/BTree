@@ -332,6 +332,22 @@ class BTreeTests: XCTestCase {
         XCTAssertElementsEqual(tree.map { $0.0 }, 0 ..< 2 * count)
     }
 
+    func testInsertAtPosition_tryEveryPosition() {
+        let count = 10
+        let tree = Tree(sortedElements: (0 ..< count).map { (2 * $0 , String(2 * $0)) }, order: 3)
+        for i in 0 ..< count {
+            var copy = tree
+            let k = 2 * i + 1
+            copy.insert((k, String(k)), at: i + 1)
+
+            var reference = Array((0 ..< count).map { (2 * $0, String(2 * $0)) })
+            reference.insert((k, String(k)), atIndex: i + 1)
+
+            XCTAssertElementsEqual(copy, reference)
+        }
+        XCTAssertElementsEqual(tree.map { $0.0 }, (0 ..< count).map { 2 * $0 })
+    }
+
     func testSetPayloadAtPosition() {
         let count = 42
         var tree = Tree(sortedElements: (0 ..< count).map { ($0, "") }, order: 3)

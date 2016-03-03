@@ -359,4 +359,12 @@ class ListTests: XCTestCase {
         XCTAssertFalse(l1 != l1)
     }
 
+    func test_Issue3_CrashInElementwiseAppend() {
+        // https://github.com/lorentey/BTree/issues/3
+        var list = List<String>()
+        for i in 0 ..< 1000 {
+            list.append("item \(i)")
+        }
+        XCTAssertElementsEqual(list, (0..<1000).map { "item \($0)" })
+    }
 }

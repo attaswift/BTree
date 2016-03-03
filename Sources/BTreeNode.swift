@@ -253,7 +253,7 @@ extension BTreeNode {
     internal func slotOfPosition(position: Int) -> (index: Int, match: Bool, position: Int) {
         assert(position >= 0 && position <= count)
         if position == count {
-            return (index: elements.count, match: true, position: count)
+            return (index: elements.count, match: isLeaf, position: count)
         }
         if isLeaf {
             return (position, true, position)
