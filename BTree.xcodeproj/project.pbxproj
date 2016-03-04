@@ -98,6 +98,13 @@
 		BBB224EE1C7B9ED60049FEF6 /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */; };
 		BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 		BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
+		BBCB23E51C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */; };
+		BBCB23E61C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */; };
+		BBCB23E71C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */; };
+		BBCB23E81C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */; };
+		BBCB23EA1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */; };
+		BBCB23EB1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */; };
+		BBCB23EC1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */; };
 		BBD622791C77568D00B6BF46 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD622781C77568D00B6BF46 /* BTree.swift */; };
 		BBD6227A1C77568D00B6BF46 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD622781C77568D00B6BF46 /* BTree.swift */; };
 /* End PBXBuildFile section */
@@ -168,6 +175,8 @@
 		BBB224EF1C7BA09B0049FEF6 /* LICENCE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENCE.md; sourceTree = "<group>"; };
 		BBBA30481C4946660019830F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String Manipulation.swift"; sourceTree = "<group>"; };
+		BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeComparisons.swift; sourceTree = "<group>"; };
+		BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeComparisonTests.swift; sourceTree = "<group>"; };
 		BBD622781C77568D00B6BF46 /* BTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTree.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
@@ -282,6 +291,7 @@
 				BB77738C1C6E476100991A06 /* BTreeCursor.swift */,
 				BB5B27CF1C8334A500ED8D38 /* BTreeBuilder.swift */,
 				BB5B27CA1C8245D300ED8D38 /* BTreeMerger.swift */,
+				BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */,
 				BB097FB21C236EFD00CB718A /* Map.swift */,
 				BB7773891C6CBC9100991A06 /* List.swift */,
 				BBA55CD61C7F383C00455736 /* OrderedSet.swift */,
@@ -301,6 +311,7 @@
 				BBB224D91C7B9BAA0049FEF6 /* BTreeTests.swift */,
 				BB5B27D41C83B99800ED8D38 /* BTreeBuilderTests.swift */,
 				BB5B27D81C83DAE400ED8D38 /* BTreeMergeTests.swift */,
+				BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */,
 				BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */,
 				BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */,
 				BB1747481C289539002C929C /* Reusable Test Helpers */,
@@ -582,6 +593,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBCB23E51C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */,
 				BBA55CD71C7F383C00455736 /* OrderedSet.swift in Sources */,
 				BB5B27CB1C8245D300ED8D38 /* BTreeMerger.swift in Sources */,
 				BB7773841C6CA07C00991A06 /* BTreeIndex.swift in Sources */,
@@ -609,6 +621,7 @@
 				BB5B27C61C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
 				BBB224E51C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
 				BBB224E31C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */,
+				BBCB23EA1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
 				BBB224E71C7B9ED60049FEF6 /* MapTests.swift in Sources */,
 				BB5B27D91C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
 				BBB224E41C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */,
@@ -622,6 +635,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBCB23E71C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */,
 				BBA55CD91C7F383C00455736 /* OrderedSet.swift in Sources */,
 				BB5B27CD1C8245D300ED8D38 /* BTreeMerger.swift in Sources */,
 				BB8FE9A71C7C8D720051268F /* BTreeIndex.swift in Sources */,
@@ -641,6 +655,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBCB23E81C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */,
 				BB8FE9CF1C7C8F6B0051268F /* BTreeIndex.swift in Sources */,
 				BB5B27CE1C8245D300ED8D38 /* BTreeMerger.swift in Sources */,
 				BB8FE9D21C7C8F6B0051268F /* List.swift in Sources */,
@@ -668,6 +683,7 @@
 				BB5B27C81C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
 				BB8FE9D31C7C8F730051268F /* BTreeTestSupport.swift in Sources */,
 				BB8FE9DD1C7C8F730051268F /* XCTest extensions.swift in Sources */,
+				BBCB23EC1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
 				BB8FE9DB1C7C8F730051268F /* PermutationTests.swift in Sources */,
 				BB5B27DB1C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
 				BB8FE9D81C7C8F730051268F /* ListTests.swift in Sources */,
@@ -681,6 +697,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BBCB23E61C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */,
 				BB7773851C6CA07C00991A06 /* BTreeIndex.swift in Sources */,
 				BB5B27CC1C8245D300ED8D38 /* BTreeMerger.swift in Sources */,
 				BBD6227A1C77568D00B6BF46 /* BTree.swift in Sources */,
@@ -708,6 +725,7 @@
 				BB5B27C71C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
 				BBB224EB1C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
 				BBB224E91C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */,
+				BBCB23EB1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
 				BBB224ED1C7B9ED60049FEF6 /* MapTests.swift in Sources */,
 				BB5B27DA1C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
 				BBB224EA1C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */,
