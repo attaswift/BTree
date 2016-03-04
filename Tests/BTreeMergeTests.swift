@@ -9,20 +9,6 @@
 import XCTest
 @testable import BTree
 
-private func assertEqual<Key: Comparable, Payload>(t1: BTree<Key, Payload>, _ t2: BTree<Key, Payload>, file: FileString = __FILE__, line: UInt = __LINE__) {
-    XCTAssertElementsEqual(t1.map { $0.0 }, t2.map { $0.0 }, file: file, line: line)
-}
-
-private func assertEqual<Key: Comparable, Payload, S: SequenceType where S.Generator.Element == Key>(t1: BTree<Key, Payload>, _ s: S, file: FileString = __FILE__, line: UInt = __LINE__) {
-    XCTAssertElementsEqual(t1.map { $0.0 }, s, file: file, line: line)
-}
-
-private extension SequenceType {
-    func repeatEach(count: Int) -> Array<Generator.Element> {
-        return flatMap { Array<Generator.Element>(count: count, repeatedValue: $0) }
-    }
-}
-
 class BTreeMergeTests: XCTestCase {
     typealias Builder = BTreeBuilder<Int, Void>
     typealias Node = BTreeNode<Int, Void>
@@ -52,19 +38,19 @@ class BTreeMergeTests: XCTestCase {
 
         let u0 = empty.union(empty)
         u0.assertValid()
-        assertEqual(u0, empty)
+        u0.assertKeysEqual(empty)
 
         let u1 = even.union(empty)
         u1.assertValid()
-        assertEqual(u1, even)
+        u1.assertKeysEqual(even)
 
         let u2 = empty.union(even)
         u2.assertValid()
-        assertEqual(u2, even)
+        u2.assertKeysEqual(even)
 
         let u3 = even.union(even)
         u3.assertValid()
-        assertEqual(u3, (0 ..< 100).map { $0 & ~1 })
+        u3.assertKeysEqual((0 ..< 100).map { $0 & ~1 })
     }
 
     func test_Union_evenOdd() {
@@ -73,11 +59,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = even.union(odd)
         u1.assertValid()
-        assertEqual(u1, 0 ..< 100)
+        u1.assertKeysEqual(0 ..< 100)
 
         let u2 = odd.union(even)
         u2.assertValid()
-        assertEqual(u2, 0 ..< 100)
+        u2.assertKeysEqual(0 ..< 100)
     }
 
     func test_Union_halves() {
@@ -86,11 +72,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.union(second)
         u1.assertValid()
-        assertEqual(u1, 0 ..< 100)
+        u1.assertKeysEqual(0 ..< 100)
 
         let u2 = second.union(first)
         u2.assertValid()
-        assertEqual(u2, 0 ..< 100)
+        u2.assertKeysEqual(0 ..< 100)
     }
 
     func test_Union_longDuplicates() {
@@ -99,11 +85,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.union(second)
         u1.assertValid()
-        assertEqual(u1, (0 ..< 200).repeatEach(20))
+        u1.assertKeysEqual((0 ..< 200).repeatEach(20))
 
         let u2 = second.union(first)
         u2.assertValid()
-        assertEqual(u2, (0 ..< 200).repeatEach(20))
+        u2.assertKeysEqual((0 ..< 200).repeatEach(20))
     }
 
     func test_Union_duplicateResolution() {
@@ -112,11 +98,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.union(second)
         u1.assertValid()
-        assertEqual(u1, [0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
+        u1.assertKeysEqual([0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
 
         let u2 = second.union(first)
         u2.assertValid()
-        assertEqual(u2, [0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
+        u2.assertKeysEqual([0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
     }
 
     func test_Union_sharedNodes() {
@@ -127,11 +113,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.union(second)
         u1.assertValid()
-        assertEqual(u1, [0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
+        u1.assertKeysEqual([0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
 
         let u2 = second.union(first)
         u2.assertValid()
-        assertEqual(u2, [0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
+        u2.assertKeysEqual([0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
     }
 
     //MARK: Distinct Union
@@ -141,19 +127,19 @@ class BTreeMergeTests: XCTestCase {
 
         let u0 = empty.distinctUnion(empty)
         u0.assertValid()
-        assertEqual(u0, empty)
+        u0.assertKeysEqual(empty)
 
         let u1 = even.distinctUnion(empty)
         u1.assertValid()
-        assertEqual(u1, even)
+        u1.assertKeysEqual(even)
 
         let u2 = empty.distinctUnion(even)
         u2.assertValid()
-        assertEqual(u2, even)
+        u2.assertKeysEqual(even)
 
         let u3 = even.distinctUnion(even)
         u3.assertValid()
-        assertEqual(u3, 0.stride(to: 100, by: 2))
+        u3.assertKeysEqual(0.stride(to: 100, by: 2))
     }
 
     func test_DistinctUnion_evenOdd() {
@@ -162,11 +148,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = even.distinctUnion(odd)
         u1.assertValid()
-        assertEqual(u1, 0 ..< 100)
+        u1.assertKeysEqual(0 ..< 100)
 
         let u2 = odd.distinctUnion(even)
         u2.assertValid()
-        assertEqual(u2, 0 ..< 100)
+        u2.assertKeysEqual(0 ..< 100)
     }
 
     func test_DistinctUnion_halves() {
@@ -175,11 +161,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.distinctUnion(second)
         u1.assertValid()
-        assertEqual(u1, 0 ..< 100)
+        u1.assertKeysEqual(0 ..< 100)
 
         let u2 = second.distinctUnion(first)
         u2.assertValid()
-        assertEqual(u2, 0 ..< 100)
+        u2.assertKeysEqual(0 ..< 100)
     }
 
     func test_DistinctUnion_longDuplicates() {
@@ -188,11 +174,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.distinctUnion(second)
         u1.assertValid()
-        assertEqual(u1, (0 ..< 200).repeatEach(20))
+        u1.assertKeysEqual((0 ..< 200).repeatEach(20))
 
         let u2 = second.distinctUnion(first)
         u2.assertValid()
-        assertEqual(u2, (0 ..< 200).repeatEach(20))
+        u2.assertKeysEqual((0 ..< 200).repeatEach(20))
     }
 
     func test_DistinctUnion_duplicateResolution() {
@@ -201,11 +187,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.distinctUnion(second)
         u1.assertValid()
-        assertEqual(u1, [0, 0, 1, 1, 3, 3, 4, 6, 7, 7, 8])
+        u1.assertKeysEqual([0, 0, 1, 1, 3, 3, 4, 6, 7, 7, 8])
 
         let u2 = second.distinctUnion(first)
         u2.assertValid()
-        assertEqual(u2, [0, 0, 0, 0, 1, 1, 3, 4, 6, 6, 6, 6, 7, 7, 8])
+        u2.assertKeysEqual([0, 0, 0, 0, 1, 1, 3, 4, 6, 6, 6, 6, 7, 7, 8])
     }
 
     func test_DistinctUnion_sharedNodes() {
@@ -216,11 +202,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.distinctUnion(second)
         u1.assertValid()
-        assertEqual(u1, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
+        u1.assertKeysEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
 
         let u2 = second.distinctUnion(first)
         u2.assertValid()
-        assertEqual(u2, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
+        u2.assertKeysEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
     }
 
     //MARK: Subtract
@@ -230,19 +216,19 @@ class BTreeMergeTests: XCTestCase {
 
         let u0 = empty.subtract(empty)
         u0.assertValid()
-        assertEqual(u0, empty)
+        u0.assertKeysEqual(empty)
 
         let u1 = even.subtract(empty)
         u1.assertValid()
-        assertEqual(u1, even)
+        u1.assertKeysEqual(even)
 
         let u2 = empty.subtract(even)
         u2.assertValid()
-        assertEqual(u2, empty)
+        u2.assertKeysEqual(empty)
 
         let u3 = even.subtract(even)
         u3.assertValid()
-        assertEqual(u3, empty)
+        u3.assertKeysEqual(empty)
     }
 
     func test_Subtract_evenOdd() {
@@ -251,11 +237,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = even.subtract(odd)
         u1.assertValid()
-        assertEqual(u1, even)
+        u1.assertKeysEqual(even)
 
         let u2 = odd.subtract(even)
         u2.assertValid()
-        assertEqual(u2, odd)
+        u2.assertKeysEqual(odd)
     }
 
     func test_Subtract_halves() {
@@ -264,11 +250,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.subtract(second)
         u1.assertValid()
-        assertEqual(u1, first)
+        u1.assertKeysEqual(first)
 
         let u2 = second.subtract(first)
         u2.assertValid()
-        assertEqual(u2, second)
+        u2.assertKeysEqual(second)
     }
 
     func test_Subtract_longDuplicates() {
@@ -278,11 +264,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.subtract(second)
         u1.assertValid()
-        assertEqual(u1, (0 ..< 4).repeatEach(20))
+        u1.assertKeysEqual((0 ..< 4).repeatEach(20))
 
         let u2 = second.subtract(first)
         u2.assertValid()
-        assertEqual(u2, (5 ..< 10).repeatEach(20))
+        u2.assertKeysEqual((5 ..< 10).repeatEach(20))
     }
 
     func test_Subtract_duplicateResolution() {
@@ -291,11 +277,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.subtract(second)
         u1.assertValid()
-        assertEqual(u1, [4, 7, 7])
+        u1.assertKeysEqual([4, 7, 7])
 
         let u2 = second.subtract(first)
         u2.assertValid()
-        assertEqual(u2, [1, 1, 8])
+        u2.assertKeysEqual([1, 1, 8])
     }
 
     func test_Subtract_sharedNodes() {
@@ -306,11 +292,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.subtract(second)
         u1.assertValid()
-        assertEqual(u1, [3].repeatEach(20))
+        u1.assertKeysEqual([3].repeatEach(20))
 
         let u2 = second.subtract(first)
         u2.assertValid()
-        assertEqual(u2, [7].repeatEach(20))
+        u2.assertKeysEqual([7].repeatEach(20))
     }
     
     //MARK: Exclusive Or
@@ -320,19 +306,19 @@ class BTreeMergeTests: XCTestCase {
 
         let u0 = empty.exclusiveOr(empty)
         u0.assertValid()
-        assertEqual(u0, empty)
+        u0.assertKeysEqual(empty)
 
         let u1 = even.exclusiveOr(empty)
         u1.assertValid()
-        assertEqual(u1, even)
+        u1.assertKeysEqual(even)
 
         let u2 = empty.exclusiveOr(even)
         u2.assertValid()
-        assertEqual(u2, even)
+        u2.assertKeysEqual(even)
 
         let u3 = even.exclusiveOr(even)
         u3.assertValid()
-        assertEqual(u3, empty)
+        u3.assertKeysEqual(empty)
     }
 
     func test_ExclusiveOr_evenOdd() {
@@ -341,11 +327,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = even.exclusiveOr(odd)
         u1.assertValid()
-        assertEqual(u1, 0 ..< 100)
+        u1.assertKeysEqual(0 ..< 100)
 
         let u2 = odd.exclusiveOr(even)
         u2.assertValid()
-        assertEqual(u2, 0 ..< 100)
+        u2.assertKeysEqual(0 ..< 100)
     }
 
     func test_ExclusiveOr_halves() {
@@ -354,11 +340,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.exclusiveOr(second)
         u1.assertValid()
-        assertEqual(u1, 0 ..< 100)
+        u1.assertKeysEqual(0 ..< 100)
 
         let u2 = second.exclusiveOr(first)
         u2.assertValid()
-        assertEqual(u2, 0 ..< 100)
+        u2.assertKeysEqual(0 ..< 100)
     }
 
     func test_ExclusiveOr_longDuplicates() {
@@ -368,11 +354,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.exclusiveOr(second)
         u1.assertValid()
-        assertEqual(u1, (0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
+        u1.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
 
         let u2 = second.exclusiveOr(first)
         u2.assertValid()
-        assertEqual(u2, (0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
+        u2.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
     }
 
     func test_ExclusiveOr_duplicateResolution() {
@@ -381,11 +367,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.exclusiveOr(second)
         u1.assertValid()
-        assertEqual(u1, [1, 1, 4, 7, 7, 8])
+        u1.assertKeysEqual([1, 1, 4, 7, 7, 8])
 
         let u2 = second.exclusiveOr(first)
         u2.assertValid()
-        assertEqual(u2, [1, 1, 4, 7, 7, 8])
+        u2.assertKeysEqual([1, 1, 4, 7, 7, 8])
     }
 
     func test_ExclusiveOr_sharedNodes() {
@@ -396,11 +382,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.exclusiveOr(second)
         u1.assertValid()
-        assertEqual(u1, [3, 7].repeatEach(20))
+        u1.assertKeysEqual([3, 7].repeatEach(20))
 
         let u2 = second.exclusiveOr(first)
         u2.assertValid()
-        assertEqual(u2, [3, 7].repeatEach(20))
+        u2.assertKeysEqual([3, 7].repeatEach(20))
     }
 
 
@@ -411,19 +397,19 @@ class BTreeMergeTests: XCTestCase {
 
         let u0 = empty.intersect(empty)
         u0.assertValid()
-        assertEqual(u0, empty)
+        u0.assertKeysEqual(empty)
 
         let u1 = even.intersect(empty)
         u1.assertValid()
-        assertEqual(u1, empty)
+        u1.assertKeysEqual(empty)
 
         let u2 = empty.intersect(even)
         u2.assertValid()
-        assertEqual(u2, empty)
+        u2.assertKeysEqual(empty)
 
         let u3 = even.intersect(even)
         u3.assertValid()
-        assertEqual(u3, even)
+        u3.assertKeysEqual(even)
     }
 
     func test_Intersect_evenOdd() {
@@ -432,11 +418,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = even.intersect(odd)
         u1.assertValid()
-        assertEqual(u1, empty)
+        u1.assertKeysEqual(empty)
 
         let u2 = odd.intersect(even)
         u2.assertValid()
-        assertEqual(u2, empty)
+        u2.assertKeysEqual(empty)
     }
 
     func test_Intersect_halves() {
@@ -445,11 +431,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.intersect(second)
         u1.assertValid()
-        assertEqual(u1, empty)
+        u1.assertKeysEqual(empty)
 
         let u2 = second.intersect(first)
         u2.assertValid()
-        assertEqual(u2, empty)
+        u2.assertKeysEqual(empty)
     }
 
     func test_Intersect_longDuplicates() {
@@ -459,11 +445,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.intersect(second)
         u1.assertValid()
-        assertEqual(u1, [4].repeatEach(10))
+        u1.assertKeysEqual([4].repeatEach(10))
 
         let u2 = second.intersect(first)
         u2.assertValid()
-        assertEqual(u2, [4].repeatEach(10))
+        u2.assertKeysEqual([4].repeatEach(10))
     }
 
     func test_Intersect_duplicateResolution() {
@@ -472,11 +458,11 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.intersect(second)
         u1.assertValid()
-        assertEqual(u1, [0, 0, 3, 3, 6])
+        u1.assertKeysEqual([0, 0, 3, 3, 6])
 
         let u2 = second.intersect(first)
         u2.assertValid()
-        assertEqual(u2, [0, 0, 0, 0, 3, 6, 6, 6, 6])
+        u2.assertKeysEqual([0, 0, 0, 0, 3, 6, 6, 6, 6])
     }
 
     func test_Intersect_sharedNodes() {
@@ -487,10 +473,10 @@ class BTreeMergeTests: XCTestCase {
 
         let u1 = first.intersect(second)
         u1.assertValid()
-        assertEqual(u1, [0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
+        u1.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
 
         let u2 = second.intersect(first)
         u2.assertValid()
-        assertEqual(u2, [0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
+        u2.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
     }
 }

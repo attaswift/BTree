@@ -42,3 +42,19 @@ func XCTAssertElementsEqual<T1: Equatable, T2: Equatable, S1: SequenceType, S2: 
         XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(ba)\"", file: file, line: line)
     }
 }
+
+extension BTree {
+    internal func assertKeysEqual(other: BTree<Key, Payload>, file: FileString = __FILE__, line: UInt = __LINE__) {
+        XCTAssertElementsEqual(self.map { $0.0 }, other.map { $0.0 }, file: file, line: line)
+    }
+
+    internal func assertKeysEqual<S: SequenceType where S.Generator.Element == Key>(s: S, file: FileString = __FILE__, line: UInt = __LINE__) {
+        XCTAssertElementsEqual(self.map { $0.0 }, s, file: file, line: line)
+    }
+}
+
+internal extension SequenceType {
+    func repeatEach(count: Int) -> Array<Generator.Element> {
+        return flatMap { Array<Generator.Element>(count: count, repeatedValue: $0) }
+    }
+}
