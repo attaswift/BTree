@@ -20,7 +20,7 @@ public struct BTree<Key: Comparable, Payload> {
         self.root = root
     }
 
-    /// Initialize a new b-tree with no elements.
+    /// Initialize a new B-tree with no elements.
     ///
     /// - Parameter order: The maximum number of children for tree nodes.
     public init(order: Int = Node.defaultOrder) {
@@ -61,7 +61,7 @@ extension BTree: SequenceType {
     /// Returns true iff this tree has no elements.
     public var isEmpty: Bool { return root.count == 0 }
 
-    /// Returns a generator over the elements of this b-tree. Elements are sorted by key.
+    /// Returns a generator over the elements of this B-tree. Elements are sorted by key.
     public func generate() -> Generator {
         return Generator(BTreeStrongPath(root: root, position: 0))
     }
@@ -379,7 +379,7 @@ extension BTree {
     
     /// Insert the specified element into the tree at `position`.
     ///
-    /// - Requires: The key of the supplied element does not violate the b-tree's ordering requirement.
+    /// - Requires: The key of the supplied element does not violate the B-tree's ordering requirement.
     ///   (This is only verified in non-optimized builds.)
     /// - Note: When you need to perform multiple modifications on the same tree,
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.

@@ -22,8 +22,8 @@
 
 ### <a name="overview">Overview</a>
 
-This project provides an efficient in-memory b-tree implementation in pure Swift, and several useful
-ordered collection types that use b-trees for their underlying storage.
+This project provides an efficient in-memory B-tree implementation in pure Swift, and several useful
+ordered collection types that use B-trees for their underlying storage.
 
 -   [`Map<Key, Value>`][Map] implements an ordered mapping from unique comparable keys to arbitrary values.  
     It is like `Dictionary` in the standard library, but it does not require keys to be hashable, 
@@ -69,7 +69,7 @@ embedded in its source code.
 
 ### <a name="what">What Are B-Trees?</a>
 
-[B-trees][b-tree wiki] are search trees that provide an ordered key-value store with excellent performance
+[B-trees][B-tree wiki] are search trees that provide an ordered key-value store with excellent performance
 characteristics.  In essence, each node maintains a sorted array of its own elements, and
 another array for its children.  The tree is kept balanced by three constraints: 
 
@@ -89,7 +89,7 @@ an in-memory implementation.)
 Each node in the tree also maintains the count of all elements under it. 
 This makes the tree an [order statistic tree], where efficient positional lookup is possible.
 
-[b-tree wiki]: https://en.wikipedia.org/wiki/B-tree
+[B-tree wiki]: https://en.wikipedia.org/wiki/B-tree
 [red-black tree]: https://github.com/lorentey/RedBlackTree
 [avl wiki]: https://en.wikipedia.org/wiki/AVL_tree
 [order statistic tree]: https://en.wikipedia.org/wiki/Order_statistic_tree
@@ -112,7 +112,7 @@ In the past, linked lists and low-order search trees such as red-black trees wer
 however, the performance of these constructs on modern hardware is greatly limited
 by their heavy use of pointers.
 
-[B-trees][b-tree wiki] were originally invented in the 1970s as a data structure for slow external storage
+[B-trees][B-tree wiki] were originally invented in the 1970s as a data structure for slow external storage
 devices. As such, they are strongly optimized for locality of reference: 
 they prefer to keep data in long contiguous buffers and they keep pointer derefencing to a minimum.
 (Dereferencing a pointer in a B-tree usually meant reading another block of data from the spinning hard drive,
@@ -293,7 +293,7 @@ Let's enumerate:
 1.  Insertion or removal from any position in a B-tree-based data structure takes O(log(*n*)) time, no matter what.
 
 2.  Like standard collection types, B-trees implement full copy-on-write value semantics.
-    Copying a b-tree into another variable takes O(1) time; mutations of a copy do not affect the original instance.
+    Copying a B-tree into another variable takes O(1) time; mutations of a copy do not affect the original instance.
     
     However, B-trees implement a greatly improved version of copy-on-write that is not all-or-nothing: 
     each node in the tree may be independently shared with other trees. 
@@ -362,7 +362,7 @@ Let's enumerate:
     that you cannot mix-n-match trees of different orders.)  Thus, on a 64-bit system, a B-tree
     holding `Int` elements will store about 2047 elements per node. Wow!
 
--   Individual b-tree nodes may be independently shared between multiple b-trees.  When mutating a
+-   Individual B-tree nodes may be independently shared between multiple B-trees.  When mutating a
     (partially or fully) shared tree, copy-on-write is restricted to only clone the nodes whose subtree is
     actually affected by the mutation. This has the following consequences:
   
@@ -394,11 +394,11 @@ Let's enumerate:
     from any position, any index, or any key.
     
 -   Note that [`forEach`][BTree.forEach] has a specialized recursive implementation, 
-    which makes it the fastest way to iterate over b-trees. There is even a variant that allows you
+    which makes it the fastest way to iterate over B-trees. There is even a variant that allows you
     to stop the iteration when you had seen enough items and want to get off the carousel.
 
 -   [`BTreeCursor`][BTreeCursor] is an easy-to-use, general-purpose batch editing facility that allows you to
-    manipulate the elements of a b-tree conveniently and highly efficiently. You can use a cursor to
+    manipulate the elements of a B-tree conveniently and highly efficiently. You can use a cursor to
     walk over the contents of a tree, modifying/inserting/removing elements as needed without a
     per-element log(n) lookup overhead. If you need to insert or remove a bunch or consecutive elements,
     it is better to use the provided bulk removal/insertion methods than to process them individually 
@@ -468,8 +468,8 @@ Let's enumerate:
 [BTree.insert]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree6insertu0_Rq_Ss10Comparable_FRGS0_q_q0__FTTq_q0__2atOS_16BTreeKeySelector_T_
 [BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FTqd__14dropDuplicatesSb5orderSi_GS0_q_q0__
 
--   The package contains O(log(n)) methods to [extract a range of elements as a new b-tree][BTree.subtree]
-    and to [insert a b-tree into another b-tree][BTreeCursor.insertTree]. (Keys need to remain ordered
+-   The package contains O(log(n)) methods to [extract a range of elements as a new B-tree][BTree.subtree]
+    and to [insert a B-tree into another B-tree][BTreeCursor.insertTree]. (Keys need to remain ordered
     correctly, though.)
     
 -   Merge operations (such as `BTree.union` and `BTree.exclusiveOr`) are highly tuned to detect when

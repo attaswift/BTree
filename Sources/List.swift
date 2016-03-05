@@ -11,7 +11,7 @@
 /// logarithmic complexity. (`Array` has O(1) lookup, but removal/insertion at an arbitrary index costs O(count).)
 ///
 /// `List` is a struct with copy-on-write value semantics, like Swift's standard collection types.
-/// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other lists.
+/// It uses an in-memory B-tree for element storage, whose individual nodes may be shared with other lists.
 /// Mutating a list whose storage is (partially or completely) shared requires copying of only O(log(`count`)) elements.
 /// (Thus, mutation of shared lists may be relatively cheaper than arrays, which need to copy all elements.)
 ///
@@ -27,7 +27,7 @@
 public struct List<Element> {
     internal typealias Tree = BTree<EmptyKey, Element>
 
-    /// The b-tree that serves as storage.
+    /// The B-tree that serves as storage.
     internal private(set) var tree: Tree
 
     private init(_ tree: Tree) {
@@ -40,7 +40,7 @@ public struct List<Element> {
     }
 }
 
-/// A dummy, zero-size key that is useful in b-trees that don't need key-based lookup.
+/// A dummy, zero-size key that is useful in B-trees that don't need key-based lookup.
 internal struct EmptyKey: Comparable { }
 internal func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
 internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }

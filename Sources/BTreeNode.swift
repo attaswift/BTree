@@ -6,10 +6,10 @@
 //  Copyright © 2015–2016 Károly Lőrentey.
 //
 
-// `bTreeNodeSize` is the maximum size (in bytes) of the keys in a single, fully loaded b-tree node.
-// This is related to the order of the b-tree, i.e., the maximum number of children of an internal node.
+// `bTreeNodeSize` is the maximum size (in bytes) of the keys in a single, fully loaded B-tree node.
+// This is related to the order of the B-tree, i.e., the maximum number of children of an internal node.
 //
-// Common sense indicates (and benchmarking verifies) that the fastest b-tree order depends on `strideof(key)`:
+// Common sense indicates (and benchmarking verifies) that the fastest B-tree order depends on `strideof(key)`:
 // doubling the size of the key roughly halves the optimal order. So there is a certain optimal overall node size that
 // is independent of the key; this value is supposed to be that size.
 //
@@ -18,14 +18,14 @@
 // indicate that 16KiB is a good overall choice.
 // (This may be related to the size of the L1 cache, which is frequently 16kiB or 32kiB.)
 //
-// It is not a good idea to use powers of two as the b-tree order, as that would lead to Array reallocations just before
+// It is not a good idea to use powers of two as the B-tree order, as that would lead to Array reallocations just before
 // a node is split. A node size that's just below 2^n seems like a good choice.
 internal let bTreeNodeSize = 16383
 
 //MARK: BTreeNode definition
 
-/// A node in an in-memory b-tree data structure, efficiently mapping `Comparable` keys to arbitrary payloads.
-/// Iterating over the elements in a b-tree returns them in ascending order of their keys.
+/// A node in an in-memory B-tree data structure, efficiently mapping `Comparable` keys to arbitrary payloads.
+/// Iterating over the elements in a B-tree returns them in ascending order of their keys.
 internal final class BTreeNode<Key: Comparable, Payload>: NonObjectiveCBase {
     typealias Element = Generator.Element
     typealias Node = BTreeNode<Key, Payload>
@@ -37,12 +37,12 @@ internal final class BTreeNode<Key: Comparable, Payload>: NonObjectiveCBase {
     /// An empty array (when this is a leaf), or `elements.count + 1` child nodes (when this is an internal node).
     internal var children: Array<BTreeNode>
 
-    /// The number of elements in this b-tree.
+    /// The number of elements in this B-tree.
     internal var count: Int
 
-    /// The order of this b-tree. An internal node will have at most this many children.
+    /// The order of this B-tree. An internal node will have at most this many children.
     internal var _order: Int32
-    /// The depth of this b-tree.
+    /// The depth of this B-tree.
     internal var _depth: Int32
 
     internal var depth: Int { return numericCast(_depth) }
@@ -562,7 +562,7 @@ extension BTreeNode {
         swap(&self._order, &other._order)
     }
 
-    /// Create and return a new b-tree consisting of elements of `left`,`separator` and the elements of `right`,
+    /// Create and return a new B-tree consisting of elements of `left`,`separator` and the elements of `right`,
     /// in this order.
     ///
     /// If you need to keep `left` and `right` intact, clone them before calling this function.

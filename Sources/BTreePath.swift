@@ -6,8 +6,8 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
-/// A protocol that represents a mutable path from the root of a b-tree to one of its elements.
-/// The extension methods defined on `BTreePath` provide a uniform way to navigate around in a b-tree,
+/// A protocol that represents a mutable path from the root of a B-tree to one of its elements.
+/// The extension methods defined on `BTreePath` provide a uniform way to navigate around in a B-tree,
 /// independent of the details of the path representation.
 ///
 /// There are three concrete implementations of this protocol:
@@ -24,7 +24,7 @@ internal protocol BTreePath {
     /// Create a new incomplete path focusing at the root of a tree.
     init(_ root: Node)
 
-    /// The root node of the underlying b-tree.
+    /// The root node of the underlying B-tree.
     var root: BTreeNode<Key, Payload> { get }
 
     /// The current position of this path. Setting this property changes the path to point at the given position.
@@ -125,7 +125,7 @@ extension BTreePath {
     /// Return the payload of the element at the current position.
     var payload: Payload { return element.1 }
 
-    /// Move to the next element in the b-tree.
+    /// Move to the next element in the B-tree.
     ///
     /// - Requires: `!isAtEnd`
     /// - Complexity: Amortized O(1)
@@ -156,7 +156,7 @@ extension BTreePath {
         }
     }
 
-    /// Move to the previous element in the b-tree.
+    /// Move to the previous element in the B-tree.
     ///
     /// - Requires: `!isAtStart`
     /// - Complexity: Amortized O(1)
@@ -188,14 +188,14 @@ extension BTreePath {
         }
     }
 
-    /// Move to the start of the b-tree.
+    /// Move to the start of the B-tree.
     ///
     /// - Complexity: O(log(`position`))
     mutating func moveToStart() {
         move(toPosition: 0)
     }
 
-    /// Move to the end of the b-tree.
+    /// Move to the end of the B-tree.
     ///
     /// - Complexity: O(log(`count` - `position`))
     mutating func moveToEnd() {
@@ -207,7 +207,7 @@ extension BTreePath {
         self.descend(toPosition: self.count)
     }
 
-    /// Move to the specified position in the b-tree.
+    /// Move to the specified position in the B-tree.
     ///
     /// - Complexity: O(log(*distance*)), where *distance* is the absolute difference between the desired and current
     ///   positions.

@@ -6,13 +6,13 @@
 //  Copyright © 2015–2016 Károly Lőrentey.
 //
 
-/// An index into a collection that uses a b-tree for storage.
+/// An index into a collection that uses a B-tree for storage.
 ///
 /// This index satisfies `CollectionType`'s requirement for O(1) access, but
 /// it is only suitable for read-only processing -- most tree mutations will 
 /// invalidate all existing indexes.
 /// 
-/// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a b-tree.
+/// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a B-tree.
 public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType, Comparable {
     public typealias Distance = Int
     typealias Node = BTreeNode<Key, Payload>
@@ -120,7 +120,7 @@ public func < <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIn
     return a.state.position < b.state.position
 }
 
-/// A mutable path in a b-tree, holding weak references to nodes on the path.
+/// A mutable path in a B-tree, holding weak references to nodes on the path.
 /// This path variant does not support modifying the tree itself; it is suitable for use in indices.
 ///
 /// After a path of this kind has been created, the original tree might mutated in a way that invalidates

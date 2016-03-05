@@ -6,7 +6,7 @@ Pod::Spec.new do |spec|
     spec.tvos.deployment_target = "9.0"
     spec.watchos.deployment_target = "2.0"
     spec.license      = { :type => 'MIT', :file => 'LICENCE.md' }
-    spec.summary      = 'In-memory b-trees and ordered collections in Swift'
+    spec.summary      = 'In-memory B-trees and ordered collections in Swift'
     spec.homepage     = 'https://github.com/lorentey/BTree'
     spec.author       = 'Károly Lőrentey'
     spec.source       = { :git => 'https://github.com/lorentey/BTree.git', :branch => 'master' }

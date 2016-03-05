@@ -81,7 +81,7 @@ extension BTree {
     }
 }
 
-/// A mutable path in a b-tree, holding strong references to nodes on the path.
+/// A mutable path in a B-tree, holding strong references to nodes on the path.
 /// This path variant supports modification of the tree itself.
 ///
 /// To speed up operations inserting/removing individual elements from the tree, this path keeps the tree in a
@@ -98,8 +98,8 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
     typealias Node = BTreeNode<Key, Payload>
     typealias Element = (Key, Payload)
 
-    /// The root node in the tree that is being edited. Note that this isn't a valid b-tree while the cursor is active:
-    /// each node on the current path has an invalid `count` field. (Other b-tree invariants are kept, though.)
+    /// The root node in the tree that is being edited. Note that this isn't a valid B-tree while the cursor is active:
+    /// each node on the current path has an invalid `count` field. (Other B-tree invariants are kept, though.)
     var root: Node
 
     /// The current count of elements in the tree. This is always kept up to date, while `root.count` is usually invalid.
@@ -233,14 +233,14 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
         return root
     }
 
-    /// Restore b-tree invariants after a single-element insertion produced an oversize leaf node.
+    /// Restore B-tree invariants after a single-element insertion produced an oversize leaf node.
     private mutating func fixupAfterInsert() {
         guard node.isTooLarge else { return }
 
         _path.append(self.node)
         _slots.append(self.slot!)
 
-        // Split nodes on the way to the root until we restore the b-tree's size constraints.
+        // Split nodes on the way to the root until we restore the B-tree's size constraints.
         var i = _path.count - 1
         while _path[i].isTooLarge {
             // Split path[i], which must have correct count.
@@ -291,7 +291,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
     }
 }
 
-/// A stateful editing interface for efficiently inserting/removing/updating a range of elements in a b-tree.
+/// A stateful editing interface for efficiently inserting/removing/updating a range of elements in a B-tree.
 ///
 /// Creating a cursor over a tree takes exclusive ownership of it; the tree is in a transient invalid state
 /// while the cursor is active. (In particular, element counts are not finalized until the cursor is deactivated.)
@@ -358,7 +358,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
 
     //MARK: Navigation
 
-    /// Position the cursor on the next element in the b-tree.
+    /// Position the cursor on the next element in the B-tree.
     ///
     /// - Requires: `!isAtEnd`
     /// - Complexity: Amortized O(1)
@@ -366,7 +366,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         state.moveForward()
     }
 
-    /// Position this cursor to the previous element in the b-tree.
+    /// Position this cursor to the previous element in the B-tree.
     ///
     /// - Requires: `!isAtStart`
     /// - Complexity: Amortized O(1)
@@ -374,21 +374,21 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         state.moveBackward()
     }
 
-    /// Position this cursor to the start of the b-tree.
+    /// Position this cursor to the start of the B-tree.
     ///
     /// - Complexity: O(log(`position`))
     public func moveToStart() {
         state.moveToStart()
     }
 
-    /// Position this cursor to the end of the b-tree.
+    /// Position this cursor to the end of the B-tree.
     ///
     /// - Complexity: O(log(`count` - `position`))
     public func moveToEnd() {
         state.moveToEnd()
     }
 
-    /// Move this cursor to the specified position in the b-tree.
+    /// Move this cursor to the specified position in the B-tree.
     ///
     /// - Complexity: O(log(*distance*)), where *distance* is the absolute difference between the desired and current
     ///   positions.
@@ -666,7 +666,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// Extract `n` elements starting at the cursor's current position, and position the cursor on the successor of
     /// the last element that was removed.
     ///
-    /// - Returns: The extracted elements as a new b-tree.
+    /// - Returns: The extracted elements as a new B-tree.
     /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func extract(n: Int) -> Tree {

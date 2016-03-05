@@ -9,10 +9,10 @@
 //MARK: Bulk loading
 
 extension BTree {
-    /// Create a new b-tree from elements of an unsorted sequence, using a stable sort algorithm.
+    /// Create a new B-tree from elements of an unsorted sequence, using a stable sort algorithm.
     ///
     /// - Parameter elements: An unsorted sequence of arbitrary length.
-    /// - Parameter order: The desired b-tree order. If not specified (recommended), the default order is used.
+    /// - Parameter order: The desired B-tree order. If not specified (recommended), the default order is used.
     /// - Complexity: O(count * log(`count`))
     /// - SeeAlso: `init(sortedElements:order:fillFactor:)` for a (faster) variant that can be used if the sequence is already sorted.
     public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder) {
@@ -36,10 +36,10 @@ extension BTree {
         }
     }
 
-    /// Create a new b-tree from elements of a sequence sorted by key.
+    /// Create a new B-tree from elements of a sequence sorted by key.
     ///
     /// - Parameter sortedElements: A sequence of arbitrary length, sorted by key.
-    /// - Parameter order: The desired b-tree order. If not specified (recommended), the default order is used.
+    /// - Parameter order: The desired B-tree order. If not specified (recommended), the default order is used.
     /// - Parameter fillFactor: The desired fill factor in each node of the new tree. Must be between 0.5 and 1.0.
     ///      If not specified, a value of 1.0 is used, i.e., nodes will be loaded with as many elements as possible.
     /// - Complexity: O(count)
@@ -89,7 +89,7 @@ private enum BuilderState {
     case Element
 }
 
-/// A construct for efficiently building a fully loaded b-tree from a series of elements.
+/// A construct for efficiently building a fully loaded B-tree from a series of elements.
 ///
 /// The bulk loading algorithm works growing a line of perfectly loaded saplings, in order of decreasing depth,
 /// with a separator element between each of them.

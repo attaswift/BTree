@@ -10,7 +10,7 @@
 /// Works like `Dictionary`, but provides a well-defined ordering for its elements.
 ///
 /// `Map` is a struct with copy-on-write value semantics, like Swift's standard collection types.
-/// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other maps.
+/// It uses an in-memory B-tree for element storage, whose individual nodes may be shared with other maps.
 /// Modifying an element of a map whose storage is (partially or completely) shared requires copying of 
 /// only O(log(`count`)) elements. (Thus, mutation of shared maps may be relatively cheaper than dictionaries, 
 /// which need to clone all elements.)
@@ -30,7 +30,7 @@ public struct Map<Key: Comparable, Value> {
     // Typealiases
     internal typealias Tree = BTree<Key, Value>
 
-    /// The b-tree that serves as storage.
+    /// The B-tree that serves as storage.
     internal private(set) var tree: Tree
 
     private init(_ tree: Tree) {

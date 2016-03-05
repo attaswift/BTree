@@ -6,7 +6,7 @@
 //  Copyright © 2015–2016 Károly Lőrentey.
 //
 
-/// A generator for all elements stored in a b-tree, in ascending key order.
+/// A generator for all elements stored in a B-tree, in ascending key order.
 public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
     public typealias Element = (Key, Payload)
     typealias Node = BTreeNode<Key, Payload>
@@ -29,7 +29,7 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
     }
 }
 
-/// A generator for the payloads stored in a b-tree with an empty key.
+/// A generator for the payloads stored in a B-tree with an empty key.
 public struct BTreePayloadGenerator<Payload>: GeneratorType {
     internal typealias Base = BTreeGenerator<EmptyKey, Payload>
     private var base: Base
@@ -46,7 +46,7 @@ public struct BTreePayloadGenerator<Payload>: GeneratorType {
     }
 }
 
-/// A generator for the keys stored in a b-tree without a payload.
+/// A generator for the keys stored in a B-tree without a payload.
 public struct BTreeKeyGenerator<Key: Comparable>: GeneratorType {
     internal typealias Base = BTreeGenerator<Key, Void>
     private var base: Base
@@ -63,7 +63,7 @@ public struct BTreeKeyGenerator<Key: Comparable>: GeneratorType {
     }
 }
 
-/// A mutable path in a b-tree, holding strong references to nodes on the path.
+/// A mutable path in a B-tree, holding strong references to nodes on the path.
 /// This path variant does not support modifying the tree itself; it is suitable for use in generators.
 internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
     typealias Node = BTreeNode<Key, Payload>
