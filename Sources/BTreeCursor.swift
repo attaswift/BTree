@@ -253,9 +253,8 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
                 _slots[i] = slot - left.elements.count - 1
                 _path[i] = right
             }
-            else if slot == left.elements.count {
+            else if slot == left.elements.count && i == _path.count - 1 {
                 // Focused element is the new separator; adjust self accordingly.
-                assert(i == _path.count - 1)
                 _path.removeLast()
                 _slots.removeLast()
             }
@@ -267,7 +266,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
                 parent.insert(splinter, inSlot: pslot)
                 parent.count += left.count + right.count + 1
                 if slot > left.elements.count {
-                    // Focused element is in the new branch; update self accordingly.
+                    // Focused element is in the new branch; update parent slot accordingly.
                     _slots[i - 1] = pslot + 1
                 }
                 i -= 1

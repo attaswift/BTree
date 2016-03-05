@@ -436,6 +436,22 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertElementsEqual(tree, (0 ..< c).map { ($0, String($0)) })
     }
 
+    func testInsertAtEveryPosition() {
+        let c = 100
+        let reference = (0 ..< c).map { ($0, String($0)) }
+        let tree = Tree(sortedElements: reference, order: 5)
+        for i in 0 ... c {
+            var test = tree
+            test.withCursorAtPosition(i) { cursor in
+                cursor.insert((i, "*\(i)"))
+            }
+            var expected = reference
+            expected.insert((i, "*\(i)"), atIndex: i)
+            test.assertValid()
+            XCTAssertElementsEqual(test, expected)
+            XCTAssertElementsEqual(tree, reference)
+        }
+    }
 
     func testInsertSequence() {
         var tree = Tree(order: 3)

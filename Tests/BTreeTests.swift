@@ -348,6 +348,20 @@ class BTreeTests: XCTestCase {
         XCTAssertElementsEqual(tree.map { $0.0 }, (0 ..< count).map { 2 * $0 })
     }
 
+    func testInsertAtPosition_Duplicates() {
+        let c = 100
+        let reference = (0 ..< c).map { (42, String($0)) }
+        let t = Tree(sortedElements: reference, order: 5)
+        for i in 0 ..< c {
+            var test = t
+            test.insert((42, "*"), at: i)
+            var expected = reference
+            expected.insert((42, "*"), atIndex: i)
+            test.assertValid()
+            XCTAssertElementsEqual(test, expected)
+        }
+    }
+
     func testSetPayloadAtPosition() {
         let count = 42
         var tree = Tree(sortedElements: (0 ..< count).map { ($0, "") }, order: 3)
