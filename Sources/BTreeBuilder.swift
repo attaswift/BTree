@@ -6,9 +6,10 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
-//MARK: Bulk loading
 
 extension BTree {
+    //MARK: Bulk loading initializers
+
     /// Create a new B-tree from elements of an unsorted sequence, using a stable sort algorithm.
     ///
     /// - Parameter elements: An unsorted sequence of arbitrary length.

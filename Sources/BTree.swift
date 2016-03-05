@@ -346,6 +346,8 @@ extension BTreeNode {
 }
 
 extension BTree {
+    //MARK: Editing
+
     /// Set the payload at `position`, and return the payload originally stored there.
     ///
     /// - Requires: `position < count`

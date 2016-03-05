@@ -7,6 +7,8 @@
 //
 
 extension BTree {
+    //MARK: Merging and set operations
+
     /// Merge all elements from two trees into a new tree, and return it.
     ///
     /// This is the non-distinct union operation: all elements from both trees are kept.

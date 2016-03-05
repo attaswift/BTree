@@ -6,9 +6,9 @@
 //  Copyright © 2015–2016 Károly Lőrentey.
 //
 
-//MARK: Cursors
-
 extension BTree {
+    //MARK: Cursors
+
     public typealias Cursor = BTreeCursor<Key, Payload>
 
     /// Call `body` with a cursor at `position` in this tree.
