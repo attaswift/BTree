@@ -1,6 +1,6 @@
 # Fast Ordered Collections for Swift<br> Using In-Memory B-Trees 
 
-[![Swift 2.1](https://img.shields.io/badge/Swift-2.1-blue.svg)](https://developer.apple.com/swift/) [![Documented](https://img.shields.io/badge/docs-97%-brightgreen.svg)](http://lorentey.github.io/BTree/api)
+[![Swift 2.1](https://img.shields.io/badge/Swift-2.1-blue.svg)](https://developer.apple.com/swift/) [![Documented](https://img.shields.io/badge/docs-98%-brightgreen.svg)](http://lorentey.github.io/BTree/api)
 [![License](https://img.shields.io/badge/licence-MIT-blue.svg)](http://cocoapods.org/pods/BTree)
 [![Platform](https://img.shields.io/cocoapods/p/BTree.svg)](http://cocoapods.org/pods/BTree)
 
@@ -38,7 +38,7 @@ ordered collection types that use B-trees for their underlying storage.
     removal of any subrange of elements, or extraction of an arbitrary sub-list are also
     operations with O(log(*n*)) complexity.
 
--   `OrderedSet<Element>` (*coming soon!*) implements an ordered collection of unique comparable elements.
+-   [`OrderedSet<Element>`][OrderedSet] implements an ordered collection of unique comparable elements.
     It is like `Set` in the standard library, but lookup, insertion and removal of any element
     has logarithmic complexity. Elements in an `OrderedSet` are kept sorted in ascending order.
     Operations working on full sets (such as taking the union, intersection or difference) 
@@ -59,6 +59,7 @@ better with these than standard collections; continue reading to find out why!)
 
 [Map]: http://lorentey.github.io/BTree/api/Structs/Map.html
 [List]: http://lorentey.github.io/BTree/api/Structs/List.html
+[OrderedSet]: http://lorentey.github.io/BTree/api/Structs/OrderedSet.html
 
 ### <a name="api">[Reference Documentation][doc]</a>
 
@@ -176,7 +177,7 @@ array to become slower than the red-black tree!
 This remarkable result is due in large part to the vast number of (to a CPU, random-looking) memory 
 references that are needed to operate on red-black trees. 
 Their [intricate ballet of tree rotations][rbtree-animation] looks mighty impressive 
-during a lecture on Data Structures, but to the delicate caches of your poor CPU, 
+to us mere humans, but to the delicate caches of your poor CPU, 
 it looks more like a drunken elephant [moshing at a thrash metal concert][moshing].
 
 [rbtree-animation]: https://youtu.be/m9tse9Gr2pE?t=209
@@ -443,9 +444,9 @@ Let's enumerate:
 -   It would be overkill to create an explicit path to look up or modify a single element in the tree
     on its own, so `BTree` also provides a [set of recursive methods][BTree-lookups] that 
     implement the same sort of lookups and simple mutations. 
-    This are faster when called for a single item, but they aren't efficient when called repeatedly.
+    They are faster when you need to retrieve a single item, but they aren't efficient when called repeatedly.
     
-[BTree-lookups]: https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L137
+[BTree-lookups]: https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L174
 
 -   `BTree` includes a [bulk loading algorithm][BTree.bulkLoad] that efficiently initializes fully loaded
     trees from any sorted sequence. You can also specify a fill factor that's less than 100% if you expect to
@@ -488,7 +489,7 @@ Let's enumerate:
 [BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachu0_Rq_Ss10Comparable_FGS0_q_q0__FzFzTq_q0__T_T_
 [BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertu0_Rq_Ss10Comparable_FGS0_q_q0__FGVS_5BTreeq_q0__T_
 [BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeu0_Rq_Ss10Comparable_FGS0_q_q0__FT4fromq_2toq__GS0_q_q0__
-[BTreeMerger]: https://github.com/lorentey/BTree/blob/master/Sources/BTree%20Merging.swift#L150
+[BTreeMerger]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L160
 
 ### <a name="generics">Remark on Performance of Imported Generics</a>
 <a name="perf"></a>
