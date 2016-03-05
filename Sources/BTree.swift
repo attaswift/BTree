@@ -13,6 +13,7 @@ public struct BTree<Key: Comparable, Payload> {
     public typealias Element = (Key, Payload)
     internal typealias Node = BTreeNode<Key, Payload>
 
+    /// The root node.
     internal var root: Node
 
     internal init(_ root: Node) {
