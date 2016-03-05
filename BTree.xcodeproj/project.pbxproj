@@ -105,6 +105,9 @@
 		BBCB23EA1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */; };
 		BBCB23EB1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */; };
 		BBCB23EC1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */; };
+		BBCB23EE1C8A510000A6E276 /* OrderedSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23ED1C8A510000A6E276 /* OrderedSetTests.swift */; };
+		BBCB23EF1C8A510000A6E276 /* OrderedSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23ED1C8A510000A6E276 /* OrderedSetTests.swift */; };
+		BBCB23F01C8A510000A6E276 /* OrderedSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23ED1C8A510000A6E276 /* OrderedSetTests.swift */; };
 		BBD622791C77568D00B6BF46 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD622781C77568D00B6BF46 /* BTree.swift */; };
 		BBD6227A1C77568D00B6BF46 /* BTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD622781C77568D00B6BF46 /* BTree.swift */; };
 /* End PBXBuildFile section */
@@ -177,6 +180,7 @@
 		BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String Manipulation.swift"; sourceTree = "<group>"; };
 		BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeComparisons.swift; sourceTree = "<group>"; };
 		BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeComparisonTests.swift; sourceTree = "<group>"; };
+		BBCB23ED1C8A510000A6E276 /* OrderedSetTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderedSetTests.swift; sourceTree = "<group>"; };
 		BBD622781C77568D00B6BF46 /* BTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTree.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
@@ -314,6 +318,7 @@
 				BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */,
 				BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */,
 				BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */,
+				BBCB23ED1C8A510000A6E276 /* OrderedSetTests.swift */,
 				BB1747481C289539002C929C /* Reusable Test Helpers */,
 			);
 			path = Tests;
@@ -617,6 +622,7 @@
 				BB17475A1C289539002C929C /* PermutationTests.swift in Sources */,
 				BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB1747571C289539002C929C /* Permutations.swift in Sources */,
+				BBCB23EE1C8A510000A6E276 /* OrderedSetTests.swift in Sources */,
 				BBB224E81C7B9ED60049FEF6 /* ListTests.swift in Sources */,
 				BB5B27C61C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
 				BBB224E51C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
@@ -679,6 +685,7 @@
 				BB8FE9D61C7C8F730051268F /* BTreeTests.swift in Sources */,
 				BB8FE9D71C7C8F730051268F /* MapTests.swift in Sources */,
 				BB8FE9D41C7C8F730051268F /* BTreeNodeTests.swift in Sources */,
+				BBCB23F01C8A510000A6E276 /* OrderedSetTests.swift in Sources */,
 				BB8FE9D51C7C8F730051268F /* BTreeCursorTests.swift in Sources */,
 				BB5B27C81C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
 				BB8FE9D31C7C8F730051268F /* BTreeTestSupport.swift in Sources */,
@@ -721,6 +728,7 @@
 				BB17475B1C289539002C929C /* PermutationTests.swift in Sources */,
 				BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */,
 				BB1747581C289539002C929C /* Permutations.swift in Sources */,
+				BBCB23EF1C8A510000A6E276 /* OrderedSetTests.swift in Sources */,
 				BBB224EE1C7B9ED60049FEF6 /* ListTests.swift in Sources */,
 				BB5B27C71C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
 				BBB224EB1C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
