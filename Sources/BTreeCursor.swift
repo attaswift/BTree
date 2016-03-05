@@ -315,6 +315,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
 
     private var state: State
 
+    /// The number of elements in the tree currently being edited.
     public var count: Int { return state.count }
 
     /// The position of the currently focused element in the tree.

@@ -6,6 +6,17 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
+/// A sorted collection of unique comparable elements.
+/// `OrderedSet` is like `Set` in the standard library, but it always keeps its elements in ascending order.
+/// Lookup, insertion and removal of any element has logarithmic complexity.
+///
+/// `OrderedSet` is a struct with copy-on-write value semantics, like Swift's standard collection types.
+/// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other ordered sets.
+/// Mutating a set whose storage is (partially or completely) shared requires copying of only O(log(`count`)) elements.
+/// (Thus, mutation of shared ordered sets may be cheaper than ordinary sets, which need to copy all elements.)
+///
+/// Set operations on ordered sets (such as taking the union, intersection or difference) can take as little as
+/// O(log(n)) time if the elements in the source sets aren't interleaved.
 public struct OrderedSet<Element: Comparable> {
     internal typealias Tree = BTree<Element, Void>
 
