@@ -136,7 +136,7 @@ class ListTests: XCTestCase {
         let list2 = List<Int>((0..<100).map { $0 * 8 })
         let list3 = List<Int>((0..<100).map { $0 * 3 })
 
-            // Return true iff v1 and v2 are some multiples of 2 of the same value.
+        // Return true iff v1 and v2 are some multiples of 2 of the same value.
         func foo(v1: Int, _ v2: Int) -> Bool {
             var v1 = v1
             var v2 = v2
