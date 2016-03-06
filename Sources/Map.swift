@@ -36,6 +36,10 @@ public struct Map<Key: Comparable, Value> {
     private init(_ tree: Tree) {
         self.tree = tree
     }
+}
+
+extension Map {
+    //MARK: Initializers
 
     /// Initialize an empty map.
     public init() {
@@ -43,9 +47,62 @@ public struct Map<Key: Comparable, Value> {
     }
 }
 
-//MARK: CollectionType
+extension Map {
+    /// Initialize a new map from an unsorted sequence of elements, using a stable sort algorithm.
+    ///
+    /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
+    ///
+    /// - Complexity: O(*n* * log(*n*)) where *n* is the number of items in `elements`.
+    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
+        self.tree = Tree(elements, dropDuplicates: true)
+    }
+
+    /// Initialize a new map from a sorted sequence of elements.
+    ///
+    /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of items in `elements`.
+    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S) {
+        self.tree = Tree(sortedElements: elements, dropDuplicates: true)
+    }
+}
+
+extension Map: DictionaryLiteralConvertible {
+    /// Initialize a new map from the given elements.
+    public init(dictionaryLiteral elements: (Key, Value)...) {
+        self.tree = Tree(elements, dropDuplicates: true)
+    }
+}
+
+extension Map: CustomStringConvertible {
+    //MARK: Conversion to string
+    
+    /// A textual representation of this map.
+    public var description: String {
+        let contents = self.map { (key, value) -> String in
+            let ks = String(reflecting: key)
+            let vs = String(reflecting: value)
+            return "\(ks): \(vs)"
+        }
+        return "[" + contents.joinWithSeparator(", ") + "]"
+    }
+}
+
+extension Map: CustomDebugStringConvertible {
+    /// A textual representation of this map, suitable for debugging.
+    public var debugDescription: String {
+        let contents = self.map { (key, value) -> String in
+            let ks = String(reflecting: key)
+            let vs = String(reflecting: value)
+            return "\(ks): \(vs)"
+        }
+        return "[" + contents.joinWithSeparator(", ") + "]"
+    }
+}
 
 extension Map: CollectionType {
+    //MARK: CollectionType
+    
     public typealias Index = BTreeIndex<Key, Value>
     public typealias Generator = BTreeGenerator<Key, Value>
     public typealias Element = (Key, Value)
@@ -98,9 +155,9 @@ extension Map: CollectionType {
     }
 }
 
-//MARK: Algorithms
-
 extension Map {
+    //MARK: Algorithms
+    
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
@@ -165,9 +222,8 @@ extension Map {
     }
 }
 
-//MARK: Dictionary-like methods
-
 extension Map {
+    //MARK: Dictionary-like methods
 
     /// A collection containing just the keys in this map, in ascending order.
     public var keys: LazyMapCollection<Map<Key, Value>, Key> {
@@ -244,6 +300,8 @@ extension Map {
 }
 
 extension Map {
+    //MARK: Offset-based access
+
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
@@ -275,6 +333,10 @@ extension Map {
     public mutating func updateValue(value: Value, atOffset offset: Int) -> Value {
         return tree.setPayloadAt(offset, to: value)
     }
+}
+
+extension Map {
+    //MARK: Submaps
 
     /// Return a submap consisting of elements in the specified range of indexes.
     ///
@@ -306,57 +368,6 @@ extension Map {
     @warn_unused_result
     public func submap(from start: Key, through end: Key) -> Map {
         return Map(tree.subtree(from: start, through: end))
-    }
-}
-
-extension Map {
-    /// Initialize a new map from an unsorted sequence of elements, using a stable sort algorithm.
-    ///
-    /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
-    ///
-    /// - Complexity: O(*n* * log(*n*)) where *n* is the number of items in `elements`.
-    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
-        self.tree = Tree(elements, dropDuplicates: true)
-    }
-
-    /// Initialize a new map from a sorted sequence of elements.
-    ///
-    /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
-    ///
-    /// - Complexity: O(*n*) where *n* is the number of items in `elements`.
-    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S) {
-        self.tree = Tree(sortedElements: elements, dropDuplicates: true)
-    }
-}
-
-extension Map: DictionaryLiteralConvertible {
-    /// Initialize a new map from the given elements.
-    public init(dictionaryLiteral elements: (Key, Value)...) {
-        self.tree = Tree(elements, dropDuplicates: true)
-    }
-}
-
-extension Map: CustomStringConvertible {
-    /// A textual representation of this map.
-    public var description: String {
-        let contents = self.map { (key, value) -> String in
-            let ks = String(reflecting: key)
-            let vs = String(reflecting: value)
-            return "\(ks): \(vs)"
-        }
-        return "[" + contents.joinWithSeparator(", ") + "]"
-    }
-}
-
-extension Map: CustomDebugStringConvertible {
-    /// A textual representation of this map, suitable for debugging.
-    public var debugDescription: String {
-        let contents = self.map { (key, value) -> String in
-            let ks = String(reflecting: key)
-            let vs = String(reflecting: value)
-            return "\(ks): \(vs)"
-        }
-        return "[" + contents.joinWithSeparator(", ") + "]"
     }
 }
 
