@@ -108,6 +108,24 @@ class OrderedSetTests: XCTestCase {
         assertEqualElements(GeneratorSequence(set.generate()), 0 ..< c)
     }
 
+    func test_subscriptByOffsets() {
+        let c = 10_000
+        let set = OrderedSet(0 ..< c)
+        for i in 0 ..< c {
+            XCTAssertEqual(set[i], i)
+        }
+    }
+
+    func test_subscriptByOffsetRange() {
+        let c = 100
+        let set = OrderedSet(0 ..< c)
+        for i in 0 ..< c {
+            for j in i ..< c {
+                assertEqualElements(set[i ..< j], i ..< j)
+            }
+        }
+    }
+
     func test_forEach() {
         let c = 10_000
         let set = OrderedSet(0 ..< c)

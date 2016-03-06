@@ -114,6 +114,24 @@ extension OrderedSet: CollectionType {
 }
 
 extension OrderedSet {
+    //MARK: Offset-based access
+
+    /// Returns the element at `offset` from the start of the set.
+    ///
+    /// - Complexity: O(log(`count`))
+    public subscript(offset: Int) -> Element {
+        return tree.elementAtOffset(offset).0
+    }
+
+    /// Returns the subset containing elements in the specified range of offsets from the start of the set.
+    ///
+    /// - Complexity: O(log(`count`))
+    public subscript(offsetRange: Range<Int>) -> OrderedSet<Element> {
+        return OrderedSet(tree.subtree(with: offsetRange))
+    }
+}
+
+extension OrderedSet {
     //MARK: Algorithms
 
     /// Call `body` on each element in `self` in ascending order.
