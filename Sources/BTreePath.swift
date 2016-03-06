@@ -27,7 +27,8 @@ internal protocol BTreePath {
     /// The root node of the underlying B-tree.
     var root: BTreeNode<Key, Payload> { get }
 
-    /// The current offset of this path. Setting this property changes the path to point at the given offset.
+    /// The current offset of this path. (This is a simple stored property. Use `move(toOffset:)` to reposition 
+    /// the path on a different offset.)
     var offset: Int { get set }
 
     /// The number of elements in the tree.
@@ -57,8 +58,17 @@ internal protocol BTreePath {
     /// The path's `offset` is updated to the offset of the currently focused element.
     mutating func pushToSlots(slot: Int, offsetOfSlot: Int)
 
-    /// Call `body` for each node and associated slot on the way from the currently selected element up to the root node.
+    /// Call `body` for each node and associated slot on the current path.
+    /// If `ascending` is `true`, the calls proceed upwards, from the deepest node to the root;
+    /// otherwise nodes are listed starting with the root down to the final path element.
     func forEach(ascending ascending: Bool, @noescape body: (Node, Int) -> Void)
+
+    /// Call `body` for each slot index on the way from the currently selected element up to the root node.
+    /// If `ascending` is `true`, the calls proceed upwards, from the slot of deepest node to the root;
+    /// otherwise slots are listed starting with the slot of the root down to the final path element.
+    ///
+    /// This method must not look at the nodes on the path (if this path uses weak/unowned references, 
+    /// they may have been invalidated).
     func forEachSlot(ascending ascending: Bool, @noescape body: Int -> Void)
 
     /// Finish working with the path and return the root node.
