@@ -108,8 +108,8 @@ class BTreeMergeTests: XCTestCase {
     func test_Union_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
-        first.withCursorAtPosition(140) { $0.remove(20) }
-        second.withCursorAtPosition(60) { $0.remove(20) }
+        first.withCursorAtOffset(140) { $0.remove(20) }
+        second.withCursorAtOffset(60) { $0.remove(20) }
 
         let u1 = first.union(second)
         u1.assertValid()
@@ -197,8 +197,8 @@ class BTreeMergeTests: XCTestCase {
     func test_DistinctUnion_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
-        first.withCursorAtPosition(140) { $0.remove(20) }
-        second.withCursorAtPosition(60) { $0.remove(20) }
+        first.withCursorAtOffset(140) { $0.remove(20) }
+        second.withCursorAtOffset(60) { $0.remove(20) }
 
         let u1 = first.distinctUnion(second)
         u1.assertValid()
@@ -287,8 +287,8 @@ class BTreeMergeTests: XCTestCase {
     func test_Subtract_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
-        first.withCursorAtPosition(140) { $0.remove(20) }
-        second.withCursorAtPosition(60) { $0.remove(20) }
+        first.withCursorAtOffset(140) { $0.remove(20) }
+        second.withCursorAtOffset(60) { $0.remove(20) }
 
         let u1 = first.subtract(second)
         u1.assertValid()
@@ -377,8 +377,8 @@ class BTreeMergeTests: XCTestCase {
     func test_ExclusiveOr_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
-        first.withCursorAtPosition(140) { $0.remove(20) }
-        second.withCursorAtPosition(60) { $0.remove(20) }
+        first.withCursorAtOffset(140) { $0.remove(20) }
+        second.withCursorAtOffset(60) { $0.remove(20) }
 
         let u1 = first.exclusiveOr(second)
         u1.assertValid()
@@ -468,8 +468,8 @@ class BTreeMergeTests: XCTestCase {
     func test_Intersect_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
-        first.withCursorAtPosition(140) { $0.remove(20) }
-        second.withCursorAtPosition(60) { $0.remove(20) }
+        first.withCursorAtOffset(140) { $0.remove(20) }
+        second.withCursorAtOffset(60) { $0.remove(20) }
 
         let u1 = first.intersect(second)
         u1.assertValid()

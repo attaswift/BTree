@@ -136,7 +136,7 @@ extension BTreeNode: SequenceType {
     var isEmpty: Bool { return count == 0 }
 
     func generate() -> Generator {
-        return BTreeGenerator(BTreeStrongPath(root: self, position: 0))
+        return BTreeGenerator(BTreeStrongPath(root: self, offset: 0))
     }
 
     /// Call `body` on each element in self in the same order as a for-in loop.
@@ -249,49 +249,49 @@ extension BTreeNode {
         }
     }
 
-    /// Return the slot towards of the element at `position` in the subtree rooted at this node.
-    internal func slotOfPosition(position: Int) -> (index: Int, match: Bool, position: Int) {
-        assert(position >= 0 && position <= count)
-        if position == count {
-            return (index: elements.count, match: isLeaf, position: count)
+    /// Return the slot towards of the element at `offset` in the subtree rooted at this node.
+    internal func slotOfOffset(offset: Int) -> (index: Int, match: Bool, offset: Int) {
+        assert(offset >= 0 && offset <= count)
+        if offset == count {
+            return (index: elements.count, match: isLeaf, offset: count)
         }
         if isLeaf {
-            return (position, true, position)
+            return (offset, true, offset)
         }
-        else if position <= count / 2 {
+        else if offset <= count / 2 {
             var p = 0
             for i in 0 ..< children.count - 1 {
                 let c = children[i].count
-                if position == p + c {
-                    return (index: i, match: true, position: p + c)
+                if offset == p + c {
+                    return (index: i, match: true, offset: p + c)
                 }
-                if position < p + c {
-                    return (index: i, match: false, position: p + c)
+                if offset < p + c {
+                    return (index: i, match: false, offset: p + c)
                 }
                 p += c + 1
             }
             let c = children.last!.count
             precondition(count == p + c, "Invalid B-Tree")
-            return (index: children.count - 1, match: false, position: count)
+            return (index: children.count - 1, match: false, offset: count)
         }
         var p = count
         for i in (1 ..< children.count).reverse() {
             let c = children[i].count
-            if position == p - (c + 1) {
-                return (index: i - 1, match: true, position: position)
+            if offset == p - (c + 1) {
+                return (index: i - 1, match: true, offset: offset)
             }
-            if position > p - (c + 1) {
-                return (index: i, match: false, position: p)
+            if offset > p - (c + 1) {
+                return (index: i, match: false, offset: p)
             }
             p -= c + 1
         }
         let c = children.first!.count
         precondition(p - c == 0, "Invalid B-Tree")
-        return (index: 0, match: false, position: c)
+        return (index: 0, match: false, offset: c)
     }
 
-    /// Return the position of the element at `slot` in the subtree rooted at this node.
-    internal func positionOfSlot(slot: Int) -> Int {
+    /// Return the offset of the element at `slot` in the subtree rooted at this node.
+    internal func offsetOfSlot(slot: Int) -> Int {
         let c = elements.count
         assert(slot >= 0 && slot <= c)
         guard !isLeaf else {

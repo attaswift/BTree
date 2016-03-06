@@ -11,16 +11,16 @@ extension BTree {
 
     public typealias Cursor = BTreeCursor<Key, Payload>
 
-    /// Call `body` with a cursor at `position` in this tree.
+    /// Call `body` with a cursor at `offset` in this tree.
     ///
     /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursorAtPosition<R>(position: Int, @noescape body: Cursor throws -> R) rethrows -> R {
-        precondition(position >= 0 && position <= count)
+    public mutating func withCursorAtOffset<R>(offset: Int, @noescape body: Cursor throws -> R) rethrows -> R {
+        precondition(offset >= 0 && offset <= count)
         makeUnique()
-        let cursor = BTreeCursor(BTreeCursorPath(root: root, position: position))
+        let cursor = BTreeCursor(BTreeCursorPath(root: root, offset: offset))
         root = Node(order: self.order)
         defer { self.root = cursor.finish() }
         return try body(cursor)
@@ -33,7 +33,7 @@ extension BTree {
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
     public mutating func withCursorAtStart<R>(@noescape body: Cursor throws -> R) rethrows -> R {
-        return try withCursorAtPosition(0, body: body)
+        return try withCursorAtOffset(0, body: body)
     }
 
     /// Call `body` with a cursor at the end of this tree.
@@ -50,7 +50,7 @@ extension BTree {
         return try body(cursor)
     }
 
-    /// Call `body` with a cursor positioned at `key` in this tree.
+    /// Call `body` with a cursor positioned on `key` in this tree.
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
@@ -65,7 +65,7 @@ extension BTree {
         return try body(cursor)
     }
 
-    /// Call `body` with a cursor positioned at `index` in this tree.
+    /// Call `body` with a cursor positioned on `index` in this tree.
     ///
     /// - Warning: Do not rely on anything about `self` (the `BTree` that is the target of this method) during the
     ///   execution of body: it will not appear to have the correct value.
@@ -105,8 +105,8 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
     /// The current count of elements in the tree. This is always kept up to date, while `root.count` is usually invalid.
     var count: Int
 
-    /// The position of the currently focused element in the tree.
-    var position: Int
+    /// The offset of the currently focused element in the tree.
+    var offset: Int
     
     /// The current path in the tree that is being edited.
     ///
@@ -122,7 +122,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
 
     init(_ root: Node) {
         self.root = root
-        self.position = root.count
+        self.offset = root.count
         self.count = root.count
         self._path = []
         self.node = root
@@ -158,7 +158,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
     mutating func invalidate() {
         root = Node(order: root.order)
         count = 0
-        position = 0
+        offset = 0
         _path = []
         node = root
         _slots = []
@@ -167,7 +167,7 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
 
     mutating func popFromSlots() {
         assert(self.slot != nil)
-        position += node.count - node.positionOfSlot(slot!)
+        offset += node.count - node.offsetOfSlot(slot!)
         slot = nil
     }
 
@@ -189,9 +189,9 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
         slot = nil
     }
 
-    mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
+    mutating func pushToSlots(slot: Int, offsetOfSlot: Int) {
         assert(self.slot == nil)
-        position -= node.count - positionOfSlot
+        offset -= node.count - offsetOfSlot
         self.slot = slot
     }
 
@@ -318,15 +318,15 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// The number of elements in the tree currently being edited.
     public var count: Int { return state.count }
 
-    /// The position of the currently focused element in the tree.
+    /// The offset of the currently focused element in the tree.
     ///
     /// - Complexity: O(1) for the getter, O(log(`count`)) for the setter.
-    public var position: Int {
+    public var offset: Int {
         get {
-            return state.position
+            return state.offset
         }
         set {
-            state.move(toPosition: newValue)
+            state.move(toOffset: newValue)
         }
     }
 
@@ -366,7 +366,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         state.moveForward()
     }
 
-    /// Position this cursor to the previous element in the B-tree.
+    /// Position this cursor on the previous element in the B-tree.
     ///
     /// - Requires: `!isAtStart`
     /// - Complexity: Amortized O(1)
@@ -374,26 +374,26 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         state.moveBackward()
     }
 
-    /// Position this cursor to the start of the B-tree.
+    /// Position this cursor on the start of the B-tree.
     ///
-    /// - Complexity: O(log(`position`))
+    /// - Complexity: O(log(`offset`))
     public func moveToStart() {
         state.moveToStart()
     }
 
-    /// Position this cursor to the end of the B-tree.
+    /// Position this cursor on the end of the B-tree, i.e., at the offset after the last element.
     ///
-    /// - Complexity: O(log(`count` - `position`))
+    /// - Complexity: O(log(`count` - `offset`))
     public func moveToEnd() {
         state.moveToEnd()
     }
 
-    /// Move this cursor to the specified position in the B-tree.
+    /// Move this cursor to the specified offset in the B-tree.
     ///
     /// - Complexity: O(log(*distance*)), where *distance* is the absolute difference between the desired and current
-    ///   positions.
-    public func move(toPosition position: Int) {
-        state.move(toPosition: position)
+    ///   offsets.
+    public func move(toOffset offset: Int) {
+        state.move(toOffset: offset)
     }
 
     /// Move this cursor to an element with the specified key. 
@@ -453,7 +453,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             let slot = state.slot!
             state.node.insert(element, inSlot: slot + 1)
             state.slot = slot + 1
-            state.position += 1
+            state.offset += 1
         }
         else {
             moveForward()
@@ -463,7 +463,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         state.fixupAfterInsert()
     }
 
-    /// Insert a new element at the cursor's current position, and leave the cursor positioned on the original element.
+    /// Insert a new element at the cursor's current offset, and leave the cursor positioned on the original element.
     ///
     /// - Complexity: amortized O(1)
     public func insert(element: Element) {
@@ -477,7 +477,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             assert(state.node.isLeaf && state.slot == state.node.elements.count - 1)
             state.node.append(element)
             state.slot = state.node.elements.count - 1
-            state.position += 1
+            state.offset += 1
         }
         state.fixupAfterInsert()
         moveForward()
@@ -518,19 +518,19 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             return
         }
 
-        let position = self.position
-        if position == self.count {
+        let offset = self.offset
+        if offset == self.count {
             // Append
             moveBackward()
             let separator = remove()
             let j = Node.join(left: finish(), separator: separator, right: root)
             state = State(endOf: j)
         }
-        else if position == 0 {
+        else if offset == 0 {
             // Prepend
             let separator = remove()
             let j = Node.join(left: root, separator: separator, right: finish())
-            state = State(root: j, position: position + c)
+            state = State(root: j, offset: offset + c)
         }
         else {
             // Insert in middle
@@ -540,7 +540,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             state.invalidate()
             let t1 = Node.join(left: prefix.root, separator: sep1, right: root)
             let t2 = Node.join(left: t1, separator: sep2, right: suffix.root)
-            state = State(root: t2, position: position + c)
+            state = State(root: t2, offset: offset + c)
         }
     }
 
@@ -560,7 +560,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             moveForward()
             return result
         }
-        let targetPosition = self.position
+        let targetOffset = self.offset
         state.node.elements.removeAtIndex(state.slot!)
         state.node.count -= 1
         state.count -= 1
@@ -572,7 +572,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             state.popFromSlots()
             state.node.fixDeficiency(slot)
         }
-        while targetPosition != count && targetPosition == self.position && state.node !== state.root {
+        while targetOffset != count && targetOffset == self.offset && state.node !== state.root {
             state.popFromPath()
             state.popFromSlots()
         }
@@ -581,7 +581,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             state.root = state.node.makeChildUnique(0)
             state.node = state.root
         }
-        state.descend(toPosition: targetPosition)
+        state.descend(toOffset: targetOffset)
         return result
     }
 
@@ -590,28 +590,28 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     ///
     /// - Complexity: O(log(`count`))
     public func remove(n: Int) {
-        precondition(isValid && n >= 0 && self.position + n <= count)
+        precondition(isValid && n >= 0 && self.offset + n <= count)
         if n == 0 { return }
         if n == 1 { remove(); return }
         if n == count { removeAll(); return }
 
-        let position = self.position
+        let offset = self.offset
 
-        if position == 0 {
-            state.move(toPosition: n - 1)
+        if offset == 0 {
+            state.move(toOffset: n - 1)
             state = State(startOf: state.suffix().root)
         }
-        else if position == count - n {
+        else if offset == count - n {
             state = State(endOf: state.prefix().root)
         }
         else {
             let left = state.prefix()
-            state.move(toPosition: position + n)
+            state.move(toOffset: offset + n)
             let separator = state.element
             let right = state.suffix()
             state.invalidate()
             let j = Node.join(left: left.root, separator: separator, right: right.root)
-            state = State(root: j, position: position)
+            state = State(root: j, offset: offset)
         }
     }
 
@@ -670,7 +670,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
     /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func extract(n: Int) -> Tree {
-        precondition(isValid && n >= 0 && self.position + n <= count)
+        precondition(isValid && n >= 0 && self.offset + n <= count)
         if n == 0 {
             return Tree(order: state.root.order)
         }
@@ -686,20 +686,20 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             return Tree(node)
         }
 
-        let position = self.position
-        if position == count - n {
+        let offset = self.offset
+        if offset == count - n {
             var split = state.split()
-            state = State(root: split.prefix.root, position: position)
+            state = State(root: split.prefix.root, offset: offset)
             split.suffix.insert(split.separator, at: 0)
             return split.suffix
         }
         else {
             let (left, sep1, tail) = state.split()
-            state = State(root: tail.root, position: n - 1)
+            state = State(root: tail.root, offset: n - 1)
             var (mid, sep2, right) = state.split()
             state.invalidate()
             let j = Node.join(left: left.root, separator: sep2, right: right.root)
-            state = State(root: j, position: position)
+            state = State(root: j, offset: offset)
             mid.insert(sep1, at: 0)
             return mid
         }

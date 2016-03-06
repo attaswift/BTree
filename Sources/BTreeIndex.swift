@@ -44,7 +44,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType, Comp
     ///
     /// - Complexity: O(log(*n*)) where *n* is the number of elements in the tree.
     public mutating func advance(by distance: Int) {
-        state.move(toPosition: state.position + distance)
+        state.move(toOffset: state.offset + distance)
     }
 
     /// Return the next index after `self` in its collection.
@@ -98,7 +98,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType, Comp
     @warn_unused_result
     public func distanceTo(end: BTreeIndex) -> Int {
         state.expectRoot(end.state.root)
-        return end.state.position - state.position
+        return end.state.offset - state.offset
     }
 }
 
@@ -108,7 +108,7 @@ public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeI
     guard let ar = a.state._root.value else { a.state.invalid() }
     guard let br = b.state._root.value else { b.state.invalid() }
     precondition(ar === br, "Indices to different trees cannot be compared")
-    return a.state.position == b.state.position
+    return a.state.offset == b.state.offset
 }
 
 /// Return true iff `a` is less than `b`.
@@ -117,7 +117,7 @@ public func < <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIn
     guard let ar = a.state._root.value else { a.state.invalid() }
     guard let br = b.state._root.value else { b.state.invalid() }
     precondition(ar === br, "Indices to different trees cannot be compared")
-    return a.state.position < b.state.position
+    return a.state.offset < b.state.offset
 }
 
 /// A mutable path in a B-tree, holding weak references to nodes on the path.
@@ -131,7 +131,7 @@ internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
     typealias Node = BTreeNode<Key, Payload>
 
     var _root: Weak<Node>
-    var position: Int
+    var offset: Int
 
     var _path: [Weak<Node>]
     var _slots: [Int]
@@ -140,7 +140,7 @@ internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
 
     init(_ root: Node) {
         self._root = Weak(root)
-        self.position = root.count
+        self.offset = root.count
         self._path = []
         self._slots = []
         self._node = Weak(root)
@@ -174,7 +174,7 @@ internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
     mutating func popFromSlots() {
         assert(self.slot != nil)
         let node = self.node
-        position += node.count - node.positionOfSlot(slot!)
+        offset += node.count - node.offsetOfSlot(slot!)
         slot = nil
     }
 
@@ -195,9 +195,9 @@ internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
         slot = nil
     }
 
-    mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
+    mutating func pushToSlots(slot: Int, offsetOfSlot: Int) {
         assert(self.slot == nil)
-        position -= node.count - positionOfSlot
+        offset -= node.count - offsetOfSlot
         self.slot = slot
     }
 

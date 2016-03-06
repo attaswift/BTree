@@ -69,7 +69,7 @@ internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
     typealias Node = BTreeNode<Key, Payload>
 
     var root: Node
-    var position: Int
+    var offset: Int
 
     var _path: [Node]
     var _slots: [Int]
@@ -78,7 +78,7 @@ internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
 
     init(_ root: Node) {
         self.root = root
-        self.position = root.count
+        self.offset = root.count
         self._path = []
         self._slots = []
         self.node = root
@@ -90,7 +90,7 @@ internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
 
     mutating func popFromSlots() {
         assert(self.slot != nil)
-        position += node.count - node.positionOfSlot(slot!)
+        offset += node.count - node.offsetOfSlot(slot!)
         slot = nil
     }
 
@@ -109,9 +109,9 @@ internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
         slot = nil
     }
 
-    mutating func pushToSlots(slot: Int, positionOfSlot: Int) {
+    mutating func pushToSlots(slot: Int, offsetOfSlot: Int) {
         assert(self.slot == nil)
-        position -= node.count - positionOfSlot
+        offset -= node.count - offsetOfSlot
         self.slot = slot
     }
 

@@ -384,7 +384,7 @@ Let's enumerate:
     the position of the end of a range of matching items.
 
 -   Each node keeps track of the number of items in its entire subtree, so 
-    [efficient positional lookup][BTree.elementAtPosition]
+    [efficient positional lookup][BTree.elementAtOffset]
     is possible.  For any *i*, you can get, set, remove or insert the *i*th item in the tree in log(n) time.
 
 -   There is a [`BTreeGenerator`][BTreeGenerator] and a [`BTreeIndex`][BTreeIndex] that provide the
@@ -392,7 +392,7 @@ Let's enumerate:
     operations, iterating over all elements via these interfaces requires linear time. Using the
     generator is faster than indexing, so you should prefer using it whenever possible. 
     There are methods to start a generator from the middle of the tree: 
-    from any position, any index, or any key.
+    from any offset, any index, or any key.
     
 -   Note that [`forEach`][BTree.forEach] has a specialized recursive implementation, 
     which makes it the fastest way to iterate over B-trees. There is even a variant that allows you
@@ -409,7 +409,7 @@ Let's enumerate:
     position in the tree, as described by the [`BTreePath`][BTreePath] protocol. The methods directly
     provided by this protocol are too low-level for convenient use, but the protocol has extension methods
     built on top of these that support familiar concepts like moving back and forth step by step, jumping to
-    a specific position in the tree, or looking up a particular key.
+    a specific offset in the tree, or looking up a particular key.
     
     Indexes, generators and cursors use their particular implementation of `BTreePath` to represent their
     own path flavors. All three of them maintain a path of nodes from the root of the tree to a particular
@@ -485,7 +485,7 @@ Let's enumerate:
 [BTreeGenerator]: http://lorentey.github.io/BTree/api/Structs/BTreeGenerator.html
 [BTreeIndex]: http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html
 [BTreeCursor]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html
-[BTree.elementAtPosition]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree17elementAtPositionu0_Rq_Ss10Comparable_FGS0_q_q0__FSiTq_q0__
+[BTree.elementAtOffset]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree17elementAtOffsetu0_Rq_Ss10Comparable_FGS0_q_q0__FSiTq_q0__
 [BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachu0_Rq_Ss10Comparable_FGS0_q_q0__FzFzTq_q0__T_T_
 [BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertu0_Rq_Ss10Comparable_FGS0_q_q0__FGVS_5BTreeq_q0__T_
 [BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeu0_Rq_Ss10Comparable_FGS0_q_q0__FT4fromq_2toq__GS0_q_q0__

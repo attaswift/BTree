@@ -296,7 +296,7 @@ internal struct BTreeMerger<Key: Comparable, Payload> {
                 /// starts, and append it in a single step.
                 ///
                 /// It might happen that a shared node begins with a key that we've already fully processed in one of the trees.
-                /// In this case, we cannot skip elementwise processing, since the trees are at different positions in
+                /// In this case, we cannot skip elementwise processing, since the trees are at different offsets in
                 /// the shared subtree. The slot & leaf checks above & below ensure that this isn't the case.
                 repeat {
                     if a.ascendOneLevel() { done = true }
@@ -411,12 +411,12 @@ internal extension BTreeStrongPath {
         if !node.isLeaf {
             for i in 0 ..< n {
                 let s = slot! + i
-                position += node.children[s + 1].count
+                offset += node.children[s + 1].count
             }
         }
-        position += n
+        offset += n
         slot! += n
-        if position != count {
+        if offset != count {
             ascendToKey()
         }
     }
@@ -425,7 +425,7 @@ internal extension BTreeStrongPath {
     /// or the spot after all elements if the node was the rightmost child.
     mutating func ascendOneLevel() -> Bool {
         if length == 1 {
-            position = count
+            offset = count
             slot = node.elements.count
             return true
         }
@@ -435,7 +435,7 @@ internal extension BTreeStrongPath {
     }
 
     /// If this path got to a slot at the end of a node but it hasn't reached the end of the tree yet,
-    /// ascend to the ancestor that holds the key corresponding to the current position.
+    /// ascend to the ancestor that holds the key corresponding to the current offset.
     mutating func ascendToKey() {
         assert(!isAtEnd)
         while slot == node.elements.count {

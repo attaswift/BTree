@@ -210,37 +210,37 @@ class MapTests: XCTestCase {
         XCTAssertElementsEqual(m, [])
     }
 
-    func testIndexOfPosition() {
+    func testIndexOfOffset() {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
         for i in 0...100 {
-            XCTAssertEqual(m.indexOfPosition(i), m.startIndex.advancedBy(i))
+            XCTAssertEqual(m.indexOfOffset(i), m.startIndex.advancedBy(i))
         }
     }
 
-    func testPositionOfIndex() {
+    func testOffsetOfIndex() {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
         var index = m.startIndex
         for i in 0 ..< 100 {
-            XCTAssertEqual(m.positionOfIndex(index), i)
+            XCTAssertEqual(m.offsetOfIndex(index), i)
             index = index.successor()
         }
-        XCTAssertEqual(m.positionOfIndex(index), m.count)
+        XCTAssertEqual(m.offsetOfIndex(index), m.count)
         XCTAssertEqual(index, m.endIndex)
     }
 
-    func testElementAtPosition() {
+    func testElementAtOffset() {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
         for i in 0 ..< 100 {
-            let element = m.elementAtPosition(i)
+            let element = m.elementAtOffset(i)
             XCTAssertEqual(element.0, i)
             XCTAssertEqual(element.1, String(i))
         }
     }
 
-    func testUpdateValueAtPosition() {
+    func testUpdateValueAtOffset() {
         var m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
         for i in 0 ..< 100 {
-            m.updateValue(String(i) + "*", atPosition: i)
+            m.updateValue(String(i) + "*", atOffset: i)
         }
         XCTAssertElementsEqual(m, (0..<100).map { ($0, String($0) + "*") })
     }

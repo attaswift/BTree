@@ -271,42 +271,42 @@ class BTreeNodeTests: XCTestCase {
         XCTAssertEqual(node.slotOf(99, choosing: .After).descend, 98)
     }
 
-    func testSlotOfPosition() {
+    func testSlotOfOffset() {
         let leaf = maximalNode(depth: 0, order: 5)
         for i in 0 ..< 5 {
-            XCTAssertEqual(leaf.slotOfPosition(i).index, i)
-            XCTAssertEqual(leaf.slotOfPosition(i).match, true)
-            XCTAssertEqual(leaf.slotOfPosition(i).position, i)
+            XCTAssertEqual(leaf.slotOfOffset(i).index, i)
+            XCTAssertEqual(leaf.slotOfOffset(i).match, true)
+            XCTAssertEqual(leaf.slotOfOffset(i).offset, i)
         }
 
         let node = maximalNode(depth: 1, order: 3)
         var p = 0
         for i in 0 ..< 3 {
-            XCTAssertEqual(node.slotOfPosition(p).index, i)
-            XCTAssertEqual(node.slotOfPosition(p).match, false)
-            XCTAssertEqual(node.slotOfPosition(p).position, p + 2)
+            XCTAssertEqual(node.slotOfOffset(p).index, i)
+            XCTAssertEqual(node.slotOfOffset(p).match, false)
+            XCTAssertEqual(node.slotOfOffset(p).offset, p + 2)
 
-            XCTAssertEqual(node.slotOfPosition(p + 1).index, i)
-            XCTAssertEqual(node.slotOfPosition(p + 1).match, false)
-            XCTAssertEqual(node.slotOfPosition(p + 1).position, p + 2)
+            XCTAssertEqual(node.slotOfOffset(p + 1).index, i)
+            XCTAssertEqual(node.slotOfOffset(p + 1).match, false)
+            XCTAssertEqual(node.slotOfOffset(p + 1).offset, p + 2)
 
-            XCTAssertEqual(node.slotOfPosition(p + 2).index, i)
-            XCTAssertEqual(node.slotOfPosition(p + 2).match, i != 2)
-            XCTAssertEqual(node.slotOfPosition(p + 2).position, p + 2)
+            XCTAssertEqual(node.slotOfOffset(p + 2).index, i)
+            XCTAssertEqual(node.slotOfOffset(p + 2).match, i != 2)
+            XCTAssertEqual(node.slotOfOffset(p + 2).offset, p + 2)
 
             p += 3
         }
         XCTAssertEqual(p, node.count + 1)
     }
 
-    func testPositionOfSlot() {
+    func testOffsetOfSlot() {
         let leaf = maximalNode(depth: 0, order: 5)
-        XCTAssertEqual(leaf.positionOfSlot(2), 2)
+        XCTAssertEqual(leaf.offsetOfSlot(2), 2)
 
         let node = maximalNode(depth: 2, order: 3)
-        XCTAssertEqual(node.positionOfSlot(0), 8)
-        XCTAssertEqual(node.positionOfSlot(1), 17)
-        XCTAssertEqual(node.positionOfSlot(2), 26)
+        XCTAssertEqual(node.offsetOfSlot(0), 8)
+        XCTAssertEqual(node.offsetOfSlot(1), 17)
+        XCTAssertEqual(node.offsetOfSlot(2), 26)
     }
 
     func testEditWithWeakReferences() {

@@ -27,8 +27,8 @@ internal protocol BTreePath {
     /// The root node of the underlying B-tree.
     var root: BTreeNode<Key, Payload> { get }
 
-    /// The current position of this path. Setting this property changes the path to point at the given position.
-    var position: Int { get set }
+    /// The current offset of this path. Setting this property changes the path to point at the given offset.
+    var offset: Int { get set }
 
     /// The number of elements in the tree.
     var count: Int { get }
@@ -43,7 +43,7 @@ internal protocol BTreePath {
     var slot: Int? { get set }
 
     /// Pop the last slot in `slots`, creating an incomplete path.
-    /// The path's `position` is updated to the position of the element following the subtree at the last node.
+    /// The path's `offset` is updated to the offset of the element following the subtree at the last node.
     mutating func popFromSlots()
 
     /// Pop the last node in an incomplete path, focusing the element following its subtree.
@@ -54,8 +54,8 @@ internal protocol BTreePath {
     mutating func pushToPath()
 
     /// Push the specified slot onto `slots`, completing the path.
-    /// The path's `position` is updated to the position of the currently focused element.
-    mutating func pushToSlots(slot: Int, positionOfSlot: Int)
+    /// The path's `offset` is updated to the offset of the currently focused element.
+    mutating func pushToSlots(slot: Int, offsetOfSlot: Int)
 
     /// Call `body` for each node and associated slot on the way from the currently selected element up to the root node.
     func forEach(ascending ascending: Bool, @noescape body: (Node, Int) -> Void)
@@ -71,20 +71,20 @@ extension BTreePath {
     internal typealias Node = BTreeNode<Key, Payload>
 
     init(startOf root: Node) {
-        self.init(root: root, position: 0)
+        self.init(root: root, offset: 0)
     }
 
     init(endOf root: Node) {
-        // The end position can be anywhere on the rightmost path of the tree,
+        // The end offset can be anywhere on the rightmost path of the tree,
         // so let's try the spot after the last element of the root.
         // This can spare us O(log(n)) steps if this path is only used for reference.
         self.init(root)
-        pushToSlots(root.elements.count, positionOfSlot: root.count)
+        pushToSlots(root.elements.count, offsetOfSlot: root.count)
     }
     
-    init(root: Node, position: Int) {
+    init(root: Node, offset: Int) {
         self.init(root)
-        descend(toPosition: position)
+        descend(toOffset: offset)
     }
 
     init(root: Node, key: Key, choosing selector: BTreeKeySelector) {
@@ -105,13 +105,13 @@ extension BTreePath {
     /// Return true iff the path contains at least one node.
     var isValid: Bool { return length > 0 }
     /// Return true iff the current position is at the start of the tree.
-    var isAtStart: Bool { return position == 0 }
+    var isAtStart: Bool { return offset == 0 }
     /// Return true iff the current position is at the end of the tree.
-    var isAtEnd: Bool { return position == count }
+    var isAtEnd: Bool { return offset == count }
 
     /// Push the specified slot onto `slots`, completing the path.
     mutating func pushToSlots(slot: Int) {
-        pushToSlots(slot, positionOfSlot: node.positionOfSlot(slot))
+        pushToSlots(slot, offsetOfSlot: node.offsetOfSlot(slot))
     }
 
     mutating func finish() -> Node {
@@ -130,10 +130,10 @@ extension BTreePath {
     /// - Requires: `!isAtEnd`
     /// - Complexity: Amortized O(1)
     mutating func moveForward() {
-        precondition(position < count)
-        position += 1
+        precondition(offset < count)
+        offset += 1
         if node.isLeaf {
-            if slot! < node.elements.count - 1 || position == count {
+            if slot! < node.elements.count - 1 || offset == count {
                 slot! += 1
             }
             else {
@@ -162,7 +162,7 @@ extension BTreePath {
     /// - Complexity: Amortized O(1)
     mutating func moveBackward() {
         precondition(!isAtStart)
-        position -= 1
+        offset -= 1
         if node.isLeaf {
             if slot! > 0 {
                 slot! -= 1
@@ -190,40 +190,40 @@ extension BTreePath {
 
     /// Move to the start of the B-tree.
     ///
-    /// - Complexity: O(log(`position`))
+    /// - Complexity: O(log(`offset`))
     mutating func moveToStart() {
-        move(toPosition: 0)
+        move(toOffset: 0)
     }
 
     /// Move to the end of the B-tree.
     ///
-    /// - Complexity: O(log(`count` - `position`))
+    /// - Complexity: O(log(`count` - `offset`))
     mutating func moveToEnd() {
         popFromSlots()
-        while self.count > self.position {
+        while self.count > self.offset {
             popFromPath()
             popFromSlots()
         }
-        self.descend(toPosition: self.count)
+        self.descend(toOffset: self.count)
     }
 
-    /// Move to the specified position in the B-tree.
+    /// Move to the specified offset in the B-tree.
     ///
     /// - Complexity: O(log(*distance*)), where *distance* is the absolute difference between the desired and current
-    ///   positions.
-    mutating func move(toPosition position: Int) {
-        precondition(position >= 0 && position <= count)
-        if position == count {
+    ///   offsets.
+    mutating func move(toOffset offset: Int) {
+        precondition(offset >= 0 && offset <= count)
+        if offset == count {
             moveToEnd()
             return
         }
-        // Pop to ancestor whose subtree contains the desired position.
+        // Pop to ancestor whose subtree contains the desired offset.
         popFromSlots()
-        while position < self.position - node.count || position >= self.position {
+        while offset < self.offset - node.count || offset >= self.offset {
             popFromPath()
             popFromSlots()
         }
-        self.descend(toPosition: position)
+        self.descend(toOffset: offset)
     }
 
     /// Move to the element with the specified key.
@@ -240,18 +240,18 @@ extension BTreePath {
         self.descend(to: key, choosing: selector)
     }
 
-    /// Starting from an incomplete path, descend to the element at the specified position.
-    mutating func descend(toPosition position: Int) {
-        assert(position >= self.position - node.count && position <= self.position)
+    /// Starting from an incomplete path, descend to the element at the specified offset.
+    mutating func descend(toOffset offset: Int) {
+        assert(offset >= self.offset - node.count && offset <= self.offset)
         assert(self.slot == nil)
-        var slot = node.slotOfPosition(position - (self.position - node.count))
-        pushToSlots(slot.index, positionOfSlot: slot.position)
+        var slot = node.slotOfOffset(offset - (self.offset - node.count))
+        pushToSlots(slot.index, offsetOfSlot: slot.offset)
         while !slot.match {
             pushToPath()
-            slot = node.slotOfPosition(position - (self.position - node.count))
-            pushToSlots(slot.index, positionOfSlot: slot.position)
+            slot = node.slotOfOffset(offset - (self.offset - node.count))
+            pushToSlots(slot.index, offsetOfSlot: slot.offset)
         }
-        assert(self.position == position)
+        assert(self.offset == offset)
         assert(self.slot != nil)
     }
 

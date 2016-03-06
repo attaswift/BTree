@@ -51,7 +51,7 @@ class BTreeComparisonTests: XCTestCase {
         var b = a
         b.withCursorAtStart { $0.key = 0 }
         var c = a
-        c.withCursorAtPosition(99) { $0.key = 99 }
+        c.withCursorAtOffset(99) { $0.key = 99 }
 
         XCTAssertTrue(a.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
         XCTAssertTrue(a.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
@@ -66,13 +66,13 @@ class BTreeComparisonTests: XCTestCase {
         let a = makeTree(reference)
         for i in 0 ..< 100 {
             var b = a
-            b.withCursorAtPosition(i) {
+            b.withCursorAtOffset(i) {
                 $0.remove()
                 $0.moveToEnd()
                 $0.insert((42, ()))
             }
             var c = a
-            c.withCursorAtPosition(i) {
+            c.withCursorAtOffset(i) {
                 $0.insert((42, ()))
                 $0.moveToEnd()
                 $0.moveBackward()

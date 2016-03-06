@@ -244,36 +244,36 @@ extension Map {
 }
 
 extension Map {
-    /// Returns the position of the element at `index`.
+    /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func indexOfPosition(position: Int) -> Index {
-        return tree.indexOfPosition(position)
+    public func indexOfOffset(offset: Int) -> Index {
+        return tree.indexOfOffset(offset)
     }
 
-    /// Returns the index of the element at `position`.
+    /// Returns the index of the element at `offset`.
     ///
-    /// - Requires: `position >= 0 && position < count`
+    /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func positionOfIndex(index: Index) -> Int {
-        return tree.positionOfIndex(index)
+    public func offsetOfIndex(index: Index) -> Int {
+        return tree.offsetOfIndex(index)
     }
 
-    /// Return the element stored at `position` in this map.
+    /// Return the element stored at `offset` in this map.
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func elementAtPosition(position: Int) -> Element {
-        return tree.elementAtPosition(position)
+    public func elementAtOffset(offset: Int) -> Element {
+        return tree.elementAtOffset(offset)
     }
 
-    /// Set the value of the element stored at `position` in this map.
+    /// Set the value of the element stored at `offset` in this map.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func updateValue(value: Value, atPosition position: Int) -> Value {
-        return tree.setPayloadAt(position, to: value)
+    public mutating func updateValue(value: Value, atOffset offset: Int) -> Value {
+        return tree.setPayloadAt(offset, to: value)
     }
 
     /// Return a submap consisting of elements in the specified range of indexes.
@@ -284,12 +284,12 @@ extension Map {
         return Map(tree.subtree(with: range))
     }
 
-    /// Return a submap consisting of elements in the specified range of positions.
+    /// Return a submap consisting of elements in the specified range of offsets.
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func submap(with positions: Range<Int>) -> Map {
-        return Map(tree.subtree(with: positions))
+    public func submap(with offsets: Range<Int>) -> Map {
+        return Map(tree.subtree(with: offsets))
     }
 
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than `end`.

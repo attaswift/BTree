@@ -77,7 +77,7 @@ extension List: MutableCollectionType {
     /// - Complexity: O(log(`count`))
     public subscript(index: Int) -> Element {
         get {
-            return tree.elementAtPosition(index).1
+            return tree.elementAtOffset(index).1
         }
         set {
             tree.setPayloadAt(index, to: newValue)
@@ -284,7 +284,7 @@ extension List {
     ///
     /// - Complexity: O(log(`self.count + list.count`))
     public mutating func appendContentsOf(list: List<Element>) {
-        tree.withCursorAtPosition(tree.count) { cursor in
+        tree.withCursorAtOffset(tree.count) { cursor in
             cursor.insert(list.tree)
         }
     }
@@ -293,7 +293,7 @@ extension List {
     ///
     /// - Complexity: O(log(`count`) + *n*) where *n* is the number of elements in the sequence.
     public mutating func appendContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S) {
-        tree.withCursorAtPosition(tree.count) { cursor in
+        tree.withCursorAtOffset(tree.count) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
     }
@@ -302,7 +302,7 @@ extension List {
     ///
     /// - Complexity: O(log(`self.count + list.count`))
     public mutating func insertContentsOf(list: List<Element>, at index: Int) {
-        tree.withCursorAtPosition(index) { cursor in
+        tree.withCursorAtOffset(index) { cursor in
             cursor.insert(list.tree)
         }
     }
@@ -311,7 +311,7 @@ extension List {
     ///
     /// - Complexity: O(log(`self.count`) + *n*) where *n* is the number of elements inserted.
     public mutating func insertContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S, at index: Int) {
-        tree.withCursorAtPosition(index) { cursor in
+        tree.withCursorAtOffset(index) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
     }
@@ -337,7 +337,7 @@ extension List {
     /// - Complexity: O(log(`count`) + `n`)
     public mutating func removeFirst(n: Int) {
         precondition(n <= count)
-        tree.withCursorAtPosition(0) { cursor in
+        tree.withCursorAtOffset(0) { cursor in
             cursor.remove(n)
         }
     }
@@ -355,7 +355,7 @@ extension List {
     /// - Complexity: O(log(`count`) + `n`)
     public mutating func removeLast(n: Int) {
         precondition(n <= count)
-        tree.withCursorAtPosition(count - n) { cursor in
+        tree.withCursorAtOffset(count - n) { cursor in
             cursor.remove(n)
         }
     }
@@ -381,7 +381,7 @@ extension List {
     /// - Complexity: O(log(`self.count`) + `range.count`)
     public mutating func removeRange(range: Range<Int>) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
-        tree.withCursorAtPosition(range.startIndex) { cursor in
+        tree.withCursorAtOffset(range.startIndex) { cursor in
             cursor.remove(range.count)
         }
     }
@@ -398,7 +398,7 @@ extension List {
     /// - Complexity: O(log(`count`) + `range.count`)
     public mutating func replaceRange(range: Range<Int>, with elements: List<Element>) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
-        tree.withCursorAtPosition(range.startIndex) { cursor in
+        tree.withCursorAtOffset(range.startIndex) { cursor in
             cursor.remove(range.count)
             cursor.insert(elements.tree)
         }
@@ -409,15 +409,15 @@ extension List {
     /// - Complexity: O(log(`count`) + `max(range.count, elements.count)`)
     public mutating func replaceRange<C: CollectionType where C.Generator.Element == Element>(range: Range<Int>, with elements: C) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
-        tree.withCursorAtPosition(range.startIndex) { cursor in
+        tree.withCursorAtOffset(range.startIndex) { cursor in
             var generator = Optional(elements.generate())
-            while cursor.position < range.endIndex {
+            while cursor.offset < range.endIndex {
                 guard let element = generator!.next() else { generator = nil; break }
                 cursor.payload = element
                 cursor.moveForward()
             }
-            if cursor.position < range.endIndex {
-                cursor.remove(range.endIndex - cursor.position)
+            if cursor.offset < range.endIndex {
+                cursor.remove(range.endIndex - cursor.offset)
             }
             else {
                 cursor.insert(GeneratorSequence(generator!).lazy.map { (EmptyKey(), $0) })
