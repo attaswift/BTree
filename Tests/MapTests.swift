@@ -284,6 +284,24 @@ class MapTests: XCTestCase {
         XCTAssertEqual(m.debugDescription, "[0: \"0\", 1: \"1\"]")
     }
 
+    func testMapEqualityUnderEquivalence() {
+        let m1 = Map<Int, Int>(sortedElements: (0 ..< 100).map { ($0, $0) })
+        let m2 = Map<Int, Int>(sortedElements: (0 ..< 100).map { (8 * $0, $0) })
+        let m3 = Map<Int, Int>(sortedElements: (0 ..< 100).map { (3 * $0, $0) })
+
+        /// Return true iff `a` and `b` are some multiples of 2 of the same value.
+        func eq(a: (Int, Int), b: (Int, Int)) -> Bool {
+            var ak = a.0
+            var bk = b.0
+            while ak > 0 && ak & 1 == 0 { ak = ak >> 1 }
+            while bk > 0 && bk & 1 == 0 { bk = bk >> 1 }
+            return ak == bk
+        }
+
+        XCTAssertTrue(m1.elementsEqual(m2, isEquivalent: eq))
+        XCTAssertFalse(m1.elementsEqual(m3, isEquivalent: eq))
+    }
+
     func testMapEquality() {
         let m1: Map<Int, Int> = [5: 100, 4: 80, 3: 60, 2: 40, 1: 20]
         let m2: Map<Int, Int> = [1: 20, 2: 40, 3: 60, 4: 80, 5: 100]
@@ -295,7 +313,7 @@ class MapTests: XCTestCase {
         XCTAssertFalse(m1 == m3)
         XCTAssertFalse(m2 == m3)
         XCTAssertTrue(m3 == m3)
-}
+    }
 
     func testInsertions() {
         var m = Map<Int, Int>()

@@ -371,11 +371,42 @@ extension Map {
     }
 }
 
+extension Map {
+    //MARK: Equivalence
+
+    /// Return `true` iff `self` and `other` contain equivalent elements, using `isEquivalent` as the equivalence test.
+    ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two maps are divergent mutations originating from the same value.
+    ///
+    /// - Requires: `isEquivalent` is an [equivalence relation].
+    /// - Complexity:  O(`count`)
+    ///
+    /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
+    public func elementsEqual(other: Map, @noescape isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+        return try tree.elementsEqual(other.tree, isEquivalent: isEquivalent)
+    }
+}
+
+extension Map where Value: Equatable {
+    /// Return `true` iff `self` and `other` contain equivalent elements.
+    ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two maps are divergent mutations originating from the same value.
+    ///
+    /// - Complexity:  O(`count`)
+    public func elementsEqual(other: Map) -> Bool {
+        return tree.elementsEqual(other.tree)
+    }
+}
+
 /// Return true iff `a` is equal to `b`.
+///
+/// This function skips over shared subtrees when possible; this can drastically improve performance when the
+/// two maps are divergent mutations originating from the same value.
 @warn_unused_result
 public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
-    guard a.count == b.count else { return false }
-    return a.elementsEqual(b, isEquivalent: { ae, be in ae.0 == be.0 && ae.1 == be.1 })
+    return a.elementsEqual(b)
 }
 
 /// Return true iff `a` is not equal to `b`.
