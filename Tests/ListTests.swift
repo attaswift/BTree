@@ -227,6 +227,13 @@ class ListTests: XCTestCase {
         let l2: List<Int> = [5, 6, 7, 8, 9]
         l1.appendContentsOf(l2)
         XCTAssertElementsEqual(l1, 0..<10)
+
+        let l3: List<Int> = [10, 11, 12, 13, 14]
+        func appendAsSequence<E, S: SequenceType where S.Generator.Element == E>(inout list: List<E>, _ elements: S) {
+            list.appendContentsOf(elements)
+        }
+        appendAsSequence(&l1, l3)
+        XCTAssertElementsEqual(l1, 0..<15)
     }
 
     func testAppendContentsOfSequence() {
@@ -249,6 +256,13 @@ class ListTests: XCTestCase {
             XCTAssertElementsEqual(copy, ref)
         }
         XCTAssertElementsEqual(list, 0..<5)
+
+        var copy = list
+        func insertAsSequence<E, S: SequenceType where S.Generator.Element == E>(inout list: List<E>, _ elements: S, at index: Int) {
+            list.insertContentsOf(elements, at: index)
+        }
+        insertAsSequence(&copy, l, at: copy.count)
+        XCTAssertElementsEqual(copy, 0 ..< 10)
     }
 
     func testInsertContentsOfSequence() {
@@ -371,6 +385,12 @@ class ListTests: XCTestCase {
         XCTAssertElementsEqual(list, [0, 1, 10, 20, 30, 8, 9])
         list.replaceRange(1..<3, with: [50, 51, 52, 53, 54, 55])
         XCTAssertElementsEqual(list, [0, 50, 51, 52, 53, 54, 55, 20, 30, 8, 9])
+
+        func replaceAsSequence<E, C: CollectionType where C.Generator.Element == E>(inout list: List<E>, range: Range<Int>, with elements: C) {
+            list.replaceRange(range, with: elements)
+        }
+        replaceAsSequence(&list, range: 1 ..< 9, with: List(1 ..< 8))
+        XCTAssertElementsEqual(list, 0 ..< 10)
     }
 
     func testListEquality() {

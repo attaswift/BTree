@@ -326,6 +326,10 @@ extension List {
     ///
     /// - Complexity: O(log(`count`) + *n*) where *n* is the number of elements in the sequence.
     public mutating func appendContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S) {
+        if let list = elements as? List<Element> {
+            appendContentsOf(list)
+            return
+        }
         tree.withCursorAtOffset(tree.count) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
@@ -344,6 +348,10 @@ extension List {
     ///
     /// - Complexity: O(log(`self.count`) + *n*) where *n* is the number of elements inserted.
     public mutating func insertContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S, at index: Int) {
+        if let list = elements as? List<Element> {
+            insertContentsOf(list, at: index)
+            return
+        }
         tree.withCursorAtOffset(index) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
@@ -450,6 +458,10 @@ extension List: RangeReplaceableCollectionType {
     /// - Complexity: O(log(`count`) + `max(range.count, elements.count)`)
     public mutating func replaceRange<C: CollectionType where C.Generator.Element == Element>(range: Range<Int>, with elements: C) {
         precondition(range.startIndex >= 0 && range.endIndex <= count)
+        if let list = elements as? List<Element> {
+            replaceRange(range, with: list)
+            return
+        }
         tree.withCursorAtOffset(range.startIndex) { cursor in
             var generator = Optional(elements.generate())
             while cursor.offset < range.endIndex {
