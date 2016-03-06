@@ -485,7 +485,7 @@ Let's enumerate:
 [BTreeGenerator]: http://lorentey.github.io/BTree/api/Structs/BTreeGenerator.html
 [BTreeIndex]: http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html
 [BTreeCursor]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html
-[BTree.elementAtOffset]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree17elementAtOffsetu0_Rq_Ss10Comparable_FGS0_q_q0__FSiTq_q0__
+[BTree.elementAtOffset]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree15elementAtOffsetu0_Rq_Ss10Comparable_FGS0_q_q0__FSiTq_q0__
 [BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachu0_Rq_Ss10Comparable_FGS0_q_q0__FzFzTq_q0__T_T_
 [BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertu0_Rq_Ss10Comparable_FGS0_q_q0__FGVS_5BTreeq_q0__T_
 [BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeu0_Rq_Ss10Comparable_FGS0_q_q0__FT4fromq_2toq__GS0_q_q0__
