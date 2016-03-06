@@ -27,7 +27,7 @@ func XCTAssertEqual<T: Equatable>(@autoclosure expression1: () -> T, @autoclosur
     }
 }
 
-func XCTAssertElementsEqual<Element: Equatable, S1: SequenceType, S2: SequenceType where S1.Generator.Element == Element, S2.Generator.Element == Element>(a: S1, _ b: S2, file: FileString = __FILE__, line: UInt = __LINE__) {
+func assertEqualElements<Element: Equatable, S1: SequenceType, S2: SequenceType where S1.Generator.Element == Element, S2.Generator.Element == Element>(a: S1, _ b: S2, file: FileString = __FILE__, line: UInt = __LINE__) {
     let aa = Array(a)
     let ba = Array(b)
     if !aa.elementsEqual(ba) {
@@ -35,7 +35,7 @@ func XCTAssertElementsEqual<Element: Equatable, S1: SequenceType, S2: SequenceTy
     }
 }
 
-func XCTAssertElementsEqual<T1: Equatable, T2: Equatable, S1: SequenceType, S2: SequenceType where S1.Generator.Element == (T1, T2), S2.Generator.Element == (T1, T2)>(a: S1, _ b: S2, file: FileString = __FILE__, line: UInt = __LINE__) {
+func assertEqualElements<T1: Equatable, T2: Equatable, S1: SequenceType, S2: SequenceType where S1.Generator.Element == (T1, T2), S2.Generator.Element == (T1, T2)>(a: S1, _ b: S2, file: FileString = __FILE__, line: UInt = __LINE__) {
     let aa = Array(a)
     let ba = Array(b)
     if !aa.elementsEqual(ba, isEquivalent: { a, b in a.0 == b.0 && a.1 == b.1 }) {
@@ -45,11 +45,11 @@ func XCTAssertElementsEqual<T1: Equatable, T2: Equatable, S1: SequenceType, S2: 
 
 extension BTree {
     internal func assertKeysEqual(other: BTree<Key, Payload>, file: FileString = __FILE__, line: UInt = __LINE__) {
-        XCTAssertElementsEqual(self.map { $0.0 }, other.map { $0.0 }, file: file, line: line)
+        assertEqualElements(self.map { $0.0 }, other.map { $0.0 }, file: file, line: line)
     }
 
     internal func assertKeysEqual<S: SequenceType where S.Generator.Element == Key>(s: S, file: FileString = __FILE__, line: UInt = __LINE__) {
-        XCTAssertElementsEqual(self.map { $0.0 }, s, file: file, line: line)
+        assertEqualElements(self.map { $0.0 }, s, file: file, line: line)
     }
 }
 

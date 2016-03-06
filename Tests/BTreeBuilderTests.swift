@@ -23,14 +23,14 @@ class BTreeBuilderTests: XCTestCase {
         let tree = Tree(sortedElements: [], dropDuplicates: true, order: 5)
         tree.assertValid()
         assert(tree.order == 5)
-        XCTAssertElementsEqual(tree, [])
+        assertEqualElements(tree, [])
     }
 
     func testBTreeInitDropDuplicates() {
         let tree = Tree(sortedElements: [(0, "0"), (0, "1"), (0, "2"), (1, "3"), (1, "4")], dropDuplicates: true, order: 5)
         tree.assertValid()
         assert(tree.order == 5)
-        XCTAssertElementsEqual(tree, [(0, "2"), (1, "4")])
+        assertEqualElements(tree, [(0, "2"), (1, "4")])
     }
 
     func testEmpty() {
@@ -38,7 +38,7 @@ class BTreeBuilderTests: XCTestCase {
         let tree = builder.finish()
         tree.assertValid()
         assert(tree.order == 5)
-        XCTAssertElementsEqual(tree, [])
+        assertEqualElements(tree, [])
     }
 
     func testSingleElement() {
@@ -46,7 +46,7 @@ class BTreeBuilderTests: XCTestCase {
         builder.append((0, "0"))
         let tree = builder.finish()
         tree.assertValid()
-        XCTAssertElementsEqual(tree, [(0, "0")])
+        assertEqualElements(tree, [(0, "0")])
     }
 
     func testFullNodeWithDepth0() {
@@ -57,7 +57,7 @@ class BTreeBuilderTests: XCTestCase {
         let node = builder.finish()
         node.assertValid()
         node.forEachNode { XCTAssertEqual($0.elements.count, 3) }
-        XCTAssertElementsEqual(node, [(0, "0"), (1, "1"), (2, "2")])
+        assertEqualElements(node, [(0, "0"), (1, "1"), (2, "2")])
         XCTAssertEqual(node.depth, 0)
     }
 
@@ -69,7 +69,7 @@ class BTreeBuilderTests: XCTestCase {
         let node = builder.finish()
         node.assertValid()
         node.forEachNode { XCTAssertEqual($0.elements.count, 3) }
-        XCTAssertElementsEqual(node, (0 ..< 15).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 15).map { ($0, String($0)) })
         XCTAssertEqual(node.depth, 1)
     }
 
@@ -81,7 +81,7 @@ class BTreeBuilderTests: XCTestCase {
         let node = builder.finish()
         node.assertValid()
         node.forEachNode { XCTAssertEqual($0.elements.count, 3) }
-        XCTAssertElementsEqual(node, (0 ..< 63).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 63).map { ($0, String($0)) })
         XCTAssertEqual(node.depth, 2)
     }
 
@@ -92,7 +92,7 @@ class BTreeBuilderTests: XCTestCase {
         }
         let node = builder.finish()
         node.assertValid()
-        XCTAssertElementsEqual(node, (0 ..< 60).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 60).map { ($0, String($0)) })
         XCTAssertEqual(node.depth, 2)
     }
 
@@ -106,7 +106,7 @@ class BTreeBuilderTests: XCTestCase {
         let node = builder.finish()
         node.assertValid()
         node.forEachNode { XCTAssertEqual($0.elements.count, 3) }
-        XCTAssertElementsEqual(node, (0 ..< 63).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 63).map { ($0, String($0)) })
         XCTAssertEqual(node.depth, 2)
     }
 
@@ -119,7 +119,7 @@ class BTreeBuilderTests: XCTestCase {
         let node = builder.finish()
         node.assertValid()
         node.forEachNode { XCTAssertEqual($0.elements.count, 3) }
-        XCTAssertElementsEqual(node, (0 ..< 63).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 63).map { ($0, String($0)) })
         XCTAssertEqual(node.depth, 2)
     }
 
@@ -133,7 +133,7 @@ class BTreeBuilderTests: XCTestCase {
         let node = builder.finish()
         node.assertValid()
         node.forEachNode { XCTAssertEqual($0.elements.count, 3) }
-        XCTAssertElementsEqual(node, (0 ..< 63).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 63).map { ($0, String($0)) })
         XCTAssertEqual(node.depth, 2)
     }
 
@@ -146,7 +146,7 @@ class BTreeBuilderTests: XCTestCase {
         let node = builder.finish()
         node.assertValid()
         node.forEachNode { XCTAssertEqual($0.elements.count, 3) }
-        XCTAssertElementsEqual(node, (0 ..< 63).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 63).map { ($0, String($0)) })
         XCTAssertEqual(node.depth, 2)
     }
 
@@ -161,7 +161,7 @@ class BTreeBuilderTests: XCTestCase {
         builder.append((62, "62"))
         let node = builder.finish()
         node.assertValid()
-        XCTAssertElementsEqual(node, (0 ..< 63).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 63).map { ($0, String($0)) })
         XCTAssertEqual(node.depth, 2)
     }
 
@@ -176,7 +176,7 @@ class BTreeBuilderTests: XCTestCase {
         }
         let node = builder.finish()
         node.assertValid()
-        XCTAssertElementsEqual(node.map { $0.0 }, 0 ..< i)
+        assertEqualElements(node.map { $0.0 }, 0 ..< i)
     }
 
     func testAppendingOneElementThenANodeWithDepth1() {
@@ -192,7 +192,7 @@ class BTreeBuilderTests: XCTestCase {
         }
         let node = builder.finish()
         node.assertValid()
-        XCTAssertElementsEqual(node.map { $0.0 }, 0 ..< i)
+        assertEqualElements(node.map { $0.0 }, 0 ..< i)
     }
 
     func testAppendingTwoElementsThenANodeWithDepth1() {
@@ -209,7 +209,7 @@ class BTreeBuilderTests: XCTestCase {
         }
         let node = builder.finish()
         node.assertValid()
-        XCTAssertElementsEqual(node.map { $0.0 }, 0 ..< i)
+        assertEqualElements(node.map { $0.0 }, 0 ..< i)
     }
 
 }

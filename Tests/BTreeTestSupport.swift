@@ -158,7 +158,7 @@ class BTreeSupportTests: XCTestCase {
         XCTAssertEqual(node.depth, 0)
 
         XCTAssertFalse(node.isEmpty)
-        XCTAssertElementsEqual(node, [(0, "0"), (1, "1"), (2, "2"), (3, "3")])
+        assertEqualElements(node, [(0, "0"), (1, "1"), (2, "2"), (3, "3")])
     }
 
     func testMaximalNodeOfDepth1() {
@@ -183,7 +183,7 @@ class BTreeSupportTests: XCTestCase {
             i += 3
         }
 
-        XCTAssertElementsEqual(node, (0..<8).map { ($0, String($0)) })
+        assertEqualElements(node, (0..<8).map { ($0, String($0)) })
     }
 
     func testMinimalNodeOfDepth0() {
@@ -198,7 +198,7 @@ class BTreeSupportTests: XCTestCase {
         XCTAssertEqual(node.depth, 0)
 
         XCTAssertFalse(node.isEmpty)
-        XCTAssertElementsEqual(node, [(0, "0"), (1, "1")])
+        assertEqualElements(node, [(0, "0"), (1, "1")])
     }
 
     func testMinimalNodeOfDepth1() {
@@ -223,6 +223,6 @@ class BTreeSupportTests: XCTestCase {
             i += 2
         }
         
-        XCTAssertElementsEqual(node, (0..<3).map { ($0, String($0)) })
+        assertEqualElements(node, (0..<3).map { ($0, String($0)) })
     }
 }

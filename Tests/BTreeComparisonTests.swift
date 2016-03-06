@@ -85,7 +85,7 @@ class BTreeComparisonTests: XCTestCase {
             XCTAssertTrue(c.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
             XCTAssertTrue(c.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
 
-            XCTAssertElementsEqual(a.map { $0.0 }, reference)
+            assertEqualElements(a.map { $0.0 }, reference)
         }
     }
 

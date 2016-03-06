@@ -17,7 +17,7 @@ class OrderedSetTests: XCTestCase {
         XCTAssertTrue(set.isEmpty)
         XCTAssertEqual(set.count, 0)
         XCTAssertEqual(set.startIndex, set.endIndex)
-        XCTAssertElementsEqual(set, [])
+        assertEqualElements(set, [])
     }
 
     func test_singleElement() {
@@ -27,7 +27,7 @@ class OrderedSetTests: XCTestCase {
         XCTAssertEqual(set.count, 1)
         XCTAssertNotEqual(set.startIndex, set.endIndex)
         XCTAssertEqual(set.startIndex.successor(), set.endIndex)
-        XCTAssertElementsEqual(set, [42])
+        assertEqualElements(set, [42])
 
         XCTAssertEqual(set[set.startIndex], 42)
         XCTAssertTrue(set.contains(42))
@@ -38,7 +38,7 @@ class OrderedSetTests: XCTestCase {
         let set = OrderedSet((0 ..< c).reverse())
 
         XCTAssertEqual(set.count, c)
-        XCTAssertElementsEqual(set, 0 ..< c)
+        assertEqualElements(set, 0 ..< c)
     }
 
     func test_unsortedElements_duplicateItems() {
@@ -46,7 +46,7 @@ class OrderedSetTests: XCTestCase {
         let set = OrderedSet((0 ..< c).reverse().repeatEach(10))
 
         XCTAssertEqual(set.count, c)
-        XCTAssertElementsEqual(set, 0 ..< c)
+        assertEqualElements(set, 0 ..< c)
     }
 
     func test_sortedElements_uniqueItems() {
@@ -54,7 +54,7 @@ class OrderedSetTests: XCTestCase {
         let set = OrderedSet(sortedElements: 0 ..< c)
 
         XCTAssertEqual(set.count, c)
-        XCTAssertElementsEqual(set, 0 ..< c)
+        assertEqualElements(set, 0 ..< c)
     }
 
     func test_sortedElements_duplicateItems() {
@@ -62,14 +62,14 @@ class OrderedSetTests: XCTestCase {
         let set = OrderedSet(sortedElements: (0 ..< c).repeatEach(10))
 
         XCTAssertEqual(set.count, c)
-        XCTAssertElementsEqual(set, 0 ..< c)
+        assertEqualElements(set, 0 ..< c)
     }
 
     func test_arrayLiteral() {
         let set: OrderedSet = [1, 4, 6, 4, 2, 3, 6, 5, 5, 1, 1, 4, 3, 3]
 
         XCTAssertEqual(set.count, 6)
-        XCTAssertElementsEqual(set, 1 ... 6)
+        assertEqualElements(set, 1 ... 6)
     }
 
     func test_subscriptWithIndexing() {
@@ -94,7 +94,7 @@ class OrderedSetTests: XCTestCase {
         var start = set.startIndex
         var end = set.endIndex
         while i <= j {
-            XCTAssertElementsEqual(set[start ..< end], i ..< j)
+            assertEqualElements(set[start ..< end], i ..< j)
             i += 1
             start = start.successor()
             j -= 1
@@ -105,7 +105,7 @@ class OrderedSetTests: XCTestCase {
     func test_generate() {
         let c = 10_000
         let set = OrderedSet(0 ..< c)
-        XCTAssertElementsEqual(GeneratorSequence(set.generate()), 0 ..< c)
+        assertEqualElements(GeneratorSequence(set.generate()), 0 ..< c)
     }
 
     func test_forEach() {
@@ -127,28 +127,28 @@ class OrderedSetTests: XCTestCase {
             i += 1
             return n
         }
-        XCTAssertElementsEqual(r, 0 ..< c)
+        assertEqualElements(r, 0 ..< c)
     }
 
     func test_flatMap_Sequence() {
         let c = 1000
         let set = OrderedSet(0 ..< c)
         let r = set.flatMap { [$0, $0, $0] }
-        XCTAssertElementsEqual(r, (0 ..< c).repeatEach(3))
+        assertEqualElements(r, (0 ..< c).repeatEach(3))
     }
 
     func test_flatMap_Optional() {
         let c = 1000
         let set = OrderedSet(0 ..< c)
         let r = set.flatMap { $0 & 1 == 0 ? $0 / 2 : nil }
-        XCTAssertElementsEqual(r, 0 ..< 500)
+        assertEqualElements(r, 0 ..< 500)
     }
 
     func test_filter() {
         let c = 1000
         let set = OrderedSet(0 ..< c)
         let r = set.filter { $0 & 1 == 0 }
-        XCTAssertElementsEqual(r, (0 ..< 500).map { 2 * $0 })
+        assertEqualElements(r, (0 ..< 500).map { 2 * $0 })
     }
 
     func test_reduce() {
@@ -170,11 +170,11 @@ class OrderedSetTests: XCTestCase {
     func test_drop() {
         let c = 500
         let set = OrderedSet(0 ..< c)
-        XCTAssertElementsEqual(set.dropFirst(), 1 ..< c)
-        XCTAssertElementsEqual(set.dropLast(), 0 ..< c - 1)
+        assertEqualElements(set.dropFirst(), 1 ..< c)
+        assertEqualElements(set.dropLast(), 0 ..< c - 1)
         for i in 0 ..< c {
-            XCTAssertElementsEqual(set.dropFirst(i), i ..< c)
-            XCTAssertElementsEqual(set.dropLast(i), 0 ..< c - i)
+            assertEqualElements(set.dropFirst(i), i ..< c)
+            assertEqualElements(set.dropLast(i), 0 ..< c - i)
         }
     }
 
@@ -183,20 +183,20 @@ class OrderedSetTests: XCTestCase {
         let set = OrderedSet(0 ..< c)
         var index = set.startIndex
         for i in 0 ..< c {
-            XCTAssertElementsEqual(set.prefix(i), 0 ..< i)
-            XCTAssertElementsEqual(set.prefixThrough(index), 0 ... i)
-            XCTAssertElementsEqual(set.prefixThrough(i), 0 ... i)
-            XCTAssertElementsEqual(set.prefixUpTo(index), 0 ..< i)
-            XCTAssertElementsEqual(set.prefixUpTo(i), 0 ..< i)
+            assertEqualElements(set.prefix(i), 0 ..< i)
+            assertEqualElements(set.prefixThrough(index), 0 ... i)
+            assertEqualElements(set.prefixThrough(i), 0 ... i)
+            assertEqualElements(set.prefixUpTo(index), 0 ..< i)
+            assertEqualElements(set.prefixUpTo(i), 0 ..< i)
             index = index.successor()
         }
         XCTAssertEqual(index, set.endIndex)
-        XCTAssertElementsEqual(set.prefix(c), 0 ..< c)
-        XCTAssertElementsEqual(set.prefixThrough(c), 0 ..< c)
-        XCTAssertElementsEqual(set.prefixUpTo(set.endIndex), 0 ..< c)
-        XCTAssertElementsEqual(set.prefixUpTo(c), 0 ..< c)
+        assertEqualElements(set.prefix(c), 0 ..< c)
+        assertEqualElements(set.prefixThrough(c), 0 ..< c)
+        assertEqualElements(set.prefixUpTo(set.endIndex), 0 ..< c)
+        assertEqualElements(set.prefixUpTo(c), 0 ..< c)
 
-        XCTAssertElementsEqual(set.prefixUpTo(2 * c), 0 ..< c)
+        assertEqualElements(set.prefixUpTo(2 * c), 0 ..< c)
 
     }
 
@@ -205,17 +205,17 @@ class OrderedSetTests: XCTestCase {
         let set = OrderedSet(0 ..< c)
         var index = set.startIndex
         for i in 0 ..< c {
-            XCTAssertElementsEqual(set.suffix(i), c - i ..< c)
-            XCTAssertElementsEqual(set.suffixFrom(index), i ..< c)
-            XCTAssertElementsEqual(set.suffixFrom(i), i ..< c)
+            assertEqualElements(set.suffix(i), c - i ..< c)
+            assertEqualElements(set.suffixFrom(index), i ..< c)
+            assertEqualElements(set.suffixFrom(i), i ..< c)
             index = index.successor()
         }
         XCTAssertEqual(index, set.endIndex)
-        XCTAssertElementsEqual(set.suffix(c), 0 ..< c)
-        XCTAssertElementsEqual(set.suffixFrom(set.endIndex), [])
-        XCTAssertElementsEqual(set.suffixFrom(c), [])
+        assertEqualElements(set.suffix(c), 0 ..< c)
+        assertEqualElements(set.suffixFrom(set.endIndex), [])
+        assertEqualElements(set.suffixFrom(c), [])
 
-        XCTAssertElementsEqual(set.suffixFrom(2 * c), [])
+        assertEqualElements(set.suffixFrom(2 * c), [])
     }
 
     func test_description() {
@@ -253,12 +253,12 @@ class OrderedSetTests: XCTestCase {
         set.insert(4)
         set.insert(2)
         set.insert(3)
-        XCTAssertElementsEqual(set, 1 ... 4)
+        assertEqualElements(set, 1 ... 4)
 
         for i in 5 ... 100 {
             set.insert(i)
         }
-        XCTAssertElementsEqual(set, 1 ... 100)
+        assertEqualElements(set, 1 ... 100)
     }
 
     func test_remove() {
@@ -287,56 +287,56 @@ class OrderedSetTests: XCTestCase {
         var set = OrderedSet(0 ..< 20)
 
         XCTAssertEqual(set.removeFirst(), 0)
-        XCTAssertElementsEqual(set, 1 ..< 20)
+        assertEqualElements(set, 1 ..< 20)
 
         set.removeFirst(5)
-        XCTAssertElementsEqual(set, 6 ..< 20)
+        assertEqualElements(set, 6 ..< 20)
 
         XCTAssertEqual(set.popFirst(), 6)
-        XCTAssertElementsEqual(set, 7 ..< 20)
+        assertEqualElements(set, 7 ..< 20)
 
         XCTAssertEqual(set.removeLast(), 19)
-        XCTAssertElementsEqual(set, 7 ..< 19)
+        assertEqualElements(set, 7 ..< 19)
 
         set.removeLast(5)
-        XCTAssertElementsEqual(set, 7 ..< 14)
+        assertEqualElements(set, 7 ..< 14)
 
         XCTAssertEqual(set.popLast(), 13)
-        XCTAssertElementsEqual(set, 7 ..< 13)
+        assertEqualElements(set, 7 ..< 13)
 
         set.removeAll()
-        XCTAssertElementsEqual(set, [])
+        assertEqualElements(set, [])
     }
 
     func test_sort() {
         var set = OrderedSet(0 ..< 10)
-        XCTAssertElementsEqual(set.sort(), set)
+        assertEqualElements(set.sort(), set)
     }
 
     func test_setOperations() {
         let a = OrderedSet(0 ..< 30)
         let b = OrderedSet(20 ..< 50)
 
-        XCTAssertElementsEqual(a.union(b), 0 ..< 50)
-        XCTAssertElementsEqual(a.intersect(b), 20 ..< 30)
-        XCTAssertElementsEqual(a.subtract(b), 0 ..< 20)
-        XCTAssertElementsEqual(a.exclusiveOr(b), Array(0 ..< 20) + Array(30 ..< 50))
+        assertEqualElements(a.union(b), 0 ..< 50)
+        assertEqualElements(a.intersect(b), 20 ..< 30)
+        assertEqualElements(a.subtract(b), 0 ..< 20)
+        assertEqualElements(a.exclusiveOr(b), Array(0 ..< 20) + Array(30 ..< 50))
 
         var x = a
         x.unionInPlace(b)
-        XCTAssertElementsEqual(x, 0 ..< 50)
+        assertEqualElements(x, 0 ..< 50)
 
         x = a
         x.intersectInPlace(b)
-        XCTAssertElementsEqual(x, 20 ..< 30)
+        assertEqualElements(x, 20 ..< 30)
 
         x = a
         x.subtractInPlace(b)
-        XCTAssertElementsEqual(x, 0 ..< 20)
+        assertEqualElements(x, 0 ..< 20)
 
         x = a
         x.exclusiveOrInPlace(b)
-        XCTAssertElementsEqual(x, Array(0 ..< 20) + Array(30 ..< 50))
+        assertEqualElements(x, Array(0 ..< 20) + Array(30 ..< 50))
     }
 
     func test_setComparisons() {

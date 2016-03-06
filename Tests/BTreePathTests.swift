@@ -38,7 +38,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
         let node = tree.root.clone()
         withExtendedLifetime(node) {
             let result = body(node)
-            XCTAssertElementsEqual(result, tree)
+            assertEqualElements(result, tree)
         }
     }
 
@@ -369,13 +369,13 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 let (prefix, separator, suffix) = path.split()
 
                 prefix.assertValid()
-                XCTAssertElementsEqual(prefix, (0..<i).map { ($0, String($0)) })
+                assertEqualElements(prefix, (0..<i).map { ($0, String($0)) })
 
                 XCTAssertEqual(separator.0, i)
                 XCTAssertEqual(separator.1, String(i))
 
                 suffix.assertValid()
-                XCTAssertElementsEqual(suffix, (i + 1 ..< c).map { ($0, String($0)) })
+                assertEqualElements(suffix, (i + 1 ..< c).map { ($0, String($0)) })
 
                 path.moveForward()
             }
@@ -393,7 +393,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
 
                 let prefix = path.prefix()
                 prefix.assertValid()
-                XCTAssertElementsEqual(prefix, (0..<i).map { ($0, String($0)) })
+                assertEqualElements(prefix, (0..<i).map { ($0, String($0)) })
 
                 path.moveForward()
             }
@@ -411,7 +411,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
 
                 let suffix = path.suffix()
                 suffix.assertValid()
-                XCTAssertElementsEqual(suffix, (i + 1 ..< c).map { ($0, String($0)) })
+                assertEqualElements(suffix, (i + 1 ..< c).map { ($0, String($0)) })
 
                 path.moveForward()
             }
