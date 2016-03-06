@@ -480,6 +480,11 @@ extension List: RangeReplaceableCollectionType {
 }
 
 /// Returns true iff the two lists have the same elements in the same order.
+///
+/// This function skips over shared subtrees when possible; this can drastically improve performance when the
+/// two lists are divergent mutations originating from the same value.
+///
+/// - Complexity: O(`count`)
 @warn_unused_result
 public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
     return a.elementsEqual(b)

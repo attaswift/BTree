@@ -29,6 +29,8 @@ public struct OrderedSet<Element: Comparable> {
 }
 
 extension OrderedSet: ArrayLiteralConvertible {
+    //MARK: Initializers
+
     /// Create an empty set.
     public init() {
         self.tree = Tree()
@@ -58,6 +60,8 @@ extension OrderedSet: ArrayLiteralConvertible {
 }
 
 extension OrderedSet: CollectionType {
+    //MARK: CollectionType
+
     public typealias Index = BTreeIndex<Element, Void>
     public typealias Generator = BTreeKeyGenerator<Element>
     public typealias SubSequence = OrderedSet<Element>
@@ -107,6 +111,10 @@ extension OrderedSet: CollectionType {
     public func generate() -> Generator {
         return Generator(tree.generate())
     }
+}
+
+extension OrderedSet {
+    //MARK: Algorithms
 
     /// Call `body` on each element in `self` in ascending order.
     public func forEach(@noescape body: (Element) throws -> Void) rethrows {
@@ -150,6 +158,10 @@ extension OrderedSet: CollectionType {
     public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
         return try tree.reduce(initial, combine: { try combine($0, $1.0) })
     }
+}
+
+extension OrderedSet {
+    //MARK: Extractions
 
     /// Return the smallest element in the set, or `nil` if the set is empty.
     ///
@@ -278,6 +290,8 @@ extension OrderedSet: CollectionType {
 }
 
 extension OrderedSet: CustomStringConvertible, CustomDebugStringConvertible {
+    //MARK: Conversion to string
+
     /// A textual representation of this set.
     public var description: String {
         let contents = self.map { String(reflecting: $0) }
@@ -291,6 +305,8 @@ extension OrderedSet: CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 extension OrderedSet {
+    //MARK: Queries
+
     /// Return true if the set contains `element`.
     ///
     /// - Complexity: O(log(`count`))
@@ -306,6 +322,84 @@ extension OrderedSet {
     public func indexOf(member: Element) -> BTreeIndex<Element, Void>? {
         return tree.indexOf(member)
     }
+}
+
+extension OrderedSet {
+    //MARK: Set comparions
+
+    /// Returns `true` iff no members in this set are also included in `other`.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    @warn_unused_result
+    public func isDisjointWith(other: OrderedSet<Element>) -> Bool {
+        return tree.isDisjointWith(other.tree)
+    }
+
+    /// Returns `true` iff all members in this set are also included in `other`.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    @warn_unused_result
+    public func isSubsetOf(other: OrderedSet<Element>) -> Bool {
+        return tree.isSubsetOf(other.tree)
+    }
+
+    /// Returns `true` iff all members in this set are also included in `other`, but the two sets aren't equal.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    @warn_unused_result
+    public func isStrictSubsetOf(other: OrderedSet<Element>) -> Bool {
+        return tree.isStrictSubsetOf(other.tree)
+    }
+
+    /// Returns `true` iff all members in `other` are also included in this set.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    @warn_unused_result
+    public func isSupersetOf(other: OrderedSet<Element>) -> Bool {
+        return tree.isSupersetOf(other.tree)
+    }
+
+    /// Returns `true` iff all members in `other` are also included in this set, but the two sets aren't equal.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    @warn_unused_result
+    public func isStrictSupersetOf(other: OrderedSet<Element>) -> Bool {
+        return tree.isStrictSupersetOf(other.tree)
+    }
+}
+
+extension OrderedSet {
+    //MARK: Insertion
 
     /// Insert a member into the set.
     ///
@@ -313,6 +407,10 @@ extension OrderedSet {
     public mutating func insert(element: Element) {
         tree.insertOrReplace((element, ()))
     }
+}
+
+extension OrderedSet {
+    //MARK: Removal
 
     /// Remove the member from the set and return it if it was present.
     ///
@@ -374,14 +472,24 @@ extension OrderedSet {
     public mutating func removeAll() {
         tree.removeAll()
     }
+}
+
+extension OrderedSet {
+    //MARK: Sorting
 
     /// Return an `Array` containing the members of this set, in ascending order.
+    ///
+    /// `Map` already keeps its elements sorted, so this is equivalent to `Array(self)`.
     ///
     /// - Complexity: O(`count`)
     public func sort() -> [Element] {
         // The set is already sorted.
         return Array(self)
     }
+}
+
+extension OrderedSet {
+    //MARK: Set operations
 
     /// Return a set containing all members in both this set and `other`.
     ///
@@ -489,75 +597,5 @@ extension OrderedSet {
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public mutating func exclusiveOrInPlace(other: OrderedSet<Element>) {
         self = self.exclusiveOr(other)
-    }
-
-    /// Returns `true` iff no members in this set are also included in `other`.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    @warn_unused_result
-    public func isDisjointWith(other: OrderedSet<Element>) -> Bool {
-        return tree.isDisjointWith(other.tree)
-    }
-
-    /// Returns `true` iff all members in this set are also included in `other`.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    @warn_unused_result
-    public func isSubsetOf(other: OrderedSet<Element>) -> Bool {
-        return tree.isSubsetOf(other.tree)
-    }
-
-    /// Returns `true` iff all members in this set are also included in `other`, but the two sets aren't equal.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    @warn_unused_result
-    public func isStrictSubsetOf(other: OrderedSet<Element>) -> Bool {
-        return tree.isStrictSubsetOf(other.tree)
-    }
-
-    /// Returns `true` iff all members in `other` are also included in this set.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    @warn_unused_result
-    public func isSupersetOf(other: OrderedSet<Element>) -> Bool {
-        return tree.isSupersetOf(other.tree)
-    }
-
-    /// Returns `true` iff all members in `other` are also included in this set, but the two sets aren't equal.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    @warn_unused_result
-    public func isStrictSupersetOf(other: OrderedSet<Element>) -> Bool {
-        return tree.isStrictSupersetOf(other.tree)
     }
 }
