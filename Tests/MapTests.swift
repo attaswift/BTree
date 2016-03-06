@@ -342,6 +342,21 @@ class MapTests: XCTestCase {
         XCTAssertEqual(Array(m.values), [10, 18])
     }
 
+    func testRemoveAtOffset() {
+        var m: Map<Int, Int> = [1: 2, 5: 10, 3: 6, 9: 18]
+
+        m.removeAtOffset(2)
+        assertEqualElements(m, [(1, 2), (3, 6), (9, 18)])
+    }
+
+    func testRemoveAtOffsets() {
+        var m: Map<Int, Int> = [1: 2, 5: 10, 3: 6, 9: 18]
+
+        m.removeAtOffsets(1 ..< 3)
+        assertEqualElements(m, [(1, 2), (9, 18)])
+    }
+
+
     func testReplacements() {
         var m: Map<Int, Int> = [1: 2, 5: 10, 3: 6, 9: 18]
 

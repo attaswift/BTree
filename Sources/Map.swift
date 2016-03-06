@@ -333,6 +333,23 @@ extension Map {
     public mutating func updateValue(value: Value, atOffset offset: Int) -> Value {
         return tree.setPayloadAt(offset, to: value)
     }
+
+    /// Remove and return the (key, value) pair at the specified offset from the start of the map.
+    ///
+    /// - Complexity: O(log(`count`))
+    public mutating func removeAtOffset(offset: Int) -> Element {
+        return tree.removeAt(offset)
+    }
+
+    /// Remove all (key, value) pairs in the specified offset range.
+    ///
+    /// - Complexity: O(log(`count`))
+    public mutating func removeAtOffsets(offsets: Range<Int>) {
+        precondition(offsets.startIndex >= 0 && offsets.endIndex <= count)
+        tree.withCursorAtOffset(offsets.startIndex) { cursor in
+            cursor.remove(offsets.count)
+        }
+    }
 }
 
 extension Map {
