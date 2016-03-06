@@ -457,3 +457,39 @@ extension Map {
 public func +<Key: Comparable, Value>(a: Map<Key, Value>, b: Map<Key, Value>) -> Map<Key, Value> {
     return a.merge(b)
 }
+
+extension Map {
+    //MARK: Including and excluding keys
+
+    /// Return a map that contains all elements in `self` whose keys are in `keys`.
+    ///
+    /// - Complexity: O(`keys.count` * log(`count`))
+    @warn_unused_result
+    public func including(keys: OrderedSet<Key>) -> Map {
+        return Map(self.tree.intersect(sortedKeys: keys))
+    }
+
+    /// Return a map that contains all elements in `self` whose keys are in `keys`.
+    ///
+    /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
+    @warn_unused_result
+    public func including<S: SequenceType where S.Generator.Element == Key>(keys: S) -> Map {
+        return including(OrderedSet(keys))
+    }
+
+    /// Return a map that contains all elements in `self` whose keys are not in `keys`.
+    ///
+    /// - Complexity: O(`keys.count` * log(`count`))
+    @warn_unused_result
+    public func excluding(keys: OrderedSet<Key>) -> Map {
+        return Map(self.tree.subtract(sortedKeys: keys))
+    }
+
+    /// Return a map that contains all elements in `self` whose keys are not in `keys`.
+    ///
+    /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
+    @warn_unused_result
+    public func excluding<S: SequenceType where S.Generator.Element == Key>(keys: S) -> Map {
+        return excluding(OrderedSet(keys))
+    }
+}

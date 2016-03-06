@@ -377,4 +377,22 @@ class MapTests: XCTestCase {
 
         assertEqualElements(m1 + m2, Map([1: 2, 2: 20, 3: 30, 4: 40, 5: 10, 6: 12]))
     }
+
+    func testIncluding() {
+        let m = Map((0 ..< 20).map { ($0, String($0)) })
+
+        assertEqualElements(m.including([]), [])
+        assertEqualElements(m.including(5 ..< 10), (5 ..< 10).map { ($0, String($0)) })
+        assertEqualElements(m.including([0, 5, 10, 15]), [0, 5, 10, 15].map { ($0, String($0)) })
+        assertEqualElements(m.including(-10 ..< 30), m)
+    }
+
+    func testExcluding() {
+        let m = Map((0 ..< 20).map { ($0, String($0)) })
+
+        assertEqualElements(m.excluding([]), m)
+        assertEqualElements(m.excluding(5 ..< 10), ([(0 ..< 5), 10 ..< 20] as [Range<Int>]).flatten().map { (k) -> (Int, String) in (k, String(k)) })
+        assertEqualElements(m.excluding([0, 5, 10, 15]), ([1 ..< 5, 6 ..< 10, 11 ..< 15, 16 ..< 20] as [Range<Int>]).flatten().map { (k) -> (Int, String) in (k, String(k)) })
+        assertEqualElements(m.excluding(-10 ..< 30), [])
+    }
 }
