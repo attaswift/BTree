@@ -131,6 +131,35 @@ class ListTests: XCTestCase {
         XCTAssertElementsEqual(r, (0..<50).map { 2 * $0 })
     }
 
+    func testElementsEqualWithEquivalence() {
+        let list1 = List<Int>(0..<100)
+        let list2 = List<Int>((0..<100).map { $0 * 8 })
+        let list3 = List<Int>((0..<100).map { $0 * 3 })
+
+            // Return true iff v1 and v2 are some multiples of 2 of the same value.
+        func foo(v1: Int, _ v2: Int) -> Bool {
+            var v1 = v1
+            var v2 = v2
+            while v1 > 0 && v1 & 1 == 0 { v1 = v1 >> 1 }
+            while v2 > 0 && v2 & 1 == 0 { v2 = v2 >> 1 }
+            return v1 == v2
+        }
+
+        XCTAssertTrue(list1.elementsEqual(list1, isEquivalent: foo))
+        XCTAssertTrue(list1.elementsEqual(list2, isEquivalent: foo))
+        XCTAssertFalse(list1.elementsEqual(list3, isEquivalent: foo))
+    }
+
+    func testElementsEqual() {
+        let list1 = List<Int>(0..<100)
+        let list2 = List<Int>(0..<100)
+        let list3 = List<Int>(Array(0..<99) + [50])
+
+        XCTAssertTrue(list1.elementsEqual(list1))
+        XCTAssertTrue(list1.elementsEqual(list2))
+        XCTAssertFalse(list1.elementsEqual(list3))
+    }
+
     func testIndexOfPredicate() {
         let list = List<Int>(0..<50)
         for v in 0 ..< 50 {

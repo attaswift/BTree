@@ -220,6 +220,24 @@ extension List {
         }
         return result
     }
+}
+
+public extension List {
+    //MARK: Queries
+
+    /// Return `true` iff `self` and `other` contain equivalent elements, using `isEquivalent` as the equivalence test.
+    ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two lists are divergent mutations originating from the same value.
+    ///
+    /// - Requires: `isEquivalent` is an [equivalence relation].
+    /// - Complexity:  O(`count`)
+    ///
+    /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
+    @warn_unused_result
+    public func elementsEqual(other: List<Element>, @noescape isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+        return try self.tree.elementsEqual(other.tree, isEquivalent: { try isEquivalent($0.1, $1.1) })
+    }
 
     /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if
     /// such value is not found.
@@ -240,6 +258,21 @@ extension List {
 }
 
 public extension List where Element: Equatable {
+
+    /// Return `true` iff `self` and `other` contain equal elements.
+    ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two lists are divergent mutations originating from the same value.
+    ///
+    /// - Requires: `isEquivalent` is an [equivalence relation].
+    /// - Complexity:  O(`count`)
+    ///
+    /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
+    @warn_unused_result
+    public func elementsEqual(other: List<Element>) -> Bool {
+        return self.tree.elementsEqual(other.tree, isEquivalent: { $0.1 == $1.1 })
+    }
+
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
     ///
     /// - Complexity: O(`count`)
@@ -437,7 +470,6 @@ extension List {
 /// Returns true iff the two lists have the same elements in the same order.
 @warn_unused_result
 public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
-    guard a.count == b.count else { return false }
     return a.elementsEqual(b)
 }
 
