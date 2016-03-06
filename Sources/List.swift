@@ -431,7 +431,7 @@ extension List {
     }
 }
 
-extension List {
+extension List: RangeReplaceableCollectionType {
     //MARK: Range replacement
 
     /// Replace elements in `range` with `elements`.
