@@ -45,9 +45,47 @@ internal struct EmptyKey: Comparable { }
 internal func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
 internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
 
-//MARK: CollectionType
+extension List {
+    //MARK: Initializers
+
+    /// Initialize a new list from the given elements.
+    ///
+    /// - Complexity: O(*n*) where *n* is the number of elements in the sequence.
+    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
+        self.init(Tree(sortedElements: elements.lazy.map { (EmptyKey(), $0) }))
+    }
+}
+
+extension List: ArrayLiteralConvertible {
+    //MARK: Conversion from an array literal
+
+    /// Initialize a new list from the given elements.
+    public init(arrayLiteral elements: Element...) {
+        self.init(elements)
+    }
+}
+
+extension List: CustomStringConvertible {
+    //MARK: String conversion
+
+    /// A textual representation of this list.
+    public var description: String {
+        let contents = self.map { element in String(reflecting: element) }
+        return "[" + contents.joinWithSeparator(", ") + "]"
+    }
+}
+
+extension List: CustomDebugStringConvertible {
+    /// A textual representation of this list, suitable for debugging.
+    public var debugDescription: String {
+        let contents = self.map { element in String(reflecting: element) }
+        return "[" + contents.joinWithSeparator(", ") + "]"
+    }
+}
 
 extension List: MutableCollectionType {
+    //MARK: CollectionType
+    
     public typealias Index = Int
     public typealias Generator = BTreePayloadGenerator<Element>
     public typealias SubSequence = List<Element>
@@ -103,9 +141,9 @@ extension List: MutableCollectionType {
     }
 }
 
-// MARK: Algorithms
-
 extension List {
+    // MARK: Algorithms
+    
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
@@ -183,7 +221,7 @@ extension List {
         return result
     }
 
-    /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if 
+    /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if
     /// such value is not found.
     ///
     /// - Complexity: O(`count`)
@@ -225,47 +263,9 @@ public extension List where Element: Equatable {
     }
 }
 
-//MARK: Initializers
-
 extension List {
-    /// Initialize a new list from the given elements.
-    ///
-    /// - Complexity: O(*n*) where *n* is the number of elements in the sequence.
-    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
-        self.init(Tree(sortedElements: elements.lazy.map { (EmptyKey(), $0) }))
-    }
-}
+    //MARK: Insertion
 
-//MARK: Literal conversion
-
-extension List: ArrayLiteralConvertible {
-    /// Initialize a new list from the given elements.
-    public init(arrayLiteral elements: Element...) {
-        self.init(elements)
-    }
-}
-
-//MARK: String conversion
-
-extension List: CustomStringConvertible {
-    /// A textual representation of this list.
-    public var description: String {
-        let contents = self.map { element in String(reflecting: element) }
-        return "[" + contents.joinWithSeparator(", ") + "]"
-    }
-}
-
-extension List: CustomDebugStringConvertible {
-    /// A textual representation of this list, suitable for debugging.
-    public var debugDescription: String {
-        let contents = self.map { element in String(reflecting: element) }
-        return "[" + contents.joinWithSeparator(", ") + "]"
-    }
-}
-
-//MARK: Insertion
-
-extension List {
     /// Append `element` to the end of this list.
     ///
     /// - Complexity: O(log(`count`))
@@ -315,6 +315,10 @@ extension List {
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
     }
+}
+
+extension List {
+    //MARK: Removal
 
     /// Remove and return the element at `index`.
     ///
@@ -392,6 +396,10 @@ extension List {
     public mutating func removeAll() {
         tree = Tree()
     }
+}
+
+extension List {
+    //MARK: Range replacement
 
     /// Replace elements in `range` with `elements`.
     ///

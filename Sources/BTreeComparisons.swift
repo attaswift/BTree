@@ -11,6 +11,9 @@ extension BTree {
 
     /// Return `true` iff `self` and `other` contain equivalent elements, using `isEquivalent` as the equivalence test.
     ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the 
+    /// two trees are divergent mutations originating from the same value.
+    ///
     /// - Requires: `isEquivalent` is an [equivalence relation].
     /// - Complexity:  O(`count`)
     ///
