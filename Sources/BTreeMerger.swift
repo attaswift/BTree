@@ -136,6 +136,61 @@ extension BTree {
         }
         return m.finish()
     }
+
+
+    /// Return a tree that contains all elements in `self` whose key is not in the supplied sorted sequence.
+    ///
+    /// - Requires: `sortedKeys` is sorted in ascending order.
+    /// - Complexity: O(*n* * log(`count`)), where *n* is the number of keys in `sortedKeys`.
+    public func subtract<S: SequenceType where S.Generator.Element == Key>(sortedKeys sortedKeys: S) -> BTree {
+        if self.isEmpty { return self }
+
+        var b = BTreeBuilder<Key, Payload>(order: self.order)
+        var lastKey: Key? = nil
+        var path = BTreeStrongPath(startOf: self.root)
+        outer: for key in sortedKeys {
+            precondition(lastKey <= key)
+            while path.key < key {
+                b.append(path.nextPart(until: key, inclusive: false))
+                if path.isAtEnd { break outer }
+            }
+            while path.key == key {
+                path.nextPart(until: key, inclusive: true)
+                if path.isAtEnd { break outer }
+            }
+            lastKey = key
+        }
+        if !path.isAtEnd {
+            b.append(path.element)
+            b.appendWithoutCloning(path.suffix().root)
+        }
+        return BTree(b.finish())
+    }
+
+    /// Return a tree that contains all elements in `self` whose key is in the supplied sorted sequence.
+    ///
+    /// - Requires: `sortedKeys` is sorted in ascending order.
+    /// - Complexity: O(*n* * log(`count`)), where *n* is the number of keys in `sortedKeys`.
+    public func intersect<S: SequenceType where S.Generator.Element == Key>(sortedKeys sortedKeys: S) -> BTree {
+        if self.isEmpty { return self }
+
+        var b = BTreeBuilder<Key, Payload>(order: self.order)
+        var lastKey: Key? = nil
+        var path = BTreeStrongPath(startOf: self.root)
+        outer: for key in sortedKeys {
+            precondition(lastKey <= key)
+            while path.key < key {
+                path.nextPart(until: key, inclusive: false)
+                if path.isAtEnd { break outer }
+            }
+            while path.key == key {
+                b.append(path.nextPart(until: key, inclusive: true))
+                if path.isAtEnd { break outer }
+            }
+            lastKey = key
+        }
+        return BTree(b.finish())
+    }
 }
 
 enum BTreeCopyLimit {

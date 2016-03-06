@@ -479,4 +479,44 @@ class BTreeMergeTests: XCTestCase {
         u2.assertValid()
         u2.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
     }
+
+    // MARK: Sequence-based operations
+
+    func test_subtract_sequence() {
+        let tree = BTree(sortedElements: (0 ..< 100).map { ($0, String($0)) })
+
+        assertEqualElements(tree.subtract(sortedKeys: []), tree)
+        assertEqualElements(BTree<Int, String>().subtract(sortedKeys: [1, 2, 3]), [])
+
+        let t1 = tree.subtract(sortedKeys: (0 ..< 50).map { 2 * $0 })
+        assertEqualElements(t1.map { $0.0 }, (0 ..< 50).map { 2 * $0 + 1 })
+
+        let t2 = tree.subtract(sortedKeys: 0 ..< 50)
+        assertEqualElements(t2.map { $0.0 }, 50 ..< 100)
+
+        let t3 = tree.subtract(sortedKeys: 50 ..< 100)
+        assertEqualElements(t3.map { $0.0 }, 0 ..< 50)
+
+        let t4 = tree.subtract(sortedKeys: 100 ..< 200)
+        assertEqualElements(t4.map { $0.0 }, 0 ..< 100)
+    }
+
+    func test_intersect_sequence() {
+        let tree = BTree(sortedElements: (0 ..< 100).map { ($0, String($0)) })
+
+        assertEqualElements(tree.intersect(sortedKeys: []), [])
+        assertEqualElements(BTree<Int, String>().intersect(sortedKeys: [1, 2, 3]), [])
+
+        let t1 = tree.intersect(sortedKeys: (0 ..< 50).map { 2 * $0 })
+        assertEqualElements(t1.map { $0.0 }, (0 ..< 50).map { 2 * $0 })
+
+        let t2 = tree.intersect(sortedKeys: 0 ..< 50)
+        assertEqualElements(t2.map { $0.0 }, 0 ..< 50)
+
+        let t3 = tree.intersect(sortedKeys: 50 ..< 100)
+        assertEqualElements(t3.map { $0.0 }, 50 ..< 100)
+
+        let t4 = tree.intersect(sortedKeys: 100 ..< 200)
+        assertEqualElements(t4.map { $0.0 }, [])
+    }
 }

@@ -112,6 +112,10 @@ internal struct BTreeBuilder<Key: Comparable, Payload> {
     private var seedling: Node
     private var state: BuilderState
 
+    init(order: Int) {
+        self.init(order: order, keysPerNode: order - 1)
+    }
+    
     init(order: Int, keysPerNode: Int) {
         precondition(order > 1)
         precondition(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
