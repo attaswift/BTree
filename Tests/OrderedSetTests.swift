@@ -344,6 +344,16 @@ class OrderedSetTests: XCTestCase {
         let b = OrderedSet(10 ..< 20)
         let c = OrderedSet(20 ..< 30)
 
+        XCTAssertTrue(a.elementsEqual(a))
+        XCTAssertTrue(a.elementsEqual(OrderedSet(0 ..< 30)))
+        XCTAssertFalse(a.elementsEqual(b))
+        XCTAssertFalse(a.elementsEqual(c))
+
+        XCTAssertTrue(a == a)
+        XCTAssertTrue(a == OrderedSet(0 ..< 30))
+        XCTAssertFalse(a == b)
+        XCTAssertFalse(a == c)
+
         XCTAssertFalse(a.isDisjointWith(b))
         XCTAssertTrue(b.isDisjointWith(c))
 

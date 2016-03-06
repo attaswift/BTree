@@ -324,8 +324,19 @@ extension OrderedSet {
     }
 }
 
-extension OrderedSet {
+extension OrderedSet: Equatable {
     //MARK: Set comparions
+
+    /// Return `true` iff `self` and `other` contain the same elements.
+    ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two lists are divergent mutations originating from the same value.
+    ///
+    /// - Complexity:  O(`count`)
+    @warn_unused_result
+    public func elementsEqual(other: OrderedSet<Element>) -> Bool {
+        return self.tree.elementsEqual(other.tree, isEquivalent: { $0.0 == $1.0 })
+    }
 
     /// Returns `true` iff no members in this set are also included in `other`.
     ///
@@ -396,6 +407,17 @@ extension OrderedSet {
     public func isStrictSupersetOf(other: OrderedSet<Element>) -> Bool {
         return tree.isStrictSupersetOf(other.tree)
     }
+}
+
+/// Returns `true` iff `a` contains the same elements as `b`.
+///
+/// This function skips over shared subtrees when possible; this can drastically improve performance when the
+/// two sets are divergent mutations originating from the same value.
+///
+/// - Complexity: O(`count`)
+@warn_unused_result
+public func == <Element: Comparable>(a: OrderedSet<Element>, b: OrderedSet<Element>) -> Bool {
+    return a.elementsEqual(b)
 }
 
 extension OrderedSet {
