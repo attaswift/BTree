@@ -478,3 +478,11 @@ public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
 public func !=<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
     return !(a == b)
 }
+
+/// Concatenate `a` with `b` and return the resulting `List`.
+@warn_unused_result
+public func +<Element>(a: List<Element>, b: List<Element>) -> List<Element> {
+    var result = a
+    result.appendContentsOf(b)
+    return result
+}

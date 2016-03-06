@@ -396,4 +396,11 @@ class ListTests: XCTestCase {
         }
         XCTAssertElementsEqual(list, (0..<1000).map { "item \($0)" })
     }
+
+    func testConcatenationOperator() {
+        let l1 = List(0 ..< 10)
+        let l2 = List(10 ..< 20)
+
+        XCTAssertElementsEqual(l1 + l2, 0 ..< 20)
+    }
 }
