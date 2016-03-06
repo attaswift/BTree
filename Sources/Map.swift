@@ -431,3 +431,29 @@ public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key
 public func !=<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
     return !(a == b)
 }
+
+extension Map {
+    //MARK: Merging
+
+    /// Return a map that combines elements from `self` with those in `other`.
+    /// If a key is included in both maps, the value from `other` is used.
+    /// 
+    /// This function links subtrees containing elements with distinct keys when possible;
+    /// this can drastically improve performance when the keys of the two maps aren't too interleaved.
+    ///
+    /// - Complexity: O(`count`)
+    public func merge(other: Map) -> Map {
+        return Map(self.tree.distinctUnion(other.tree))
+    }
+}
+
+/// Return a map that combines elements from `a` with those in `b`.
+/// If a key is included in both maps, the value from `b` is used.
+///
+/// This function links subtrees containing elements with distinct keys when possible;
+/// this can drastically improve performance when the keys of the two maps aren't too interleaved.
+///
+/// - Complexity: O(`count`)
+public func +<Key: Comparable, Value>(a: Map<Key, Value>, b: Map<Key, Value>) -> Map<Key, Value> {
+    return a.merge(b)
+}
