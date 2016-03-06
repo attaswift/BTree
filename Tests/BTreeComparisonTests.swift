@@ -89,6 +89,19 @@ class BTreeComparisonTests: XCTestCase {
         }
     }
 
+    func test_elementsEqual_equatablePayload() {
+        let a = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 5)
+        let b = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 7)
+        var c = a
+        c.setPayloadAt(99, to: "*")
+
+        XCTAssertTrue(a == b)
+        XCTAssertFalse(a == c)
+
+        XCTAssertFalse(a != b)
+        XCTAssertTrue(a != c)
+    }
+
     func test_isDisjointWith_SimpleCases() {
         let firstHalf = makeTree(0 ..< 100)
         let secondHalf = makeTree(100 ..< 200)

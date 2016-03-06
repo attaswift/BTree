@@ -45,6 +45,38 @@ extension BTree {
     }
 }
 
+extension BTree where Payload: Equatable {
+    /// Return `true` iff `self` and `other` contain equal elements.
+    ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two trees are divergent mutations originating from the same value.
+    ///
+    /// - Complexity:  O(`count`)
+    public func elementsEqual(other: BTree) -> Bool {
+        return self.elementsEqual(other, isEquivalent: { $0.0 == $1.0 && $0.1 == $1.1 })
+    }
+}
+
+/// Return `true` iff `a` and `b` contain equal elements.
+///
+/// This method skips over shared subtrees when possible; this can drastically improve performance when the
+/// two trees are divergent mutations originating from the same value.
+///
+/// - Complexity:  O(`count`)
+public func == <Key: Comparable, Payload: Equatable>(a: BTree<Key, Payload>, b: BTree<Key, Payload>) -> Bool {
+    return a.elementsEqual(b)
+}
+
+/// Return `true` iff `a` and `b` do not contain equal elements.
+///
+/// This method skips over shared subtrees when possible; this can drastically improve performance when the
+/// two trees are divergent mutations originating from the same value.
+///
+/// - Complexity:  O(`count`)
+public func != <Key: Comparable, Payload: Equatable>(a: BTree<Key, Payload>, b: BTree<Key, Payload>) -> Bool {
+    return !(a == b)
+}
+
 extension BTree {
     /// Returns true iff this tree has no elements whose keys are also in `tree`.
     ///
