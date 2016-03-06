@@ -145,7 +145,7 @@ extension BTree {
     public func subtract<S: SequenceType where S.Generator.Element == Key>(sortedKeys sortedKeys: S) -> BTree {
         if self.isEmpty { return self }
 
-        var b = BTreeBuilder<Key, Payload>(order: self.order)
+        var b = BTreeBuilder<Key, Value>(order: self.order)
         var lastKey: Key? = nil
         var path = BTreeStrongPath(startOf: self.root)
         outer: for key in sortedKeys {
@@ -174,7 +174,7 @@ extension BTree {
     public func intersect<S: SequenceType where S.Generator.Element == Key>(sortedKeys sortedKeys: S) -> BTree {
         if self.isEmpty { return self }
 
-        var b = BTreeBuilder<Key, Payload>(order: self.order)
+        var b = BTreeBuilder<Key, Value>(order: self.order)
         var lastKey: Key? = nil
         var path = BTreeStrongPath(startOf: self.root)
         outer: for key in sortedKeys {
@@ -214,10 +214,10 @@ enum BTreeCopyLimit {
 /// Merging starts at the beginning of each tree, then proceeds in order from smaller to larger keys.
 /// At each step you can decide which tree to merge elements/subtrees from next, until we reach the end of
 /// one of the trees.
-internal struct BTreeMerger<Key: Comparable, Payload> {
-    private var a: BTreeStrongPath<Key, Payload>
-    private var b: BTreeStrongPath<Key, Payload>
-    private var builder: BTreeBuilder<Key, Payload>
+internal struct BTreeMerger<Key: Comparable, Value> {
+    private var a: BTreeStrongPath<Key, Value>
+    private var b: BTreeStrongPath<Key, Value>
+    private var builder: BTreeBuilder<Key, Value>
 
     /// This flag is set to `true` when we've reached the end of one of the trees.
     /// When this flag is set, you may further skips and copies will do nothing. 
@@ -226,7 +226,7 @@ internal struct BTreeMerger<Key: Comparable, Payload> {
     internal var done: Bool
 
     /// Construct a new merger starting at the starts of the specified two trees.
-    init(first: BTree<Key, Payload>, second: BTree<Key, Payload>) {
+    init(first: BTree<Key, Value>, second: BTree<Key, Value>) {
         precondition(first.order == second.order)
         self.a = BTreeStrongPath(startOf: first.root)
         self.b = BTreeStrongPath(startOf: second.root)
@@ -235,7 +235,7 @@ internal struct BTreeMerger<Key: Comparable, Payload> {
     }
 
     /// Stop merging and return the merged result.
-    mutating func finish() -> BTree<Key, Payload> {
+    mutating func finish() -> BTree<Key, Value> {
         return BTree(builder.finish())
     }
 
@@ -428,14 +428,14 @@ internal struct BTreeMerger<Key: Comparable, Payload> {
     }
 }
 
-internal enum BTreePart<Key: Comparable, Payload> {
-    case Element((Key, Payload))
-    case Node(BTreeNode<Key, Payload>)
-    case NodeRange(BTreeNode<Key, Payload>, Range<Int>)
+internal enum BTreePart<Key: Comparable, Value> {
+    case Element((Key, Value))
+    case Node(BTreeNode<Key, Value>)
+    case NodeRange(BTreeNode<Key, Value>, Range<Int>)
 }
 
 extension BTreeBuilder {
-    mutating func append(part: BTreePart<Key, Payload>) {
+    mutating func append(part: BTreePart<Key, Value>) {
         switch part {
         case .Element(let element):
             self.append(element)
@@ -505,7 +505,7 @@ internal extension BTreeStrongPath {
     ///
     /// - Requires: The current position is not at the end of the tree, and the current key is matching the condition above.
     /// - Complexity: O(log(*n*)) where *n* is the number of elements in the returned part.
-    mutating func nextPart(until key: Key, inclusive: Bool) -> BTreePart<Key, Payload> {
+    mutating func nextPart(until key: Key, inclusive: Bool) -> BTreePart<Key, Value> {
         func match(k: Key) -> Bool {
             return (inclusive && k <= key) || (!inclusive && k < key)
         }

@@ -140,9 +140,9 @@ class BTreeNodeTests: XCTestCase {
         let node = maximalNode(depth: 2, order: 5)
 
         var i = 0
-        node.forEach { (key, payload) -> Void in
+        node.forEach { (key, value) -> Void in
             XCTAssertEqual(key, i)
-            XCTAssertEqual(payload, String(i))
+            XCTAssertEqual(value, String(i))
             i += 1
         }
         XCTAssertEqual(i, 24 * 5 + 4)
@@ -152,9 +152,9 @@ class BTreeNodeTests: XCTestCase {
         let node = maximalNode(depth: 2, order: 5)
 
         var i = 0
-        XCTAssertTrue(node.forEach { (key, payload) -> Bool in
+        XCTAssertTrue(node.forEach { (key, value) -> Bool in
             XCTAssertEqual(key, i)
-            XCTAssertEqual(payload, String(i))
+            XCTAssertEqual(value, String(i))
             i += 1
             return true
         })
@@ -165,7 +165,7 @@ class BTreeNodeTests: XCTestCase {
         XCTAssertEqual(i, 1)
 
         i = 0
-        XCTAssertFalse(node.forEach { (key, payload) -> Bool in
+        XCTAssertFalse(node.forEach { (key, value) -> Bool in
             XCTAssertLessThan(i, 100)
             i += 1
             return i != 100
@@ -173,7 +173,7 @@ class BTreeNodeTests: XCTestCase {
         XCTAssertEqual(i, 100)
 
         i = 0
-        XCTAssertFalse(node.forEach { (key, payload) -> Bool in
+        XCTAssertFalse(node.forEach { (key, value) -> Bool in
             XCTAssertLessThan(i, 120)
             i += 1
             return i != 120

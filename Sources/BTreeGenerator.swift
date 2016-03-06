@@ -7,10 +7,10 @@
 //
 
 /// A generator for all elements stored in a B-tree, in ascending key order.
-public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
-    public typealias Element = (Key, Payload)
-    typealias Node = BTreeNode<Key, Payload>
-    typealias State = BTreeStrongPath<Key, Payload>
+public struct BTreeGenerator<Key: Comparable, Value>: GeneratorType {
+    public typealias Element = (Key, Value)
+    typealias Node = BTreeNode<Key, Value>
+    typealias State = BTreeStrongPath<Key, Value>
 
     var state: State
 
@@ -29,9 +29,9 @@ public struct BTreeGenerator<Key: Comparable, Payload>: GeneratorType {
     }
 }
 
-/// A generator for the payloads stored in a B-tree with an empty key.
-public struct BTreePayloadGenerator<Payload>: GeneratorType {
-    internal typealias Base = BTreeGenerator<EmptyKey, Payload>
+/// A generator for the values stored in a B-tree with an empty key.
+public struct BTreeValueGenerator<Value>: GeneratorType {
+    internal typealias Base = BTreeGenerator<EmptyKey, Value>
     private var base: Base
 
     internal init(_ base: Base) {
@@ -41,12 +41,12 @@ public struct BTreePayloadGenerator<Payload>: GeneratorType {
     /// Advance to the next element and return it, or return `nil` if no next element exists.
     ///
     /// - Complexity: Amortized O(1)
-    public mutating func next() -> Payload? {
+    public mutating func next() -> Value? {
         return base.next()?.1
     }
 }
 
-/// A generator for the keys stored in a B-tree without a payload.
+/// A generator for the keys stored in a B-tree without a value.
 public struct BTreeKeyGenerator<Key: Comparable>: GeneratorType {
     internal typealias Base = BTreeGenerator<Key, Void>
     private var base: Base
@@ -65,8 +65,8 @@ public struct BTreeKeyGenerator<Key: Comparable>: GeneratorType {
 
 /// A mutable path in a B-tree, holding strong references to nodes on the path.
 /// This path variant does not support modifying the tree itself; it is suitable for use in generators.
-internal struct BTreeStrongPath<Key: Comparable, Payload>: BTreePath {
-    typealias Node = BTreeNode<Key, Payload>
+internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
+    typealias Node = BTreeNode<Key, Value>
 
     var root: Node
     var offset: Int

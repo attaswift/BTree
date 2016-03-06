@@ -240,7 +240,7 @@ extension Map {
     /// - Complexity: O(log(`count`))
     public subscript(key: Key) -> Value? {
         get {
-            return tree.payloadOf(key)
+            return tree.valueOf(key)
         }
         set(value) {
             if let value = value {
@@ -331,7 +331,7 @@ extension Map {
     ///
     /// - Complexity: O(log(`count`))
     public mutating func updateValue(value: Value, atOffset offset: Int) -> Value {
-        return tree.setPayloadAt(offset, to: value)
+        return tree.setValueAt(offset, to: value)
     }
 
     /// Remove and return the (key, value) pair at the specified offset from the start of the map.

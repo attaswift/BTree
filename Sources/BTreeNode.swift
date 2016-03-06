@@ -24,13 +24,13 @@ internal let bTreeNodeSize = 16383
 
 //MARK: BTreeNode definition
 
-/// A node in an in-memory B-tree data structure, efficiently mapping `Comparable` keys to arbitrary payloads.
+/// A node in an in-memory B-tree data structure, efficiently mapping `Comparable` keys to arbitrary values.
 /// Iterating over the elements in a B-tree returns them in ascending order of their keys.
-internal final class BTreeNode<Key: Comparable, Payload>: NonObjectiveCBase {
+internal final class BTreeNode<Key: Comparable, Value>: NonObjectiveCBase {
     typealias Element = Generator.Element
-    typealias Node = BTreeNode<Key, Payload>
+    typealias Node = BTreeNode<Key, Value>
 
-    /// FIXME: Allocate keys/payloads/children in a single buffer
+    /// FIXME: Allocate keys/values/children in a single buffer
 
     /// The elements stored in this node, sorted by key.
     internal var elements: Array<Element>
@@ -71,7 +71,7 @@ extension BTreeNode {
         self.init(order: order, elements: [], children: [], count: 0)
     }
 
-    internal convenience init(left: Node, separator: (Key, Payload), right: Node) {
+    internal convenience init(left: Node, separator: (Key, Value), right: Node) {
         assert(left.order == right.order)
         assert(left.depth == right.depth)
         self.init(
@@ -131,7 +131,7 @@ extension BTreeNode {
 //MARK: SequenceType
 
 extension BTreeNode: SequenceType {
-    typealias Generator = BTreeGenerator<Key, Payload>
+    typealias Generator = BTreeGenerator<Key, Value>
 
     var isEmpty: Bool { return count == 0 }
 
@@ -357,13 +357,13 @@ extension BTreeNode {
 
 //MARK: Splitting
 
-internal struct BTreeSplinter<Key: Comparable, Payload> {
-    let separator: (Key, Payload)
-    let node: BTreeNode<Key, Payload>
+internal struct BTreeSplinter<Key: Comparable, Value> {
+    let separator: (Key, Value)
+    let node: BTreeNode<Key, Value>
 }
 
 extension BTreeNode {
-    typealias Splinter = BTreeSplinter<Key, Payload>
+    typealias Splinter = BTreeSplinter<Key, Value>
 
     /// Split this node into two, removing the high half of the nodes and putting them in a splinter.
     ///
@@ -569,7 +569,7 @@ extension BTreeNode {
     ///
     /// - Requires: `l <= separator.0 && separator.0 <= r` for all keys `l` in `left` and all keys `r` in `right`.
     /// - Complexity: O(log(left.count + right.count))
-    internal static func join(left left: BTreeNode, separator: (Key, Payload), right: BTreeNode) -> BTreeNode {
+    internal static func join(left left: BTreeNode, separator: (Key, Value), right: BTreeNode) -> BTreeNode {
         precondition(left.order == right.order)
 
         let order = left.order

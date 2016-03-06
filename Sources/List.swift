@@ -87,7 +87,7 @@ extension List: MutableCollectionType {
     //MARK: CollectionType
     
     public typealias Index = Int
-    public typealias Generator = BTreePayloadGenerator<Element>
+    public typealias Generator = BTreeValueGenerator<Element>
     public typealias SubSequence = List<Element>
 
     /// Always zero, which is the index of the first element when non-empty.
@@ -118,7 +118,7 @@ extension List: MutableCollectionType {
             return tree.elementAtOffset(index).1
         }
         set {
-            tree.setPayloadAt(index, to: newValue)
+            tree.setValueAt(index, to: newValue)
         }
     }
 
@@ -466,7 +466,7 @@ extension List: RangeReplaceableCollectionType {
             var generator = Optional(elements.generate())
             while cursor.offset < range.endIndex {
                 guard let element = generator!.next() else { generator = nil; break }
-                cursor.payload = element
+                cursor.value = element
                 cursor.moveForward()
             }
             if cursor.offset < range.endIndex {

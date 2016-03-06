@@ -19,13 +19,13 @@
 /// This protocol saves us from having to maintain three slightly different variants of the same navigation methods.
 internal protocol BTreePath {
     typealias Key: Comparable
-    typealias Payload
+    typealias Value
 
     /// Create a new incomplete path focusing at the root of a tree.
     init(_ root: Node)
 
     /// The root node of the underlying B-tree.
-    var root: BTreeNode<Key, Payload> { get }
+    var root: BTreeNode<Key, Value> { get }
 
     /// The current offset of this path. (This is a simple stored property. Use `move(toOffset:)` to reposition 
     /// the path on a different offset.)
@@ -38,7 +38,7 @@ internal protocol BTreePath {
     var length: Int { get }
 
     /// The final node on the path; i.e., the node that holds the currently focused element.
-    var node: BTreeNode<Key, Payload> { get }
+    var node: BTreeNode<Key, Value> { get }
 
     /// The final slot on the path, or `nil` if the path is currently incomplete.
     var slot: Int? { get set }
@@ -72,13 +72,13 @@ internal protocol BTreePath {
     func forEachSlot(ascending ascending: Bool, @noescape body: Int -> Void)
 
     /// Finish working with the path and return the root node.
-    mutating func finish() -> BTreeNode<Key, Payload>
+    mutating func finish() -> BTreeNode<Key, Value>
 }
 
 extension BTreePath {
-    internal typealias Element = (Key, Payload)
-    internal typealias Tree = BTree<Key, Payload>
-    internal typealias Node = BTreeNode<Key, Payload>
+    internal typealias Element = (Key, Value)
+    internal typealias Tree = BTree<Key, Value>
+    internal typealias Node = BTreeNode<Key, Value>
 
     init(startOf root: Node) {
         self.init(root: root, offset: 0)
@@ -102,7 +102,7 @@ extension BTreePath {
         descend(to: key, choosing: selector)
     }
 
-    init<Path: BTreePath where Path.Key == Key, Path.Payload == Payload>(root: Node, slotsFrom path: Path) {
+    init<Path: BTreePath where Path.Key == Key, Path.Value == Value>(root: Node, slotsFrom path: Path) {
         self.init(root)
         path.forEachSlot(ascending: false) { slot in
             if self.slot != nil {
@@ -132,8 +132,8 @@ extension BTreePath {
     var element: Element { return node.elements[slot!] }
     /// Return the key of the element at the current position.
     var key: Key { return element.0 }
-    /// Return the payload of the element at the current position.
-    var payload: Payload { return element.1 }
+    /// Return the value of the element at the current position.
+    var value: Value { return element.1 }
 
     /// Move to the next element in the B-tree.
     ///

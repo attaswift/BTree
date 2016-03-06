@@ -13,10 +13,10 @@
 /// invalidate all existing indexes.
 /// 
 /// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a B-tree.
-public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType, Comparable {
+public struct BTreeIndex<Key: Comparable, Value>: BidirectionalIndexType, Comparable {
     public typealias Distance = Int
-    typealias Node = BTreeNode<Key, Payload>
-    typealias State = BTreeWeakPath<Key, Payload>
+    typealias Node = BTreeNode<Key, Value>
+    typealias State = BTreeWeakPath<Key, Value>
 
     internal private(set) var state: State
 
@@ -104,7 +104,7 @@ public struct BTreeIndex<Key: Comparable, Payload>: BidirectionalIndexType, Comp
 
 /// Return true iff `a` is equal to `b`.
 @warn_unused_result
-public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
+public func == <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex<Key, Value>) -> Bool {
     guard let ar = a.state._root.value else { a.state.invalid() }
     guard let br = b.state._root.value else { b.state.invalid() }
     precondition(ar === br, "Indices to different trees cannot be compared")
@@ -113,7 +113,7 @@ public func == <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeI
 
 /// Return true iff `a` is less than `b`.
 @warn_unused_result
-public func < <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIndex<Key, Payload>) -> Bool {
+public func < <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex<Key, Value>) -> Bool {
     guard let ar = a.state._root.value else { a.state.invalid() }
     guard let br = b.state._root.value else { b.state.invalid() }
     precondition(ar === br, "Indices to different trees cannot be compared")
@@ -127,8 +127,8 @@ public func < <Key: Comparable, Payload>(a: BTreeIndex<Key, Payload>, b: BTreeIn
 /// the path, setting some of its weak references to nil, or breaking the consistency of its trail of slot indices.
 /// The path checks for this during navigation, and traps if it finds itself invalidated.
 ///
-internal struct BTreeWeakPath<Key: Comparable, Payload>: BTreePath {
-    typealias Node = BTreeNode<Key, Payload>
+internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
+    typealias Node = BTreeNode<Key, Value>
 
     var _root: Weak<Node>
     var offset: Int

@@ -89,11 +89,11 @@ class BTreeComparisonTests: XCTestCase {
         }
     }
 
-    func test_elementsEqual_equatablePayload() {
+    func test_elementsEqual_equatableValue() {
         let a = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 5)
         let b = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 7)
         var c = a
-        c.setPayloadAt(99, to: "*")
+        c.setValueAt(99, to: "*")
 
         XCTAssertTrue(a == b)
         XCTAssertFalse(a == c)

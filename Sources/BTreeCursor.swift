@@ -9,7 +9,7 @@
 extension BTree {
     //MARK: Cursors
 
-    public typealias Cursor = BTreeCursor<Key, Payload>
+    public typealias Cursor = BTreeCursor<Key, Value>
 
     /// Call `body` with a cursor at `offset` in this tree.
     ///
@@ -93,10 +93,10 @@ extension BTree {
 /// editing. (I.e., until `finish()` is called.) If the root isn't uniquely held, you'll need to clone it before
 /// creating a cursor path on it. (The path clones internal nodes on its own, as needed.)
 ///
-internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
-    typealias Tree = BTree<Key, Payload>
-    typealias Node = BTreeNode<Key, Payload>
-    typealias Element = (Key, Payload)
+internal struct BTreeCursorPath<Key: Comparable, Value>: BTreePath {
+    typealias Tree = BTree<Key, Value>
+    typealias Node = BTreeNode<Key, Value>
+    typealias Element = (Key, Value)
 
     /// The root node in the tree that is being edited. Note that this isn't a valid B-tree while the cursor is active:
     /// each node on the current path has an invalid `count` field. (Other B-tree invariants are kept, though.)
@@ -142,15 +142,15 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
         set { node.elements[slot!].0 = newValue }
     }
 
-    var payload: Payload {
+    var value: Value {
         get { return node.elements[slot!].1 }
         set { node.elements[slot!].1 = newValue }
     }
 
-    func setPayload(payload: Payload) -> Payload {
+    func setValue(value: Value) -> Value {
         precondition(!isAtEnd)
         let old = node.elements[slot!].1
-        node.elements[slot!].1 = payload
+        node.elements[slot!].1 = value
         return old
     }
 
@@ -307,11 +307,11 @@ internal struct BTreeCursorPath<Key: Comparable, Payload>: BTreePath {
 /// Creating a cursor takes O(log(*n*)) steps; once the cursor has been created, the complexity of most manipulations
 /// is amortized O(1). For example, appending *k* new elements without a cursor takes O(*k* * log(*n*)) steps;
 /// using a cursor to do the same only takes O(log(*n*) + *k*).
-public final class BTreeCursor<Key: Comparable, Payload> {
-    public typealias Element = (Key, Payload)
-    public typealias Tree = BTree<Key, Payload>
-    internal typealias Node = BTreeNode<Key, Payload>
-    internal typealias State = BTreeCursorPath<Key, Payload>
+public final class BTreeCursor<Key: Comparable, Value> {
+    public typealias Element = (Key, Value)
+    public typealias Tree = BTree<Key, Value>
+    internal typealias Node = BTreeNode<Key, Value>
+    internal typealias State = BTreeCursorPath<Key, Value>
 
     private var state: State
 
@@ -341,7 +341,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
 
     //MARK: Initializers
 
-    internal init(_ state: BTreeCursorPath<Key, Payload>) {
+    internal init(_ state: BTreeCursorPath<Key, Value>) {
         self.state = state
     }
 
@@ -427,20 +427,20 @@ public final class BTreeCursor<Key: Comparable, Payload> {
         set { state.key = newValue }
     }
 
-    /// Get or set the payload of the currently focused element.
+    /// Get or set the value of the currently focused element.
     ///
     /// - Complexity: O(1)
-    public var payload: Payload {
-        get { return state.payload }
-        set { state.payload = newValue }
+    public var value: Value {
+        get { return state.value }
+        set { state.value = newValue }
     }
 
-    /// Update the payload stored at the cursor's current position and return the previous value.
+    /// Update the value stored at the cursor's current position and return the previous value.
     /// This method does not change the cursor's position.
     ///
     /// - Complexity: O(1)
-    public func setPayload(payload: Payload) -> Payload {
-        return state.setPayload(payload)
+    public func setValue(value: Value) -> Value {
+        return state.setValue(value)
     }
 
     /// Insert a new element after the cursor's current position, and position the cursor on the new element.
@@ -556,7 +556,7 @@ public final class BTreeCursor<Key: Comparable, Payload> {
             moveBackward()
             let surrogate = remove()
             self.key = surrogate.0
-            self.payload = surrogate.1
+            self.value = surrogate.1
             moveForward()
             return result
         }

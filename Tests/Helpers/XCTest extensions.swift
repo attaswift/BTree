@@ -44,7 +44,7 @@ func assertEqualElements<T1: Equatable, T2: Equatable, S1: SequenceType, S2: Seq
 }
 
 extension BTree {
-    internal func assertKeysEqual(other: BTree<Key, Payload>, file: FileString = __FILE__, line: UInt = __LINE__) {
+    internal func assertKeysEqual(other: BTree<Key, Value>, file: FileString = __FILE__, line: UInt = __LINE__) {
         assertEqualElements(self.map { $0.0 }, other.map { $0.0 }, file: file, line: line)
     }
 

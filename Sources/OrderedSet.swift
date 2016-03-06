@@ -330,7 +330,7 @@ extension OrderedSet {
     /// - Complexity: O(log(`count`))
     @warn_unused_result
     public func contains(element: Element) -> Bool {
-        return tree.payloadOf(element) != nil
+        return tree.valueOf(element) != nil
     }
 
     /// Returns the index of a given member, or `nil` if the member is not present in the set.

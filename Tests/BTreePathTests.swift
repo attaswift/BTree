@@ -10,7 +10,7 @@ import XCTest
 @testable import BTree
 
 
-class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> {
+class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
     typealias Tree = BTree<Int, String>
     typealias Node = BTreeNode<Int, String>
 
@@ -22,7 +22,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
         XCTAssertFalse(path.isAtEnd)
         XCTAssertEqual(path.offset, 0)
         XCTAssertEqual(path.key, 0)
-        XCTAssertEqual(path.payload, "0")
+        XCTAssertEqual(path.value, "0")
     }
 
     func testInitEndOf() {
@@ -51,7 +51,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, i)
                 XCTAssertEqual(path.key, i)
-                XCTAssertEqual(path.payload, String(i))
+                XCTAssertEqual(path.value, String(i))
                 return path.finish()
             }
         }
@@ -72,7 +72,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i)
                 XCTAssertEqual(path.key, 2 * i)
-                XCTAssertEqual(path.payload, String(2 * i))
+                XCTAssertEqual(path.value, String(2 * i))
                 return path.finish()
             }
         }
@@ -82,7 +82,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
-                XCTAssertEqual(path.payload, String(2 * i + 2))
+                XCTAssertEqual(path.value, String(2 * i + 2))
                 return path.finish()
             }
         }
@@ -97,7 +97,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 1)
                 XCTAssertEqual(path.key, 2 * i)
-                XCTAssertEqual(path.payload, String(2 * i + 1))
+                XCTAssertEqual(path.value, String(2 * i + 1))
                 return path.finish()
             }
         }
@@ -107,7 +107,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
-                XCTAssertEqual(path.payload, String(2 * i + 2))
+                XCTAssertEqual(path.value, String(2 * i + 2))
                 return path.finish()
             }
         }
@@ -122,7 +122,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
-                XCTAssertEqual(path.payload, String(2 * i + 2))
+                XCTAssertEqual(path.value, String(2 * i + 2))
                 return path.finish()
             }
         }
@@ -133,7 +133,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
-                XCTAssertEqual(path.payload, String(2 * i + 2))
+                XCTAssertEqual(path.value, String(2 * i + 2))
                 return path.finish()
             }
         }
@@ -149,7 +149,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertGreaterThanOrEqual(path.offset, 2 * i)
                 XCTAssertLessThanOrEqual(path.offset, 2 * i + 1)
                 XCTAssertEqual(path.key, 2 * i)
-                XCTAssertTrue(path.payload == String(2 * i + 1) || path.payload == String(2 * i))
+                XCTAssertTrue(path.value == String(2 * i + 1) || path.value == String(2 * i))
                 return path.finish()
             }
         }
@@ -159,7 +159,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
-                XCTAssertEqual(path.payload, String(2 * i + 2))
+                XCTAssertEqual(path.value, String(2 * i + 2))
                 return path.finish()
             }
         }
@@ -175,7 +175,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, i)
                 XCTAssertEqual(path.key, i)
-                XCTAssertEqual(path.payload, String(i))
+                XCTAssertEqual(path.value, String(i))
                 path.moveForward()
                 i += 1
             }
@@ -198,7 +198,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, i)
                 XCTAssertEqual(path.key, i)
-                XCTAssertEqual(path.payload, String(i))
+                XCTAssertEqual(path.value, String(i))
             }
             XCTAssertEqual(i, 0)
             XCTAssertTrue(path.isAtStart)
@@ -215,7 +215,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
             XCTAssertTrue(path.isAtStart)
             XCTAssertEqual(path.offset, 0)
             XCTAssertEqual(path.key, 0)
-            XCTAssertEqual(path.payload, "0")
+            XCTAssertEqual(path.value, "0")
             return path.finish()
         }
     }
@@ -491,7 +491,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Payload == String> 
 
 class BTreePathTests: XCTestCase {
     /// Poor man's generic test runner
-    func runTests<Path: BTreePath where Path.Key == Int, Path.Payload == String>(tests: PathTests<Path>) {
+    func runTests<Path: BTreePath where Path.Key == Int, Path.Value == String>(tests: PathTests<Path>) {
         for (name, testCase) in tests.testCases {
             print("  \(name)")
             testCase()

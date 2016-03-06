@@ -12,7 +12,7 @@ import XCTest
 
 extension BTreeNode {
     func assertValid(file file: FileString = __FILE__, line: UInt = __LINE__) {
-        func testNode(level level: Int, node: BTreeNode<Key, Payload>, minKey: Key?, maxKey: Key?) -> (count: Int, defects: [String]) {
+        func testNode(level level: Int, node: BTreeNode<Key, Value>, minKey: Key?, maxKey: Key?) -> (count: Int, defects: [String]) {
             var defects: [String] = []
 
             // Check item order

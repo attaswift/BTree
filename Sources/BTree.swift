@@ -7,11 +7,11 @@
 //
 
 /// B-trees are search trees that provide an ordered key-value store with excellent performance characteristics.
-public struct BTree<Key: Comparable, Payload> {
+public struct BTree<Key: Comparable, Value> {
     //MARK: Definition
 
-    public typealias Element = (Key, Payload)
-    internal typealias Node = BTreeNode<Key, Payload>
+    public typealias Element = (Key, Value)
+    internal typealias Node = BTreeNode<Key, Value>
 
     /// The root node.
     internal var root: Node
@@ -56,7 +56,7 @@ public extension BTree {
 extension BTree: SequenceType {
     //MARK: SequenceType
     
-    public typealias Generator = BTreeGenerator<Key, Payload>
+    public typealias Generator = BTreeGenerator<Key, Value>
 
     /// Returns true iff this tree has no elements.
     public var isEmpty: Bool { return root.count == 0 }
@@ -100,8 +100,8 @@ extension BTree: SequenceType {
 extension BTree: CollectionType {
     //MARK: CollectionType
     
-    public typealias Index = BTreeIndex<Key, Payload>
-    public typealias SubSequence = BTree<Key, Payload>
+    public typealias Index = BTreeIndex<Key, Value>
+    public typealias SubSequence = BTree<Key, Value>
 
     /// The index of the first element of this tree. Elements are sorted by key.
     ///
@@ -135,7 +135,7 @@ extension BTree: CollectionType {
     /// Returns a tree consisting of elements in the specified range of indexes.
     ///
     /// - Complexity: O(log(`count`))
-    public subscript(range: Range<Index>) -> BTree<Key, Payload> {
+    public subscript(range: Range<Index>) -> BTree<Key, Value> {
         get {
             return subtree(with: range)
         }
@@ -208,12 +208,12 @@ public extension BTree {
         return node.elements[offset]
     }
 
-    /// Returns the payload of an element of this tree with the specified key, or `nil` if there is no such element.
+    /// Returns the value of an element of this tree with the specified key, or `nil` if there is no such element.
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func payloadOf(key: Key, choosing selector: BTreeKeySelector = .Any) -> Payload? {
+    public func valueOf(key: Key, choosing selector: BTreeKeySelector = .Any) -> Value? {
         switch selector {
         case .Any:
             var node = root
@@ -230,7 +230,7 @@ public extension BTree {
             return nil
         default:
             var node = root
-            var lastmatch: Payload? = nil
+            var lastmatch: Value? = nil
             while true {
                 let slot = node.slotOf(key, choosing: selector)
                 if let m = slot.match {
@@ -348,17 +348,17 @@ extension BTreeNode {
 extension BTree {
     //MARK: Editing
 
-    /// Set the payload at `offset`, and return the payload originally stored there.
+    /// Set the value at `offset`, and return the value originally stored there.
     ///
     /// - Requires: `offset < count`
     /// - Note: When you need to perform multiple modifications on the same tree,
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
-    public mutating func setPayloadAt(offset: Int, to payload: Payload) -> Payload {
+    public mutating func setValueAt(offset: Int, to value: Value) -> Value {
         precondition(offset >= 0 && offset < count)
         makeUnique()
         var pos = count - offset
-        var old: Payload? = nil
+        var old: Value? = nil
         edit(
             descend: { node in
                 let slot = node.slotOfOffset(node.count - pos)
@@ -368,7 +368,7 @@ extension BTree {
                     return slot.index
                 }
                 old = node.elements[slot.index].1
-                node.elements[slot.index].1 = payload
+                node.elements[slot.index].1 = value
                 return nil
             },
             ascend: { node, slot in
@@ -390,7 +390,7 @@ extension BTree {
         precondition(offset >= 0 && offset <= count)
         makeUnique()
         var pos = count - offset
-        var splinter: BTreeSplinter<Key, Payload>? = nil
+        var splinter: BTreeSplinter<Key, Value>? = nil
         var element = element
         edit(
             descend: { node in
@@ -438,7 +438,7 @@ extension BTree {
     public mutating func insert(element: Element, at selector: BTreeKeySelector = .Any) {
         makeUnique()
         let selector: BTreeKeySelector = (selector == .First ? .First : .After)
-        var splinter: BTreeSplinter<Key, Payload>? = nil
+        var splinter: BTreeSplinter<Key, Value>? = nil
         edit(
             descend: { node in
                 let slot = node.slotOf(element.0, choosing: selector)
@@ -470,12 +470,12 @@ extension BTree {
     /// - Note: When you need to perform multiple modifications on the same tree,
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
-    public mutating func insertOrReplace(element: Element, at selector: BTreeKeySelector = .Any) -> Payload? {
+    public mutating func insertOrReplace(element: Element, at selector: BTreeKeySelector = .Any) -> Value? {
         let selector = (selector == .After ? .Last : selector)
         makeUnique()
-        var old: Payload? = nil
+        var old: Value? = nil
         var match: (node: Node, slot: Int)? = nil
-        var splinter: BTreeSplinter<Key, Payload>? = nil
+        var splinter: BTreeSplinter<Key, Value>? = nil
         edit(
             descend: { node in
                 let slot = node.slotOf(element.0, choosing: selector)
@@ -827,7 +827,7 @@ extension BTree {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func subtree(with range: Range<Index>) -> BTree<Key, Payload> {
+    public func subtree(with range: Range<Index>) -> BTree<Key, Value> {
         range.startIndex.state.expectRoot(root)
         range.endIndex.state.expectRoot(root)
         let start = range.startIndex.state.offset
@@ -846,7 +846,7 @@ extension BTree {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func subtree(with offsets: Range<Int>) -> BTree<Key, Payload> {
+    public func subtree(with offsets: Range<Int>) -> BTree<Key, Value> {
         precondition(offsets.startIndex >= 0 && offsets.endIndex <= count)
         if offsets.count == 0 {
             return BTree(order: order)
@@ -858,7 +858,7 @@ extension BTree {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func subtree(from start: Key, to end: Key) -> BTree<Key, Payload> {
+    public func subtree(from start: Key, to end: Key) -> BTree<Key, Value> {
         precondition(start <= end)
         return suffixFrom(start).prefixUpTo(end)
     }
@@ -867,7 +867,7 @@ extension BTree {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func subtree(from start: Key, through stop: Key) -> BTree<Key, Payload> {
+    public func subtree(from start: Key, through stop: Key) -> BTree<Key, Value> {
         precondition(start <= stop)
         return suffixFrom(start).prefixThrough(stop)
     }

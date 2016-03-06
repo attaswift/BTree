@@ -44,7 +44,7 @@ ordered collection types that use B-trees for their underlying storage.
     Operations working on full sets (such as taking the union, intersection or difference) 
     can take as little as O(log(*n*)) time if the elements in the source sets aren't interleaved.
 
--   [`BTree<Key, Payload>`][BTree] is the underlying primitive collection that serves as base storage
+-   [`BTree<Key, Value>`][BTree] is the underlying primitive collection that serves as base storage
     for all of the above collections. It is a general key-value store with full support
     for elements with duplicate keys; it provides a sum of all operations individually provided
     by the higher-level abstractions above (and more!).

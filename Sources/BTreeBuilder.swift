@@ -56,7 +56,7 @@ extension BTree {
         let keysPerNode = Int(fillFactor * Double(order - 1) + 0.5)
         assert(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
 
-        var builder = BTreeBuilder<Key, Payload>(order: order, keysPerNode: keysPerNode)
+        var builder = BTreeBuilder<Key, Value>(order: order, keysPerNode: keysPerNode)
         if dropDuplicates {
             guard var buffer = next() else {
                 self.init(Node(order: order))
@@ -100,8 +100,8 @@ private enum BuilderState {
 ///
 /// When `finish` is called, the final list of saplings plus the last partial seedling is joined
 /// into a single tree, which becomes the root.
-internal struct BTreeBuilder<Key: Comparable, Payload> {
-    typealias Node = BTreeNode<Key, Payload>
+internal struct BTreeBuilder<Key: Comparable, Value> {
+    typealias Node = BTreeNode<Key, Value>
     typealias Element = Node.Element
     typealias Splinter = Node.Splinter
 
