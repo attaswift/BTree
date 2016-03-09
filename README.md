@@ -10,7 +10,7 @@
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage)
 [![CocoaPod Version](https://img.shields.io/cocoapods/v/BTree.svg)](http://cocoapods.org/pods/BTree)
-
+[![codebeat](https://codebeat.co/badges/31c822de-66b8-4592-8cd1-e11e8056ce00)](https://codebeat.co/projects/github-com-lorentey-btree)
 * [Overview](#overview)
 * [Reference Documentation](#api)
 * [What Are B-Trees?](#what)
