@@ -440,7 +440,7 @@ class BTreeNodeTests: XCTestCase {
             let tree = BTree(sortedElements: keys.map { ($0, String($0)) }, order: 5)
             return tree.root
         }
-        func checkNode(n: Node, _ keys: Range<Int>, file: FileString = __FILE__, line: UInt = __LINE__) {
+        func checkNode(n: Node, _ keys: Range<Int>, file: StaticString = #file, line: UInt = #line) {
             n.assertValid(file: file, line: line)
             assertEqualElements(n, keys.map { ($0, String($0)) }, file: file, line: line)
         }

@@ -11,7 +11,7 @@ import XCTest
 @testable import BTree
 
 extension BTreeNode {
-    func assertValid(file file: FileString = __FILE__, line: UInt = __LINE__) {
+    func assertValid(file file: StaticString = #file, line: UInt = #line) {
         func testNode(level level: Int, node: BTreeNode<Key, Value>, minKey: Key?, maxKey: Key?) -> (count: Int, defects: [String]) {
             var defects: [String] = []
 

@@ -163,11 +163,11 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         expectValid(_root.value === root)
     }
 
-    internal func expectValid(@autoclosure expression: Void->Bool, file: StaticString = __FILE__, line: UInt = __LINE__) {
+    internal func expectValid(@autoclosure expression: Void->Bool, file: StaticString = #file, line: UInt = #line) {
         precondition(expression(), "Invalid BTreeIndex", file: file, line: line)
     }
 
-    @noreturn internal func invalid(file: StaticString = __FILE__, line: UInt = __LINE__) {
+    @noreturn internal func invalid(file: StaticString = #file, line: UInt = #line) {
         preconditionFailure("Invalid BTreeIndex", file: file, line: line)
     }
 

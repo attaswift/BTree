@@ -12,18 +12,18 @@ import Foundation
 /// - Returns: a generator that produces arrays of integers in range `0..<count`, in all possible order.
 func generatePermutations(count: Int) -> AnyGenerator<[Int]> {
     if count == 0 {
-        return anyGenerator(EmptyCollection<[Int]>().generate())
+        return AnyGenerator(EmptyCollection<[Int]>().generate())
     }
     if count == 1 {
-        return anyGenerator(CollectionOfOne([0]).generate())
+        return AnyGenerator(CollectionOfOne([0]).generate())
     }
     if count == 2 {
-        return anyGenerator([[0, 1], [1, 0]].generate())
+        return AnyGenerator([[0, 1], [1, 0]].generate())
     }
     let generator = generatePermutations(count - 1)
     var perm: [Int] = []
     var next = -1
-    return anyGenerator {
+    return AnyGenerator {
         if next < 0 {
             guard let p = generator.next() else { return nil }
             perm = p
@@ -39,18 +39,18 @@ func generatePermutations(count: Int) -> AnyGenerator<[Int]> {
 /// Generates all inversion vectors of length `count`. The vectors returned all have an extra '0' element prepended for convenience.
 func generateInversions(count: Int) -> AnyGenerator<[Int]> {
     if count == 0 {
-        return anyGenerator(EmptyCollection<[Int]>().generate())
+        return AnyGenerator(EmptyCollection<[Int]>().generate())
     }
     if count == 1 {
-        return anyGenerator(CollectionOfOne([0]).generate())
+        return AnyGenerator(CollectionOfOne([0]).generate())
     }
     if count == 2 {
-        return anyGenerator([[0, 0], [0, 1]].generate())
+        return AnyGenerator([[0, 0], [0, 1]].generate())
     }
     let generator = generateInversions(count - 1)
     var inv: [Int] = []
     var next = 1
-    return anyGenerator {
+    return AnyGenerator {
         if next > inv.count {
             guard let i = generator.next() else { return nil }
             inv = i

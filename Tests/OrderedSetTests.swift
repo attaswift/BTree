@@ -327,7 +327,7 @@ class OrderedSetTests: XCTestCase {
     }
 
     func test_sort() {
-        var set = OrderedSet(0 ..< 10)
+        let set = OrderedSet(0 ..< 10)
         assertEqualElements(set.sort(), set)
     }
 

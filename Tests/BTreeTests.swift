@@ -10,7 +10,7 @@ import XCTest
 @testable import BTree
 
 extension BTree {
-    func assertValid(file file: FileString = __FILE__, line: UInt = __LINE__) {
+    func assertValid(file file: StaticString = #file, line: UInt = #line) {
         root.assertValid(file: file, line: line)
     }
 }
@@ -969,7 +969,7 @@ class BTreeTests: XCTestCase {
     }
 
     func testSequenceConversion() {
-        func check(range: Range<Int>, file: FileString = __FILE__, line: UInt = __LINE__) {
+        func check(range: Range<Int>, file: StaticString = #file, line: UInt = #line) {
             let order = 5
             let sequence = range.map { ($0, String($0)) }
             let tree = Tree(sortedElements: sequence, order: order)
@@ -992,7 +992,7 @@ class BTreeTests: XCTestCase {
     }
 
     func testSequenceConversionToMaximalTrees() {
-        func checkDepth(depth: Int, file: FileString = __FILE__, line: UInt = __LINE__) {
+        func checkDepth(depth: Int, file: StaticString = #file, line: UInt = #line) {
             let order = 5
             let keysPerNode = order - 1
             var count = keysPerNode

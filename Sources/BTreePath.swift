@@ -18,8 +18,8 @@
 ///
 /// This protocol saves us from having to maintain three slightly different variants of the same navigation methods.
 internal protocol BTreePath {
-    typealias Key: Comparable
-    typealias Value
+    associatedtype Key: Comparable
+    associatedtype Value
 
     /// Create a new incomplete path focusing at the root of a tree.
     init(_ root: Node)
