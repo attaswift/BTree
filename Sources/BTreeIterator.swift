@@ -1,13 +1,13 @@
 //
-//  BTreeGenerator.swift
+//  BTreeIterator.swift
 //  BTree
 //
 //  Created by Károly Lőrentey on 2016-02-11.
 //  Copyright © 2015–2016 Károly Lőrentey.
 //
 
-/// A generator for all elements stored in a B-tree, in ascending key order.
-public struct BTreeGenerator<Key: Comparable, Value>: GeneratorType {
+/// An iterator for all elements stored in a B-tree, in ascending key order.
+public struct BTreeIterator<Key: Comparable, Value>: IteratorProtocol {
     public typealias Element = (Key, Value)
     typealias Node = BTreeNode<Key, Value>
     typealias State = BTreeStrongPath<Key, Value>
@@ -29,9 +29,14 @@ public struct BTreeGenerator<Key: Comparable, Value>: GeneratorType {
     }
 }
 
-/// A generator for the values stored in a B-tree with an empty key.
-public struct BTreeValueGenerator<Value>: GeneratorType {
-    internal typealias Base = BTreeGenerator<EmptyKey, Value>
+/// A dummy, zero-size key that is useful in B-trees that don't need key-based lookup.
+internal struct EmptyKey: Comparable { }
+internal func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
+internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
+
+/// An iterator for the values stored in a B-tree with an empty key.
+public struct BTreeValueIterator<Value>: IteratorProtocol {
+    internal typealias Base = BTreeIterator<EmptyKey, Value>
     private var base: Base
 
     internal init(_ base: Base) {
@@ -46,9 +51,9 @@ public struct BTreeValueGenerator<Value>: GeneratorType {
     }
 }
 
-/// A generator for the keys stored in a B-tree without a value.
-public struct BTreeKeyGenerator<Key: Comparable>: GeneratorType {
-    internal typealias Base = BTreeGenerator<Key, Void>
+/// An iterator for the keys stored in a B-tree without a value.
+public struct BTreeKeyIterator<Key: Comparable>: IteratorProtocol {
+    internal typealias Base = BTreeIterator<Key, Void>
     private var base: Base
 
     internal init(_ base: Base) {
@@ -76,7 +81,7 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
     var node: Node
     var slot: Int?
 
-    init(_ root: Node) {
+    init(root: Node) {
         self.root = root
         self.offset = root.count
         self._path = []
@@ -90,7 +95,7 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
 
     mutating func popFromSlots() {
         assert(self.slot != nil)
-        offset += node.count - node.offsetOfSlot(slot!)
+        offset += node.count - node.offset(ofSlot: slot!)
         slot = nil
     }
 
@@ -109,16 +114,16 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
         slot = nil
     }
 
-    mutating func pushToSlots(slot: Int, offsetOfSlot: Int) {
+    mutating func pushToSlots(_ slot: Int, offsetOfSlot: Int) {
         assert(self.slot == nil)
         offset -= node.count - offsetOfSlot
         self.slot = slot
     }
 
-    func forEach(ascending ascending: Bool, @noescape body: (Node, Int) -> Void) {
+    func forEach(ascending: Bool, body: @noescape (Node, Int) -> Void) {
         if ascending {
             body(node, slot!)
-            for i in (0 ..< _path.count).reverse() {
+            for i in (0 ..< _path.count).reversed() {
                 body(_path[i], _slots[i])
             }
         }
@@ -130,10 +135,10 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
         }
     }
 
-    func forEachSlot(ascending ascending: Bool, @noescape body: Int -> Void) {
+    func forEachSlot(ascending: Bool, body: @noescape (Int) -> Void) {
         if ascending {
             body(slot!)
-            _slots.reverse().forEach(body)
+            _slots.reversed().forEach(body)
         }
         else {
             _slots.forEach(body)

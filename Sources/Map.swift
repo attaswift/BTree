@@ -53,7 +53,7 @@ extension Map {
     /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
     ///
     /// - Complexity: O(*n* * log(*n*)) where *n* is the number of items in `elements`.
-    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
+    public init<S: Sequence where S.Iterator.Element == Element>(_ elements: S) {
         self.tree = Tree(elements, dropDuplicates: true)
     }
 
@@ -62,7 +62,7 @@ extension Map {
     /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
     ///
     /// - Complexity: O(*n*) where *n* is the number of items in `elements`.
-    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S) {
+    public init<S: Sequence where S.Iterator.Element == Element>(sortedElements elements: S) {
         self.tree = Tree(sortedElements: elements, dropDuplicates: true)
     }
 }
@@ -84,7 +84,7 @@ extension Map: CustomStringConvertible {
             let vs = String(reflecting: value)
             return "\(ks): \(vs)"
         }
-        return "[" + contents.joinWithSeparator(", ") + "]"
+        return "[" + contents.joined(separator: ", ") + "]"
     }
 }
 
@@ -96,15 +96,15 @@ extension Map: CustomDebugStringConvertible {
             let vs = String(reflecting: value)
             return "\(ks): \(vs)"
         }
-        return "[" + contents.joinWithSeparator(", ") + "]"
+        return "[" + contents.joined(separator: ", ") + "]"
     }
 }
 
-extension Map: CollectionType {
+extension Map: Collection {
     //MARK: CollectionType
     
     public typealias Index = BTreeIndex<Key, Value>
-    public typealias Generator = BTreeGenerator<Key, Value>
+    public typealias Iterator = BTreeIterator<Key, Value>
     public typealias Element = (Key, Value)
     public typealias SubSequence = Map<Key, Value>
 
@@ -148,10 +148,47 @@ extension Map: CollectionType {
         return Map(tree[range])
     }
 
-    /// Return a generator over all (key, value) pairs in this map, in ascending key order.
+    /// Return an iterator over all (key, value) pairs in this map, in ascending key order.
     @warn_unused_result
-    public func generate() -> Generator {
-        return tree.generate()
+    public func makeIterator() -> Iterator {
+        return tree.makeIterator()
+    }
+
+    public func index(after index: Index) -> Index {
+        return index.successor()
+    }
+
+    public func formIndex(after index: inout Index) {
+        index.successorInPlace()
+    }
+
+    public func index(before index: Index) -> Index {
+        return index.predecessor()
+    }
+
+    public func formIndex(before index: inout Index) {
+        index.predecessorInPlace()
+    }
+
+    public func index(_ i: Index, offsetBy n: Int) -> Index {
+        return i.advanced(by: n)
+    }
+
+    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+        return i.advanced(by: n, limit: limit)
+    }
+
+    public func distance(from start: Index, to end: Index) -> Int {
+        return end.distance(to: start)
+    }
+
+    public func formIndex(_ i: inout Index, offsetBy n: Int) {
+        i.advance(by: n)
+    }
+
+    @discardableResult
+    public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
+        return i.advance(by: n, limitedBy: limit)
     }
 }
 
@@ -161,7 +198,7 @@ extension Map {
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func forEach(@noescape body: (Element) throws -> ()) rethrows {
+    public func forEach(_ body: @noescape (Element) throws -> ()) rethrows {
         try tree.forEach(body)
     }
 
@@ -170,7 +207,7 @@ extension Map {
     ///
     /// - Complexity: O(`count`)
     @warn_unused_result
-    public func map<T>(@noescape transform: (Element) throws -> T) rethrows -> [T] {
+    public func map<T>(_ transform: @noescape (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
         result.reserveCapacity(self.count)
         try self.forEach {
@@ -183,10 +220,10 @@ extension Map {
     ///
     /// - Complexity: O(`count`)
     @warn_unused_result
-    public func flatMap<S: SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
-        var result: [S.Generator.Element] = []
+    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Iterator.Element] {
+        var result: [S.Iterator.Element] = []
         try self.forEach { element in
-            result.appendContentsOf(try transform(element))
+            result.append(contentsOf: try transform(element))
         }
         return result
     }
@@ -195,7 +232,7 @@ extension Map {
     ///
     /// - Complexity: O(`count`)
     @warn_unused_result
-    public func flatMap<T>(@noescape transform: (Element) throws -> T?) rethrows -> [T] {
+    public func flatMap<T>(_ transform: @noescape (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
         try self.forEach { element in
             if let t = try transform(element) {
@@ -213,7 +250,7 @@ extension Map {
     ///
     /// - Complexity: O(`count`)
     @warn_unused_result
-    public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
+    public func reduce<T>(_ initial: T, combine: @noescape (T, Element) throws -> T) rethrows -> T {
         var result = initial
         try self.forEach {
             result = try combine(result, $0)
@@ -240,14 +277,14 @@ extension Map {
     /// - Complexity: O(log(`count`))
     public subscript(key: Key) -> Value? {
         get {
-            return tree.valueOf(key)
+            return tree.value(of: key)
         }
         set(value) {
             if let value = value {
                 updateValue(value, forKey: key)
             }
             else {
-                removeValueForKey(key)
+                removeValue(forKey: key)
             }
         }
     }
@@ -256,8 +293,8 @@ extension Map {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func indexForKey(key: Key) -> Index? {
-        return tree.indexOf(key)
+    public func index(forKey key: Key) -> Index? {
+        return tree.index(forKey: key)
     }
 
     /// Update the value stored in the map for the given key, or, if they key does not exist, add a new key-value pair to the map.
@@ -266,8 +303,9 @@ extension Map {
     /// This method invalidates all existing indexes into `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func updateValue(value: Value, forKey key: Key) -> Value? {
-        return tree.insertOrReplace((key, value))
+    @discardableResult
+    public mutating func updateValue(_ value: Value, forKey key: Key) -> Value? {
+        return tree.insertOrReplace((key, value))?.1
     }
 
     /// Remove the key-value pair at `index` from this map.
@@ -275,8 +313,9 @@ extension Map {
     /// This method invalidates all existing indexes into `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func removeAtIndex(index: Index) -> (Key, Value) {
-        return tree.removeAtIndex(index)
+    @discardableResult
+    public mutating func remove(at index: Index) -> (key: Key, value: Value) {
+        return tree.remove(at: index)
     }
 
     /// Remove a given key and the associated value from this map.
@@ -285,8 +324,9 @@ extension Map {
     /// This method invalidates all existing indexes into `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func removeValueForKey(key: Key) -> Value? {
-        return tree.remove(key)?.1
+    @discardableResult
+    public mutating func removeValue(forKey key: Key) -> Value? {
+        return tree.remove(key: key)?.1
     }
 
     /// Remove all elements from this map.
@@ -306,8 +346,8 @@ extension Map {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func indexOfOffset(offset: Int) -> Index {
-        return tree.indexOfOffset(offset)
+    public func index(forOffset offset: Int) -> Index {
+        return tree.index(forOffset: offset)
     }
 
     /// Returns the index of the element at `offset`.
@@ -315,38 +355,38 @@ extension Map {
     /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func offsetOfIndex(index: Index) -> Int {
-        return tree.offsetOfIndex(index)
+    public func offset(for index: Index) -> Int {
+        return tree.offset(forIndex: index)
     }
 
     /// Return the element stored at `offset` in this map.
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func elementAtOffset(offset: Int) -> Element {
-        return tree.elementAtOffset(offset)
+    public func element(atOffset offset: Int) -> Element {
+        return tree.element(atOffset: offset)
     }
 
     /// Set the value of the element stored at `offset` in this map.
     ///
     /// - Complexity: O(log(`count`))
     public mutating func updateValue(value: Value, atOffset offset: Int) -> Value {
-        return tree.setValueAt(offset, to: value)
+        return tree.setValue(at: offset, to: value)
     }
 
     /// Remove and return the (key, value) pair at the specified offset from the start of the map.
     ///
     /// - Complexity: O(log(`count`))
     public mutating func removeAtOffset(offset: Int) -> Element {
-        return tree.removeAt(offset)
+        return tree.remove(at: offset)
     }
 
     /// Remove all (key, value) pairs in the specified offset range.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func removeAtOffsets(offsets: Range<Int>) {
-        precondition(offsets.startIndex >= 0 && offsets.endIndex <= count)
-        tree.withCursorAtOffset(offsets.startIndex) { cursor in
+    public mutating func remove(offsetRange offsets: Range<Int>) {
+        precondition(offsets.lowerBound >= 0 && offsets.upperBound <= count)
+        tree.withCursor(atOffset: offsets.lowerBound) { cursor in
             cursor.remove(offsets.count)
         }
     }
@@ -400,7 +440,7 @@ extension Map {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(other: Map, @noescape isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+    public func elementsEqual(_ other: Map, isEquivalent: @noescape (Element, Element) throws -> Bool) rethrows -> Bool {
         return try tree.elementsEqual(other.tree, isEquivalent: isEquivalent)
     }
 }
@@ -412,7 +452,7 @@ extension Map where Value: Equatable {
     /// two maps are divergent mutations originating from the same value.
     ///
     /// - Complexity:  O(`count`)
-    public func elementsEqual(other: Map) -> Bool {
+    public func elementsEqual(_ other: Map) -> Bool {
         return tree.elementsEqual(other.tree)
     }
 }
@@ -442,7 +482,7 @@ extension Map {
     /// this can drastically improve performance when the keys of the two maps aren't too interleaved.
     ///
     /// - Complexity: O(`count`)
-    public func merge(other: Map) -> Map {
+    public func merging(_ other: Map) -> Map {
         return Map(self.tree.distinctUnion(other.tree))
     }
 }
@@ -455,7 +495,7 @@ extension Map {
 ///
 /// - Complexity: O(`count`)
 public func +<Key: Comparable, Value>(a: Map<Key, Value>, b: Map<Key, Value>) -> Map<Key, Value> {
-    return a.merge(b)
+    return a.merging(b)
 }
 
 extension Map {
@@ -465,15 +505,15 @@ extension Map {
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
     @warn_unused_result
-    public func including(keys: OrderedSet<Key>) -> Map {
-        return Map(self.tree.intersect(sortedKeys: keys))
+    public func including(_ keys: OrderedSet<Key>) -> Map {
+        return Map(self.tree.intersection(sortedKeys: keys))
     }
 
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
     @warn_unused_result
-    public func including<S: SequenceType where S.Generator.Element == Key>(keys: S) -> Map {
+    public func including<S: Sequence where S.Iterator.Element == Key>(_ keys: S) -> Map {
         return including(OrderedSet(keys))
     }
 
@@ -481,15 +521,15 @@ extension Map {
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
     @warn_unused_result
-    public func excluding(keys: OrderedSet<Key>) -> Map {
-        return Map(self.tree.subtract(sortedKeys: keys))
+    public func excluding(_ keys: OrderedSet<Key>) -> Map {
+        return Map(self.tree.subtracting(sortedKeys: keys))
     }
 
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
     @warn_unused_result
-    public func excluding<S: SequenceType where S.Generator.Element == Key>(keys: S) -> Map {
+    public func excluding<S: Sequence where S.Iterator.Element == Key>(_ keys: S) -> Map {
         return excluding(OrderedSet(keys))
     }
 }

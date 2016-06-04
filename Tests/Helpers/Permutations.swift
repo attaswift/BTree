@@ -9,7 +9,7 @@
 import Foundation
 
 /// Generates all permutations of length `count`.
-/// - Returns: a generator that produces arrays of integers in range `0..<count`, in all possible order.
+/// - Returns: an iterator that produces arrays of integers in range `0..<count`, in all possible order.
 func generatePermutations(count: Int) -> AnyGenerator<[Int]> {
     if count == 0 {
         return AnyGenerator(EmptyCollection<[Int]>().generate())
@@ -30,7 +30,7 @@ func generatePermutations(count: Int) -> AnyGenerator<[Int]> {
             next = p.count
         }
         var r = perm
-        r.insert(count - 1, atIndex: next)
+        r.insert(count - 1, at: next)
         next -= 1
         return r
     }

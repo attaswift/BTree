@@ -25,11 +25,11 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant number of interleaving element runs.
-    public func union(other: BTree) -> BTree {
+    public func union(_ other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
-            m.copyFromFirst(.IncludingOtherKey)
-            m.copyFromSecond(.ExcludingOtherKey)
+            m.copyFromFirst(.includingOtherKey)
+            m.copyFromSecond(.excludingOtherKey)
         }
         m.appendFirst()
         m.appendSecond()
@@ -54,11 +54,11 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func distinctUnion(other: BTree) -> BTree {
+    public func distinctUnion(_ other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
-            m.copyFromFirst(.ExcludingOtherKey)
-            m.copyFromSecond(.ExcludingOtherKey)
+            m.copyFromFirst(.excludingOtherKey)
+            m.copyFromSecond(.excludingOtherKey)
             m.copyCommonElementsFromSecond()
         }
         m.appendFirst()
@@ -78,11 +78,11 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func subtract(other: BTree) -> BTree {
+    public func subtracting(_ other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
-            m.copyFromFirst(.ExcludingOtherKey)
-            m.skipFromSecond(.ExcludingOtherKey)
+            m.copyFromFirst(.excludingOtherKey)
+            m.skipFromSecond(.excludingOtherKey)
             m.skipCommonElements()
         }
         m.appendFirst()
@@ -101,11 +101,11 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func exclusiveOr(other: BTree) -> BTree {
+    public func symmetricDifference(_ other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
-            m.copyFromFirst(.ExcludingOtherKey)
-            m.copyFromSecond(.ExcludingOtherKey)
+            m.copyFromFirst(.excludingOtherKey)
+            m.copyFromSecond(.excludingOtherKey)
             m.skipCommonElements()
         }
         m.appendFirst()
@@ -127,11 +127,11 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func intersect(other: BTree) -> BTree {
+    public func intersection(_ other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
-            m.skipFromFirst(.ExcludingOtherKey)
-            m.skipFromSecond(.ExcludingOtherKey)
+            m.skipFromFirst(.excludingOtherKey)
+            m.skipFromSecond(.excludingOtherKey)
             m.copyCommonElementsFromSecond()
         }
         return m.finish()
@@ -142,7 +142,7 @@ extension BTree {
     ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
     /// - Complexity: O(*n* * log(`count`)), where *n* is the number of keys in `sortedKeys`.
-    public func subtract<S: SequenceType where S.Generator.Element == Key>(sortedKeys sortedKeys: S) -> BTree {
+    public func subtracting<S: Sequence where S.Iterator.Element == Key>(sortedKeys: S) -> BTree {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
@@ -171,7 +171,7 @@ extension BTree {
     ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
     /// - Complexity: O(*n* * log(`count`)), where *n* is the number of keys in `sortedKeys`.
-    public func intersect<S: SequenceType where S.Generator.Element == Key>(sortedKeys sortedKeys: S) -> BTree {
+    public func intersection<S: Sequence where S.Iterator.Element == Key>(sortedKeys: S) -> BTree {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
@@ -194,16 +194,16 @@ extension BTree {
 }
 
 enum BTreeCopyLimit {
-    case IncludingOtherKey
-    case ExcludingOtherKey
+    case includingOtherKey
+    case excludingOtherKey
 
-    var inclusive: Bool { return self == .IncludingOtherKey }
+    var inclusive: Bool { return self == .includingOtherKey }
 
-    func match<Key: Comparable>(key: Key, with reference: Key) -> Bool {
+    func match<Key: Comparable>(_ key: Key, with reference: Key) -> Bool {
         switch self {
-        case .IncludingOtherKey:
+        case .includingOtherKey:
             return key <= reference
-        case .ExcludingOtherKey:
+        case .excludingOtherKey:
             return key < reference
         }
     }
@@ -270,7 +270,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     }
 
     /// Copy elements from the first tree (starting at the current position) that are less than (or, when `limit`
-    /// is `.IncludingOtherKey`, less than or equal to) the key in the second tree at its the current position.
+    /// is `.includingOtherKey`, less than or equal to) the key in the second tree at its the current position.
     ///
     /// This method will link entire subtrees to the result whenever possible, which can considerably speed up the operation.
     ///
@@ -278,7 +278,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     /// if it reaches the end of the first tree.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements copied.
-    mutating func copyFromFirst(limit: BTreeCopyLimit) {
+    mutating func copyFromFirst(_ limit: BTreeCopyLimit) {
         while !done && limit.match(a.key, with: b.key) {
             builder.append(a.nextPart(until: b.key, inclusive: limit.inclusive))
             done = a.isAtEnd
@@ -286,7 +286,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     }
 
     /// Copy elements from the second tree (starting at the current position) that are less than (or, when `limit`
-    /// is `.IncludingOtherKey`, less than or equal to) the key in the first tree at its the current position.
+    /// is `.includingOtherKey`, less than or equal to) the key in the first tree at its the current position.
     ///
     /// This method will link entire subtrees to the result whenever possible, which can considerably speed up the operation.
     ///
@@ -294,7 +294,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     /// if it reaches the end of the second tree.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements copied.
-    mutating func copyFromSecond(limit: BTreeCopyLimit) {
+    mutating func copyFromSecond(_ limit: BTreeCopyLimit) {
         while !done && limit.match(b.key, with: a.key) {
             builder.append(b.nextPart(until: a.key, inclusive: limit.inclusive))
             done = b.isAtEnd
@@ -302,7 +302,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     }
 
     /// Skip elements from the first tree (starting at the current position) that are less than (or, when `limit`
-    /// is `.IncludingOtherKey`, less than or equal to) the key in the second tree at its the current position.
+    /// is `.includingOtherKey`, less than or equal to) the key in the second tree at its the current position.
     ///
     /// This method will jump over entire subtrees to the result whenever possible, which can considerably speed up the operation.
     ///
@@ -310,7 +310,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     /// if it reaches the end of the first tree.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements skipped.
-    mutating func skipFromFirst(limit: BTreeCopyLimit) {
+    mutating func skipFromFirst(_ limit: BTreeCopyLimit) {
         while !done && limit.match(a.key, with: b.key) {
             a.nextPart(until: b.key, inclusive: limit.inclusive)
             done = a.isAtEnd
@@ -318,7 +318,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     }
 
     /// Skip elements from the second tree (starting at the current position) that are less than (or, when `limit`
-    /// is `.IncludingOtherKey`, less than or equal to) the key in the first tree at its the current position.
+    /// is `.includingOtherKey`, less than or equal to) the key in the first tree at its the current position.
     ///
     /// This method will jump over entire subtrees to the result whenever possible, which can considerably speed up the operation.
     ///
@@ -326,7 +326,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     /// if it reaches the end of the second tree.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements skipped.
-    mutating func skipFromSecond(limit: BTreeCopyLimit) {
+    mutating func skipFromSecond(_ limit: BTreeCopyLimit) {
         while !done && limit.match(b.key, with: a.key) {
             b.nextPart(until: a.key, inclusive: limit.inclusive)
             done = b.isAtEnd
@@ -429,19 +429,19 @@ internal struct BTreeMerger<Key: Comparable, Value> {
 }
 
 internal enum BTreePart<Key: Comparable, Value> {
-    case Element((Key, Value))
-    case Node(BTreeNode<Key, Value>)
-    case NodeRange(BTreeNode<Key, Value>, Range<Int>)
+    case element((Key, Value))
+    case node(BTreeNode<Key, Value>)
+    case nodeRange(BTreeNode<Key, Value>, Range<Int>)
 }
 
 extension BTreeBuilder {
-    mutating func append(part: BTreePart<Key, Value>) {
+    mutating func append(_ part: BTreePart<Key, Value>) {
         switch part {
-        case .Element(let element):
+        case .element(let element):
             self.append(element)
-        case .Node(let node):
+        case .node(let node):
             self.appendWithoutCloning(node.clone())
-        case .NodeRange(let node, let range):
+        case .nodeRange(let node, let range):
             self.appendWithoutCloning(Node(node: node, slotRange: range))
         }
     }
@@ -462,7 +462,7 @@ internal extension BTreeStrongPath {
     }
 
     /// Move sideways `n` slots to the right, skipping over subtrees along the way.
-    internal mutating func skipForward(n: Int) {
+    internal mutating func skipForward(_ n: Int) {
         if !node.isLeaf {
             for i in 0 ..< n {
                 let s = slot! + i
@@ -478,6 +478,7 @@ internal extension BTreeStrongPath {
 
     /// Remove the deepest path component, leaving the path at the element following the node that was previously focused,
     /// or the spot after all elements if the node was the rightmost child.
+    @discardableResult
     mutating func ascendOneLevel() -> Bool {
         if length == 1 {
             offset = count
@@ -505,8 +506,9 @@ internal extension BTreeStrongPath {
     ///
     /// - Requires: The current position is not at the end of the tree, and the current key is matching the condition above.
     /// - Complexity: O(log(*n*)) where *n* is the number of elements in the returned part.
+    @discardableResult
     mutating func nextPart(until key: Key, inclusive: Bool) -> BTreePart<Key, Value> {
-        func match(k: Key) -> Bool {
+        func match(_ k: Key) -> Bool {
             return (inclusive && k <= key) || (!inclusive && k < key)
         }
 
@@ -525,7 +527,7 @@ internal extension BTreeStrongPath {
         }
         if !includeLeftmostSubtree && !node.isLeaf {
             defer { moveForward() }
-            return .Element(self.element)
+            return .element(self.element)
         }
 
         // Find range of matching elements in `node`.
@@ -541,14 +543,14 @@ internal extension BTreeStrongPath {
         let includeRightmostSubtree = node.isLeaf || match(node.children[endSlot].last!.0)
         if includeRightmostSubtree {
             defer { skipForward(endSlot - startSlot) }
-            return .NodeRange(node, startSlot ..< endSlot)
+            return .nodeRange(node, startSlot ..< endSlot)
         }
         // If the last subtree has non-matching elements, leave off `endSlot - 1` from the returned range.
         if endSlot == startSlot + 1 {
             let n = node.children[slot!]
-            return .Node(n)
+            return .node(n)
         }
         defer { skipForward(endSlot - startSlot - 1) }
-        return .NodeRange(node, startSlot ..< endSlot - 1)
+        return .nodeRange(node, startSlot ..< endSlot - 1)
     }
 }

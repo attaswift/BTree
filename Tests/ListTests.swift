@@ -214,8 +214,8 @@ class ListTests: XCTestCase {
             var list = List<Int>()
             var referenceArray: [Int] = []
             for i in inversion {
-                list.insert(i, atIndex: i)
-                referenceArray.insert(i, atIndex: i)
+                list.insert(i, at: i)
+                referenceArray.insert(i, at: i)
             }
             list.assertValid()
             XCTAssertEqual(referenceArray, Array(list))
@@ -225,12 +225,12 @@ class ListTests: XCTestCase {
     func testAppendContentsOfList() {
         var l1: List<Int> = [0, 1, 2, 3, 4]
         let l2: List<Int> = [5, 6, 7, 8, 9]
-        l1.appendContentsOf(l2)
+        l1.append(contentsOf: l2)
         assertEqualElements(l1, 0..<10)
 
         let l3: List<Int> = [10, 11, 12, 13, 14]
-        func appendAsSequence<E, S: SequenceType where S.Generator.Element == E>(inout list: List<E>, _ elements: S) {
-            list.appendContentsOf(elements)
+        func appendAsSequence<E, S: Sequence where S.Iterator.Element == E>(list: inout List<E>, _ elements: S) {
+            list.append(contentsOf: elements)
         }
         appendAsSequence(&l1, l3)
         assertEqualElements(l1, 0..<15)
@@ -238,7 +238,7 @@ class ListTests: XCTestCase {
 
     func testAppendContentsOfSequence() {
         var list: List<Int> = [0, 1, 2, 3, 4]
-        list.appendContentsOf(5..<10)
+        list.append(contentsOf: 5..<10)
         assertEqualElements(list, 0..<10)
     }
 
@@ -248,18 +248,18 @@ class ListTests: XCTestCase {
 
         for i in 0...5 {
             var copy = list
-            copy.insertContentsOf(l, at: i)
+            copy.insert(contentsOf: l, at: i)
 
             var ref = Array(0..<5)
-            ref.insertContentsOf(l, at: i)
+            ref.insert(contentsOf: l, at: i)
 
             assertEqualElements(copy, ref)
         }
         assertEqualElements(list, 0..<5)
 
         var copy = list
-        func insertAsSequence<E, S: SequenceType where S.Generator.Element == E>(inout list: List<E>, _ elements: S, at index: Int) {
-            list.insertContentsOf(elements, at: index)
+        func insertAsSequence<E, S: Sequence where S.Iterator.Element == E>(list: inout List<E>, _ elements: S, at index: Int) {
+            list.insert(contentsOf: elements, at: index)
         }
         insertAsSequence(&copy, l, at: copy.count)
         assertEqualElements(copy, 0 ..< 10)
@@ -271,10 +271,10 @@ class ListTests: XCTestCase {
 
         for i in 0...5 {
             var copy = list
-            copy.insertContentsOf(s, at: i)
+            copy.insert(contentsOf: s, at: i)
 
             var ref = Array(0..<5)
-            ref.insertContentsOf(s, at: i)
+            ref.insert(contentsOf: s, at: i)
 
             assertEqualElements(copy, ref)
         }
@@ -291,8 +291,8 @@ class ListTests: XCTestCase {
             var r = referenceArray
 
             for i in inversion.reverse() {
-                let li = l.removeAtIndex(i)
-                let ai = r.removeAtIndex(i)
+                let li = l.remove(at: i)
+                let ai = r.remove(at: i)
                 XCTAssertEqual(li, ai)
             }
             l.assertValid()
@@ -353,7 +353,7 @@ class ListTests: XCTestCase {
 
     func testRemoveRange() {
         var list = List(0..<10)
-        list.removeRange(2..<8)
+        list.removeSubrange(2..<8)
         assertEqualElements(list, [0, 1, 8, 9])
     }
 
@@ -366,28 +366,28 @@ class ListTests: XCTestCase {
     func testReplaceRangeWithList() {
         var list = List(0..<10)
 
-        list.replaceRange(2..<5, with: List(8..<11))
+        list.replaceSubrange(2..<5, with: List(8..<11))
         assertEqualElements(list, [0, 1, 8, 9, 10, 5, 6, 7, 8, 9])
 
-        list.replaceRange(0..<3, with: List())
+        list.replaceSubrange(0..<3, with: List())
         assertEqualElements(list, [9, 10, 5, 6, 7, 8, 9])
 
-        list.replaceRange(4..<7, with: List(1 ..< 6))
+        list.replaceSubrange(4..<7, with: List(1 ..< 6))
         assertEqualElements(list, [9, 10, 5, 6, 1, 2, 3, 4, 5])
 
-        list.replaceRange(0..<9, with: List())
+        list.replaceSubrange(0..<9, with: List())
         assertEqualElements(list, 0 ..< 0)
     }
 
     func testReplaceRangeWithSequence() {
         var list = List(0..<10)
-        list.replaceRange(2..<8, with: [10, 20, 30])
+        list.replaceSubrange(2..<8, with: [10, 20, 30])
         assertEqualElements(list, [0, 1, 10, 20, 30, 8, 9])
-        list.replaceRange(1..<3, with: [50, 51, 52, 53, 54, 55])
+        list.replaceSubrange(1..<3, with: [50, 51, 52, 53, 54, 55])
         assertEqualElements(list, [0, 50, 51, 52, 53, 54, 55, 20, 30, 8, 9])
 
-        func replaceAsSequence<E, C: CollectionType where C.Generator.Element == E>(inout list: List<E>, range: Range<Int>, with elements: C) {
-            list.replaceRange(range, with: elements)
+        func replaceAsSequence<E, C: CollectionType where C.Iterator.Element == E>(list: inout List<E>, range: Range<Int>, with elements: C) {
+            list.replaceSubrange(range, with: elements)
         }
         replaceAsSequence(&list, range: 1 ..< 9, with: List(1 ..< 8))
         assertEqualElements(list, 0 ..< 10)

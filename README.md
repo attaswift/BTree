@@ -387,11 +387,11 @@ Let's enumerate:
     [efficient positional lookup][BTree.elementAtOffset]
     is possible.  For any *i*, you can get, set, remove or insert the *i*th item in the tree in log(n) time.
 
--   There is a [`BTreeGenerator`][BTreeGenerator] and a [`BTreeIndex`][BTreeIndex] that provide the
+-   There is a [`BTreeIterator`][BTreeIterator] and a [`BTreeIndex`][BTreeIndex] that provide the
     usual generator/indexing semantics. While individual element lookup usually takes O(log(n))
     operations, iterating over all elements via these interfaces requires linear time. Using the
     generator is faster than indexing, so you should prefer using it whenever possible. 
-    There are methods to start a generator from the middle of the tree: 
+    There are methods to start an iterator from the middle of the tree: 
     from any offset, any index, or any key.
     
 -   Note that [`forEach`][BTree.forEach] has a specialized recursive implementation, 
@@ -420,9 +420,9 @@ Let's enumerate:
       are wrappers around a [`BTreeWeakPath`][BTreeWeakPath], which uses weak references, and 
       needs to tread very carefully in order to detect when one of its references gets out of date.
       
-    - Meanwhile a [`BTreeGenerator`][BTreeGenerator] is supposed to support standalone iteration over the
+    - Meanwhile a [`BTreeIterator`][BTreeIterator] is supposed to support standalone iteration over the
       contents of the tree, so it must contain strong references. It uses a
-      [`BTreeStrongPath`][BTreeStrongPath] to represent the path of its next element. While a generator only
+      [`BTreeStrongPath`][BTreeStrongPath] to represent the path of its next element. While an iterator only
       needs to be able to move one step forward, `BTreeStrongPath` supports the full tree navigation API,
       making it very useful elsewhere in the codebase whenever we need a kind of read-only cursor into a
       tree. For example, the tree merging algorithm uses strong paths to represent its current positions in
@@ -438,7 +438,7 @@ Let's enumerate:
           
 [BTreePath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreePath.swift
 [BTreeWeakPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeIndex.swift#L130
-[BTreeStrongPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeGenerator.swift#L68
+[BTreeStrongPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeIterator.swift#L68
 [BTreeCursorPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeCursor.swift#L96
 
 -   It would be overkill to create an explicit path to look up or modify a single element in the tree
@@ -458,7 +458,7 @@ Let's enumerate:
     appending elements to a newly created tree. Beside individual elements, it also supports efficiently 
     appending entire B-trees. This comes useful in optimized tree merging algorithms.
 
-[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_q_q0__
+[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12Sequencezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_q_q0__
 [BTreeBuilder]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeBuilder.swift
     
 -   Constructing a B-tree from an unsorted sequence of elements inserts the elements into the tree one by
@@ -467,13 +467,13 @@ Let's enumerate:
     a quicksort. (So sort elements on your own if you can spare the extra memory.)
 
 [BTree.insert]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree6insertu0_Rq_Ss10Comparable_FRGS0_q_q0__FTTq_q0__2atOS_16BTreeKeySelector_T_
-[BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FTqd__14dropDuplicatesSb5orderSi_GS0_q_q0__
+[BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12Sequencezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FTqd__14dropDuplicatesSb5orderSi_GS0_q_q0__
 
 -   The package contains O(log(n)) methods to [extract a range of elements as a new B-tree][BTree.subtree]
     and to [insert a B-tree into another B-tree][BTreeCursor.insertTree]. (Keys need to remain ordered
     correctly, though.)
     
--   Merge operations (such as `BTree.union` and `BTree.exclusiveOr`) are highly tuned to detect when
+-   Merge operations (such as `BTree.union` and `BTree.symmetricDifference`) are highly tuned to detect when
     they can skip over entire subtrees on their input, linking them into the result or skipping their contents
     as required. For input trees that contain long runs of distinct elements, these operations
     can finish in as little as O(log(*n*)) time. These algorithms are expressed on top of a general
@@ -482,7 +482,7 @@ Let's enumerate:
 [BTree]: http://lorentey.github.io/BTree/api/Structs/BTree.html
 [BTreeNode]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift
 [BTreeKeySelector]: http://lorentey.github.io/BTree/api/Enums/BTreeKeySelector.html
-[BTreeGenerator]: http://lorentey.github.io/BTree/api/Structs/BTreeGenerator.html
+[BTreeIterator]: http://lorentey.github.io/BTree/api/Structs/BTreeIterator.html
 [BTreeIndex]: http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html
 [BTreeCursor]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html
 [BTree.elementAtOffset]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree15elementAtOffsetu0_Rq_Ss10Comparable_FGS0_q_q0__FSiTq_q0__

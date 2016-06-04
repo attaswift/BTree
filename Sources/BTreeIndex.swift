@@ -8,13 +8,12 @@
 
 /// An index into a collection that uses a B-tree for storage.
 ///
-/// This index satisfies `CollectionType`'s requirement for O(1) access, but
+/// This index satisfies `Collection`'s requirement for O(1) access, but
 /// it is only suitable for read-only processing -- most tree mutations will 
 /// invalidate all existing indexes.
 /// 
 /// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a B-tree.
-public struct BTreeIndex<Key: Comparable, Value>: BidirectionalIndexType, Comparable {
-    public typealias Distance = Int
+public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     typealias Node = BTreeNode<Key, Value>
     typealias State = BTreeWeakPath<Key, Value>
 
@@ -47,6 +46,18 @@ public struct BTreeIndex<Key: Comparable, Value>: BidirectionalIndexType, Compar
         state.move(toOffset: state.offset + distance)
     }
 
+    @discardableResult
+    public mutating func advance(by distance: Int, limitedBy limit: BTreeIndex) -> Bool {
+        state.expectRoot(limit.state.root)
+        if (distance >= 0 && state.offset + distance > limit.state.offset)
+            || (distance < 0 && state.offset + distance < limit.state.offset) {
+            self = limit
+            return false
+        }
+        state.move(toOffset: state.offset + distance)
+        return true
+    }
+
     /// Return the next index after `self` in its collection.
     ///
     /// - Requires: self is valid and not the end index.
@@ -73,30 +84,30 @@ public struct BTreeIndex<Key: Comparable, Value>: BidirectionalIndexType, Compar
     /// 
     /// - Complexity: O(log(`n`))
     @warn_unused_result
-    public func advancedBy(n: Int) -> BTreeIndex {
+    public func advanced(by n: Int) -> BTreeIndex {
         var result = self
         result.advance(by: n)
         return result
     }
 
-    /// Return the result of advancing `self` by `n` positions.
+    /// Return the result of advancing self by `n` positions, or until it equals `limit`.
     ///
     /// - Complexity: O(log(`n`))
     @warn_unused_result
-    public func advancedBy(n: Int, limit: BTreeIndex) -> BTreeIndex {
+    public func advanced(by n: Int, limit: BTreeIndex) -> BTreeIndex? {
         state.expectRoot(limit.state.root)
-        let d = self.distanceTo(limit)
-        if d == 0 || (d > 0 ? d <= n : d >= n) {
-            return limit
+        let d = self.distance(to: limit)
+        if d > 0 ? d < n : d > n {
+            return nil
         }
-        return self.advancedBy(n)
+        return self.advanced(by: n)
     }
 
-    /// Return the result of advancing self by `n` positions, or until it equals `limit`.
+    /// Return the number of steps between `self` an `end`.
     ///
     /// - Complexity: O(1)
     @warn_unused_result
-    public func distanceTo(end: BTreeIndex) -> Int {
+    public func distance(to end: BTreeIndex) -> Int {
         state.expectRoot(end.state.root)
         return end.state.offset - state.offset
     }
@@ -138,7 +149,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
     var _node: Weak<Node>
     var slot: Int?
 
-    init(_ root: Node) {
+    init(root: Node) {
         self._root = Weak(root)
         self.offset = root.count
         self._path = []
@@ -159,11 +170,11 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         return node
     }
     
-    internal func expectRoot(root: Node) {
+    internal func expectRoot(_ root: Node) {
         expectValid(_root.value === root)
     }
 
-    internal func expectValid(@autoclosure expression: Void->Bool, file: StaticString = #file, line: UInt = #line) {
+    internal func expectValid(_ expression: @autoclosure (Void) -> Bool, file: StaticString = #file, line: UInt = #line) {
         precondition(expression(), "Invalid BTreeIndex", file: file, line: line)
     }
 
@@ -174,7 +185,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
     mutating func popFromSlots() {
         assert(self.slot != nil)
         let node = self.node
-        offset += node.count - node.offsetOfSlot(slot!)
+        offset += node.count - node.offset(ofSlot: slot!)
         slot = nil
     }
 
@@ -195,17 +206,17 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         slot = nil
     }
 
-    mutating func pushToSlots(slot: Int, offsetOfSlot: Int) {
+    mutating func pushToSlots(_ slot: Int, offsetOfSlot: Int) {
         assert(self.slot == nil)
         offset -= node.count - offsetOfSlot
         self.slot = slot
     }
 
-    func forEach(ascending ascending: Bool, @noescape body: (Node, Int) -> Void) {
+    func forEach(ascending: Bool, body: @noescape (Node, Int) -> Void) {
         if ascending {
             var child: Node? = node
             body(child!, slot!)
-            for i in (0 ..< _path.count).reverse() {
+            for i in (0 ..< _path.count).reversed() {
                 guard let node = _path[i].value else { invalid() }
                 let slot = _slots[i]
                 expectValid(node.children[slot] === child)
@@ -224,10 +235,10 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         }
     }
 
-    func forEachSlot(ascending ascending: Bool, @noescape body: Int -> Void) {
+    func forEachSlot(ascending: Bool, body: @noescape (Int) -> Void) {
         if ascending {
             body(slot!)
-            _slots.reverse().forEach(body)
+            _slots.reversed().forEach(body)
         }
         else {
             _slots.forEach(body)

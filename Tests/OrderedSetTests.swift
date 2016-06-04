@@ -79,7 +79,7 @@ class OrderedSetTests: XCTestCase {
         var index = set.startIndex
         while index != set.endIndex {
             XCTAssertEqual(set[index], i)
-            XCTAssertEqual(set.startIndex.distanceTo(index), i)
+            XCTAssertEqual(set.startIndex.distance(to: index), i)
             index = index.successor()
             i += 1
         }
@@ -202,19 +202,19 @@ class OrderedSetTests: XCTestCase {
         var index = set.startIndex
         for i in 0 ..< c {
             assertEqualElements(set.prefix(i), 0 ..< i)
-            assertEqualElements(set.prefixThrough(index), 0 ... i)
-            assertEqualElements(set.prefixThrough(i), 0 ... i)
-            assertEqualElements(set.prefixUpTo(index), 0 ..< i)
-            assertEqualElements(set.prefixUpTo(i), 0 ..< i)
+            assertEqualElements(set.prefix(through: index), 0 ... i)
+            assertEqualElements(set.prefix(through: i), 0 ... i)
+            assertEqualElements(set.prefix(upTo: index), 0 ..< i)
+            assertEqualElements(set.prefix(upTo: i), 0 ..< i)
             index = index.successor()
         }
         XCTAssertEqual(index, set.endIndex)
         assertEqualElements(set.prefix(c), 0 ..< c)
-        assertEqualElements(set.prefixThrough(c), 0 ..< c)
-        assertEqualElements(set.prefixUpTo(set.endIndex), 0 ..< c)
-        assertEqualElements(set.prefixUpTo(c), 0 ..< c)
+        assertEqualElements(set.prefix(through: c), 0 ..< c)
+        assertEqualElements(set.prefix(upTo: set.endIndex), 0 ..< c)
+        assertEqualElements(set.prefix(upTo: c), 0 ..< c)
 
-        assertEqualElements(set.prefixUpTo(2 * c), 0 ..< c)
+        assertEqualElements(set.prefix(upTo: 2 * c), 0 ..< c)
 
     }
 
@@ -224,16 +224,16 @@ class OrderedSetTests: XCTestCase {
         var index = set.startIndex
         for i in 0 ..< c {
             assertEqualElements(set.suffix(i), c - i ..< c)
-            assertEqualElements(set.suffixFrom(index), i ..< c)
-            assertEqualElements(set.suffixFrom(i), i ..< c)
+            assertEqualElements(set.suffix(from: index), i ..< c)
+            assertEqualElements(set.suffix(from: i), i ..< c)
             index = index.successor()
         }
         XCTAssertEqual(index, set.endIndex)
         assertEqualElements(set.suffix(c), 0 ..< c)
-        assertEqualElements(set.suffixFrom(set.endIndex), [])
-        assertEqualElements(set.suffixFrom(c), [])
+        assertEqualElements(set.suffix(from: set.endIndex), [])
+        assertEqualElements(set.suffix(from: c), [])
 
-        assertEqualElements(set.suffixFrom(2 * c), [])
+        assertEqualElements(set.suffix(from: 2 * c), [])
     }
 
     func test_description() {
@@ -255,7 +255,7 @@ class OrderedSetTests: XCTestCase {
         for i in 0 ..< 2 * c {
             let index = set.indexOf(i)
             if i & 1 == 0 {
-                XCTAssertEqual(index, set.startIndex.advancedBy(i / 2))
+                XCTAssertEqual(index, set.startIndex.advanced(by: i / 2))
                 XCTAssertEqual(set[index!], i)
             }
             else {
@@ -293,11 +293,11 @@ class OrderedSetTests: XCTestCase {
         XCTAssertTrue(set.isEmpty)
     }
 
-    func test_removeAtIndex() {
+    func test_removeAt() {
         let c = 500
         var set = OrderedSet(0 ..< c)
         for i in 0 ..< c {
-            XCTAssertEqual(set.removeAtIndex(set.startIndex), i)
+            XCTAssertEqual(set.remove(at: set.startIndex), i)
         }
     }
 
@@ -336,9 +336,9 @@ class OrderedSetTests: XCTestCase {
         let b = OrderedSet(20 ..< 50)
 
         assertEqualElements(a.union(b), 0 ..< 50)
-        assertEqualElements(a.intersect(b), 20 ..< 30)
-        assertEqualElements(a.subtract(b), 0 ..< 20)
-        assertEqualElements(a.exclusiveOr(b), Array(0 ..< 20) + Array(30 ..< 50))
+        assertEqualElements(a.intersection(b), 20 ..< 30)
+        assertEqualElements(a.subtracting(b), 0 ..< 20)
+        assertEqualElements(a.symmetricDifference(b), Array(0 ..< 20) + Array(30 ..< 50))
 
         var x = a
         x.unionInPlace(b)
@@ -372,8 +372,8 @@ class OrderedSetTests: XCTestCase {
         XCTAssertFalse(a == b)
         XCTAssertFalse(a == c)
 
-        XCTAssertFalse(a.isDisjointWith(b))
-        XCTAssertTrue(b.isDisjointWith(c))
+        XCTAssertFalse(a.isDisjoint(with:b))
+        XCTAssertTrue(b.isDisjoint(with:c))
 
         XCTAssertTrue(b.isSubsetOf(a))
         XCTAssertTrue(c.isSubsetOf(a))

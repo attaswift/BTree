@@ -17,7 +17,7 @@
 ///
 /// Set operations on ordered sets (such as taking the union, intersection or difference) can take as little as
 /// O(log(n)) time if the elements in the source sets aren't interleaved.
-public struct OrderedSet<Element: Comparable> {
+public struct OrderedSet<Element: Comparable>: SetAlgebra {
     internal typealias Tree = BTree<Element, Void>
 
     /// The b-tree that serves as storage.
@@ -28,7 +28,7 @@ public struct OrderedSet<Element: Comparable> {
     }
 }
 
-extension OrderedSet: ArrayLiteralConvertible {
+extension OrderedSet {
     //MARK: Initializers
 
     /// Create an empty set.
@@ -40,15 +40,15 @@ extension OrderedSet: ArrayLiteralConvertible {
     /// If the sequence contains duplicate items, only the last instance will be kept in the set.
     ///
     /// - Complexity: O(*n* * log(*n*)), where *n* is the number of items in the sequence.
-    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
-        self.init(Tree(sortedElements: elements.sort().lazy.map { ($0, ()) }, dropDuplicates: true))
+    public init<S: Sequence where S.Iterator.Element == Element>(_ elements: S) {
+        self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, ()) }, dropDuplicates: true))
     }
 
     /// Create a set from a sorted finite sequence of items.
     /// If the sequence contains duplicate items, only the last instance will be kept in the set.
     ///
     /// - Complexity: O(*n*), where *n* is the number of items in the sequence.
-    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S) {
+    public init<S: Sequence where S.Iterator.Element == Element>(sortedElements elements: S) {
         self.init(Tree(sortedElements: elements.lazy.map { ($0, ()) }, dropDuplicates: true))
     }
 
@@ -59,11 +59,11 @@ extension OrderedSet: ArrayLiteralConvertible {
     }
 }
 
-extension OrderedSet: CollectionType {
+extension OrderedSet: Collection {
     //MARK: CollectionType
 
     public typealias Index = BTreeIndex<Element, Void>
-    public typealias Generator = BTreeKeyGenerator<Element>
+    public typealias Iterator = BTreeKeyIterator<Element>
     public typealias SubSequence = OrderedSet<Element>
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
@@ -106,10 +106,47 @@ extension OrderedSet: CollectionType {
         return OrderedSet(tree[range])
     }
 
-    /// Return a generator over all elements in this map, in ascending key order.
+    /// Return an iterator over all elements in this map, in ascending key order.
     @warn_unused_result
-    public func generate() -> Generator {
-        return Generator(tree.generate())
+    public func makeIterator() -> Iterator {
+        return Iterator(tree.makeIterator())
+    }
+
+    public func index(after index: Index) -> Index {
+        return index.successor()
+    }
+
+    public func formIndex(after index: inout Index) {
+        index.successorInPlace()
+    }
+
+    public func index(before index: Index) -> Index {
+        return index.predecessor()
+    }
+
+    public func formIndex(before index: inout Index) {
+        index.predecessorInPlace()
+    }
+
+    public func index(_ i: Index, offsetBy n: Int) -> Index {
+        return i.advanced(by: n)
+    }
+
+    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+        return i.advanced(by: n, limit: limit)
+    }
+
+    public func distance(from start: Index, to end: Index) -> Int {
+        return end.distance(to: start)
+    }
+
+    public func formIndex(_ i: inout Index, offsetBy n: Int) {
+        i.advance(by: n)
+    }
+
+    @discardableResult
+    public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
+        return i.advance(by: n, limitedBy: limit)
     }
 }
 
@@ -120,7 +157,7 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     public subscript(offset: Int) -> Element {
-        return tree.elementAtOffset(offset).0
+        return tree.element(atOffset: offset).0
     }
 
     /// Returns the subset containing elements in the specified range of offsets from the start of the set.
@@ -135,31 +172,31 @@ extension OrderedSet {
     //MARK: Algorithms
 
     /// Call `body` on each element in `self` in ascending order.
-    public func forEach(@noescape body: (Element) throws -> Void) rethrows {
+    public func forEach(_ body: @noescape (Element) throws -> Void) rethrows {
         return try tree.forEach { try body($0.0) }
     }
 
     /// Return an `Array` containing the results of mapping transform over `self`.
     @warn_unused_result
-    public func map<T>(@noescape transform: (Element) throws -> T) rethrows -> [T] {
+    public func map<T>(_ transform: @noescape (Element) throws -> T) rethrows -> [T] {
         return try tree.map { try transform($0.0) }
     }
 
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     @warn_unused_result
-    public func flatMap<S : SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
+    public func flatMap<S : Sequence>(_ transform: @noescape (Element) throws -> S) rethrows -> [S.Iterator.Element] {
         return try tree.flatMap { try transform($0.0) }
     }
 
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     @warn_unused_result
-    public func flatMap<T>(@noescape transform: (Element) throws -> T?) rethrows -> [T] {
+    public func flatMap<T>(_ transform: @noescape (Element) throws -> T?) rethrows -> [T] {
         return try tree.flatMap { try transform($0.0) }
     }
 
     /// Return an `Array` containing the elements of `self`, in ascending order, that satisfy the predicate `includeElement`.
     @warn_unused_result
-    public func filter(@noescape includeElement: (Element) throws -> Bool) rethrows -> [Element] {
+    public func filter(_ includeElement: @noescape (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
         try tree.forEach { e -> () in
             if try includeElement(e.0) {
@@ -173,7 +210,7 @@ extension OrderedSet {
     /// and each element of `self`, in turn.
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     @warn_unused_result
-    public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
+    public func reduce<T>(_ initial: T, combine: @noescape (T, Element) throws -> T) rethrows -> T {
         return try tree.reduce(initial, combine: { try combine($0, $1.0) })
     }
 }
@@ -195,13 +232,13 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func minElement() -> Element? { return first }
+    public func min() -> Element? { return first }
 
     /// Return the largest element in the set, or `nil` if the set is empty.
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func maxElement() -> Element? { return last }
+    public func max() -> Element? { return last }
 
     // Return a copy of this set with the smallest element removed.
     ///
@@ -215,7 +252,7 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func dropFirst(n: Int) -> OrderedSet {
+    public func dropFirst(_ n: Int) -> OrderedSet {
         return OrderedSet(tree.dropFirst(n))
     }
 
@@ -231,7 +268,7 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func dropLast(n: Int) -> OrderedSet {
+    public func dropLast(_ n: Int) -> OrderedSet {
         return OrderedSet(tree.dropLast(n))
     }
 
@@ -241,7 +278,7 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func prefix(maxLength: Int) -> OrderedSet {
+    public func prefix(_  maxLength: Int) -> OrderedSet {
         return OrderedSet(tree.prefix(maxLength))
     }
 
@@ -249,8 +286,8 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func prefixThrough(index: Index) -> OrderedSet {
-        return OrderedSet(tree.prefixThrough(index))
+    public func prefix(through index: Index) -> OrderedSet {
+        return OrderedSet(tree.prefix(through: index))
     }
 
     /// Returns a subset containing all members of this set less than or equal to the specified element
@@ -258,16 +295,16 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func prefixThrough(element: Element) -> OrderedSet {
-        return OrderedSet(tree.prefixThrough(element))
+    public func prefix(through element: Element) -> OrderedSet {
+        return OrderedSet(tree.prefix(through: element))
     }
 
     /// Returns a subset containing all members of this set before the specified index.
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func prefixUpTo(end: Index) -> OrderedSet {
-        return OrderedSet(tree.prefixUpTo(end))
+    public func prefix(upTo end: Index) -> OrderedSet {
+        return OrderedSet(tree.prefix(upTo: end))
     }
 
     /// Returns a subset containing all members of this set less than the specified element
@@ -275,8 +312,8 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func prefixUpTo(end: Element) -> OrderedSet {
-        return OrderedSet(tree.prefixUpTo(end))
+    public func prefix(upTo end: Element) -> OrderedSet {
+        return OrderedSet(tree.prefix(upTo: end))
     }
 
     /// Returns a subset, up to `maxLength` in size, containing the largest elements in this set.
@@ -285,7 +322,7 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func suffix(maxLength: Int) -> OrderedSet {
+    public func suffix(_ maxLength: Int) -> OrderedSet {
         return OrderedSet(tree.suffix(maxLength))
     }
 
@@ -293,8 +330,8 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func suffixFrom(index: Index) -> OrderedSet {
-        return OrderedSet(tree.suffixFrom(index))
+    public func suffix(from index: Index) -> OrderedSet {
+        return OrderedSet(tree.suffix(from: index))
     }
 
     /// Returns a subset containing all members of this set greater than or equal to the specified element
@@ -302,8 +339,8 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func suffixFrom(element: Element) -> OrderedSet {
-        return OrderedSet(tree.suffixFrom(element))
+    public func suffix(from element: Element) -> OrderedSet {
+        return OrderedSet(tree.suffix(from: element))
     }
 }
 
@@ -313,7 +350,7 @@ extension OrderedSet: CustomStringConvertible, CustomDebugStringConvertible {
     /// A textual representation of this set.
     public var description: String {
         let contents = self.map { String(reflecting: $0) }
-        return "[" + contents.joinWithSeparator(", ") + "]"
+        return "[" + contents.joined(separator: ", ") + "]"
     }
 
     /// A textual representation of this set, suitable for debugging.
@@ -329,20 +366,20 @@ extension OrderedSet {
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func contains(element: Element) -> Bool {
-        return tree.valueOf(element) != nil
+    public func contains(_ element: Element) -> Bool {
+        return tree.value(of: element) != nil
     }
 
     /// Returns the index of a given member, or `nil` if the member is not present in the set.
     ///
     /// - Complexity: O(log(`count`))
     @warn_unused_result
-    public func indexOf(member: Element) -> BTreeIndex<Element, Void>? {
-        return tree.indexOf(member)
+    public func index(of member: Element) -> BTreeIndex<Element, Void>? {
+        return tree.index(forKey: member)
     }
 }
 
-extension OrderedSet: Equatable {
+extension OrderedSet {
     //MARK: Set comparions
 
     /// Return `true` iff `self` and `other` contain the same elements.
@@ -352,7 +389,7 @@ extension OrderedSet: Equatable {
     ///
     /// - Complexity:  O(`count`)
     @warn_unused_result
-    public func elementsEqual(other: OrderedSet<Element>) -> Bool {
+    public func elementsEqual(_ other: OrderedSet<Element>) -> Bool {
         return self.tree.elementsEqual(other.tree, isEquivalent: { $0.0 == $1.0 })
     }
 
@@ -366,8 +403,8 @@ extension OrderedSet: Equatable {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     @warn_unused_result
-    public func isDisjointWith(other: OrderedSet<Element>) -> Bool {
-        return tree.isDisjointWith(other.tree)
+    public func isDisjoint(with other: OrderedSet<Element>) -> Bool {
+        return tree.isDisjoint(with: other.tree)
     }
 
     /// Returns `true` iff all members in this set are also included in `other`.
@@ -380,8 +417,8 @@ extension OrderedSet: Equatable {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     @warn_unused_result
-    public func isSubsetOf(other: OrderedSet<Element>) -> Bool {
-        return tree.isSubsetOf(other.tree)
+    public func isSubset(of other: OrderedSet<Element>) -> Bool {
+        return tree.isSubset(of: other.tree)
     }
 
     /// Returns `true` iff all members in this set are also included in `other`, but the two sets aren't equal.
@@ -394,8 +431,8 @@ extension OrderedSet: Equatable {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     @warn_unused_result
-    public func isStrictSubsetOf(other: OrderedSet<Element>) -> Bool {
-        return tree.isStrictSubsetOf(other.tree)
+    public func isStrictSubset(of other: OrderedSet<Element>) -> Bool {
+        return tree.isStrictSubset(of: other.tree)
     }
 
     /// Returns `true` iff all members in `other` are also included in this set.
@@ -408,8 +445,8 @@ extension OrderedSet: Equatable {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     @warn_unused_result
-    public func isSupersetOf(other: OrderedSet<Element>) -> Bool {
-        return tree.isSupersetOf(other.tree)
+    public func isSuperset(of other: OrderedSet<Element>) -> Bool {
+        return tree.isSuperset(of: other.tree)
     }
 
     /// Returns `true` iff all members in `other` are also included in this set, but the two sets aren't equal.
@@ -422,8 +459,8 @@ extension OrderedSet: Equatable {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     @warn_unused_result
-    public func isStrictSupersetOf(other: OrderedSet<Element>) -> Bool {
-        return tree.isStrictSupersetOf(other.tree)
+    public func isStrictSuperset(of other: OrderedSet<Element>) -> Bool {
+        return tree.isStrictSuperset(of: other.tree)
     }
 }
 
@@ -444,8 +481,27 @@ extension OrderedSet {
     /// Insert a member into the set.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func insert(element: Element) {
-        tree.insertOrReplace((element, ()))
+    public mutating func insert(_ element: Element) -> (inserted: Bool, memberAfterInsert: Element) {
+        if let old = tree.insertOrFind((element, ())) {
+            return (false, old.0)
+        }
+        else {
+            return (true, element)
+        }
+    }
+
+    /// Inserts the given element into the set unconditionally.
+    ///
+    /// If an element equal to `newMember` is already contained in the set,
+    /// `newMember` replaces the existing element. In this example, an existing
+    /// element is inserted into `classDays`, a set of days of the week.
+    ///
+    /// - Parameter newMember: An element to insert into the set.
+    /// - Returns: The element equal to `newMember` that was originally in the set, if exists; otherwise, nil.
+    ///   In some cases, the returned element may be distinguishable from `newMember` by identity
+    ///   comparison or some other means.
+    public mutating func update(with newMember: Element) -> Element? {
+        return tree.insertOrReplace((newMember, ()))?.0
     }
 }
 
@@ -455,20 +511,23 @@ extension OrderedSet {
     /// Remove the member from the set and return it if it was present.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func remove(element: Element) -> Element? {
-        return tree.remove(element)?.0
+    @discardableResult
+    public mutating func remove(_ element: Element) -> Element? {
+        return tree.remove(key: element)?.0
     }
 
     /// Remove the member referenced by the given index.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func removeAtIndex(index: Index) -> Element {
-        return tree.removeAtIndex(index).0
+    @discardableResult
+    public mutating func remove(at index: Index) -> Element {
+        return tree.remove(at: index).0
     }
 
     /// Remove and return the smallest member in this set.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     mutating func removeFirst() -> Element {
         return tree.removeFirst().0
     }
@@ -476,13 +535,14 @@ extension OrderedSet {
     /// Remove the smallest `n` members from this set.
     ///
     /// - Complexity: O(log(`count`))
-    mutating func removeFirst(n: Int) {
+    mutating func removeFirst(_ n: Int) {
         tree.removeFirst(n)
     }
 
     /// Remove and return the smallest member in this set, or return `nil` if the set is empty.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     public mutating func popFirst() -> Element? {
         return tree.popFirst()?.0
     }
@@ -490,6 +550,7 @@ extension OrderedSet {
     /// Remove and return the largest member in this set.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     mutating func removeLast() -> Element {
         return tree.removeLast().0
     }
@@ -497,18 +558,20 @@ extension OrderedSet {
     /// Remove the largest `n` members from this set.
     ///
     /// - Complexity: O(log(`count`))
-    mutating func removeLast(n: Int) {
+    mutating func removeLast(_ n: Int) {
         tree.removeLast(n)
     }
 
     /// Remove and return the largest member in this set, or return `nil` if the set is empty.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     public mutating func popLast() -> Element? {
         return tree.popLast()?.0
     }
 
     /// Remove all members from this set.
+    @discardableResult
     public mutating func removeAll() {
         tree.removeAll()
     }
@@ -522,7 +585,7 @@ extension OrderedSet {
     /// `Map` already keeps its elements sorted, so this is equivalent to `Array(self)`.
     ///
     /// - Complexity: O(`count`)
-    public func sort() -> [Element] {
+    public func sorted() -> [Element] {
         // The set is already sorted.
         return Array(self)
     }
@@ -541,21 +604,8 @@ extension OrderedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     @warn_unused_result
-    public func union(other: OrderedSet<Element>) -> OrderedSet<Element> {
+    public func union(_ other: OrderedSet<Element>) -> OrderedSet<Element> {
         return OrderedSet(self.tree.distinctUnion(other.tree))
-    }
-
-    /// Add all members in `other` to this set.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func unionInPlace(other: OrderedSet<Element>) {
-        self = self.union(other)
     }
 
     /// Return a set consisting of all members in `other` that are also in this set.
@@ -568,48 +618,8 @@ extension OrderedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     @warn_unused_result
-    public func intersect(other: OrderedSet<Element>) -> OrderedSet<Element> {
-        return OrderedSet(self.tree.intersect(other.tree))
-    }
-
-    /// Remove all members from this set that are not included in `other`.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func intersectInPlace(other: OrderedSet<Element>) {
-        self = other.intersect(self)
-    }
-
-    /// Return a set containing those members of this set that aren't also included in `other`.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    @warn_unused_result
-    public func subtract(other: OrderedSet) -> OrderedSet {
-        return OrderedSet(self.tree.subtract(other.tree))
-    }
-
-    /// Remove all members from this set that are also included in `other`.
-    ///
-    /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func subtractInPlace(other: OrderedSet) {
-        self = self.subtract(other)
+    public func intersection(_ other: OrderedSet<Element>) -> OrderedSet<Element> {
+        return OrderedSet(self.tree.intersection(other.tree))
     }
 
     /// Return a set consisting of members from `self` and `other` that aren't in both sets at once.
@@ -622,8 +632,34 @@ extension OrderedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     @warn_unused_result
-    public func exclusiveOr(other: OrderedSet<Element>) -> OrderedSet<Element> {
-        return OrderedSet(self.tree.exclusiveOr(other.tree))
+    public func symmetricDifference(_ other: OrderedSet<Element>) -> OrderedSet<Element> {
+        return OrderedSet(self.tree.symmetricDifference(other.tree))
+    }
+
+    /// Add all members in `other` to this set.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    public mutating func formUnion(_ other: OrderedSet<Element>) {
+        self = self.union(other)
+    }
+
+    /// Remove all members from this set that are not included in `other`.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    public mutating func formIntersection(_ other: OrderedSet<Element>) {
+        self = other.intersection(self)
     }
 
     /// Replace `self` with a set consisting of members from `self` and `other` that aren't in both sets at once.
@@ -635,7 +671,34 @@ extension OrderedSet {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public mutating func exclusiveOrInPlace(other: OrderedSet<Element>) {
-        self = self.exclusiveOr(other)
+    public mutating func formSymmetricDifference(_ other: OrderedSet<Element>) {
+        self = self.symmetricDifference(other)
+    }
+
+    /// Return a set containing those members of this set that aren't also included in `other`.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    @warn_unused_result
+    public func subtracting(_ other: OrderedSet) -> OrderedSet {
+        return OrderedSet(self.tree.subtracting(other.tree))
+    }
+
+    /// Remove all members from this set that are also included in `other`.
+    ///
+    /// The elements of the two input sets may be freely interleaved.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
+    /// linked into the result instead of copying, which can drastically improve performance.
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    public mutating func subtract(_ other: OrderedSet) {
+        self = self.subtracting(other)
     }
 }

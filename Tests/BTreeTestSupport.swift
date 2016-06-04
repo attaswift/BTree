@@ -72,7 +72,7 @@ extension BTreeNode {
                     defects.append("Invalid depth: \(node.depth) in parent vs \(child.depth) in child")
                 }
                 count += c
-                defects.appendContentsOf(d)
+                defects.append(contentsOf: d)
             }
             if node.count != count {
                 defects.append("Mismatching internal node count: \(node.count) vs \(count)")

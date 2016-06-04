@@ -184,7 +184,7 @@ class BTreeNodeTests: XCTestCase {
     func testSetElementInSlot() {
         let node = maximalNode(depth: 1, order: 5)
 
-        let element = node.setElementInSlot(2, to: (-1, "Foo"))
+        let element = node.setElement(inSlot: 2, to: (-1, "Foo"))
         XCTAssertEqual(element.0, 14)
         XCTAssertEqual(element.1, "14")
         XCTAssertEqual(node.elements[2].0, -1)
@@ -210,7 +210,7 @@ class BTreeNodeTests: XCTestCase {
 
     func testRemoveSlot() {
         let node = maximalNode(depth: 0, order: 5)
-        let element = node.removeSlot(2)
+        let element = node.remove(slot: 2)
         XCTAssertEqual(element.0, 2)
         XCTAssertEqual(element.1, "2")
         XCTAssertEqual(node.count, 3)
@@ -219,80 +219,80 @@ class BTreeNodeTests: XCTestCase {
 
     func testSlotOfKey() {
         let node = maximalNode(depth: 0, order: 100)
-        node.removeSlot(45)
-        node.setElementInSlot(26, to: (25, "25"))
+        node.remove(slot: 45)
+        node.setElement(inSlot: 26, to: (25, "25"))
         XCTAssertEqual(node.count, 98)
 
-        for selector in [BTreeKeySelector.First, .Any] { // .Any means .First here
-            XCTAssertEqual(node.slotOf(-1, choosing: selector).match, nil)
-            XCTAssertEqual(node.slotOf(-1, choosing: selector).descend, 0)
-            XCTAssertEqual(node.slotOf(0, choosing: selector).match, 0)
-            XCTAssertEqual(node.slotOf(0, choosing: selector).descend, 0)
-            XCTAssertEqual(node.slotOf(44, choosing: selector).match, 44)
-            XCTAssertEqual(node.slotOf(44, choosing: selector).descend, 44)
-            XCTAssertEqual(node.slotOf(45, choosing: selector).match, nil)
-            XCTAssertEqual(node.slotOf(45, choosing: selector).descend, 45)
-            XCTAssertEqual(node.slotOf(25, choosing: selector).match, 25)
-            XCTAssertEqual(node.slotOf(25, choosing: selector).descend, 25)
-            XCTAssertEqual(node.slotOf(98, choosing: selector).match, 97)
-            XCTAssertEqual(node.slotOf(98, choosing: selector).descend, 97)
-            XCTAssertEqual(node.slotOf(99, choosing: selector).match, nil)
-            XCTAssertEqual(node.slotOf(99, choosing: selector).descend, 98)
+        for selector in [BTreeKeySelector.first, .any] { // .any means .first here
+            XCTAssertEqual(node.slot(of: -1, choosing: selector).match, nil)
+            XCTAssertEqual(node.slot(of: -1, choosing: selector).descend, 0)
+            XCTAssertEqual(node.slot(of: 0, choosing: selector).match, 0)
+            XCTAssertEqual(node.slot(of: 0, choosing: selector).descend, 0)
+            XCTAssertEqual(node.slot(of: 44, choosing: selector).match, 44)
+            XCTAssertEqual(node.slot(of: 44, choosing: selector).descend, 44)
+            XCTAssertEqual(node.slot(of: 45, choosing: selector).match, nil)
+            XCTAssertEqual(node.slot(of: 45, choosing: selector).descend, 45)
+            XCTAssertEqual(node.slot(of: 25, choosing: selector).match, 25)
+            XCTAssertEqual(node.slot(of: 25, choosing: selector).descend, 25)
+            XCTAssertEqual(node.slot(of: 98, choosing: selector).match, 97)
+            XCTAssertEqual(node.slot(of: 98, choosing: selector).descend, 97)
+            XCTAssertEqual(node.slot(of: 99, choosing: selector).match, nil)
+            XCTAssertEqual(node.slot(of: 99, choosing: selector).descend, 98)
         }
 
-        XCTAssertEqual(node.slotOf(-1, choosing: .Last).match, nil)
-        XCTAssertEqual(node.slotOf(-1, choosing: .Last).descend, 0)
-        XCTAssertEqual(node.slotOf(0, choosing: .Last).match, 0)
-        XCTAssertEqual(node.slotOf(0, choosing: .Last).descend, 1)
-        XCTAssertEqual(node.slotOf(44, choosing: .Last).match, 44)
-        XCTAssertEqual(node.slotOf(44, choosing: .Last).descend, 45)
-        XCTAssertEqual(node.slotOf(45, choosing: .Last).match, nil)
-        XCTAssertEqual(node.slotOf(45, choosing: .Last).descend, 45)
-        XCTAssertEqual(node.slotOf(25, choosing: .Last).match, 26)
-        XCTAssertEqual(node.slotOf(25, choosing: .Last).descend, 27)
-        XCTAssertEqual(node.slotOf(98, choosing: .Last).match, 97)
-        XCTAssertEqual(node.slotOf(98, choosing: .Last).descend, 98)
-        XCTAssertEqual(node.slotOf(99, choosing: .Last).match, nil)
-        XCTAssertEqual(node.slotOf(99, choosing: .Last).descend, 98)
+        XCTAssertEqual(node.slot(of: -1, choosing: .last).match, nil)
+        XCTAssertEqual(node.slot(of: -1, choosing: .last).descend, 0)
+        XCTAssertEqual(node.slot(of: 0, choosing: .last).match, 0)
+        XCTAssertEqual(node.slot(of: 0, choosing: .last).descend, 1)
+        XCTAssertEqual(node.slot(of: 44, choosing: .last).match, 44)
+        XCTAssertEqual(node.slot(of: 44, choosing: .last).descend, 45)
+        XCTAssertEqual(node.slot(of: 45, choosing: .last).match, nil)
+        XCTAssertEqual(node.slot(of: 45, choosing: .last).descend, 45)
+        XCTAssertEqual(node.slot(of: 25, choosing: .last).match, 26)
+        XCTAssertEqual(node.slot(of: 25, choosing: .last).descend, 27)
+        XCTAssertEqual(node.slot(of: 98, choosing: .last).match, 97)
+        XCTAssertEqual(node.slot(of: 98, choosing: .last).descend, 98)
+        XCTAssertEqual(node.slot(of: 99, choosing: .last).match, nil)
+        XCTAssertEqual(node.slot(of: 99, choosing: .last).descend, 98)
 
-        XCTAssertEqual(node.slotOf(-1, choosing: .After).match, 0)
-        XCTAssertEqual(node.slotOf(-1, choosing: .After).descend, 0)
-        XCTAssertEqual(node.slotOf(0, choosing: .After).match, 1)
-        XCTAssertEqual(node.slotOf(0, choosing: .After).descend, 1)
-        XCTAssertEqual(node.slotOf(44, choosing: .After).match, 45)
-        XCTAssertEqual(node.slotOf(44, choosing: .After).descend, 45)
-        XCTAssertEqual(node.slotOf(45, choosing: .After).match, 45)
-        XCTAssertEqual(node.slotOf(45, choosing: .After).descend, 45)
-        XCTAssertEqual(node.slotOf(25, choosing: .After).match, 27)
-        XCTAssertEqual(node.slotOf(25, choosing: .After).descend, 27)
-        XCTAssertEqual(node.slotOf(98, choosing: .After).match, nil)
-        XCTAssertEqual(node.slotOf(98, choosing: .After).descend, 98)
-        XCTAssertEqual(node.slotOf(99, choosing: .After).match, nil)
-        XCTAssertEqual(node.slotOf(99, choosing: .After).descend, 98)
+        XCTAssertEqual(node.slot(of: -1, choosing: .after).match, 0)
+        XCTAssertEqual(node.slot(of: -1, choosing: .after).descend, 0)
+        XCTAssertEqual(node.slot(of: 0, choosing: .after).match, 1)
+        XCTAssertEqual(node.slot(of: 0, choosing: .after).descend, 1)
+        XCTAssertEqual(node.slot(of: 44, choosing: .after).match, 45)
+        XCTAssertEqual(node.slot(of: 44, choosing: .after).descend, 45)
+        XCTAssertEqual(node.slot(of: 45, choosing: .after).match, 45)
+        XCTAssertEqual(node.slot(of: 45, choosing: .after).descend, 45)
+        XCTAssertEqual(node.slot(of: 25, choosing: .after).match, 27)
+        XCTAssertEqual(node.slot(of: 25, choosing: .after).descend, 27)
+        XCTAssertEqual(node.slot(of: 98, choosing: .after).match, nil)
+        XCTAssertEqual(node.slot(of: 98, choosing: .after).descend, 98)
+        XCTAssertEqual(node.slot(of: 99, choosing: .after).match, nil)
+        XCTAssertEqual(node.slot(of: 99, choosing: .after).descend, 98)
     }
 
     func testSlotOfOffset() {
         let leaf = maximalNode(depth: 0, order: 5)
         for i in 0 ..< 5 {
-            XCTAssertEqual(leaf.slotOfOffset(i).index, i)
-            XCTAssertEqual(leaf.slotOfOffset(i).match, true)
-            XCTAssertEqual(leaf.slotOfOffset(i).offset, i)
+            XCTAssertEqual(leaf.slot(at: i).index, i)
+            XCTAssertEqual(leaf.slot(at: i).match, true)
+            XCTAssertEqual(leaf.slot(at: i).offset, i)
         }
 
         let node = maximalNode(depth: 1, order: 3)
         var p = 0
         for i in 0 ..< 3 {
-            XCTAssertEqual(node.slotOfOffset(p).index, i)
-            XCTAssertEqual(node.slotOfOffset(p).match, false)
-            XCTAssertEqual(node.slotOfOffset(p).offset, p + 2)
+            XCTAssertEqual(node.slot(at: p).index, i)
+            XCTAssertEqual(node.slot(at: p).match, false)
+            XCTAssertEqual(node.slot(at: p).offset, p + 2)
 
-            XCTAssertEqual(node.slotOfOffset(p + 1).index, i)
-            XCTAssertEqual(node.slotOfOffset(p + 1).match, false)
-            XCTAssertEqual(node.slotOfOffset(p + 1).offset, p + 2)
+            XCTAssertEqual(node.slot(at: p + 1).index, i)
+            XCTAssertEqual(node.slot(at: p + 1).match, false)
+            XCTAssertEqual(node.slot(at: p + 1).offset, p + 2)
 
-            XCTAssertEqual(node.slotOfOffset(p + 2).index, i)
-            XCTAssertEqual(node.slotOfOffset(p + 2).match, i != 2)
-            XCTAssertEqual(node.slotOfOffset(p + 2).offset, p + 2)
+            XCTAssertEqual(node.slot(at: p + 2).index, i)
+            XCTAssertEqual(node.slot(at: p + 2).match, i != 2)
+            XCTAssertEqual(node.slot(at: p + 2).offset, p + 2)
 
             p += 3
         }
@@ -301,12 +301,12 @@ class BTreeNodeTests: XCTestCase {
 
     func testOffsetOfSlot() {
         let leaf = maximalNode(depth: 0, order: 5)
-        XCTAssertEqual(leaf.offsetOfSlot(2), 2)
+        XCTAssertEqual(leaf.offset(ofSlot: 2), 2)
 
         let node = maximalNode(depth: 2, order: 3)
-        XCTAssertEqual(node.offsetOfSlot(0), 8)
-        XCTAssertEqual(node.offsetOfSlot(1), 17)
-        XCTAssertEqual(node.offsetOfSlot(2), 26)
+        XCTAssertEqual(node.offset(ofSlot: 0), 8)
+        XCTAssertEqual(node.offset(ofSlot: 1), 17)
+        XCTAssertEqual(node.offset(ofSlot: 2), 26)
     }
 
     func testEditWithWeakReferences() {
@@ -410,7 +410,7 @@ class BTreeNodeTests: XCTestCase {
     func testFixDeficiencyByRotatingLeft() {
         let node = minimalNode(depth: 1, order: 5)
         let c = node.count
-        node.children[2].insert(node.setElementInSlot(1, to: node.children[1].removeSlot(1)), inSlot: 0)
+        node.children[2].insert(node.setElement(inSlot: 1, to: node.children[1].remove(slot: 1)), inSlot: 0)
         node.fixDeficiency(1)
         node.assertValid()
         assertEqualElements(node.map { $0.0 }, 0 ..< c)
@@ -419,7 +419,7 @@ class BTreeNodeTests: XCTestCase {
     func testFixDeficiencyByRotatingRight() {
         let node = minimalNode(depth: 1, order: 5)
         let c = node.count
-        node.children[1].append(node.setElementInSlot(1, to: node.children[2].removeSlot(0)))
+        node.children[1].append(node.setElement(inSlot: 1, to: node.children[2].remove(slot: 0)))
         node.fixDeficiency(2)
         node.assertValid()
         assertEqualElements(node.map { $0.0 }, 0 ..< c)

@@ -68,7 +68,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
         for i in 0 ... c {
             withClone(tree) { node in
-                var path = Path(root: node, key: 2 * i, choosing: .First)
+                var path = Path(root: node, key: 2 * i, choosing: .first)
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i)
                 XCTAssertEqual(path.key, 2 * i)
@@ -78,7 +78,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         }
         for i in 0 ..< c {
             withClone(tree) { node in
-                var path = Path(root: node, key: 2 * i + 1, choosing: .First)
+                var path = Path(root: node, key: 2 * i + 1, choosing: .first)
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
@@ -93,7 +93,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
         for i in 0 ... c {
             withClone(tree) { node in
-                var path = Path(root: node, key: 2 * i, choosing: .Last)
+                var path = Path(root: node, key: 2 * i, choosing: .last)
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 1)
                 XCTAssertEqual(path.key, 2 * i)
@@ -103,7 +103,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         }
         for i in 0 ..< c {
             withClone(tree) { node in
-                var path = Path(root: node, key: 2 * i + 1, choosing: .Last)
+                var path = Path(root: node, key: 2 * i + 1, choosing: .last)
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
@@ -118,7 +118,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
         for i in 0 ..< c {
             withClone(tree) { node in
-                var path = Path(root: node, key: 2 * i, choosing: .After)
+                var path = Path(root: node, key: 2 * i, choosing: .after)
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
@@ -129,7 +129,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
         for i in 0 ..< c {
             withClone(tree) { node in
-                var path = Path(root: node, key: 2 * i + 1, choosing: .After)
+                var path = Path(root: node, key: 2 * i + 1, choosing: .after)
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
@@ -144,7 +144,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
         for i in 0 ... c {
             withClone(tree) { node in
-                var path = Path(root: node, key: 2 * i, choosing: .Any)
+                var path = Path(root: node, key: 2 * i, choosing: .any)
                 XCTAssertTrue(path.isValid)
                 XCTAssertGreaterThanOrEqual(path.offset, 2 * i)
                 XCTAssertLessThanOrEqual(path.offset, 2 * i + 1)
@@ -155,7 +155,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         }
         for i in 0 ..< c {
             withClone(tree) { node in
-                var path = Path(root: node, key: 2 * i + 1, choosing: .Any)
+                var path = Path(root: node, key: 2 * i + 1, choosing: .any)
                 XCTAssertTrue(path.isValid)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 XCTAssertEqual(path.key, 2 * i + 2)
@@ -263,12 +263,12 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         withClone(tree) { node in
             var path = Path(endOf: node)
             for i in 0...c {
-                path.move(to: 2 * i, choosing: .First)
+                path.move(to: 2 * i, choosing: .first)
                 XCTAssertEqual(path.offset, 2 * i)
                 XCTAssertEqual(path.key, 2 * i)
 
                 let j = c - i
-                path.move(to: 2 * j + 1, choosing: .First)
+                path.move(to: 2 * j + 1, choosing: .first)
                 XCTAssertEqual(path.offset, 2 * j + 2)
                 if i > 0 {
                     XCTAssertEqual(path.key, 2 * j + 2)
@@ -287,12 +287,12 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         withClone(tree) { node in
             var path = Path(endOf: node)
             for i in 0...c {
-                path.move(to: 2 * i, choosing: .Last)
+                path.move(to: 2 * i, choosing: .last)
                 XCTAssertEqual(path.offset, 2 * i + 1)
                 XCTAssertEqual(path.key, 2 * i)
 
                 let j = c - i
-                path.move(to: 2 * j + 1, choosing: .Last)
+                path.move(to: 2 * j + 1, choosing: .last)
                 XCTAssertEqual(path.offset, 2 * j + 2)
                 if i > 0 {
                     XCTAssertEqual(path.key, 2 * j + 2)
@@ -311,7 +311,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         withClone(tree) { node in
             var path = Path(endOf: node)
             for i in 0...c {
-                path.move(to: 2 * i, choosing: .After)
+                path.move(to: 2 * i, choosing: .after)
                 XCTAssertEqual(path.offset, 2 * i + 2)
                 if i < c {
                     XCTAssertEqual(path.key, 2 * i + 2)
@@ -321,7 +321,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
                 }
 
                 let j = c - i
-                path.move(to: 2 * j + 1, choosing: .After)
+                path.move(to: 2 * j + 1, choosing: .after)
                 XCTAssertEqual(path.offset, 2 * j + 2)
                 if i > 0 {
                     XCTAssertEqual(path.key, 2 * j + 2)
@@ -340,13 +340,13 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         withClone(tree) { node in
             var path = Path(endOf: node)
             for i in 0...c {
-                path.move(to: 2 * i, choosing: .Any)
+                path.move(to: 2 * i, choosing: .any)
                 XCTAssertGreaterThanOrEqual(path.offset, 2 * i)
                 XCTAssertLessThanOrEqual(path.offset, 2 * i + 1)
                 XCTAssertEqual(path.key, 2 * i)
 
                 let j = c - i
-                path.move(to: 2 * j + 1, choosing: .Any)
+                path.move(to: 2 * j + 1, choosing: .any)
                 XCTAssertEqual(path.offset, 2 * j + 2)
                 if i > 0 {
                     XCTAssertEqual(path.key, 2 * j + 2)
