@@ -15,7 +15,7 @@ class BTreeMergeTests: XCTestCase {
     typealias Tree = BTree<Int, Void>
     typealias Element = (Int, Void)
 
-    func elements(range: Range<Int>) -> [Element] {
+    func elements(_ range: CountableRange<Int>) -> [Element] {
         return range.map { ($0, ()) }
     }
 
@@ -23,7 +23,7 @@ class BTreeMergeTests: XCTestCase {
         return Tree(order: 5)
     }
 
-    func makeTree<S: Sequence where S.Iterator.Element == Int>(s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree {
+    func makeTree<S: Sequence where S.Iterator.Element == Int>(_ s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree {
         var b = Builder(order: order, keysPerNode: keysPerNode ?? order - 1)
         for i in s {
             b.append((i, ()))
@@ -34,7 +34,7 @@ class BTreeMergeTests: XCTestCase {
     //MARK: Union
 
     func test_Union_simple() {
-        let even = makeTree(0.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
 
         let u0 = empty.union(empty)
         u0.assertValid()
@@ -54,8 +54,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_Union_evenOdd() {
-        let even = makeTree(0.stride(to: 100, by: 2))
-        let odd = makeTree(1.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
         let u1 = even.union(odd)
         u1.assertValid()
@@ -123,7 +123,7 @@ class BTreeMergeTests: XCTestCase {
     //MARK: Distinct Union
 
     func test_DistinctUnion_simple() {
-        let even = makeTree(0.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
 
         let u0 = empty.distinctUnion(empty)
         u0.assertValid()
@@ -139,12 +139,12 @@ class BTreeMergeTests: XCTestCase {
 
         let u3 = even.distinctUnion(even)
         u3.assertValid()
-        u3.assertKeysEqual(0.stride(to: 100, by: 2))
+        u3.assertKeysEqual(stride(from: 0, to: 100, by: 2))
     }
 
     func test_DistinctUnion_evenOdd() {
-        let even = makeTree(0.stride(to: 100, by: 2))
-        let odd = makeTree(1.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
         let u1 = even.distinctUnion(odd)
         u1.assertValid()
@@ -212,7 +212,7 @@ class BTreeMergeTests: XCTestCase {
     //MARK: Subtract
 
     func test_Subtract_simple() {
-        let even = makeTree(0.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
 
         let u0 = empty.subtracting(empty)
         u0.assertValid()
@@ -232,8 +232,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_Subtract_evenOdd() {
-        let even = makeTree(0.stride(to: 100, by: 2))
-        let odd = makeTree(1.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
         let u1 = even.subtracting(odd)
         u1.assertValid()
@@ -302,7 +302,7 @@ class BTreeMergeTests: XCTestCase {
     //MARK: Exclusive Or
 
     func test_ExclusiveOr_simple() {
-        let even = makeTree(0.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
 
         let u0 = empty.symmetricDifference(empty)
         u0.assertValid()
@@ -322,8 +322,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_ExclusiveOr_evenOdd() {
-        let even = makeTree(0.stride(to: 100, by: 2))
-        let odd = makeTree(1.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
         let u1 = even.symmetricDifference(odd)
         u1.assertValid()
@@ -393,7 +393,7 @@ class BTreeMergeTests: XCTestCase {
     //MARK: Intersect
 
     func test_Intersect_simple() {
-        let even = makeTree(0.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
 
         let u0 = empty.intersection(empty)
         u0.assertValid()
@@ -413,8 +413,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_Intersect_evenOdd() {
-        let even = makeTree(0.stride(to: 100, by: 2))
-        let odd = makeTree(1.stride(to: 100, by: 2))
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
         let u1 = even.intersection(odd)
         u1.assertValid()

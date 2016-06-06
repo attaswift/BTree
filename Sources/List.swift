@@ -490,7 +490,7 @@ extension List: RangeReplaceableCollection {
     /// Replace elements in `range` with `elements`.
     ///
     /// - Complexity: O(log(`count`) + `range.count`)
-    public mutating func replaceSubrange(range: Range<Int>, with elements: List<Element>) {
+    public mutating func replaceSubrange(_ range: Range<Int>, with elements: List<Element>) {
         precondition(range.lowerBound >= 0 && range.upperBound <= count)
         tree.withCursor(atOffset: range.lowerBound) { cursor in
             cursor.remove(range.count)

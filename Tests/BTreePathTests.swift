@@ -34,7 +34,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         XCTAssertEqual(path.offset, node.count)
     }
 
-    func withClone(tree: Tree, @noescape body: Node->Node) {
+    func withClone(_ tree: Tree, body: @noescape (Node) -> Node) {
         let node = tree.root.clone()
         withExtendedLifetime(node) {
             let result = body(node)
@@ -491,7 +491,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
 class BTreePathTests: XCTestCase {
     /// Poor man's generic test runner
-    func runTests<Path: BTreePath where Path.Key == Int, Path.Value == String>(tests: PathTests<Path>) {
+    func runTests<Path: BTreePath where Path.Key == Int, Path.Value == String>(_ tests: PathTests<Path>) {
         for (name, testCase) in tests.testCases {
             print("  \(name)")
             testCase()

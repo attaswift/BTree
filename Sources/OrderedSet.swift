@@ -481,6 +481,7 @@ extension OrderedSet {
     /// Insert a member into the set.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     public mutating func insert(_ element: Element) -> (inserted: Bool, memberAfterInsert: Element) {
         if let old = tree.insertOrFind((element, ())) {
             return (false, old.0)
@@ -513,7 +514,7 @@ extension OrderedSet {
     /// - Complexity: O(log(`count`))
     @discardableResult
     public mutating func remove(_ element: Element) -> Element? {
-        return tree.remove(key: element)?.0
+        return tree.remove(element)?.0
     }
 
     /// Remove the member referenced by the given index.

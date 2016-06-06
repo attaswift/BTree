@@ -57,7 +57,7 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursor<R>(key: Key, choosing selector: BTreeKeySelector = .any, body: @noescape (Cursor) throws -> R) rethrows -> R {
+    public mutating func withCursor<R>(onKey key: Key, choosing selector: BTreeKeySelector = .any, body: @noescape (Cursor) throws -> R) rethrows -> R {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, key: key, choosing: selector))
         root = Node(order: self.order)

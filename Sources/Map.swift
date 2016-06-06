@@ -326,7 +326,7 @@ extension Map {
     /// - Complexity: O(log(`count`))
     @discardableResult
     public mutating func removeValue(forKey key: Key) -> Value? {
-        return tree.remove(key: key)?.1
+        return tree.remove(key)?.1
     }
 
     /// Remove all elements from this map.
@@ -370,21 +370,24 @@ extension Map {
     /// Set the value of the element stored at `offset` in this map.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func updateValue(value: Value, atOffset offset: Int) -> Value {
+    @discardableResult
+    public mutating func updateValue(_ value: Value, atOffset offset: Int) -> Value {
         return tree.setValue(at: offset, to: value)
     }
 
     /// Remove and return the (key, value) pair at the specified offset from the start of the map.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func removeAtOffset(offset: Int) -> Element {
+    @discardableResult
+    public mutating func remove(atOffset offset: Int) -> Element {
         return tree.remove(at: offset)
     }
 
     /// Remove all (key, value) pairs in the specified offset range.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func remove(offsetRange offsets: Range<Int>) {
+    @discardableResult
+    public mutating func remove(atOffsets offsets: Range<Int>) {
         precondition(offsets.lowerBound >= 0 && offsets.upperBound <= count)
         tree.withCursor(atOffset: offsets.lowerBound) { cursor in
             cursor.remove(offsets.count)

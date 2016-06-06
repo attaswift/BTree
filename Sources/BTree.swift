@@ -767,7 +767,7 @@ extension BTree {
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(key: Key, at selector: BTreeKeySelector = .any) -> Element? {
+    public mutating func remove(_ key: Key, at selector: BTreeKeySelector = .any) -> Element? {
         let selector = (selector == .after ? .last : selector)
         makeUnique()
         var old: Element? = nil

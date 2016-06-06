@@ -10,7 +10,7 @@ import Foundation
 
 /// Returns a random number sampled from a uniform distribution from 0 to limit.
 /// - Returns: A number in range `0..<limit`
-func random(limit: Int) -> Int {
+func random(_ limit: Int) -> Int {
     return Int(arc4random_uniform(UInt32(limit)))
 }
 

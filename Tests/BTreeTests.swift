@@ -9,12 +9,6 @@
 import XCTest
 @testable import BTree
 
-extension BTree {
-    func assertValid(file file: StaticString = #file, line: UInt = #line) {
-        root.assertValid(file: file, line: line)
-    }
-}
-
 class BTreeTests: XCTestCase {
     typealias Tree = BTree<Int, String>
     let order = 7
@@ -40,68 +34,68 @@ class BTreeTests: XCTestCase {
         assertEqualElements(copy, tree)
     }
 
-    func testGenerate() {
+    func testMakeIterator() {
         let tree = minimalTree(depth: 2, order: 5)
         let c = tree.count
-        let generator = tree.generate()
-        assertEqualElements(GeneratorSequence(generator), (0 ..< c).map { ($0, String($0)) })
+        let iterator = tree.makeIterator()
+        assertEqualElements(IteratorSequence(iterator), (0 ..< c).map { ($0, String($0)) })
     }
 
-    func testGenerateFromIndex() {
+    func testMakeIteratorFromIndex() {
         let tree = minimalTree(depth: 2, order: 5)
         let c = tree.count
         for i in 0 ... c {
             let index = tree.startIndex.advanced(by: i)
-            let generator = tree.generate(from: index)
-            assertEqualElements(GeneratorSequence(generator), (i ..< c).map { ($0, String($0)) })
+            let iterator = tree.makeIterator(from: index)
+            assertEqualElements(IteratorSequence(iterator), (i ..< c).map { ($0, String($0)) })
         }
     }
 
-    func testGenerateFromOffset() {
+    func testMakeIteratorFromOffset() {
         let tree = minimalTree(depth: 2, order: 5)
         let c = tree.count
         for i in 0 ... c {
-            let generator = tree.generate(fromOffset: i)
-            assertEqualElements(GeneratorSequence(generator), (i ..< c).map { ($0, String($0)) })
+            let iterator = tree.makeIterator(fromOffset: i)
+            assertEqualElements(IteratorSequence(iterator), (i ..< c).map { ($0, String($0)) })
         }
     }
 
-    func testGenerateFromKeyFirst() {
+    func testMakeIteratorFromKeyFirst() {
         let c = 26
         let reference = (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }
         let tree = Tree(sortedElements: reference, order: 3)
         for i in 0 ... c {
-            let g1 = tree.generate(from: 2 * i, choosing: .first)
-            assertEqualElements(GeneratorSequence(g1), reference.suffix(from: 2 * i))
+            let g1 = tree.makeIterator(from: 2 * i, choosing: .first)
+            assertEqualElements(IteratorSequence(g1), reference.suffix(from: 2 * i))
 
-            let g2 = tree.generate(from: 2 * i + 1, choosing: .first)
-            assertEqualElements(GeneratorSequence(g2), reference.suffix(from: 2 * i + 2))
+            let g2 = tree.makeIterator(from: 2 * i + 1, choosing: .first)
+            assertEqualElements(IteratorSequence(g2), reference.suffix(from: 2 * i + 2))
         }
     }
 
-    func testGenerateFromKeyLast() {
+    func testMakeIteratorFromKeyLast() {
         let c = 26
         let reference = (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }
         let tree = Tree(sortedElements: reference, order: 3)
         for i in 0 ... c {
-            let g1 = tree.generate(from: 2 * i, choosing: .last)
-            assertEqualElements(GeneratorSequence(g1), reference.suffix(from: 2 * i + 1))
+            let g1 = tree.makeIterator(from: 2 * i, choosing: .last)
+            assertEqualElements(IteratorSequence(g1), reference.suffix(from: 2 * i + 1))
 
-            let g2 = tree.generate(from: 2 * i + 1, choosing: .last)
-            assertEqualElements(GeneratorSequence(g2), reference.suffix(from: 2 * i + 2))
+            let g2 = tree.makeIterator(from: 2 * i + 1, choosing: .last)
+            assertEqualElements(IteratorSequence(g2), reference.suffix(from: 2 * i + 2))
         }
     }
 
-    func testGenerateFromKeyAfter() {
+    func testMakeIteratorFromKeyAfter() {
         let c = 26
         let reference = (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }
         let tree = Tree(sortedElements: reference, order: 3)
         for i in 0 ... c {
-            let g1 = tree.generate(from: 2 * i, choosing: .after)
-            assertEqualElements(GeneratorSequence(g1), reference.suffix(from: 2 * i + 2))
+            let g1 = tree.makeIterator(from: 2 * i, choosing: .after)
+            assertEqualElements(IteratorSequence(g1), reference.suffix(from: 2 * i + 2))
 
-            let g2 = tree.generate(from: 2 * i + 1, choosing: .after)
-            assertEqualElements(GeneratorSequence(g2), reference.suffix(from: 2 * i + 2))
+            let g2 = tree.makeIterator(from: 2 * i + 1, choosing: .after)
+            assertEqualElements(IteratorSequence(g2), reference.suffix(from: 2 * i + 2))
         }
     }
 
@@ -187,18 +181,28 @@ class BTreeTests: XCTestCase {
     func testIndexAdvancedByWithLimit() {
         let tree = maximalTree(depth: 3, order: 3)
         let c = tree.count
-        for i in 0 ... c + 10 {
-            let i1 = tree.startIndex.advanced(by: i, limit: tree.endIndex)
+        for i in 0 ... c {
+            guard let i1 = tree.startIndex.advanced(by: i, limit: tree.endIndex) else {
+                XCTFail()
+                continue
+            }
             XCTAssertEqual(i1.state.offset, min(i, c))
             if i < c {
                 XCTAssertEqual(i1.state.key, i)
             }
 
-            let i2 = tree.endIndex.advanced(by: -i, limit: tree.startIndex)
+            guard let i2 = tree.endIndex.advanced(by: -i, limit: tree.startIndex) else {
+                XCTFail()
+                continue
+            }
             XCTAssertEqual(i2.state.offset, max(0, c - i))
             if i != 0 {
                 XCTAssertEqual(i2.state.key, max(0, c - i))
             }
+        }
+        for i in c + 1 ..< c + 10 {
+            XCTAssertNil(tree.startIndex.advanced(by: i, limit: tree.endIndex))
+            XCTAssertNil(tree.endIndex.advanced(by: -i, limit: tree.startIndex))
         }
     }
 
@@ -321,7 +325,8 @@ class BTreeTests: XCTestCase {
 
     func testInsertAtOffset() {
         let count = 42
-        var tree = Tree(sortedElements: (0 ..< count).map { (2 * $0 + 1, String(2 * $0 + 1)) }, order: 3)
+        let elements = (0 ..< count).map { (2 * $0 + 1, String(2 * $0 + 1)) }
+        var tree = Tree(sortedElements: elements, order: 3)
         var offset = 0
         while offset < count {
             let key = 2 * offset
@@ -382,7 +387,7 @@ class BTreeTests: XCTestCase {
             tree.insert((0, String(i)), at: .first)
             tree.assertValid()
         }
-        assertEqualElements(tree, (0 ..< count).reverse().map { (0, String($0)) })
+        assertEqualElements(tree, (0 ..< count).reversed().map { (0, String($0)) })
     }
 
     func testInsertElementLastOrAfterOrAny() {
@@ -404,7 +409,8 @@ class BTreeTests: XCTestCase {
             let old = tree.insertOrReplace((key, String(key)), at: .any)
             tree.assertValid()
             if key & 1 == 0 {
-                XCTAssertEqual(old, "*\(key)")
+                XCTAssertEqual(old?.0, key)
+                XCTAssertEqual(old?.1, "*\(key)")
             }
             else {
                 XCTAssertNil(old)
@@ -961,7 +967,7 @@ class BTreeTests: XCTestCase {
     func testRemovingFromEndOfMaximalTreeWithThreeLevels() {
         // This test exercises right rotations.
         var tree = maximalTree(depth: 2, order: order)
-        for key in (0..<tree.count).reverse() {
+        for key in (0..<tree.count).reversed() {
             XCTAssertEqual(tree.remove(key)?.1, String(key))
             tree.assertValid()
         }
@@ -969,20 +975,20 @@ class BTreeTests: XCTestCase {
     }
 
     func testSequenceConversion() {
-        func check(range: Range<Int>, file: StaticString = #file, line: UInt = #line) {
+        func check(_ range: CountableRange<Int>, file: StaticString = #file, line: UInt = #line) {
             let order = 5
             let sequence = range.map { ($0, String($0)) }
             let tree = Tree(sortedElements: sequence, order: order)
             tree.assertValid(file: file, line: line)
             assertEqualElements(tree, sequence, file: file, line: line)
         }
-        check(0..<0)
-        check(0..<1)
-        check(0..<4)
-        check(0..<5)
-        check(0..<10)
-        check(0..<100)
-        check(0..<200)
+        check(0 ..< 0)
+        check(0 ..< 1)
+        check(0 ..< 4)
+        check(0 ..< 5)
+        check(0 ..< 10)
+        check(0 ..< 100)
+        check(0 ..< 200)
     }
 
     func testUnsortedSequenceConversion() {
@@ -992,7 +998,7 @@ class BTreeTests: XCTestCase {
     }
 
     func testSequenceConversionToMaximalTrees() {
-        func checkDepth(depth: Int, file: StaticString = #file, line: UInt = #line) {
+        func check(depth: Int, file: StaticString = #file, line: UInt = #line) {
             let order = 5
             let keysPerNode = order - 1
             var count = keysPerNode
@@ -1007,10 +1013,10 @@ class BTreeTests: XCTestCase {
             }
         }
 
-        checkDepth(0)
-        checkDepth(1)
-        checkDepth(2)
-        checkDepth(3)
+        check(depth: 0)
+        check(depth: 1)
+        check(depth: 2)
+        check(depth: 3)
     }
 
     func testUnsortedSequenceConversionKeepingDuplicates() {

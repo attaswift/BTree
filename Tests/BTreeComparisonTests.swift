@@ -14,7 +14,7 @@ private typealias Node = BTreeNode<Int, Void>
 private typealias Tree = BTree<Int, Void>
 private typealias Element = (Int, Void)
 
-private func makeTree<S: Sequence where S.Iterator.Element == Int>(s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree {
+private func makeTree<S: Sequence where S.Iterator.Element == Int>(_ s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree {
     var b = Builder(order: order, keysPerNode: keysPerNode ?? order - 1)
     for i in s {
         b.append((i, ()))
@@ -23,7 +23,7 @@ private func makeTree<S: Sequence where S.Iterator.Element == Int>(s: S, order: 
 }
 
 class BTreeComparisonTests: XCTestCase {
-    private func elements(range: Range<Int>) -> [Element] {
+    private func elements(_ range: CountableRange<Int>) -> [Element] {
         return range.map { ($0, ()) }
     }
 
@@ -62,7 +62,7 @@ class BTreeComparisonTests: XCTestCase {
     }
 
     func test_elementsEqual_ShiftedSharedNodes() {
-        let reference = Array(count: 100, repeatedValue: 42)
+        let reference = Array(repeating: 42, count: 100)
         let a = makeTree(reference)
         for i in 0 ..< 100 {
             var b = a
@@ -105,10 +105,10 @@ class BTreeComparisonTests: XCTestCase {
     func test_isDisjointWith_SimpleCases() {
         let firstHalf = makeTree(0 ..< 100)
         let secondHalf = makeTree(100 ..< 200)
-        let even = makeTree(200.stride(to: 300, by: 2))
-        let odd = makeTree(201.stride(to: 300, by: 2))
-        var almostEven = makeTree(200.stride(to: 300, by: 2))
-        almostEven.withCursor(at: 280) { $0.key = 281 }
+        let even = makeTree(stride(from: 200, to: 300, by: 2))
+        let odd = makeTree(stride(from: 201, to: 300, by: 2))
+        var almostEven = makeTree(stride(from: 200, to: 300, by: 2))
+        almostEven.withCursor(onKey: 280) { $0.key = 281 }
 
         XCTAssertFalse(firstHalf.isDisjoint(with: firstHalf))
         XCTAssertTrue(firstHalf.isDisjoint(with: secondHalf))

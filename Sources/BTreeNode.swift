@@ -197,6 +197,7 @@ extension BTreeNode {
         count += 1
     }
 
+    @discardableResult
     internal func remove(slot: Int) -> Element {
         count -= 1
         return elements.remove(at: slot)

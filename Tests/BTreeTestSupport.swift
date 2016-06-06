@@ -10,9 +10,15 @@ import Foundation
 import XCTest
 @testable import BTree
 
+extension BTree {
+    func assertValid(file: StaticString = #file, line: UInt = #line) {
+        root.assertValid(file: file, line: line)
+    }
+}
+
 extension BTreeNode {
-    func assertValid(file file: StaticString = #file, line: UInt = #line) {
-        func testNode(level level: Int, node: BTreeNode<Key, Value>, minKey: Key?, maxKey: Key?) -> (count: Int, defects: [String]) {
+    func assertValid(file: StaticString = #file, line: UInt = #line) {
+        func testNode(level: Int, node: BTreeNode<Key, Value>, minKey: Key?, maxKey: Key?) -> (count: Int, defects: [String]) {
             var defects: [String] = []
 
             // Check item order
@@ -86,7 +92,7 @@ extension BTreeNode {
         }
     }
 
-    func forEachNode(@noescape operation: Node -> Void) {
+    func forEachNode(_ operation: @noescape (Node) -> Void) {
         operation(self)
         for child in children {
             child.forEachNode(operation)
@@ -97,7 +103,7 @@ extension BTreeNode {
         var r = "("
         if isLeaf {
             let keys = elements.lazy.map { String($0.0) }
-            r += keys.joinWithSeparator(" ")
+            r += keys.joined(separator: " ")
         }
         else {
             for i in 0 ..< elements.count {
@@ -113,7 +119,7 @@ extension BTreeNode {
     }
 }
 
-func uniformNode(depth depth: Int, order: Int, keysPerNode: Int, offset: Int = 0) -> BTreeNode<Int, String> {
+func uniformNode(depth: Int, order: Int, keysPerNode: Int, offset: Int = 0) -> BTreeNode<Int, String> {
     precondition(keysPerNode < order && keysPerNode >= (order - 1) / 2)
     var count = keysPerNode
     for _ in 0 ..< depth {
@@ -125,23 +131,23 @@ func uniformNode(depth depth: Int, order: Int, keysPerNode: Int, offset: Int = 0
     return tree.root
 }
 
-func maximalNode(depth depth: Int, order: Int, offset: Int = 0) -> BTreeNode<Int, String> {
+func maximalNode(depth: Int, order: Int, offset: Int = 0) -> BTreeNode<Int, String> {
     return uniformNode(depth: depth, order: order, keysPerNode: order - 1, offset: offset)
 }
 
-func minimalNode(depth depth: Int, order: Int, offset: Int = 0) -> BTreeNode<Int, String> {
+func minimalNode(depth: Int, order: Int, offset: Int = 0) -> BTreeNode<Int, String> {
     return uniformNode(depth: depth, order: order, keysPerNode: (order - 1) / 2, offset: offset)
 }
 
-func uniformTree(depth depth: Int, order: Int, keysPerNode: Int, offset: Int = 0) -> BTree<Int, String> {
+func uniformTree(depth: Int, order: Int, keysPerNode: Int, offset: Int = 0) -> BTree<Int, String> {
     return BTree(uniformNode(depth: depth, order: order, keysPerNode: keysPerNode, offset: offset))
 }
 
-func maximalTree(depth depth: Int, order: Int, offset: Int = 0) -> BTree<Int, String> {
+func maximalTree(depth: Int, order: Int, offset: Int = 0) -> BTree<Int, String> {
     return BTree(maximalNode(depth: depth, order: order, offset: offset))
 }
 
-func minimalTree(depth depth: Int, order: Int, offset: Int = 0) -> BTree<Int, String> {
+func minimalTree(depth: Int, order: Int, offset: Int = 0) -> BTree<Int, String> {
     return BTree(minimalNode(depth: depth, order: order, offset: offset))
 }
 

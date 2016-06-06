@@ -127,13 +127,13 @@ class BTreeNodeTests: XCTestCase {
 
     func testGenerateOnEmptyNode() {
         let node = Node(order: 5)
-        assertEqualElements(GeneratorSequence(node.generate()), [])
+        assertEqualElements(IteratorSequence(node.makeIterator()), [])
     }
     
     func testGenerateOnNonemptyNode() {
         let node = maximalNode(depth: 2, order: 5)
 
-        assertEqualElements(GeneratorSequence(node.generate()), (0..<124).map { ($0, String($0)) })
+        assertEqualElements(IteratorSequence(node.makeIterator()), (0..<124).map { ($0, String($0)) })
     }
 
     func testStandardForEach() {
@@ -220,7 +220,7 @@ class BTreeNodeTests: XCTestCase {
     func testSlotOfKey() {
         let node = maximalNode(depth: 0, order: 100)
         node.remove(slot: 45)
-        node.setElement(inSlot: 26, to: (25, "25"))
+        node.elements[26] = (25, "25")
         XCTAssertEqual(node.count, 98)
 
         for selector in [BTreeKeySelector.first, .any] { // .any means .first here
@@ -436,23 +436,28 @@ class BTreeNodeTests: XCTestCase {
     }
 
     func testMoreJoin() {
-        func createNode(keys: Range<Int> = 0..<0) -> Node {
-            let tree = BTree(sortedElements: keys.map { ($0, String($0)) }, order: 5)
+        func createNode() -> Node {
+            let tree = BTree<Int, String>(order: 5)
             return tree.root
         }
-        func checkNode(n: Node, _ keys: Range<Int>, file: StaticString = #file, line: UInt = #line) {
+        func createNode<S: Sequence where S.Iterator.Element == Int>(_ keys: S) -> Node {
+            let elements = keys.map { ($0, String($0)) }
+            let tree = BTree(sortedElements: elements, order: 5)
+            return tree.root
+        }
+        func checkNode(_ n: Node, _ keys: CountableRange<Int>, file: StaticString = #file, line: UInt = #line) {
             n.assertValid(file: file, line: line)
             assertEqualElements(n, keys.map { ($0, String($0)) }, file: file, line: line)
         }
 
-        checkNode(Node.join(left: createNode(), separator: (0, "0"), right: createNode()), 0...0)
-        checkNode(Node.join(left: createNode(), separator: (0, "0"), right: createNode(1...1)), 0...1)
-        checkNode(Node.join(left: createNode(0...0), separator: (1, "1"), right: createNode()), 0...1)
-        checkNode(Node.join(left: createNode(0...0), separator: (1, "1"), right: createNode(2...2)), 0...2)
+        checkNode(Node.join(left: createNode(), separator: (0, "0"), right: createNode()), 0 ..< 1)
+        checkNode(Node.join(left: createNode(), separator: (0, "0"), right: createNode(1 ..< 2)), 0 ..< 2)
+        checkNode(Node.join(left: createNode(0 ..< 1), separator: (1, "1"), right: createNode()), 0 ..< 2)
+        checkNode(Node.join(left: createNode(0...0), separator: (1, "1"), right: createNode(2 ..< 3)), 0 ..< 3)
 
-        checkNode(Node.join(left: createNode(0...98), separator: (99, "99"), right: createNode(100...100)), 0...100)
-        checkNode(Node.join(left: createNode(0...0), separator: (1, "1"), right: createNode(2...100)), 0...100)
-        checkNode(Node.join(left: createNode(0...99), separator: (100, "100"), right: createNode(101...200)), 0...200)
+        checkNode(Node.join(left: createNode(0...98), separator: (99, "99"), right: createNode(100 ..< 101)), 0 ..< 101)
+        checkNode(Node.join(left: createNode(0...0), separator: (1, "1"), right: createNode(2 ..< 101)), 0 ..< 101)
+        checkNode(Node.join(left: createNode(0...99), separator: (100, "100"), right: createNode(101 ..< 200)), 0 ..< 200)
 
         do {
             let l = maximalNode(depth: 2, order: 3)

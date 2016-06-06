@@ -17,7 +17,7 @@ class PermutationTests: XCTestCase {
         XCTAssertEqual(Array(generatePermutations(3)), [[0, 1, 2], [0, 2, 1], [2, 0, 1], [1, 0, 2], [1, 2, 0], [2, 1, 0]])
         var count = 0
         for p in generatePermutations(6) {
-            XCTAssertEqual(p.sort(), [0, 1, 2, 3, 4, 5])
+            XCTAssertEqual(p.sorted(), [0, 1, 2, 3, 4, 5])
             count += 1
         }
         XCTAssertEqual(count, 6 * 5 * 4 * 3 * 2)
@@ -31,7 +31,7 @@ class PermutationTests: XCTestCase {
 
         var count = 0
         for inv in generateInversions(6) {
-            XCTAssertEqual(inv.enumerate().filter { $0.index < $0.element }.count, 0)
+            XCTAssertEqual(inv.enumerated().filter { $0.offset < $0.element }.count, 0)
             count += 1
         }
         XCTAssertEqual(count, 6 * 5 * 4 * 3 * 2)

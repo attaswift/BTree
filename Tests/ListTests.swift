@@ -44,7 +44,7 @@ class ListTests: XCTestCase {
         for i in 0 ..< 5 {
             XCTAssertEqual(list[i], i)
         }
-        assertEqualElements(GeneratorSequence(list.generate()), 0..<5)
+        assertEqualElements(IteratorSequence(list.makeIterator()), 0..<5)
         assertEqualElements(list, 0..<5)
     }
 
@@ -163,21 +163,21 @@ class ListTests: XCTestCase {
     func testIndexOfPredicate() {
         let list = List<Int>(0..<50)
         for v in 0 ..< 50 {
-            let i = list.indexOf { $0 == v }
+            let i = list.index { $0 == v }
             XCTAssertEqual(i, v)
         }
-        XCTAssertNil(list.indexOf { $0 == -1 })
-        XCTAssertNil(list.indexOf { $0 == 50 })
+        XCTAssertNil(list.index { $0 == -1 })
+        XCTAssertNil(list.index { $0 == 50 })
     }
 
     func testIndexOfValue() {
         let list = List<Int>(0..<50)
         for v in 0 ..< 50 {
-            let i = list.indexOf(v)
+            let i = list.index(of: v)
             XCTAssertEqual(i, v)
         }
-        XCTAssertNil(list.indexOf(-1))
-        XCTAssertNil(list.indexOf(50))
+        XCTAssertNil(list.index(of: -1))
+        XCTAssertNil(list.index(of: 50))
     }
 
     func testContains() {
@@ -229,7 +229,7 @@ class ListTests: XCTestCase {
         assertEqualElements(l1, 0..<10)
 
         let l3: List<Int> = [10, 11, 12, 13, 14]
-        func appendAsSequence<E, S: Sequence where S.Iterator.Element == E>(list: inout List<E>, _ elements: S) {
+        func appendAsSequence<E, S: Sequence where S.Iterator.Element == E>(_ list: inout List<E>, _ elements: S) {
             list.append(contentsOf: elements)
         }
         appendAsSequence(&l1, l3)
@@ -258,7 +258,7 @@ class ListTests: XCTestCase {
         assertEqualElements(list, 0..<5)
 
         var copy = list
-        func insertAsSequence<E, S: Sequence where S.Iterator.Element == E>(list: inout List<E>, _ elements: S, at index: Int) {
+        func insertAsSequence<E, S: Sequence where S.Iterator.Element == E>(_ list: inout List<E>, _ elements: S, at index: Int) {
             list.insert(contentsOf: elements, at: index)
         }
         insertAsSequence(&copy, l, at: copy.count)
@@ -290,7 +290,7 @@ class ListTests: XCTestCase {
             var l = list
             var r = referenceArray
 
-            for i in inversion.reverse() {
+            for i in inversion.reversed() {
                 let li = l.remove(at: i)
                 let ai = r.remove(at: i)
                 XCTAssertEqual(li, ai)
@@ -320,7 +320,7 @@ class ListTests: XCTestCase {
 
     func testRemoveLast() {
         var list: List<Int> = [0, 1, 2, 3, 4]
-        for i in (0..<5).reverse() {
+        for i in (0..<5).reversed() {
             XCTAssertEqual(list.removeLast(), i)
         }
         XCTAssertTrue(list.isEmpty)
@@ -328,7 +328,7 @@ class ListTests: XCTestCase {
 
     func testRemoveLastN() {
         var list = List<Int>(0..<100)
-        for i in (0..<5).reverse() {
+        for i in (0..<5).reversed() {
             list.removeLast(20)
             assertEqualElements(list, 0 ..< i * 20)
         }
@@ -337,7 +337,7 @@ class ListTests: XCTestCase {
 
     func testPopLast() {
         var list: List<Int> = [0, 1, 2, 3, 4]
-        for i in (0..<5).reverse() {
+        for i in (0..<5).reversed() {
             XCTAssertEqual(list.popLast(), i)
         }
         XCTAssertNil(list.popLast())
@@ -386,7 +386,7 @@ class ListTests: XCTestCase {
         list.replaceSubrange(1..<3, with: [50, 51, 52, 53, 54, 55])
         assertEqualElements(list, [0, 50, 51, 52, 53, 54, 55, 20, 30, 8, 9])
 
-        func replaceAsSequence<E, C: CollectionType where C.Iterator.Element == E>(list: inout List<E>, range: Range<Int>, with elements: C) {
+        func replaceAsSequence<E, C: Collection where C.Iterator.Element == E>(_ list: inout List<E>, range: CountableRange<Int>, with elements: C) {
             list.replaceSubrange(range, with: elements)
         }
         replaceAsSequence(&list, range: 1 ..< 9, with: List(1 ..< 8))
@@ -396,7 +396,7 @@ class ListTests: XCTestCase {
     func testListEquality() {
         let l1 = List(0..<10)
         let l2 = List(0..<5)
-        let l3 = List((0..<10).reverse())
+        let l3 = List((0..<10).reversed())
 
         XCTAssertTrue(l1 == l1)
         XCTAssertTrue(l2 == l2)

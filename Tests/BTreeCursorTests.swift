@@ -27,10 +27,10 @@ class BTreeCursorTests: XCTestCase {
         tree.withCursorAtStart(checkEmpty)
         tree.withCursorAtEnd(checkEmpty)
         tree.withCursor(atOffset: 0, body: checkEmpty)
-        tree.withCursor(at: 42, choosing: .first, body: checkEmpty)
-        tree.withCursor(at: 42, choosing: .last, body: checkEmpty)
-        tree.withCursor(at: 42, choosing: .after, body: checkEmpty)
-        tree.withCursor(at: 42, choosing: .any, body: checkEmpty)
+        tree.withCursor(onKey: 42, choosing: .first, body: checkEmpty)
+        tree.withCursor(onKey: 42, choosing: .last, body: checkEmpty)
+        tree.withCursor(onKey: 42, choosing: .after, body: checkEmpty)
+        tree.withCursor(onKey: 42, choosing: .any, body: checkEmpty)
     }
 
     func testCursorAtStart() {
@@ -80,10 +80,10 @@ class BTreeCursorTests: XCTestCase {
         tree.assertValid()
 
         for i in 0 ..< count {
-            tree.withCursor(at: 2 * i + 1, choosing: .first) { cursor in
+            tree.withCursor(onKey: 2 * i + 1, choosing: .first) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
             }
-            tree.withCursor(at: 2 * i, choosing: .first) { cursor in
+            tree.withCursor(onKey: 2 * i, choosing: .first) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * i)
                 XCTAssertEqual(cursor.key, 2 * i)
                 XCTAssertEqual(cursor.value, String(2 * i) + "/1")
@@ -102,10 +102,10 @@ class BTreeCursorTests: XCTestCase {
         tree.assertValid()
 
         for i in 0 ..< count {
-            tree.withCursor(at: 2 * i + 1, choosing: .last) { cursor in
+            tree.withCursor(onKey: 2 * i + 1, choosing: .last) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
             }
-            tree.withCursor(at: 2 * i, choosing: .last) { cursor in
+            tree.withCursor(onKey: 2 * i, choosing: .last) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * i + 2)
                 XCTAssertEqual(cursor.key, 2 * i)
                 XCTAssertEqual(cursor.value, String(2 * i) + "/3")
@@ -124,10 +124,10 @@ class BTreeCursorTests: XCTestCase {
         tree.assertValid()
 
         for i in 0 ..< count {
-            tree.withCursor(at: 2 * i + 1, choosing: .after) { cursor in
+            tree.withCursor(onKey: 2 * i + 1, choosing: .after) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
             }
-            tree.withCursor(at: 2 * i, choosing: .after) { cursor in
+            tree.withCursor(onKey: 2 * i, choosing: .after) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
                 XCTAssertEqual(cursor.key, 2 * (i + 1))
                 XCTAssertEqual(cursor.value, String(2 * (i + 1)) + "/1")
@@ -146,10 +146,10 @@ class BTreeCursorTests: XCTestCase {
         tree.assertValid()
 
         for i in 0 ..< count {
-            tree.withCursor(at: 2 * i + 1) { cursor in
+            tree.withCursor(onKey: 2 * i + 1) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
             }
-            tree.withCursor(at: 2 * i) { cursor in
+            tree.withCursor(onKey: 2 * i) { cursor in
                 XCTAssertGreaterThanOrEqual(cursor.offset, 3 * i)
                 XCTAssertLessThan(cursor.offset, 3 * (i + 1))
                 XCTAssertEqual(cursor.key, 2 * i)
@@ -423,7 +423,7 @@ class BTreeCursorTests: XCTestCase {
         let c = 30
         tree.withCursorAtStart() { cursor in
             XCTAssertTrue(cursor.isAtEnd)
-            for i in (c - 1).stride(through: 0, by: -1) {
+            for i in stride(from: c - 1, through: 0, by: -1) {
                 cursor.insert((i, String(i)))
                 XCTAssertEqual(cursor.count, c - i)
                 XCTAssertEqual(cursor.offset, 1)
