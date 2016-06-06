@@ -1,6 +1,6 @@
 # Fast Ordered Collections for Swift<br> Using In-Memory B-Trees 
 
-[![Swift 2.2](https://img.shields.io/badge/Swift-2.2-blue.svg)](https://swift.org) 
+[![Swift 2.2 and 3](https://img.shields.io/badge/Swift-2.2 & 3-blue.svg)](https://swift.org) 
 [![License](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/lorentey/BTree/blob/master/LICENCE.md)
 [![Platform](https://img.shields.io/badge/platforms-OS_X%20∙%20iOS%20∙%20watchOS%20∙%20tvOS-blue.svg)](https://developer.apple.com/platforms/)
 
@@ -60,6 +60,9 @@ better with these than standard collections; continue reading to find out why!)
 [Map]: http://lorentey.github.io/BTree/api/Structs/Map.html
 [List]: http://lorentey.github.io/BTree/api/Structs/List.html
 [OrderedSet]: http://lorentey.github.io/BTree/api/Structs/OrderedSet.html
+
+`BTree` requires Swift 2.2. An experimental version with support for preview versions of Swift 3 is available on 
+the `swift3` branch.  
 
 ### <a name="api">[Reference Documentation][doc]</a>
 
