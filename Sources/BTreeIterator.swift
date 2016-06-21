@@ -53,10 +53,13 @@ public struct BTreeValueIterator<Value>: IteratorProtocol {
 
 /// An iterator for the keys stored in a B-tree without a value.
 public struct BTreeKeyIterator<Key: Comparable>: IteratorProtocol {
-    internal typealias Base = BTreeIterator<Key, Void>
+    public typealias Base = BTreeIterator<Key, Void>
     private var base: Base
 
-    internal init(_ base: Base) {
+	/// Initialize a key-only iterator from a key-value iterator. 
+	///
+	/// - Complexity: O(1)
+    public init(_ base: Base) {
         self.base = base
     }
 
