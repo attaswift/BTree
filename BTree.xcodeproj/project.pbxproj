@@ -511,9 +511,11 @@
 					};
 					BB9AE43A1C1FCC35002C5D63 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 					};
 					BB9AE44B1C1FCE0B002C5D63 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 					};
 				};
 			};
@@ -847,6 +849,7 @@
 				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Unchecked;
 		};
@@ -872,6 +875,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
 				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Unchecked;
 		};
@@ -1232,6 +1236,7 @@
 				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1252,6 +1257,7 @@
 				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1266,6 +1272,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
 				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1280,6 +1287,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
 				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1365,6 +1373,7 @@
 				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Profile;
 		};
@@ -1390,6 +1399,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
 				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
+				SWIFT_VERSION = 3.0;
 			};
 			name = Profile;
 		};

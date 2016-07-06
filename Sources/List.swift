@@ -309,7 +309,7 @@ public extension List where Element: Equatable {
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
     @warn_unused_result
-    public func elementsEqual(other: List<Element>) -> Bool {
+    public func elementsEqual(_ other: List<Element>) -> Bool {
         return self.tree.elementsEqual(other.tree, isEquivalent: { $0.1 == $1.1 })
     }
 
@@ -330,8 +330,7 @@ public extension List where Element: Equatable {
     }
 
     /// Return true iff `element` is in `self`.
-    @warn_unused_result
-    public func contains(element: Element) -> Bool {
+    public func contains(_ element: Element) -> Bool {
         return index(of: element) != nil
     }
 }

@@ -14,7 +14,7 @@ class BTreeCursorTests: XCTestCase {
     typealias Tree = BTree<Int, String>
 
     func testCursorWithEmptyTree() {
-        func checkEmpty(cursor: BTreeCursor<Int, String>) {
+        func checkEmpty(_ cursor: BTreeCursor<Int, String>) {
             XCTAssertTrue(cursor.isValid)
             XCTAssertTrue(cursor.isAtStart)
             XCTAssertTrue(cursor.isAtEnd)

@@ -681,7 +681,7 @@ extension BTree {
     /// Remove the first `n` elements from this tree.
     ///
     /// - Complexity: O(log(`count`) + `n`)
-    public mutating func removeFirst(n: Int) {
+    public mutating func removeFirst(_ n: Int) {
         precondition(n >= 0 && n <= count)
         switch n {
         case 0: break
@@ -695,7 +695,7 @@ extension BTree {
     /// Remove the last `n` elements from this tree.
     ///
     /// - Complexity: O(log(`count`) + `n`)
-    public mutating func removeLast(n: Int) {
+    public mutating func removeLast(_ n: Int) {
         precondition(n >= 0 && n <= count)
         switch n {
         case 0: break

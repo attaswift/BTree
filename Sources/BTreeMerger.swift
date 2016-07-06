@@ -431,7 +431,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
 internal enum BTreePart<Key: Comparable, Value> {
     case element((Key, Value))
     case node(BTreeNode<Key, Value>)
-    case nodeRange(BTreeNode<Key, Value>, Range<Int>)
+    case nodeRange(BTreeNode<Key, Value>, CountableRange<Int>)
 }
 
 extension BTreeBuilder {

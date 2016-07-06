@@ -156,7 +156,7 @@ internal struct BTreeCursorPath<Key: Comparable, Value>: BTreePath {
 
     /// Invalidate this cursor.
     mutating func invalidate() {
-        root = Node(order: root.order)
+        root = BTreeNode<Key, Value>(order: root.order)
         count = 0
         offset = 0
         _path = []
@@ -273,7 +273,7 @@ internal struct BTreeCursorPath<Key: Comparable, Value>: BTreePath {
             }
             else {
                 // Create new root node.
-                self.root = Node(left: left, separator: splinter.separator, right: right)
+                self.root = BTreeNode<Key, Value>(left: left, separator: splinter.separator, right: right)
                 _path.insert(self.root, at: 0)
                 _slots.insert(slot > left.elements.count ? 1 : 0, at: 0)
             }

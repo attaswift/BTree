@@ -459,7 +459,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         }
     }
 
-    var testCases: [(String, Void -> Void)] {
+    var testCases: [(String, () -> Void)] {
         return [
             ("testInitStartOf", testInitStartOf),
             ("testInitEndOf", testInitEndOf),
