@@ -309,7 +309,6 @@ extension BTreePath {
     /// the currently focused element, and a tree with all elements after the currrent position.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     func split() -> (prefix: Tree, separator: Element, suffix: Tree) {
         precondition(!isAtEnd)
         var left: Node? = nil
@@ -342,7 +341,6 @@ extension BTreePath {
     /// Return a tree containing all elements before (and not including) the current position.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     func prefix() -> Tree {
         precondition(!isAtEnd)
         var prefix: Node? = nil
@@ -362,7 +360,6 @@ extension BTreePath {
     /// Return a tree containing all elements after (and not including) the current position.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     func suffix() -> Tree {
         precondition(!isAtEnd)
         var suffix: Node? = nil

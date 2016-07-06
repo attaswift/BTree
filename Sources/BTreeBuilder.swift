@@ -252,7 +252,6 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
         saplings.append(sapling)
     }
 
-    @warn_unused_result
     mutating func finish() -> Node {
         // Merge all saplings and the seedling into a single tree.
         var root: Node

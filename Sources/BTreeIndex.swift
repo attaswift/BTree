@@ -62,7 +62,6 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     ///
     /// - Requires: self is valid and not the end index.
     /// - Complexity: Amortized O(1).
-    @warn_unused_result
     public func successor() -> BTreeIndex {
         var result = self
         result.successorInPlace()
@@ -73,7 +72,6 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     ///
     /// - Requires: self is valid and not the start index.
     /// - Complexity: Amortized O(1).
-    @warn_unused_result
     public func predecessor() -> BTreeIndex {
         var result = self
         result.predecessorInPlace()
@@ -83,7 +81,6 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     /// Return the result of advancing `self` by `n` positions.
     /// 
     /// - Complexity: O(log(`n`))
-    @warn_unused_result
     public func advanced(by n: Int) -> BTreeIndex {
         var result = self
         result.advance(by: n)
@@ -93,7 +90,6 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     /// Return the result of advancing self by `n` positions, or until it equals `limit`.
     ///
     /// - Complexity: O(log(`n`))
-    @warn_unused_result
     public func advanced(by n: Int, limit: BTreeIndex) -> BTreeIndex? {
         state.expectRoot(limit.state.root)
         let d = self.distance(to: limit)
@@ -106,7 +102,6 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     /// Return the number of steps between `self` an `end`.
     ///
     /// - Complexity: O(1)
-    @warn_unused_result
     public func distance(to end: BTreeIndex) -> Int {
         state.expectRoot(end.state.root)
         return end.state.offset - state.offset
@@ -114,7 +109,6 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
 }
 
 /// Return true iff `a` is equal to `b`.
-@warn_unused_result
 public func == <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex<Key, Value>) -> Bool {
     guard let ar = a.state._root.value else { a.state.invalid() }
     guard let br = b.state._root.value else { b.state.invalid() }
@@ -123,7 +117,6 @@ public func == <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex
 }
 
 /// Return true iff `a` is less than `b`.
-@warn_unused_result
 public func < <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex<Key, Value>) -> Bool {
     guard let ar = a.state._root.value else { a.state.invalid() }
     guard let br = b.state._root.value else { b.state.invalid() }

@@ -64,7 +64,7 @@ internal final class BTreeNode<Key: Comparable, Value>: NonObjectiveCBase {
 
 extension BTreeNode {
     static var defaultOrder: Int {
-        return Swift.max(bTreeNodeSize / strideof(Element), 8)
+        return Swift.max(bTreeNodeSize / strideof(Element.self), 8)
     }
 
     convenience init(order: Int = Node.defaultOrder) {
@@ -81,7 +81,7 @@ extension BTreeNode {
             count: left.count + 1 + right.count)
     }
 
-    internal convenience init(node: BTreeNode, slotRange: Range<Int>) {
+    internal convenience init(node: BTreeNode, slotRange: CountableRange<Int>) {
         if node.isLeaf {
             let elements = Array(node.elements[slotRange])
             self.init(order: node.order, elements: elements, children: [], count: elements.count)
@@ -371,7 +371,6 @@ extension BTreeNode {
     /// Split this node into two, removing the high half of the nodes and putting them in a splinter.
     ///
     /// - Returns: A splinter containing the higher half of the original node.
-    @warn_unused_result
     internal func split() -> Splinter {
         assert(isTooLarge)
         return split(at: elements.count / 2)
@@ -381,7 +380,6 @@ extension BTreeNode {
     /// and putting them in a splinter.
     ///
     /// - Returns: A splinter containing the higher half of the original node.
-    @warn_unused_result
     internal func split(at median: Int) -> Splinter {
         let count = elements.count
         let separator = elements[median]

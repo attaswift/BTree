@@ -149,7 +149,6 @@ extension Map: Collection {
     }
 
     /// Return an iterator over all (key, value) pairs in this map, in ascending key order.
-    @warn_unused_result
     public func makeIterator() -> Iterator {
         return tree.makeIterator()
     }
@@ -206,7 +205,6 @@ extension Map {
     /// The elements are transformed in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func map<T>(_ transform: @noescape (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
         result.reserveCapacity(self.count)
@@ -219,7 +217,6 @@ extension Map {
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Iterator.Element] {
         var result: [S.Iterator.Element] = []
         try self.forEach { element in
@@ -231,7 +228,6 @@ extension Map {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func flatMap<T>(_ transform: @noescape (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
         try self.forEach { element in
@@ -249,7 +245,6 @@ extension Map {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func reduce<T>(_ initial: T, combine: @noescape (T, Element) throws -> T) rethrows -> T {
         var result = initial
         try self.forEach {
@@ -292,7 +287,6 @@ extension Map {
     /// Returns the index for the given key, or `nil` if the key is not present in this map.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func index(forKey key: Key) -> Index? {
         return tree.index(forKey: key)
     }
@@ -345,7 +339,6 @@ extension Map {
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func index(forOffset offset: Int) -> Index {
         return tree.index(forOffset: offset)
     }
@@ -354,7 +347,6 @@ extension Map {
     ///
     /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func offset(for index: Index) -> Int {
         return tree.offset(forIndex: index)
     }
@@ -362,7 +354,6 @@ extension Map {
     /// Return the element stored at `offset` in this map.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func element(atOffset offset: Int) -> Element {
         return tree.element(atOffset: offset)
     }
@@ -401,7 +392,6 @@ extension Map {
     /// Return a submap consisting of elements in the specified range of indexes.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func submap(with range: Range<Index>) -> Map {
         return Map(tree.subtree(with: range))
     }
@@ -409,7 +399,6 @@ extension Map {
     /// Return a submap consisting of elements in the specified range of offsets.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func submap(with offsets: Range<Int>) -> Map {
         return Map(tree.subtree(with: offsets))
     }
@@ -417,7 +406,6 @@ extension Map {
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than `end`.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func submap(from start: Key, to end: Key) -> Map {
         return Map(tree.subtree(from: start, to: end))
     }
@@ -425,7 +413,6 @@ extension Map {
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than or equal to `end`.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func submap(from start: Key, through end: Key) -> Map {
         return Map(tree.subtree(from: start, through: end))
     }
@@ -464,13 +451,11 @@ extension Map where Value: Equatable {
 ///
 /// This function skips over shared subtrees when possible; this can drastically improve performance when the
 /// two maps are divergent mutations originating from the same value.
-@warn_unused_result
 public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
     return a.elementsEqual(b)
 }
 
 /// Return true iff `a` is not equal to `b`.
-@warn_unused_result
 public func !=<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
     return !(a == b)
 }
@@ -507,7 +492,6 @@ extension Map {
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
-    @warn_unused_result
     public func including(_ keys: OrderedSet<Key>) -> Map {
         return Map(self.tree.intersection(sortedKeys: keys))
     }
@@ -515,7 +499,6 @@ extension Map {
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
-    @warn_unused_result
     public func including<S: Sequence where S.Iterator.Element == Key>(_ keys: S) -> Map {
         return including(OrderedSet(keys))
     }
@@ -523,7 +506,6 @@ extension Map {
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
-    @warn_unused_result
     public func excluding(_ keys: OrderedSet<Key>) -> Map {
         return Map(self.tree.subtracting(sortedKeys: keys))
     }
@@ -531,7 +513,6 @@ extension Map {
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
-    @warn_unused_result
     public func excluding<S: Sequence where S.Iterator.Element == Key>(_ keys: S) -> Map {
         return excluding(OrderedSet(keys))
     }

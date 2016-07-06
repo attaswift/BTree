@@ -351,7 +351,6 @@ public final class BTreeCursor<Key: Comparable, Value> {
     /// You'll need to create a new cursor to continue editing the tree.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     internal func finish() -> Node {
         return state.finish()
     }
@@ -669,7 +668,6 @@ public final class BTreeCursor<Key: Comparable, Value> {
     ///
     /// - Returns: The extracted elements as a new B-tree.
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func extract(_ n: Int) -> Tree {
         precondition(isValid && n >= 0 && self.offset + n <= count)
         if n == 0 {

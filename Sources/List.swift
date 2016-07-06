@@ -130,7 +130,6 @@ extension List: MutableCollection {
     }
 
     /// Return an iterator over all elements in this list.
-    @warn_unused_result
     public func makeIterator() -> Iterator {
         return Iterator(tree.makeIterator())
     }
@@ -195,7 +194,6 @@ extension List {
     /// The elements are transformed in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func map<T>(_ transform: @noescape (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
         result.reserveCapacity(self.count)
@@ -208,7 +206,6 @@ extension List {
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`result.count`)
-    @warn_unused_result
     public func flatMap<S: Sequence>(_ transform: @noescape (Element) throws -> S) rethrows -> [S.Iterator.Element] {
         var result: [S.Iterator.Element] = []
         try self.forEach { element in
@@ -220,7 +217,6 @@ extension List {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func flatMap<T>(_ transform: @noescape (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
         try self.forEach { element in
@@ -238,7 +234,6 @@ extension List {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func reduce<T>(_ initial: T, combine: @noescape (T, Element) throws -> T) rethrows -> T {
         var result = initial
         try self.forEach {
@@ -250,7 +245,6 @@ extension List {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func filter(_ includeElement: @noescape (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
         try self.forEach {
@@ -274,7 +268,6 @@ public extension List {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    @warn_unused_result
     public func elementsEqual(_ other: List<Element>, isEquivalent: @noescape (Element, Element) throws -> Bool) rethrows -> Bool {
         return try self.tree.elementsEqual(other.tree, isEquivalent: { try isEquivalent($0.1, $1.1) })
     }
@@ -283,7 +276,6 @@ public extension List {
     /// such value is not found.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func index(where predicate: @noescape (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
         try self.tree.forEach { element -> Bool in
@@ -308,7 +300,6 @@ public extension List where Element: Equatable {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    @warn_unused_result
     public func elementsEqual(_ other: List<Element>) -> Bool {
         return self.tree.elementsEqual(other.tree, isEquivalent: { $0.1 == $1.1 })
     }
@@ -316,7 +307,6 @@ public extension List where Element: Equatable {
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
     public func index(of element: Element) -> Index? {
         var i = 0
         self.tree.forEach { e -> Bool in
@@ -529,19 +519,16 @@ extension List: RangeReplaceableCollection {
 /// two lists are divergent mutations originating from the same value.
 ///
 /// - Complexity: O(`count`)
-@warn_unused_result
 public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
     return a.elementsEqual(b)
 }
 
 /// Returns false iff the two lists do not have the same elements in the same order.
-@warn_unused_result
 public func !=<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
     return !(a == b)
 }
 
 /// Concatenate `a` with `b` and return the resulting `List`.
-@warn_unused_result
 public func +<Element>(a: List<Element>, b: List<Element>) -> List<Element> {
     var result = a
     result.append(contentsOf: b)

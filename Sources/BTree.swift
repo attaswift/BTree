@@ -229,7 +229,6 @@ public extension BTree {
     ///
     /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func element(atOffset offset: Int) -> Element {
         precondition(offset >= 0 && offset < count)
         var offset = offset
@@ -250,7 +249,6 @@ public extension BTree {
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func value(of key: Key, choosing selector: BTreeKeySelector = .any) -> Value? {
         switch selector {
         case .any:
@@ -287,7 +285,6 @@ public extension BTree {
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func index(forKey key: Key, choosing selector: BTreeKeySelector = .any) -> Index? {
         let path = BTreeWeakPath(root: root, key: key, choosing: selector)
         guard !path.isAtEnd && (selector == .after || path.key == key) else { return nil }
@@ -298,7 +295,6 @@ public extension BTree {
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func offset(forKey key: Key, choosing selector: BTreeKeySelector = .any) -> Int? {
         var node = root
         var offset = 0
@@ -326,7 +322,6 @@ public extension BTree {
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(1)
-    @warn_unused_result
     public func offset(forIndex index: Index) -> Int {
         index.state.expectRoot(root)
         return index.state.offset
@@ -336,7 +331,6 @@ public extension BTree {
     ///
     /// - Requires: `offset >= 0 && offset <= count`
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func index(forOffset offset: Int) -> Index {
         return Index(BTreeWeakPath(root: root, offset: offset))
     }
@@ -943,7 +937,6 @@ extension BTree {
     /// Return a subtree consisting of elements in the specified range of indexes.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func subtree(with range: Range<Index>) -> BTree<Key, Value> {
         range.lowerBound.state.expectRoot(root)
         range.upperBound.state.expectRoot(root)
@@ -962,7 +955,6 @@ extension BTree {
     /// Return a subtree consisting of elements in the specified range of offsets.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func subtree(with offsets: Range<Int>) -> BTree<Key, Value> {
         precondition(offsets.lowerBound >= 0 && offsets.upperBound <= count)
         if offsets.count == 0 {
@@ -974,7 +966,6 @@ extension BTree {
     /// Return a subtree consisting of all elements with keys greater than or equal to `start` but less than `end`.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func subtree(from start: Key, to end: Key) -> BTree<Key, Value> {
         precondition(start <= end)
         return suffix(from: start).prefix(upTo: end)
@@ -983,7 +974,6 @@ extension BTree {
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than or equal to `end`.
     ///
     /// - Complexity: O(log(`count`))
-    @warn_unused_result
     public func subtree(from start: Key, through stop: Key) -> BTree<Key, Value> {
         precondition(start <= stop)
         return suffix(from: start).prefix(through: stop)
