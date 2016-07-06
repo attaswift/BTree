@@ -325,7 +325,7 @@ class BTreeTests: XCTestCase {
 
     func testInsertAtOffset() {
         let count = 42
-        let elements = (0 ..< count).map { (2 * $0 + 1, String(2 * $0 + 1)) }
+        let elements: [(Int, String)] = (0 ..< count).map { (2 * $0 + 1 as Int, String(2 * $0 + 1)) }
         var tree = Tree(sortedElements: elements, order: 3)
         var offset = 0
         while offset < count {
