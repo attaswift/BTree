@@ -11,16 +11,6 @@ import Foundation
 import XCTest
 @testable import BTree
 
-// This basic overload is missing from XCTest, so it upgrades everything to Optional which makes failure reports harder to read.
-func XCTAssertEqual<T: Equatable>(_ expression1: @autoclosure () -> T, _ expression2: @autoclosure () -> T, _ message: String = "", file: StaticString = #file, line: UInt = #line) {
-    let a = expression1()
-    let b = expression2()
-    if a != b {
-        let m = message.isEmpty ? "XCTAssertEqual failed: (\"\(a)\") is not equal to (\"\(b)\")" : message
-        XCTFail(m, file: file, line: line)
-    }
-}
-
 func assertEqualElements<Element: Equatable, S1: Sequence, S2: Sequence where S1.Iterator.Element == Element, S2.Iterator.Element == Element>(_ a: S1, _ b: S2, file: StaticString = #file, line: UInt = #line) {
     let aa = Array(a)
     let ba = Array(b)
