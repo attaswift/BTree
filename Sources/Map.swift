@@ -158,7 +158,7 @@ extension Map: Collection {
     }
 
     public func formIndex(after index: inout Index) {
-        index.successorInPlace()
+        index.increment()
     }
 
     public func index(before index: Index) -> Index {
@@ -166,7 +166,7 @@ extension Map: Collection {
     }
 
     public func formIndex(before index: inout Index) {
-        index.predecessorInPlace()
+        index.decrement()
     }
 
     public func index(_ i: Index, offsetBy n: Int) -> Index {

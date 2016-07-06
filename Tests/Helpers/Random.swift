@@ -16,14 +16,14 @@ func random(_ limit: Int) -> Int {
 
 extension Array {
     /// Returns a copy of this array with all elements randomly shuffled.
-    func shuffle() -> Array<Element> {
+    func shuffled() -> Array<Element> {
         var copy = self
-        copy.shuffleInPlace()
+        copy.shuffle()
         return copy
     }
 
     /// Randomly shuffles the elements of this array.
-    mutating func shuffleInPlace() {
+    mutating func shuffle() {
         let count = self.count
         for i in 0..<count {
             let j = random(count)

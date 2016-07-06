@@ -728,11 +728,11 @@ class BTreeTests: XCTestCase {
                 subtree.assertValid()
                 assertEqualElements(subtree, (i..<j).map { ($0, String($0)) })
                 if j < count {
-                    end.successorInPlace()
+                    end.increment()
                 }
             }
             if i < count {
-                start.successorInPlace()
+                start.increment()
             }
         }
     }

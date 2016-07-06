@@ -27,7 +27,7 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     ///
     /// - Requires: self is valid and not the end index.
     /// - Complexity: Amortized O(1).
-    public mutating func successorInPlace() {
+    public mutating func increment() {
         state.moveForward()
     }
     
@@ -35,7 +35,7 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     ///
     /// - Requires: self is valid and not the start index.
     /// - Complexity: Amortized O(1).
-    public mutating func predecessorInPlace() {
+    public mutating func decrement() {
         state.moveBackward()
     }
 
@@ -64,7 +64,7 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     /// - Complexity: Amortized O(1).
     public func successor() -> BTreeIndex {
         var result = self
-        result.successorInPlace()
+        result.increment()
         return result
     }
 
@@ -74,7 +74,7 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     /// - Complexity: Amortized O(1).
     public func predecessor() -> BTreeIndex {
         var result = self
-        result.predecessorInPlace()
+        result.decrement()
         return result
     }
 
