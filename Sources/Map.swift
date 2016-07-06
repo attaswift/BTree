@@ -492,7 +492,7 @@ extension Map {
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
-    public func including(_ keys: OrderedSet<Key>) -> Map {
+    public func including(_ keys: SortedSet<Key>) -> Map {
         return Map(self.tree.intersection(sortedKeys: keys))
     }
 
@@ -500,13 +500,13 @@ extension Map {
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
     public func including<S: Sequence where S.Iterator.Element == Key>(_ keys: S) -> Map {
-        return including(OrderedSet(keys))
+        return including(SortedSet(keys))
     }
 
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
-    public func excluding(_ keys: OrderedSet<Key>) -> Map {
+    public func excluding(_ keys: SortedSet<Key>) -> Map {
         return Map(self.tree.subtracting(sortedKeys: keys))
     }
 
@@ -514,6 +514,6 @@ extension Map {
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
     public func excluding<S: Sequence where S.Iterator.Element == Key>(_ keys: S) -> Map {
-        return excluding(OrderedSet(keys))
+        return excluding(SortedSet(keys))
     }
 }

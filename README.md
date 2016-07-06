@@ -38,9 +38,9 @@ ordered collection types that use B-trees for their underlying storage.
     removal of any subrange of elements, or extraction of an arbitrary sub-list are also
     operations with O(log(*n*)) complexity.
 
--   [`OrderedSet<Element>`][OrderedSet] implements an ordered collection of unique comparable elements.
+-   [`SortedSet<Element>`][SortedSet] implements an ordered collection of unique comparable elements.
     It is like `Set` in the standard library, but lookup, insertion and removal of any element
-    has logarithmic complexity. Elements in an `OrderedSet` are kept sorted in ascending order.
+    has logarithmic complexity. Elements in an `SortedSet` are kept sorted in ascending order.
     Operations working on full sets (such as taking the union, intersection or difference) 
     can take as little as O(log(*n*)) time if the elements in the source sets aren't interleaved.
 
@@ -59,7 +59,7 @@ better with these than standard collections; continue reading to find out why!)
 
 [Map]: http://lorentey.github.io/BTree/api/Structs/Map.html
 [List]: http://lorentey.github.io/BTree/api/Structs/List.html
-[OrderedSet]: http://lorentey.github.io/BTree/api/Structs/OrderedSet.html
+[SortedSet]: http://lorentey.github.io/BTree/api/Structs/SortedSet.html
 
 `BTree` requires Swift 2.2. An experimental version with support for preview versions of Swift 3 is available on 
 the `swift3` branch.  
