@@ -24,12 +24,12 @@ extension BTreeNode {
             // Check item order
             var prev = minKey
             for key in node.elements.map({ $0.0 }) {
-                if let p = prev where p > key {
+                if let p = prev, p > key {
                     defects.append("Invalid item order: \(p) > \(key)")
                 }
                 prev = key
             }
-            if let maxKey = maxKey, prev = prev where prev > maxKey {
+            if let maxKey = maxKey, let prev = prev, prev > maxKey {
                 defects.append("Invalid item order: \(prev) > \(maxKey)")
             }
 

@@ -950,7 +950,7 @@ class BTreeTests: XCTestCase {
             let tree = maximalTree(depth: depth, order: order)
             tree.assertValid()
             XCTAssertEqual(tree.depth, depth)
-            XCTAssertEqual(tree.count, (0...depth).reduce(1, combine: { p, _ in p * tree.order }) - 1)
+            XCTAssertEqual(tree.count, (0...depth).reduce(1, { p, _ in p * tree.order }) - 1)
         }
     }
 

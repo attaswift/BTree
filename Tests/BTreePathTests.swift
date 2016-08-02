@@ -63,9 +63,15 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
         }
     }
 
+    func makeTree(count: Int) -> Tree {
+        let range = 0 ... 2 * count + 1
+        let contents = range.lazy.map { ($0 & ~1, String($0)) }
+        return Tree(sortedElements: contents, order: 3)
+    }
+    
     func testInitKeyFirst() {
         let c = 26
-        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        let tree = makeTree(count: c)
         for i in 0 ... c {
             withClone(tree) { node in
                 var path = Path(root: node, key: 2 * i, choosing: .first)
@@ -90,7 +96,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
     func testInitKeyLast() {
         let c = 26
-        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        let tree = makeTree(count: c)
         for i in 0 ... c {
             withClone(tree) { node in
                 var path = Path(root: node, key: 2 * i, choosing: .last)
@@ -115,7 +121,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
     func testInitKeyAfter() {
         let c = 26
-        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        let tree = makeTree(count: c)
         for i in 0 ..< c {
             withClone(tree) { node in
                 var path = Path(root: node, key: 2 * i, choosing: .after)
@@ -141,7 +147,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
     func testInitKeyAny() {
         let c = 26
-        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        let tree = makeTree(count: c)
         for i in 0 ... c {
             withClone(tree) { node in
                 var path = Path(root: node, key: 2 * i, choosing: .any)
@@ -259,7 +265,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
     func testMoveToKeyFirst() {
         let c = 30
-        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        let tree = makeTree(count: c)
         withClone(tree) { node in
             var path = Path(endOf: node)
             for i in 0...c {
@@ -283,7 +289,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
     func testMoveToKeyLast() {
         let c = 26
-        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        let tree = makeTree(count: c)
         withClone(tree) { node in
             var path = Path(endOf: node)
             for i in 0...c {
@@ -307,7 +313,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
     func testMoveToKeyAfter() {
         let c = 26
-        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        let tree = makeTree(count: c)
         withClone(tree) { node in
             var path = Path(endOf: node)
             for i in 0...c {
@@ -336,7 +342,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
     func testMoveToKeyAny() {
         let c = 26
-        let tree = Tree(sortedElements: (0 ... 2 * c + 1).map { ($0 & ~1, String($0)) }, order: 3)
+        let tree = makeTree(count: c)
         withClone(tree) { node in
             var path = Path(endOf: node)
             for i in 0...c {

@@ -67,7 +67,7 @@ extension Map {
     }
 }
 
-extension Map: DictionaryLiteralConvertible {
+extension Map: ExpressibleByDictionaryLiteral {
     /// Initialize a new map from the given elements.
     public init(dictionaryLiteral elements: (Key, Value)...) {
         self.tree = Tree(elements, dropDuplicates: true)

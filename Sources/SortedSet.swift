@@ -205,7 +205,7 @@ extension SortedSet {
     /// and each element of `self`, in turn.
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     public func reduce<T>(_ initial: T, combine: @noescape (T, Element) throws -> T) rethrows -> T {
-        return try tree.reduce(initial, combine: { try combine($0, $1.0) })
+        return try tree.reduce(initial) { try combine($0, $1.0) }
     }
 }
 

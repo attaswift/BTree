@@ -735,7 +735,7 @@ extension BTree {
             },
             ascend: { node, slot in
                 node.count -= 1
-                if let m = matching where m.node === node {
+                if let m = matching, m.node === node {
                     // We've removed the element at the next offset; put it back in place of the
                     // element we actually want to remove.
                     old = node.setElement(inSlot: m.slot, to: old!)
@@ -787,7 +787,7 @@ extension BTree {
             ascend: { node, slot in
                 if let o = old {
                     node.count -= 1
-                    if let m = matching where m.node === node {
+                    if let m = matching, m.node === node {
                         old = node.setElement(inSlot: m.slot, to: o)
                         matching = nil
                     }

@@ -390,7 +390,7 @@ extension BTreeNode {
         }
         else {
             children.removeSubrange(median + 1 ..< count + 1)
-            self.count = median + children.reduce(0, combine: { $0 + $1.count })
+            self.count = median + children.reduce(0, { $0 + $1.count })
         }
         assert(node.depth == self.depth)
         return Splinter(separator: separator, node: node)
@@ -600,7 +600,7 @@ extension BTreeNode {
         if splinter != nil {
             assert(splinter!.node.isBalanced)
             path.removeLast()
-            while let s = splinter where !path.isEmpty {
+            while let s = splinter, !path.isEmpty {
                 let node = path.removeLast()
                 node.insert(s, inSlot: append ? node.elements.count : 0)
                 splinter = node.isTooLarge ? node.split() : nil

@@ -51,7 +51,7 @@ extension List {
     }
 }
 
-extension List: ArrayLiteralConvertible {
+extension List: ExpressibleByArrayLiteral {
     //MARK: Conversion from an array literal
 
     /// Initialize a new list from the given elements.

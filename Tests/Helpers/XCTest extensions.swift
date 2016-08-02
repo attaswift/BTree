@@ -22,7 +22,7 @@ func assertEqualElements<Element: Equatable, S1: Sequence, S2: Sequence where S1
 func assertEqualElements<T1: Equatable, T2: Equatable, S1: Sequence, S2: Sequence where S1.Iterator.Element == (T1, T2), S2.Iterator.Element == (T1, T2)>(_ a: S1, _ b: S2, file: StaticString = #file, line: UInt = #line) {
     let aa = Array(a)
     let ba = Array(b)
-    if !aa.elementsEqual(ba, isEquivalent: { a, b in a.0 == b.0 && a.1 == b.1 }) {
+    if !aa.elementsEqual(ba, by: { a, b in a.0 == b.0 && a.1 == b.1 }) {
         XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(ba)\"", file: file, line: line)
     }
 }
