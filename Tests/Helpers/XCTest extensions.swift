@@ -11,7 +11,7 @@ import Foundation
 import XCTest
 @testable import BTree
 
-func assertEqualElements<Element: Equatable, S1: Sequence, S2: Sequence where S1.Iterator.Element == Element, S2.Iterator.Element == Element>(_ a: S1, _ b: S2, file: StaticString = #file, line: UInt = #line) {
+func assertEqualElements<Element: Equatable, S1: Sequence, S2: Sequence>(_ a: S1, _ b: S2, file: StaticString = #file, line: UInt = #line) where S1.Iterator.Element == Element, S2.Iterator.Element == Element {
     let aa = Array(a)
     let ba = Array(b)
     if !aa.elementsEqual(ba) {
@@ -19,7 +19,7 @@ func assertEqualElements<Element: Equatable, S1: Sequence, S2: Sequence where S1
     }
 }
 
-func assertEqualElements<T1: Equatable, T2: Equatable, S1: Sequence, S2: Sequence where S1.Iterator.Element == (T1, T2), S2.Iterator.Element == (T1, T2)>(_ a: S1, _ b: S2, file: StaticString = #file, line: UInt = #line) {
+func assertEqualElements<T1: Equatable, T2: Equatable, S1: Sequence, S2: Sequence>(_ a: S1, _ b: S2, file: StaticString = #file, line: UInt = #line) where S1.Iterator.Element == (T1, T2), S2.Iterator.Element == (T1, T2) {
     let aa = Array(a)
     let ba = Array(b)
     if !aa.elementsEqual(ba, by: { a, b in a.0 == b.0 && a.1 == b.1 }) {
@@ -32,7 +32,7 @@ extension BTree {
         assertEqualElements(self.map { $0.0 }, other.map { $0.0 }, file: file, line: line)
     }
 
-    internal func assertKeysEqual<S: Sequence where S.Iterator.Element == Key>(_ s: S, file: StaticString = #file, line: UInt = #line) {
+    internal func assertKeysEqual<S: Sequence>(_ s: S, file: StaticString = #file, line: UInt = #line) where S.Iterator.Element == Key {
         assertEqualElements(self.map { $0.0 }, s, file: file, line: line)
     }
 }

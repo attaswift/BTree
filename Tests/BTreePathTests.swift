@@ -10,7 +10,7 @@ import XCTest
 @testable import BTree
 
 
-class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
+class PathTests<Path: BTreePath> where Path.Key == Int, Path.Value == String {
     typealias Tree = BTree<Int, String>
     typealias Node = BTreeNode<Int, String>
 
@@ -497,7 +497,7 @@ class PathTests<Path: BTreePath  where Path.Key == Int, Path.Value == String> {
 
 class BTreePathTests: XCTestCase {
     /// Poor man's generic test runner
-    func runTests<Path: BTreePath where Path.Key == Int, Path.Value == String>(_ tests: PathTests<Path>) {
+    func runTests<Path: BTreePath>(_ tests: PathTests<Path>) where Path.Key == Int, Path.Value == String {
         for (name, testCase) in tests.testCases {
             print("  \(name)")
             testCase()

@@ -40,7 +40,7 @@ extension SortedSet {
     /// If the sequence contains duplicate items, only the last instance will be kept in the set.
     ///
     /// - Complexity: O(*n* * log(*n*)), where *n* is the number of items in the sequence.
-    public init<S: Sequence where S.Iterator.Element == Element>(_ elements: S) {
+    public init<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
         self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, ()) }, dropDuplicates: true))
     }
 
@@ -48,7 +48,7 @@ extension SortedSet {
     /// If the sequence contains duplicate items, only the last instance will be kept in the set.
     ///
     /// - Complexity: O(*n*), where *n* is the number of items in the sequence.
-    public init<S: Sequence where S.Iterator.Element == Element>(sortedElements elements: S) {
+    public init<S: Sequence>(sortedElements elements: S) where S.Iterator.Element == Element {
         self.init(Tree(sortedElements: elements.lazy.map { ($0, ()) }, dropDuplicates: true))
     }
 

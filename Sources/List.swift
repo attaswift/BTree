@@ -376,7 +376,7 @@ extension List {
     /// Insert the contents of `elements` into this list starting at `index`.
     ///
     /// - Complexity: O(log(`self.count`) + *n*) where *n* is the number of elements inserted.
-    public mutating func insert<S: Sequence where S.Iterator.Element == Element>(contentsOf elements: S, at index: Int) {
+    public mutating func insert<S: Sequence>(contentsOf elements: S, at index: Int) where S.Iterator.Element == Element {
         if let list = elements as? List<Element> {
             insert(contentsOf: list, at: index)
             return
@@ -490,7 +490,7 @@ extension List: RangeReplaceableCollection {
     /// Replace elements in `range` with `elements`.
     ///
     /// - Complexity: O(log(`count`) + `max(range.count, elements.count)`)
-    public mutating func replaceSubrange<C: Collection where C.Iterator.Element == Element>(_ range: Range<Int>, with elements: C) {
+    public mutating func replaceSubrange<C: Collection>(_ range: Range<Int>, with elements: C) where C.Iterator.Element == Element {
         precondition(range.lowerBound >= 0 && range.upperBound <= count)
         if let list = elements as? List<Element> {
             replaceSubrange(range, with: list)

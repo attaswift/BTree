@@ -23,7 +23,7 @@ class BTreeMergeTests: XCTestCase {
         return Tree(order: 5)
     }
 
-    func makeTree<S: Sequence where S.Iterator.Element == Int>(_ s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree {
+    func makeTree<S: Sequence>(_ s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree where S.Iterator.Element == Int {
         var b = Builder(order: order, keysPerNode: keysPerNode ?? order - 1)
         for i in s {
             b.append((i, ()))

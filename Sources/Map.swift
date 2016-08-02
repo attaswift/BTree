@@ -53,7 +53,7 @@ extension Map {
     /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
     ///
     /// - Complexity: O(*n* * log(*n*)) where *n* is the number of items in `elements`.
-    public init<S: Sequence where S.Iterator.Element == Element>(_ elements: S) {
+    public init<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
         self.tree = Tree(elements, dropDuplicates: true)
     }
 
@@ -62,7 +62,7 @@ extension Map {
     /// If the sequence contains elements with duplicate keys, only the last element is kept in the map.
     ///
     /// - Complexity: O(*n*) where *n* is the number of items in `elements`.
-    public init<S: Sequence where S.Iterator.Element == Element>(sortedElements elements: S) {
+    public init<S: Sequence>(sortedElements elements: S) where S.Iterator.Element == Element {
         self.tree = Tree(sortedElements: elements, dropDuplicates: true)
     }
 }
@@ -499,7 +499,7 @@ extension Map {
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
-    public func including<S: Sequence where S.Iterator.Element == Key>(_ keys: S) -> Map {
+    public func including<S: Sequence>(_ keys: S) -> Map where S.Iterator.Element == Key {
         return including(SortedSet(keys))
     }
 
@@ -513,7 +513,7 @@ extension Map {
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.
     ///
     /// - Complexity: O(*n* * log(`count`)) where *n* is the number of keys in `keys`.
-    public func excluding<S: Sequence where S.Iterator.Element == Key>(_ keys: S) -> Map {
+    public func excluding<S: Sequence>(_ keys: S) -> Map where S.Iterator.Element == Key {
         return excluding(SortedSet(keys))
     }
 }

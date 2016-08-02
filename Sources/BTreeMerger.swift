@@ -142,7 +142,7 @@ extension BTree {
     ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
     /// - Complexity: O(*n* * log(`count`)), where *n* is the number of keys in `sortedKeys`.
-    public func subtracting<S: Sequence where S.Iterator.Element == Key>(sortedKeys: S) -> BTree {
+    public func subtracting<S: Sequence>(sortedKeys: S) -> BTree where S.Iterator.Element == Key {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
@@ -171,7 +171,7 @@ extension BTree {
     ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
     /// - Complexity: O(*n* * log(`count`)), where *n* is the number of keys in `sortedKeys`.
-    public func intersection<S: Sequence where S.Iterator.Element == Key>(sortedKeys: S) -> BTree {
+    public func intersection<S: Sequence>(sortedKeys: S) -> BTree where S.Iterator.Element == Key {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
