@@ -30,9 +30,10 @@ public struct BTreeIterator<Key: Comparable, Value>: IteratorProtocol {
 }
 
 /// A dummy, zero-size key that is useful in B-trees that don't need key-based lookup.
-internal struct EmptyKey: Comparable { }
-internal func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
-internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
+internal struct EmptyKey: Comparable {
+    internal static func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
+    internal static func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
+}
 
 /// An iterator for the values stored in a B-tree with an empty key.
 public struct BTreeValueIterator<Value>: IteratorProtocol {

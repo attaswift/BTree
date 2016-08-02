@@ -370,6 +370,16 @@ extension SortedSet {
         return self.tree.elementsEqual(other.tree, isEquivalent: { $0.0 == $1.0 })
     }
 
+    /// Returns `true` iff `a` contains the same elements as `b`.
+    ///
+    /// This function skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two sets are divergent mutations originating from the same value.
+    ///
+    /// - Complexity: O(`count`)
+    public static func ==(a: SortedSet<Element>, b: SortedSet<Element>) -> Bool {
+        return a.elementsEqual(b)
+    }
+
     /// Returns `true` iff no members in this set are also included in `other`.
     ///
     /// The elements of the two input sets may be freely interleaved.
@@ -434,16 +444,6 @@ extension SortedSet {
     public func isStrictSuperset(of other: SortedSet<Element>) -> Bool {
         return tree.isStrictSuperset(of: other.tree)
     }
-}
-
-/// Returns `true` iff `a` contains the same elements as `b`.
-///
-/// This function skips over shared subtrees when possible; this can drastically improve performance when the
-/// two sets are divergent mutations originating from the same value.
-///
-/// - Complexity: O(`count`)
-public func == <Element: Comparable>(a: SortedSet<Element>, b: SortedSet<Element>) -> Bool {
-    return a.elementsEqual(b)
 }
 
 extension SortedSet {

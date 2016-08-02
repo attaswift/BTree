@@ -13,7 +13,7 @@
 /// invalidate all existing indexes.
 /// 
 /// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a B-tree.
-public struct BTreeIndex<Key: Comparable, Value>: Comparable {
+public struct BTreeIndex<Key: Comparable, Value> {
     typealias Node = BTreeNode<Key, Value>
     typealias State = BTreeWeakPath<Key, Value>
 
@@ -108,20 +108,22 @@ public struct BTreeIndex<Key: Comparable, Value>: Comparable {
     }
 }
 
-/// Return true iff `a` is equal to `b`.
-public func == <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex<Key, Value>) -> Bool {
-    guard let ar = a.state._root.value else { a.state.invalid() }
-    guard let br = b.state._root.value else { b.state.invalid() }
-    precondition(ar === br, "Indices to different trees cannot be compared")
-    return a.state.offset == b.state.offset
-}
+extension BTreeIndex: Comparable {
+    /// Return true iff `a` is equal to `b`.
+    public static func ==(a: BTreeIndex, b: BTreeIndex) -> Bool {
+        guard let ar = a.state._root.value else { a.state.invalid() }
+        guard let br = b.state._root.value else { b.state.invalid() }
+        precondition(ar === br, "Indices to different trees cannot be compared")
+        return a.state.offset == b.state.offset
+    }
 
-/// Return true iff `a` is less than `b`.
-public func < <Key: Comparable, Value>(a: BTreeIndex<Key, Value>, b: BTreeIndex<Key, Value>) -> Bool {
-    guard let ar = a.state._root.value else { a.state.invalid() }
-    guard let br = b.state._root.value else { b.state.invalid() }
-    precondition(ar === br, "Indices to different trees cannot be compared")
-    return a.state.offset < b.state.offset
+    /// Return true iff `a` is less than `b`.
+    public static func <(a: BTreeIndex, b: BTreeIndex) -> Bool {
+        guard let ar = a.state._root.value else { a.state.invalid() }
+        guard let br = b.state._root.value else { b.state.invalid() }
+        precondition(ar === br, "Indices to different trees cannot be compared")
+        return a.state.offset < b.state.offset
+    }
 }
 
 /// A mutable path in a B-tree, holding weak references to nodes on the path.

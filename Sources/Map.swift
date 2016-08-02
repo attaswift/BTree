@@ -445,19 +445,19 @@ extension Map where Value: Equatable {
     public func elementsEqual(_ other: Map) -> Bool {
         return tree.elementsEqual(other.tree)
     }
-}
+    
+    /// Return true iff `a` is equal to `b`.
+    ///
+    /// This function skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two maps are divergent mutations originating from the same value.
+    public static func ==(a: Map, b: Map) -> Bool {
+        return a.elementsEqual(b)
+    }
 
-/// Return true iff `a` is equal to `b`.
-///
-/// This function skips over shared subtrees when possible; this can drastically improve performance when the
-/// two maps are divergent mutations originating from the same value.
-public func ==<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
-    return a.elementsEqual(b)
-}
-
-/// Return true iff `a` is not equal to `b`.
-public func !=<Key: Comparable, Value: Equatable>(a: Map<Key, Value>, b: Map<Key, Value>) -> Bool {
-    return !(a == b)
+    /// Return true iff `a` is not equal to `b`.
+    public static func !=(a: Map, b: Map) -> Bool {
+        return !(a == b)
+    }
 }
 
 extension Map {
@@ -473,17 +473,17 @@ extension Map {
     public func merging(_ other: Map) -> Map {
         return Map(self.tree.distinctUnion(other.tree))
     }
-}
 
-/// Return a map that combines elements from `a` with those in `b`.
-/// If a key is included in both maps, the value from `b` is used.
-///
-/// This function links subtrees containing elements with distinct keys when possible;
-/// this can drastically improve performance when the keys of the two maps aren't too interleaved.
-///
-/// - Complexity: O(`count`)
-public func +<Key: Comparable, Value>(a: Map<Key, Value>, b: Map<Key, Value>) -> Map<Key, Value> {
-    return a.merging(b)
+    /// Return a map that combines elements from `a` with those in `b`.
+    /// If a key is included in both maps, the value from `b` is used.
+    ///
+    /// This function links subtrees containing elements with distinct keys when possible;
+    /// this can drastically improve performance when the keys of the two maps aren't too interleaved.
+    ///
+    /// - Complexity: O(`count`)
+    public static func +(a: Map, b: Map) -> Map {
+        return a.merging(b)
+    }
 }
 
 extension Map {

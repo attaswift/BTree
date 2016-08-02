@@ -55,26 +55,26 @@ extension BTree where Value: Equatable {
     public func elementsEqual(_ other: BTree) -> Bool {
         return self.elementsEqual(other, isEquivalent: { $0.0 == $1.0 && $0.1 == $1.1 })
     }
-}
 
-/// Return `true` iff `a` and `b` contain equal elements.
-///
-/// This method skips over shared subtrees when possible; this can drastically improve performance when the
-/// two trees are divergent mutations originating from the same value.
-///
-/// - Complexity:  O(`count`)
-public func == <Key: Comparable, Value: Equatable>(a: BTree<Key, Value>, b: BTree<Key, Value>) -> Bool {
-    return a.elementsEqual(b)
-}
+    /// Return `true` iff `a` and `b` contain equal elements.
+    ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two trees are divergent mutations originating from the same value.
+    ///
+    /// - Complexity:  O(`count`)
+    public static func == (a: BTree, b: BTree) -> Bool {
+        return a.elementsEqual(b)
+    }
 
-/// Return `true` iff `a` and `b` do not contain equal elements.
-///
-/// This method skips over shared subtrees when possible; this can drastically improve performance when the
-/// two trees are divergent mutations originating from the same value.
-///
-/// - Complexity:  O(`count`)
-public func != <Key: Comparable, Value: Equatable>(a: BTree<Key, Value>, b: BTree<Key, Value>) -> Bool {
-    return !(a == b)
+    /// Return `true` iff `a` and `b` do not contain equal elements.
+    ///
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two trees are divergent mutations originating from the same value.
+    ///
+    /// - Complexity:  O(`count`)
+    public static func != (a: BTree, b: BTree) -> Bool {
+        return !(a == b)
+    }
 }
 
 extension BTree {

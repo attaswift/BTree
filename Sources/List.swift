@@ -323,6 +323,21 @@ public extension List where Element: Equatable {
     public func contains(_ element: Element) -> Bool {
         return index(of: element) != nil
     }
+
+    /// Returns true iff the two lists have the same elements in the same order.
+    ///
+    /// This function skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two lists are divergent mutations originating from the same value.
+    ///
+    /// - Complexity: O(`count`)
+    public static func ==(a: List, b: List) -> Bool {
+        return a.elementsEqual(b)
+    }
+
+    /// Returns false iff the two lists do not have the same elements in the same order.
+    public static func !=(a: List, b: List) -> Bool {
+        return !(a == b)
+    }
 }
 
 extension List {
@@ -513,24 +528,11 @@ extension List: RangeReplaceableCollection {
     }
 }
 
-/// Returns true iff the two lists have the same elements in the same order.
-///
-/// This function skips over shared subtrees when possible; this can drastically improve performance when the
-/// two lists are divergent mutations originating from the same value.
-///
-/// - Complexity: O(`count`)
-public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
-    return a.elementsEqual(b)
-}
-
-/// Returns false iff the two lists do not have the same elements in the same order.
-public func !=<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
-    return !(a == b)
-}
-
-/// Concatenate `a` with `b` and return the resulting `List`.
-public func +<Element>(a: List<Element>, b: List<Element>) -> List<Element> {
-    var result = a
-    result.append(contentsOf: b)
-    return result
+extension List {
+    /// Concatenate `a` with `b` and return the resulting `List`.
+    public static func +(a: List, b: List) -> List {
+        var result = a
+        result.append(contentsOf: b)
+        return result
+    }
 }
