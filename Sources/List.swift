@@ -78,7 +78,7 @@ extension List: CustomDebugStringConvertible {
     }
 }
 
-extension List: MutableCollection {
+extension List: MutableCollection, BidirectionalCollection {
     //MARK: CollectionType
     
     public typealias Index = Int
@@ -177,6 +177,14 @@ extension List: MutableCollection {
         }
         i += n
         return true
+    }
+
+    public var first: Element? {
+        return tree.first?.1
+    }
+
+    public var last: Element? {
+        return tree.last?.1
     }
 }
 
