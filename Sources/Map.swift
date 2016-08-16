@@ -31,9 +31,9 @@ public struct Map<Key: Comparable, Value> {
     internal typealias Tree = BTree<Key, Value>
 
     /// The B-tree that serves as storage.
-    internal private(set) var tree: Tree
+    internal fileprivate(set) var tree: Tree
 
-    private init(_ tree: Tree) {
+    fileprivate init(_ tree: Tree) {
         self.tree = tree
     }
 }
@@ -197,7 +197,7 @@ extension Map {
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func forEach(_ body: @noescape (Element) throws -> ()) rethrows {
+    public func forEach(_ body: (Element) throws -> ()) rethrows {
         try tree.forEach(body)
     }
 
@@ -205,7 +205,7 @@ extension Map {
     /// The elements are transformed in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func map<T>(_ transform: @noescape (Element) throws -> T) rethrows -> [T] {
+    public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
         result.reserveCapacity(self.count)
         try self.forEach {
@@ -228,7 +228,7 @@ extension Map {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    public func flatMap<T>(_ transform: @noescape (Element) throws -> T?) rethrows -> [T] {
+    public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
         try self.forEach { element in
             if let t = try transform(element) {
@@ -245,7 +245,7 @@ extension Map {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    public func reduce<T>(_ initial: T, combine: @noescape (T, Element) throws -> T) rethrows -> T {
+    public func reduce<T>(_ initial: T, combine: (T, Element) throws -> T) rethrows -> T {
         var result = initial
         try self.forEach {
             result = try combine(result, $0)
@@ -430,7 +430,7 @@ extension Map {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: Map, isEquivalent: @noescape (Element, Element) throws -> Bool) rethrows -> Bool {
+    public func elementsEqual(_ other: Map, isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
         return try tree.elementsEqual(other.tree, isEquivalent: isEquivalent)
     }
 }

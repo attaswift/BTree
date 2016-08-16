@@ -27,6 +27,15 @@ func assertEqualElements<T1: Equatable, T2: Equatable, S1: Sequence, S2: Sequenc
     }
 }
 
+func assertEqualElements<Element: Equatable, S1: Sequence, S2: Sequence, S1W: Sequence, S2W: Sequence>(_ a: S1, _ b: S2, file: StaticString = #file, line: UInt = #line) where S1.Iterator.Element == S1W, S2.Iterator.Element == S2W, S1W.Iterator.Element == Element, S2W.Iterator.Element == Element {
+    let aa = a.map { Array($0) }
+    let ba = b.map { Array($0) }
+    if !aa.elementsEqual(ba, by: { $0.elementsEqual($1) }) {
+        XCTFail("XCTAssertEqual failed: \"\(aa)\" is not equal to \"\(ba)\"", file: file, line: line)
+    }
+}
+
+
 extension BTree {
     internal func assertKeysEqual(_ other: BTree<Key, Value>, file: StaticString = #file, line: UInt = #line) {
         assertEqualElements(self.map { $0.0 }, other.map { $0.0 }, file: file, line: line)

@@ -238,7 +238,7 @@ class SortedSetTests: XCTestCase {
 
     func test_description() {
         let set = SortedSet(0 ..< 5)
-        XCTAssertEqual(String(set), "[0, 1, 2, 3, 4]")
+        XCTAssertEqual(String(describing: set), "[0, 1, 2, 3, 4]")
         XCTAssertEqual(String(reflecting: set), "SortedSet([0, 1, 2, 3, 4])")
     }
 

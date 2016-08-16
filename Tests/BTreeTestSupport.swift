@@ -92,7 +92,7 @@ extension BTreeNode {
         }
     }
 
-    func forEachNode(_ operation: @noescape (Node) -> Void) {
+    func forEachNode(_ operation: (Node) -> Void) {
         operation(self)
         for child in children {
             child.forEachNode(operation)
@@ -102,15 +102,13 @@ extension BTreeNode {
     var dump: String {
         var r = "("
         if isLeaf {
-            let keys = elements.lazy.map { String($0.0) }
+            let keys = elements.lazy.map { "\($0.0)" }
             r += keys.joined(separator: " ")
         }
         else {
             for i in 0 ..< elements.count {
                 r += children[i].dump
-                r += " "
-                r += String(elements[i].0)
-                r += " "
+                r += " \(elements[i].0) "
             }
             r += children[elements.count].dump
         }

@@ -21,9 +21,9 @@ public struct SortedSet<Element: Comparable>: SetAlgebra {
     internal typealias Tree = BTree<Element, Void>
 
     /// The b-tree that serves as storage.
-    internal private(set) var tree: Tree
+    internal fileprivate(set) var tree: Tree
 
-    internal init(_ tree: Tree) {
+    fileprivate init(_ tree: Tree) {
         self.tree = tree
     }
 }
@@ -171,27 +171,27 @@ extension SortedSet {
     //MARK: Algorithms
 
     /// Call `body` on each element in `self` in ascending order.
-    public func forEach(_ body: @noescape (Element) throws -> Void) rethrows {
+    public func forEach(_ body: (Element) throws -> Void) rethrows {
         return try tree.forEach { try body($0.0) }
     }
 
     /// Return an `Array` containing the results of mapping transform over `self`.
-    public func map<T>(_ transform: @noescape (Element) throws -> T) rethrows -> [T] {
+    public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         return try tree.map { try transform($0.0) }
     }
 
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
-    public func flatMap<S : Sequence>(_ transform: @noescape (Element) throws -> S) rethrows -> [S.Iterator.Element] {
+    public func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Iterator.Element] {
         return try tree.flatMap { try transform($0.0) }
     }
 
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
-    public func flatMap<T>(_ transform: @noescape (Element) throws -> T?) rethrows -> [T] {
+    public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
         return try tree.flatMap { try transform($0.0) }
     }
 
     /// Return an `Array` containing the elements of `self`, in ascending order, that satisfy the predicate `includeElement`.
-    public func filter(_ includeElement: @noescape (Element) throws -> Bool) rethrows -> [Element] {
+    public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
         try tree.forEach { e -> () in
             if try includeElement(e.0) {
@@ -204,7 +204,7 @@ extension SortedSet {
     /// Return the result of repeatedly calling `combine` with an accumulated value initialized to `initial`
     /// and each element of `self`, in turn.
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
-    public func reduce<T>(_ initial: T, combine: @noescape (T, Element) throws -> T) rethrows -> T {
+    public func reduce<T>(_ initial: T, combine: (T, Element) throws -> T) rethrows -> T {
         return try tree.reduce(initial) { try combine($0, $1.0) }
     }
 }

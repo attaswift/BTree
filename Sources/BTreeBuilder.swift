@@ -51,7 +51,7 @@ extension BTree {
         self.init(order: order, fillFactor: fillFactor, dropDuplicates: dropDuplicates, next: { iterator.next() })
     }
 
-    internal init(order: Int = Node.defaultOrder, fillFactor: Double = 1, dropDuplicates: Bool = false, next: @noescape () -> Element?) {
+    internal init(order: Int = Node.defaultOrder, fillFactor: Double = 1, dropDuplicates: Bool = false, next: () -> Element?) {
         precondition(order > 1)
         precondition(fillFactor >= 0.5 && fillFactor <= 1)
         let keysPerNode = Int(fillFactor * Double(order - 1) + 0.5)
@@ -75,7 +75,7 @@ extension BTree {
         else {
             var lastKey: Key? = nil
             while let element = next() {
-                precondition(lastKey <= element.0)
+                precondition(lastKey == nil || lastKey! <= element.0)
                 lastKey = element.0
                 builder.append(element)
             }

@@ -61,7 +61,7 @@ internal protocol BTreePath {
     /// Call `body` for each node and associated slot on the current path.
     /// If `ascending` is `true`, the calls proceed upwards, from the deepest node to the root;
     /// otherwise nodes are listed starting with the root down to the final path element.
-    func forEach(ascending: Bool, body: @noescape (BTreeNode<Key, Value>, Int) -> Void)
+    func forEach(ascending: Bool, body: (BTreeNode<Key, Value>, Int) -> Void)
 
     /// Call `body` for each slot index on the way from the currently selected element up to the root node.
     /// If `ascending` is `true`, the calls proceed upwards, from the slot of deepest node to the root;
@@ -69,7 +69,7 @@ internal protocol BTreePath {
     ///
     /// This method must not look at the nodes on the path (if this path uses weak/unowned references, 
     /// they may have been invalidated).
-    func forEachSlot(ascending: Bool, body: @noescape (Int) -> Void)
+    func forEachSlot(ascending: Bool, body: (Int) -> Void)
 
     /// Finish working with the path and return the root node.
     mutating func finish() -> BTreeNode<Key, Value>

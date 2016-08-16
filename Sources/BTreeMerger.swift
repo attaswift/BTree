@@ -149,7 +149,7 @@ extension BTree {
         var lastKey: Key? = nil
         var path = BTreeStrongPath(startOf: self.root)
         outer: for key in sortedKeys {
-            precondition(lastKey <= key)
+            precondition(lastKey == nil || lastKey! <= key)
             while path.key < key {
                 b.append(path.nextPart(until: key, inclusive: false))
                 if path.isAtEnd { break outer }
@@ -178,7 +178,7 @@ extension BTree {
         var lastKey: Key? = nil
         var path = BTreeStrongPath(startOf: self.root)
         outer: for key in sortedKeys {
-            precondition(lastKey <= key)
+            precondition(lastKey == nil || lastKey! <= key)
             while path.key < key {
                 path.nextPart(until: key, inclusive: false)
                 if path.isAtEnd { break outer }

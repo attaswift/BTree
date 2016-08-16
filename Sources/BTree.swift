@@ -39,7 +39,7 @@ public extension BTree {
     /// Return `true` iff this tree holds the only strong reference to its root node.
     internal var isUnique: Bool {
         mutating get {
-            return isUniquelyReferenced(&root)
+            return isKnownUniquelyReferenced(&root)
         }
     }
 
@@ -85,7 +85,7 @@ extension BTree: Sequence {
     }
 
     /// Call `body` on each element in self in the same order as a for-in loop.
-    public func forEach(_ body: @noescape (Element) throws -> ()) rethrows {
+    public func forEach(_ body: (Element) throws -> ()) rethrows {
         try root.forEach(body)
     }
 
@@ -93,7 +93,7 @@ extension BTree: Sequence {
     ///
     /// - Returns: `true` iff `body` returned true for all elements in the tree.
     @discardableResult
-    public func forEach(_ body: @noescape (Element) throws -> Bool) rethrows -> Bool {
+    public func forEach(_ body: (Element) throws -> Bool) rethrows -> Bool {
         return try root.forEach(body)
     }
 }
@@ -360,14 +360,14 @@ extension BTree {
     ///   and the child slot from which this step is ascending. The closure may set outside references to the
     ///   node it gets, and may modify the subtree as it likes; however, it shouldn't modify anything in the tree outside
     ///   the node's subtree.
-    internal mutating func edit(descend: @noescape (Node) -> Int?, ascend: @noescape (Node, Int) -> Void) {
+    internal mutating func edit(descend: (Node) -> Int?, ascend: (Node, Int) -> Void) {
         makeUnique()
         root.edit(descend: descend, ascend: ascend)
     }
 }
 
 extension BTreeNode {
-    internal func edit(descend: @noescape (Node) -> Int?, ascend: @noescape (Node, Int) -> Void) {
+    internal func edit(descend: (Node) -> Int?, ascend: (Node, Int) -> Void) {
         guard let slot = descend(self) else { return }
         do {
             let child = makeChildUnique(slot)

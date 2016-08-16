@@ -18,7 +18,7 @@ extension BTree {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: BTree, isEquivalent: @noescape (Element, Element) throws -> Bool) rethrows -> Bool {
+    public func elementsEqual(_ other: BTree, isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
         if self.root === other.root { return true }
         if self.count != other.count { return false }
 

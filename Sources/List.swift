@@ -28,9 +28,9 @@ public struct List<Element> {
     internal typealias Tree = BTree<EmptyKey, Element>
 
     /// The B-tree that serves as storage.
-    internal private(set) var tree: Tree
+    internal fileprivate(set) var tree: Tree
 
-    private init(_ tree: Tree) {
+    fileprivate init(_ tree: Tree) {
         self.tree = tree
     }
     
@@ -46,7 +46,7 @@ extension List {
     /// Initialize a new list from the given elements.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements in the sequence.
-    public init<S: Sequence where S.Iterator.Element == Element>(_ elements: S) {
+    public init<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
         self.init(Tree(sortedElements: elements.lazy.map { (EmptyKey(), $0) }))
     }
 }
@@ -194,7 +194,7 @@ extension List {
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func forEach(_ body: @noescape (Element) throws -> ()) rethrows {
+    public func forEach(_ body: (Element) throws -> ()) rethrows {
         try tree.forEach { try body($0.1) }
     }
 
@@ -202,7 +202,7 @@ extension List {
     /// The elements are transformed in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func map<T>(_ transform: @noescape (Element) throws -> T) rethrows -> [T] {
+    public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
         result.reserveCapacity(self.count)
         try self.forEach {
@@ -214,7 +214,7 @@ extension List {
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`result.count`)
-    public func flatMap<S: Sequence>(_ transform: @noescape (Element) throws -> S) rethrows -> [S.Iterator.Element] {
+    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Iterator.Element] {
         var result: [S.Iterator.Element] = []
         try self.forEach { element in
             result.append(contentsOf: try transform(element))
@@ -225,7 +225,7 @@ extension List {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    public func flatMap<T>(_ transform: @noescape (Element) throws -> T?) rethrows -> [T] {
+    public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
         try self.forEach { element in
             if let t = try transform(element) {
@@ -242,7 +242,7 @@ extension List {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    public func reduce<T>(_ initial: T, combine: @noescape (T, Element) throws -> T) rethrows -> T {
+    public func reduce<T>(_ initial: T, combine: (T, Element) throws -> T) rethrows -> T {
         var result = initial
         try self.forEach {
             result = try combine(result, $0)
@@ -253,7 +253,7 @@ extension List {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    public func filter(_ includeElement: @noescape (Element) throws -> Bool) rethrows -> [Element] {
+    public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
         try self.forEach {
             if try includeElement($0) {
@@ -276,7 +276,7 @@ public extension List {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: List<Element>, isEquivalent: @noescape (Element, Element) throws -> Bool) rethrows -> Bool {
+    public func elementsEqual(_ other: List<Element>, isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
         return try self.tree.elementsEqual(other.tree, isEquivalent: { try isEquivalent($0.1, $1.1) })
     }
 
@@ -284,7 +284,7 @@ public extension List {
     /// such value is not found.
     ///
     /// - Complexity: O(`count`)
-    public func index(where predicate: @noescape (Element) throws -> Bool) rethrows -> Index? {
+    public func index(where predicate: (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
         try self.tree.forEach { element -> Bool in
             if try predicate(element.1) {
@@ -377,7 +377,7 @@ extension List {
     /// Append the contents of `elements` to the end of this list.
     ///
     /// - Complexity: O(log(`count`) + *n*) where *n* is the number of elements in the sequence.
-    public mutating func append<S: Sequence where S.Iterator.Element == Element>(contentsOf elements: S) {
+    public mutating func append<S: Sequence>(contentsOf elements: S) where S.Iterator.Element == Element {
         if let list = elements as? List<Element> {
             append(contentsOf: list)
             return

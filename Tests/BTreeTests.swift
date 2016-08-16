@@ -237,7 +237,7 @@ class BTreeTests: XCTestCase {
 
         for selector: BTreeKeySelector in [.any, .first, .last] {
             for k in (0 ..< count).lazy.map({ 2 * $0 }) {
-                XCTAssertEqual(tree.value(of: k, choosing: selector), String(k), String(selector))
+                XCTAssertEqual(tree.value(of: k, choosing: selector), "\(k)", "\(selector)")
                 XCTAssertNil(tree.value(of: k + 1, choosing: selector))
             }
             XCTAssertNil(tree.value(of: -1, choosing: selector))

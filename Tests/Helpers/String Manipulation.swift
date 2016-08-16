@@ -25,7 +25,7 @@ internal func layoutColumns(lines: [[String]], separator: String = "   ") -> [St
                 line += separator
             }
             line += c
-            line += String(repeating: " " as Character, count: columnWidths[i] - c.characters.count)
+            line += String(repeating: " ", count: columnWidths[i] - c.characters.count)
         }
         result.append(line)
     }

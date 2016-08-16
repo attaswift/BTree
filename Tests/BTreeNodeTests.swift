@@ -28,7 +28,7 @@ class BTreeNodeTests: XCTestCase {
     }
 
     func testDefaultOrder() {
-        XCTAssertLessThanOrEqual(Node.defaultOrder * strideof(Int.self), bTreeNodeSize)
+        XCTAssertLessThanOrEqual(Node.defaultOrder * MemoryLayout<Int>.stride, bTreeNodeSize)
     }
 
     func testNodeRootInit() {

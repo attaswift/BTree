@@ -392,8 +392,8 @@ class MapTests: XCTestCase {
         let m = Map((0 ..< 20).map { ($0, String($0)) })
 
         assertEqualElements(m.excluding([]), m)
-        assertEqualElements(m.excluding(5 ..< 10), ([0 ..< 5, 10 ..< 20] as [CountableRange<Int>]).flatten().map { (k) -> (Int, String) in (k, String(k)) })
-        assertEqualElements(m.excluding([0, 5, 10, 15]), ([1 ..< 5, 6 ..< 10, 11 ..< 15, 16 ..< 20] as [CountableRange<Int>]).flatten().map { (k) -> (Int, String) in (k, String(k)) })
+        assertEqualElements(m.excluding(5 ..< 10), ([0 ..< 5, 10 ..< 20] as [CountableRange<Int>]).joined().map { (k) -> (Int, String) in (k, String(k)) })
+        assertEqualElements(m.excluding([0, 5, 10, 15]), ([1 ..< 5, 6 ..< 10, 11 ..< 15, 16 ..< 20] as [CountableRange<Int>]).joined().map { (k) -> (Int, String) in (k, String(k)) })
         assertEqualElements(m.excluding(-10 ..< 30), [])
     }
 }

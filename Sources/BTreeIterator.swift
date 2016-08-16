@@ -55,7 +55,7 @@ public struct BTreeValueIterator<Value>: IteratorProtocol {
 /// An iterator for the keys stored in a B-tree without a value.
 public struct BTreeKeyIterator<Key: Comparable>: IteratorProtocol {
     internal typealias Base = BTreeIterator<Key, Void>
-    private var base: Base
+    fileprivate var base: Base
 
     internal init(_ base: Base) {
         self.base = base
@@ -121,7 +121,7 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
         self.slot = slot
     }
 
-    func forEach(ascending: Bool, body: @noescape (Node, Int) -> Void) {
+    func forEach(ascending: Bool, body: (Node, Int) -> Void) {
         if ascending {
             body(node, slot!)
             for i in (0 ..< _path.count).reversed() {
@@ -136,7 +136,7 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
         }
     }
 
-    func forEachSlot(ascending: Bool, body: @noescape (Int) -> Void) {
+    func forEachSlot(ascending: Bool, body: (Int) -> Void) {
         if ascending {
             body(slot!)
             _slots.reversed().forEach(body)

@@ -26,7 +26,7 @@ internal let bTreeNodeSize = 16383
 
 /// A node in an in-memory B-tree data structure, efficiently mapping `Comparable` keys to arbitrary values.
 /// Iterating over the elements in a B-tree returns them in ascending order of their keys.
-internal final class BTreeNode<Key: Comparable, Value>: NonObjectiveCBase {
+internal final class BTreeNode<Key: Comparable, Value> {
     typealias Element = Iterator.Element
     typealias Node = BTreeNode<Key, Value>
 
@@ -55,7 +55,6 @@ internal final class BTreeNode<Key: Comparable, Value>: NonObjectiveCBase {
         self.children = children
         self.count = count
         self._depth = (children.count == 0 ? 0 : children[0]._depth + 1)
-        super.init()
         assert(children.index { $0._depth + 1 != self._depth } == nil)
     }
 }
@@ -64,7 +63,7 @@ internal final class BTreeNode<Key: Comparable, Value>: NonObjectiveCBase {
 
 extension BTreeNode {
     static var defaultOrder: Int {
-        return Swift.max(bTreeNodeSize / strideof(Element.self), 8)
+        return Swift.max(bTreeNodeSize / MemoryLayout<Element>.stride, 8)
     }
 
     convenience init(order: Int = Node.defaultOrder) {
@@ -104,7 +103,7 @@ extension BTreeNode {
 extension BTreeNode {
     @discardableResult
     func makeChildUnique(_ index: Int) -> BTreeNode {
-        guard !isUniquelyReferenced(&children[index]) else { return children[index] }
+        guard !isKnownUniquelyReferenced(&children[index]) else { return children[index] }
         let clone = children[index].clone()
         children[index] = clone
         return clone
@@ -141,7 +140,7 @@ extension BTreeNode: Sequence {
     }
 
     /// Call `body` on each element in self in the same order as a for-in loop.
-    func forEach(_ body: @noescape (Element) throws -> ()) rethrows {
+    func forEach(_ body: (Element) throws -> ()) rethrows {
         if isLeaf {
             for element in elements {
                 try body(element)
@@ -160,7 +159,7 @@ extension BTreeNode: Sequence {
     /// 
     /// - Returns: `true` iff `body` returned true for all elements in the tree.
     @discardableResult
-    func forEach(_ body: @noescape (Element) throws -> Bool) rethrows -> Bool {
+    func forEach(_ body: (Element) throws -> Bool) rethrows -> Bool {
         if isLeaf {
             for element in elements {
                 guard try body(element) else { return false }

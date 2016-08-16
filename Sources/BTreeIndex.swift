@@ -173,7 +173,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         precondition(expression(), "Invalid BTreeIndex", file: file, line: line)
     }
 
-    @noreturn internal func invalid(file: StaticString = #file, line: UInt = #line) {
+    internal func invalid(_ file: StaticString = #file, line: UInt = #line) -> Never  {
         preconditionFailure("Invalid BTreeIndex", file: file, line: line)
     }
 
@@ -207,7 +207,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         self.slot = slot
     }
 
-    func forEach(ascending: Bool, body: @noescape (Node, Int) -> Void) {
+    func forEach(ascending: Bool, body: (Node, Int) -> Void) {
         if ascending {
             var child: Node? = node
             body(child!, slot!)
@@ -230,7 +230,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         }
     }
 
-    func forEachSlot(ascending: Bool, body: @noescape (Int) -> Void) {
+    func forEachSlot(ascending: Bool, body: (Int) -> Void) {
         if ascending {
             body(slot!)
             _slots.reversed().forEach(body)

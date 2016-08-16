@@ -17,7 +17,7 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursor<R>(atOffset offset: Int, body: @noescape (Cursor) throws -> R) rethrows -> R {
+    public mutating func withCursor<R>(atOffset offset: Int, body: (Cursor) throws -> R) rethrows -> R {
         precondition(offset >= 0 && offset <= count)
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, offset: offset))
@@ -32,7 +32,7 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursorAtStart<R>(_ body: @noescape (Cursor) throws -> R) rethrows -> R {
+    public mutating func withCursorAtStart<R>(_ body: (Cursor) throws -> R) rethrows -> R {
         return try withCursor(atOffset: 0, body: body)
     }
 
@@ -42,7 +42,7 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursorAtEnd<R>(_ body: @noescape (Cursor) throws -> R) rethrows -> R {
+    public mutating func withCursorAtEnd<R>(_ body: (Cursor) throws -> R) rethrows -> R {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(endOf: root))
         root = Node(order: self.order)
@@ -57,7 +57,7 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursor<R>(onKey key: Key, choosing selector: BTreeKeySelector = .any, body: @noescape (Cursor) throws -> R) rethrows -> R {
+    public mutating func withCursor<R>(onKey key: Key, choosing selector: BTreeKeySelector = .any, body: (Cursor) throws -> R) rethrows -> R {
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, key: key, choosing: selector))
         root = Node(order: self.order)
@@ -71,7 +71,7 @@ extension BTree {
     ///   execution of body: it will not appear to have the correct value.
     ///   Instead, use only the supplied cursor to manipulate the tree.
     ///
-    public mutating func withCursor<R>(at index: Index, body: @noescape (Cursor) throws -> R) rethrows -> R {
+    public mutating func withCursor<R>(at index: Index, body: (Cursor) throws -> R) rethrows -> R {
         index.state.expectRoot(root)
         makeUnique()
         let cursor = BTreeCursor(BTreeCursorPath(root: root, slotsFrom: index.state))
@@ -195,7 +195,7 @@ internal struct BTreeCursorPath<Key: Comparable, Value>: BTreePath {
         self.slot = slot
     }
 
-    func forEach(ascending: Bool, body: @noescape (Node, Int) -> Void) {
+    func forEach(ascending: Bool, body: (Node, Int) -> Void) {
         if ascending {
             body(node, slot!)
             for i in (0 ..< _path.count).reversed() {
@@ -210,7 +210,7 @@ internal struct BTreeCursorPath<Key: Comparable, Value>: BTreePath {
         }
     }
 
-    func forEachSlot(ascending: Bool, body: @noescape (Int) -> Void) {
+    func forEachSlot(ascending: Bool, body: (Int) -> Void) {
         if ascending {
             body(slot!)
             _slots.reversed().forEach(body)
@@ -234,7 +234,7 @@ internal struct BTreeCursorPath<Key: Comparable, Value>: BTreePath {
     }
 
     /// Restore B-tree invariants after a single-element insertion produced an oversize leaf node.
-    private mutating func fixupAfterInsert() {
+    fileprivate mutating func fixupAfterInsert() {
         guard node.isTooLarge else { return }
 
         _path.append(self.node)
@@ -313,7 +313,7 @@ public final class BTreeCursor<Key: Comparable, Value> {
     internal typealias Node = BTreeNode<Key, Value>
     internal typealias State = BTreeCursorPath<Key, Value>
 
-    private var state: State
+    fileprivate var state: State
 
     /// The number of elements in the tree currently being edited.
     public var count: Int { return state.count }
