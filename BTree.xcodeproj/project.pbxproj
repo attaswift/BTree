@@ -502,6 +502,7 @@
 				TargetAttributes = {
 					BB54D0AE1C1F0357008A462B = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 					};
 					BB54D0B81C1F0357008A462B = {
 						CreatedOnToolsVersion = 7.2;
@@ -888,7 +889,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
 				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Unchecked;
 		};
@@ -1289,7 +1289,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
 				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -1304,7 +1303,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
 				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -1418,7 +1416,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
 				PRODUCT_NAME = BTreeTests;
 				SDKROOT = macosx;
-				SWIFT_VERSION = 3.0;
 			};
 			name = Profile;
 		};
