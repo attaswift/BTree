@@ -19,10 +19,10 @@
 /// Using the batch operations provided by `List` can often be much faster than processing individual elements
 /// one by one. For example, splitting a list or concatenating two lists can be done in O(log(n)) time.
 ///
-/// - Note: While `List` implements all formal requirements of `CollectionType`, it violates the semantic requirement 
-///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(`count`))`. Collection algorithms that
-///   rely on subscripting will have higher complexity than expected. (This does not affect algorithms that use
-///   generate() to iterate over elements.)
+/// - Note: `List` implements all formal requirements of `CollectionType`, but it violates the semantic requirement
+///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(count))`, since it requires an offset
+///   lookup in the B-tree. However, B-trees for typical element sizes and counts are extremely shallow 
+///   (~5-10 levels for a billion elements), so in practice offset lookup behaves more like `O(1)` than `O(log(count))`.
 ///
 public struct List<Element> {
     internal typealias Tree = BTree<EmptyKey, Element>
@@ -30,7 +30,7 @@ public struct List<Element> {
     /// The B-tree that serves as storage.
     internal fileprivate(set) var tree: Tree
 
-    fileprivate init(_ tree: Tree) {
+    internal init(_ tree: Tree) {
         self.tree = tree
     }
     
