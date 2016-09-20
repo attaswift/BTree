@@ -16,6 +16,9 @@
 		BB17475E1C289539002C929C /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB17474C1C289539002C929C /* Random.swift */; };
 		BB1747781C2897F8002C929C /* XCTest extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747771C2897F8002C929C /* XCTest extensions.swift */; };
 		BB1747791C2897F8002C929C /* XCTest extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1747771C2897F8002C929C /* XCTest extensions.swift */; };
+		BB1F888E1D91BB2000974C2F /* BridgedListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1F888D1D91BB2000974C2F /* BridgedListTests.swift */; };
+		BB1F888F1D91BB2000974C2F /* BridgedListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1F888D1D91BB2000974C2F /* BridgedListTests.swift */; };
+		BB1F88901D91BB2000974C2F /* BridgedListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB1F888D1D91BB2000974C2F /* BridgedListTests.swift */; };
 		BB54D0BA1C1F0357008A462B /* BTree.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BB54D0AF1C1F0357008A462B /* BTree.framework */; };
 		BB56634F1C46969400F5A118 /* BTreeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB56634E1C46969400F5A118 /* BTreeNode.swift */; };
 		BB5B27C41C7FD71B00ED8D38 /* SortedSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA55CD61C7F383C00455736 /* SortedSet.swift */; };
@@ -148,6 +151,7 @@
 		BB17474B1C289539002C929C /* PermutationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PermutationTests.swift; sourceTree = "<group>"; };
 		BB17474C1C289539002C929C /* Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		BB1747771C2897F8002C929C /* XCTest extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTest extensions.swift"; sourceTree = "<group>"; };
+		BB1F888D1D91BB2000974C2F /* BridgedListTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgedListTests.swift; sourceTree = "<group>"; };
 		BB54D0AF1C1F0357008A462B /* BTree.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = BTree.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB54D0B41C1F0357008A462B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BB54D0B91C1F0357008A462B /* BTreeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BTreeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -324,6 +328,7 @@
 				BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */,
 				BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */,
 				BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */,
+				BB1F888D1D91BB2000974C2F /* BridgedListTests.swift */,
 				BBCB23ED1C8A510000A6E276 /* SortedSetTests.swift */,
 				BB1747481C289539002C929C /* Reusable Test Helpers */,
 			);
@@ -636,6 +641,7 @@
 				BBCB23EE1C8A510000A6E276 /* SortedSetTests.swift in Sources */,
 				BBB224E81C7B9ED60049FEF6 /* ListTests.swift in Sources */,
 				BB5B27C61C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
+				BB1F888E1D91BB2000974C2F /* BridgedListTests.swift in Sources */,
 				BBB224E51C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
 				BBB224E31C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */,
 				BBCB23EA1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
@@ -701,6 +707,7 @@
 				BBCB23F01C8A510000A6E276 /* SortedSetTests.swift in Sources */,
 				BB8FE9D51C7C8F730051268F /* BTreeCursorTests.swift in Sources */,
 				BB5B27C81C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
+				BB1F88901D91BB2000974C2F /* BridgedListTests.swift in Sources */,
 				BB8FE9D31C7C8F730051268F /* BTreeTestSupport.swift in Sources */,
 				BB8FE9DD1C7C8F730051268F /* XCTest extensions.swift in Sources */,
 				BBCB23EC1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
@@ -745,6 +752,7 @@
 				BBCB23EF1C8A510000A6E276 /* SortedSetTests.swift in Sources */,
 				BBB224EE1C7B9ED60049FEF6 /* ListTests.swift in Sources */,
 				BB5B27C71C807C6200ED8D38 /* BTreePathTests.swift in Sources */,
+				BB1F888F1D91BB2000974C2F /* BridgedListTests.swift in Sources */,
 				BBB224EB1C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
 				BBB224E91C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */,
 				BBCB23EB1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
