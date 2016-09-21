@@ -204,8 +204,8 @@ extension SortedSet {
     /// Return the result of repeatedly calling `combine` with an accumulated value initialized to `initial`
     /// and each element of `self`, in turn.
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
-    public func reduce<T>(_ initial: T, combine: (T, Element) throws -> T) rethrows -> T {
-        return try tree.reduce(initial) { try combine($0, $1.0) }
+    public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
+        return try tree.reduce(initialResult) { try nextPartialResult($0, $1.0) }
     }
 }
 
@@ -367,7 +367,7 @@ extension SortedSet {
     ///
     /// - Complexity:  O(`count`)
     public func elementsEqual(_ other: SortedSet<Element>) -> Bool {
-        return self.tree.elementsEqual(other.tree, isEquivalent: { $0.0 == $1.0 })
+        return self.tree.elementsEqual(other.tree, by: { $0.0 == $1.0 })
     }
 
     /// Returns `true` iff `a` contains the same elements as `b`.

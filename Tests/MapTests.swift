@@ -298,8 +298,8 @@ class MapTests: XCTestCase {
             return ak == bk
         }
 
-        XCTAssertTrue(m1.elementsEqual(m2, isEquivalent: eq))
-        XCTAssertFalse(m1.elementsEqual(m3, isEquivalent: eq))
+        XCTAssertTrue(m1.elementsEqual(m2, by: eq))
+        XCTAssertFalse(m1.elementsEqual(m3, by: eq))
     }
 
     func testMapEquality() {

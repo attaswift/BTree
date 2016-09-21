@@ -245,10 +245,10 @@ extension Map {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    public func reduce<T>(_ initial: T, combine: (T, Element) throws -> T) rethrows -> T {
-        var result = initial
+    public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
+        var result = initialResult
         try self.forEach {
-            result = try combine(result, $0)
+            result = try nextPartialResult(result, $0)
         }
         return result
     }
@@ -430,8 +430,8 @@ extension Map {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: Map, isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
-        return try tree.elementsEqual(other.tree, isEquivalent: isEquivalent)
+    public func elementsEqual(_ other: Map, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+        return try tree.elementsEqual(other.tree, by: isEquivalent)
     }
 }
 

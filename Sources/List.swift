@@ -242,10 +242,10 @@ extension List {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    public func reduce<T>(_ initial: T, combine: (T, Element) throws -> T) rethrows -> T {
-        var result = initial
+    public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
+        var result = initialResult
         try self.forEach {
-            result = try combine(result, $0)
+            result = try nextPartialResult(result, $0)
         }
         return result
     }
@@ -276,8 +276,8 @@ public extension List {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: List<Element>, isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
-        return try self.tree.elementsEqual(other.tree, isEquivalent: { try isEquivalent($0.1, $1.1) })
+    public func elementsEqual(_ other: List<Element>, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+        return try self.tree.elementsEqual(other.tree, by: { try isEquivalent($0.1, $1.1) })
     }
 
     /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if
@@ -309,7 +309,7 @@ public extension List where Element: Equatable {
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
     public func elementsEqual(_ other: List<Element>) -> Bool {
-        return self.tree.elementsEqual(other.tree, isEquivalent: { $0.1 == $1.1 })
+        return self.tree.elementsEqual(other.tree, by: { $0.1 == $1.1 })
     }
 
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.

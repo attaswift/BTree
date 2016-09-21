@@ -145,9 +145,9 @@ class ListTests: XCTestCase {
             return v1 == v2
         }
 
-        XCTAssertTrue(list1.elementsEqual(list1, isEquivalent: foo))
-        XCTAssertTrue(list1.elementsEqual(list2, isEquivalent: foo))
-        XCTAssertFalse(list1.elementsEqual(list3, isEquivalent: foo))
+        XCTAssertTrue(list1.elementsEqual(list1, by: foo))
+        XCTAssertTrue(list1.elementsEqual(list2, by: foo))
+        XCTAssertFalse(list1.elementsEqual(list3, by: foo))
     }
 
     func testElementsEqual() {

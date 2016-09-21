@@ -37,13 +37,13 @@ class BTreeComparisonTests: XCTestCase {
         let c = makeTree(0 ..< 101)
         let d = makeTree(Array(0 ..< 99) + [0])
 
-        XCTAssertTrue(a.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(a.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertFalse(a.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertFalse(a.elementsEqual(d, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(b.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertFalse(c.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertFalse(d.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
+        XCTAssertTrue(a.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
+        XCTAssertFalse(a.elementsEqual(c, by: { $0.0 == $1.0 }))
+        XCTAssertFalse(a.elementsEqual(d, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertFalse(c.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertFalse(d.elementsEqual(a, by: { $0.0 == $1.0 }))
     }
 
     func test_elementsEqual_SharedNodes() {
@@ -53,12 +53,12 @@ class BTreeComparisonTests: XCTestCase {
         var c = a
         c.withCursor(atOffset: 99) { $0.key = 99 }
 
-        XCTAssertTrue(a.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(a.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(b.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(b.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(c.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(c.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
+        XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(a.elementsEqual(c, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(b.elementsEqual(c, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(c.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(c.elementsEqual(b, by: { $0.0 == $1.0 }))
     }
 
     func test_elementsEqual_ShiftedSharedNodes() {
@@ -78,12 +78,12 @@ class BTreeComparisonTests: XCTestCase {
                 $0.moveBackward()
                 $0.remove()
             }
-            XCTAssertTrue(a.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(a.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(b.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(b.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(c.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(c.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
+            XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(a.elementsEqual(c, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(b.elementsEqual(c, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(c.elementsEqual(a, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(c.elementsEqual(b, by: { $0.0 == $1.0 }))
 
             assertEqualElements(a.map { $0.0 }, reference)
         }

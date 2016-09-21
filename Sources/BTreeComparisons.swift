@@ -18,7 +18,7 @@ extension BTree {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: BTree, isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+    public func elementsEqual(_ other: BTree, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
         if self.root === other.root { return true }
         if self.count != other.count { return false }
 
@@ -53,7 +53,7 @@ extension BTree where Value: Equatable {
     ///
     /// - Complexity:  O(`count`)
     public func elementsEqual(_ other: BTree) -> Bool {
-        return self.elementsEqual(other, isEquivalent: { $0.0 == $1.0 && $0.1 == $1.1 })
+        return self.elementsEqual(other, by: { $0.0 == $1.0 && $0.1 == $1.1 })
     }
 
     /// Return `true` iff `a` and `b` contain equal elements.
