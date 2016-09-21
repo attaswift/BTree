@@ -82,6 +82,59 @@ class ListTests: XCTestCase {
         assertEqualElements(list, 0 ..< 0)
     }
 
+    func testIndexing() {
+        let list = List<Int>(0 ..< 100)
+        // Array-like indexing
+        XCTAssertEqual(list.index(after: 50), 51)
+        XCTAssertEqual(list.index(before: 50), 49)
+        XCTAssertEqual(list.index(50, offsetBy: 10), 60)
+        XCTAssertEqual(list.index(50, offsetBy: -10), 40)
+        XCTAssertEqual(list.index(50, offsetBy: 10, limitedBy: 70), 60)
+        XCTAssertEqual(list.index(50, offsetBy: 10, limitedBy: 60), 60)
+        XCTAssertEqual(list.index(50, offsetBy: 10, limitedBy: 55), nil)
+        XCTAssertEqual(list.index(50, offsetBy: -10, limitedBy: 30), 40)
+        XCTAssertEqual(list.index(50, offsetBy: -10, limitedBy: 40), 40)
+        XCTAssertEqual(list.index(50, offsetBy: -10, limitedBy: 45), nil)
+
+        var index = 50
+        list.formIndex(after: &index)
+        XCTAssertEqual(index, 51)
+        list.formIndex(before: &index)
+        XCTAssertEqual(index, 50)
+        list.formIndex(&index, offsetBy: 10)
+        XCTAssertEqual(index, 60)
+        list.formIndex(&index, offsetBy: -10)
+        XCTAssertEqual(index, 50)
+
+        index = 50
+        XCTAssertTrue(list.formIndex(&index, offsetBy: 10, limitedBy: 70))
+        XCTAssertEqual(index, 60)
+        XCTAssertTrue(list.formIndex(&index, offsetBy: 10, limitedBy: 70))
+        XCTAssertEqual(index, 70)
+        XCTAssertFalse(list.formIndex(&index, offsetBy: 20, limitedBy: 80))
+        XCTAssertEqual(index, 80)
+
+        index = 50
+        XCTAssertTrue(list.formIndex(&index, offsetBy: -10, limitedBy: 30))
+        XCTAssertEqual(index, 40)
+        XCTAssertTrue(list.formIndex(&index, offsetBy: -10, limitedBy: 30))
+        XCTAssertEqual(index, 30)
+        XCTAssertFalse(list.formIndex(&index, offsetBy: -20, limitedBy: 20))
+        XCTAssertEqual(index, 20)
+
+        XCTAssertEqual(list.distance(from: 5, to: 19), 14)
+    }
+
+    func testFirstAndLast() {
+        let empty = List<Int>()
+        let list = List<Int>(0 ..< 10)
+
+        XCTAssertNil(empty.first)
+        XCTAssertNil(empty.last)
+        XCTAssertEqual(list.first, 0)
+        XCTAssertEqual(list.last, 9)
+    }
+
     func testForEach() {
         let list: List<Int> = [0, 1, 2, 3, 4]
         var i = 0

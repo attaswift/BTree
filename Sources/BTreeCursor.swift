@@ -692,15 +692,14 @@ public final class BTreeCursor<Key: Comparable, Value> {
             split.suffix.insert(split.separator, atOffset: 0)
             return split.suffix
         }
-        else {
-            let (left, sep1, tail) = state.split()
-            state = State(root: tail.root, offset: n - 1)
-            var (mid, sep2, right) = state.split()
-            state.invalidate()
-            let j = Node.join(left: left.root, separator: sep2, right: right.root)
-            state = State(root: j, offset: offset)
-            mid.insert(sep1, atOffset: 0)
-            return mid
-        }
+
+        let (left, sep1, tail) = state.split()
+        state = State(root: tail.root, offset: n - 1)
+        var (mid, sep2, right) = state.split()
+        state.invalidate()
+        let j = Node.join(left: left.root, separator: sep2, right: right.root)
+        state = State(root: j, offset: offset)
+        mid.insert(sep1, atOffset: 0)
+        return mid
     }
 }

@@ -9,6 +9,16 @@
 import XCTest
 @testable import BTree
 
+private final class Test: Comparable, ExpressibleByIntegerLiteral {
+    let value: Int
+
+    init(_ value: Int) { self.value = value }
+    init(integerLiteral value: Int) { self.value = value }
+
+    static func ==(a: Test, b: Test) -> Bool { return a.value == b.value }
+    static func <(a: Test, b: Test) -> Bool { return a.value < b.value }
+}
+
 class SortedSetTests: XCTestCase {
 
     func test_emptySet() {
@@ -124,6 +134,37 @@ class SortedSetTests: XCTestCase {
                 assertEqualElements(set[i ..< j], i ..< j)
             }
         }
+    }
+
+    func test_indexing() {
+        let s = SortedSet(sortedElements: (0..<10))
+        var index = s.startIndex
+        XCTAssertEqual(s.index(after: index), s.index(ofOffset: 1))
+        XCTAssertEqual(s.index(index, offsetBy: 5), s.index(ofOffset: 5))
+
+        s.formIndex(after: &index)
+        XCTAssertEqual(s.offset(of: index), 1)
+        s.formIndex(&index, offsetBy: 5)
+        XCTAssertEqual(s.offset(of: index), 6)
+
+        XCTAssertEqual(s.index(before: index), s.index(ofOffset: 5))
+        XCTAssertEqual(s.index(index, offsetBy: -4), s.index(ofOffset: 2))
+
+        s.formIndex(before: &index)
+        XCTAssertEqual(s.offset(of: index), 5)
+        s.formIndex(&index, offsetBy: -3)
+        XCTAssertEqual(s.offset(of: index), 2)
+
+        XCTAssertNil(s.index(index, offsetBy: 4, limitedBy: s.index(ofOffset: 5)))
+        XCTAssertEqual(s.index(index, offsetBy: 4, limitedBy: s.index(ofOffset: 8)), s.index(ofOffset: 6))
+
+        XCTAssertFalse(s.formIndex(&index, offsetBy: 4, limitedBy: s.index(ofOffset: 5)))
+        XCTAssertEqual(s.offset(of: index), 5)
+
+        XCTAssertTrue(s.formIndex(&index, offsetBy: -2, limitedBy: s.index(ofOffset: 2)))
+        XCTAssertEqual(s.offset(of: index), 3)
+
+        XCTAssertEqual(s.distance(from: s.index(ofOffset: 3), to: s.index(ofOffset: 8)), 5)
     }
 
     func test_forEach() {
@@ -265,19 +306,81 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_insert() {
-        var set = SortedSet<Int>()
-        set.insert(1)
-        set.insert(1)
-        set.insert(4)
-        set.insert(2)
-        set.insert(3)
-        assertEqualElements(set, 1 ... 4)
+        var set = SortedSet<Test>()
+        let one1 = Test(1)
+        let i1 = set.insert(one1)
+        XCTAssertTrue(i1.inserted)
+        XCTAssertTrue(i1.memberAfterInsert === one1)
+
+        let one2 = Test(1)
+        let i2 = set.insert(one2)
+        XCTAssertFalse(i2.inserted)
+        XCTAssertTrue(i2.memberAfterInsert === one1)
+
+        XCTAssertTrue(set.first === one1)
+
+        let four = Test(4)
+        let i3 = set.insert(four)
+        XCTAssertTrue(i3.inserted)
+        XCTAssertTrue(i3.memberAfterInsert === four)
+
+        let two = Test(2)
+        let i4 = set.insert(two)
+        XCTAssertTrue(i4.inserted)
+        XCTAssertTrue(i4.memberAfterInsert === two)
+
+        let three = Test(3)
+        let i5 = set.insert(three)
+        XCTAssertTrue(i5.inserted)
+        XCTAssertTrue(i5.memberAfterInsert === three)
+
+        assertEqualElements(set, (1 ... 4).map { Test($0) })
 
         for i in 5 ... 100 {
-            set.insert(i)
+            let element = Test(i)
+            let res = set.insert(element)
+            XCTAssertTrue(res.inserted)
+            XCTAssertTrue(res.memberAfterInsert === element)
+            XCTAssertTrue(set.last === element)
         }
-        assertEqualElements(set, 1 ... 100)
+        assertEqualElements(set, (1 ... 100).map { Test($0) })
     }
+
+    func test_update() {
+        var set = SortedSet<Test>()
+        let one1 = Test(1)
+        XCTAssertNil(set.update(with: one1))
+
+        let one2 = Test(1)
+        XCTAssertTrue(set.update(with: one2) === one1)
+
+        XCTAssertTrue(set.first === one2)
+
+        let four = Test(4)
+        XCTAssertNil(set.update(with: four))
+        XCTAssertTrue(set[1] === four)
+
+        let two = Test(2)
+        XCTAssertNil(set.update(with: two))
+        XCTAssertTrue(set[1] === two)
+
+        let three = Test(3)
+        XCTAssertNil(set.update(with: three))
+        XCTAssertTrue(set[0] === one2)
+        XCTAssertTrue(set[1] === two)
+        XCTAssertTrue(set[2] === three)
+        XCTAssertTrue(set[3] === four)
+
+        assertEqualElements(set, (1 ... 4).map { Test($0) })
+
+        for i in 5 ... 100 {
+            let element = Test(i)
+            XCTAssertNil(set.update(with: element))
+            XCTAssertTrue(set.last === element)
+        }
+        assertEqualElements(set, (1 ... 100).map { Test($0) })
+    }
+
 
     func test_remove() {
         let c = 500

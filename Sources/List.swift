@@ -134,26 +134,43 @@ extension List: MutableCollection, BidirectionalCollection {
         return Iterator(tree.makeIterator())
     }
 
+    /// Return the successor value of `index`. This method does not verify that the given index or the result are valid in this list.
     public func index(after index: Index) -> Index {
         return index + 1
     }
 
+    /// Replace `index` by its successor.
+    /// This method does not verify that the given index or the result are valid in this list.
     public func formIndex(after index: inout Index) {
         index += 1
     }
 
+    /// Return the predecessor value of `index`. 
+    /// This method does not verify that the given index or the result are valid in this list.
     public func index(before index: Index) -> Index {
         return index - 1
     }
 
+    /// Replace `index` by its predecessor.
+    /// This method does not verify that the given index or the result are valid in this list.
     public func formIndex(before index: inout Index) {
         index -= 1
     }
 
+    /// Add `n` to `i` and return the result. 
+    /// This method does not verify that the given index or the result are valid in this list.
     public func index(_ i: Index, offsetBy n: Int) -> Index {
         return i + n
     }
 
+    /// Add `n` to `i` in place. 
+    /// This method does not verify that the given index or the result are valid in this list.
+    public func formIndex(_ i: inout Index, offsetBy n: Int) {
+        i += n
+    }
+
+    /// Add `n` to `i` and return the result, unless the result would exceed (or, in case of negative `n`, go under) `limit`, in which case return `nil`.
+    /// This method does not verify that the given indices (or the resulting value) are valid in this list.
     public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
         if (n >= 0 && i + n > limit) || (n < 0 && i + n < limit) {
             return nil
@@ -161,14 +178,8 @@ extension List: MutableCollection, BidirectionalCollection {
         return i + n
     }
 
-    public func distance(from start: Index, to end: Index) -> Int {
-        return end - start
-    }
-
-    public func formIndex(_ i: inout Index, offsetBy n: Int) {
-        i += n
-    }
-
+    /// Add `n` to `i` in place, unless the result would exceed (or, in case of negative `n`, go under) `limit`, in which case set `i` to `limit`.
+    /// This method does not verify that the given indices (or the resulting value) are valid in this list.
     @discardableResult
     public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
         if (n >= 0 && i + n > limit) || (n < 0 && i + n < limit) {
@@ -179,10 +190,18 @@ extension List: MutableCollection, BidirectionalCollection {
         return true
     }
 
+    /// Return the difference between `end` and `start`.
+    /// This method does not verify that the given indices are valid in this list.
+    public func distance(from start: Index, to end: Index) -> Int {
+        return end - start
+    }
+
+    /// Return the first element in this list, or `nil` if the list is empty.
     public var first: Element? {
         return tree.first?.1
     }
 
+    /// Return the last element in this list, or `nil` if the list is empty.
     public var last: Element? {
         return tree.last?.1
     }

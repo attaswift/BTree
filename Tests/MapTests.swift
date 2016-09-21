@@ -165,6 +165,37 @@ class MapTests: XCTestCase {
         assertEqualElements(m[indexes[7] ..< indexes[10]], [(7, "7"), (8, "8"), (9, "9")])
     }
 
+    func testIndexing() {
+        let m = Map(sortedElements: (0..<10).map { ($0, String($0)) })
+        var index = m.startIndex
+        XCTAssertEqual(m.index(after: index), m.index(ofOffset: 1))
+        XCTAssertEqual(m.index(index, offsetBy: 5), m.index(ofOffset: 5))
+
+        m.formIndex(after: &index)
+        XCTAssertEqual(m.offset(of: index), 1)
+        m.formIndex(&index, offsetBy: 5)
+        XCTAssertEqual(m.offset(of: index), 6)
+
+        XCTAssertEqual(m.index(before: index), m.index(ofOffset: 5))
+        XCTAssertEqual(m.index(index, offsetBy: -4), m.index(ofOffset: 2))
+
+        m.formIndex(before: &index)
+        XCTAssertEqual(m.offset(of: index), 5)
+        m.formIndex(&index, offsetBy: -3)
+        XCTAssertEqual(m.offset(of: index), 2)
+
+        XCTAssertNil(m.index(index, offsetBy: 4, limitedBy: m.index(ofOffset: 5)))
+        XCTAssertEqual(m.index(index, offsetBy: 4, limitedBy: m.index(ofOffset: 8)), m.index(ofOffset: 6))
+
+        XCTAssertFalse(m.formIndex(&index, offsetBy: 4, limitedBy: m.index(ofOffset: 5)))
+        XCTAssertEqual(m.offset(of: index), 5)
+
+        XCTAssertTrue(m.formIndex(&index, offsetBy: -2, limitedBy: m.index(ofOffset: 2)))
+        XCTAssertEqual(m.offset(of: index), 3)
+
+        XCTAssertEqual(m.distance(from: m.index(ofOffset: 3), to: m.index(ofOffset: 8)), 5)
+    }
+
     func testIndexForKey() {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
 

@@ -153,39 +153,79 @@ extension Map: Collection {
         return tree.makeIterator()
     }
 
+    /// Returns the successor of the given index.
+    ///
+    /// - Requires: `index` is a valid index of this map and it is not equal to `endIndex`.
+    /// - Complexity: Amortized O(1).
     public func index(after index: Index) -> Index {
         return tree.index(after: index)
     }
 
+    /// Replaces the given index with its successor.
+    ///
+    /// - Requires: `index` is a valid index of this map and it is not equal to `endIndex`.
+    /// - Complexity: Amortized O(1).
     public func formIndex(after index: inout Index) {
         tree.formIndex(after: &index)
     }
 
+    /// Returns the predecessor of the given index.
+    ///
+    /// - Requires: `index` is a valid index of this map and it is not equal to `startIndex`.
+    /// - Complexity: Amortized O(1).
     public func index(before index: Index) -> Index {
         return tree.index(before: index)
     }
 
+    /// Replaces the given index with its predecessor.
+    ///
+    /// - Requires: `index` is a valid index of this map and it is not equal to `startIndex`.
+    /// - Complexity: Amortized O(1).
     public func formIndex(before index: inout Index) {
         tree.formIndex(before: &index)
     }
 
+    /// Returns an index that is the specified distance from the given index.
+    ///
+    /// - Requires: `index` must be a valid index of this map.
+    ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
+    ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the map.
     public func index(_ i: Index, offsetBy n: Int) -> Index {
         return tree.index(i, offsetBy: n)
     }
 
+    /// Offsets the given index by the specified distance.
+    ///
+    /// - Requires: `index` must be a valid index of this map.
+    ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
+    ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the map.
     public func formIndex(_ i: inout Index, offsetBy n: Int) {
         tree.formIndex(&i, offsetBy: n)
     }
 
+    /// Returns an index that is the specified distance from the given index, unless that distance is beyond a given limiting index.
+    ///
+    /// - Requires: `index` and `limit` must be valid indices in this map. The operation must not advance the index beyond `endIndex` or before `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the map.
     public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
         return tree.index(i, offsetBy: n, limitedBy: limit)
     }
 
+    /// Offsets the given index by the specified distance, or so that it equals the given limiting index.
+    ///
+    /// - Requires: `index` and `limit` must be valid indices in this map. The operation must not advance the index beyond `endIndex` or before `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the map.
     @discardableResult
     public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
         return tree.formIndex(&i, offsetBy: n, limitedBy: limit)
     }
 
+    /// Returns the distance between two indices.
+    ///
+    /// - Requires: `start` and `end` must be valid indices in this map.
+    /// - Complexity: O(1)
     public func distance(from start: Index, to end: Index) -> Int {
         return tree.distance(from: start, to: end)
     }

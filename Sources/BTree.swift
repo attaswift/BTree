@@ -148,7 +148,7 @@ extension BTree: BidirectionalCollection {
 
     /// Returns the successor of the given index.
     ///
-    /// - Requires: `index` is valid of this tree and it is not equal to `endIndex`.
+    /// - Requires: `index` is a valid index of this tree and it is not equal to `endIndex`.
     /// - Complexity: Amortized O(1).
     public func index(after index: Index) -> Index {
         checkIndex(index)
@@ -159,7 +159,7 @@ extension BTree: BidirectionalCollection {
 
     /// Replaces the given index with its successor.
     ///
-    /// - Requires: `index` is valid of this tree and it is not equal to `endIndex`.
+    /// - Requires: `index` is a valid index of this tree and it is not equal to `endIndex`.
     /// - Complexity: Amortized O(1).
     public func formIndex(after index: inout Index) {
         checkIndex(index)
@@ -168,7 +168,7 @@ extension BTree: BidirectionalCollection {
 
     /// Returns the predecessor of the given index.
     ///
-    /// - Requires: `index` is valid of this tree and it is not equal to `startIndex`.
+    /// - Requires: `index` is a valid index of this tree and it is not equal to `startIndex`.
     /// - Complexity: Amortized O(1).
     public func index(before index: Index) -> Index {
         checkIndex(index)
@@ -179,7 +179,7 @@ extension BTree: BidirectionalCollection {
 
     /// Replaces the given index with its predecessor.
     ///
-    /// - Requires: `index` is valid of this tree and it is not equal to `startIndex`.
+    /// - Requires: `index` is a valid index of this tree and it is not equal to `startIndex`.
     /// - Complexity: Amortized O(1).
     public func formIndex(before index: inout Index) {
         checkIndex(index)
@@ -212,7 +212,7 @@ extension BTree: BidirectionalCollection {
 
     /// Returns an index that is the specified distance from the given index, unless that distance is beyond a given limiting index.
     ///
-    /// - Requires: `index` must be a valid index in this tree. The operation must not advance the index beyond `endIndex` or before `startIndex`.
+    /// - Requires: `index` and `limit` must be valid indices of this tree. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the tree.
     public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
         checkIndex(i)
@@ -228,7 +228,7 @@ extension BTree: BidirectionalCollection {
 
     /// Offsets the given index by the specified distance, or so that it equals the given limiting index.
     ///
-    /// - Requires: `index` must be a valid index in this tree. The operation must not advance the index beyond `endIndex` or before `startIndex`.
+    /// - Requires: `index` and `limit` must be valid indices of this tree. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the tree.
     @discardableResult
     public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
@@ -240,6 +240,7 @@ extension BTree: BidirectionalCollection {
 
     /// Returns the distance between two indices.
     ///
+    /// - Requires: `start` and `end` must be valid indices in this tree.
     /// - Complexity: O(1)
     public func distance(from start: Index, to end: Index) -> Int {
         checkIndex(start)

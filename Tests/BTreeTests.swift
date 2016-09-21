@@ -537,6 +537,83 @@ class BTreeTests: XCTestCase {
         }
     }
 
+    func testInsertOrFindAny() {
+        let count = 42
+        var tree = Tree(sortedElements: (0 ..< count).map { (2 * $0, "*\(2 * $0)") }, order: 3)
+        for key in 0 ..< 2 * count {
+            let old = tree.insertOrFind((key, String(key)), at: .any)
+            tree.assertValid()
+            if key & 1 == 0 {
+                XCTAssertEqual(old?.0, key)
+                XCTAssertEqual(old?.1, "*\(key)")
+            }
+            else {
+                XCTAssertNil(old)
+            }
+        }
+        assertEqualElements(tree, (0 ..< 2 * count).map { ($0, $0 & 1 == 0 ? "*\($0)" : "\($0)") })
+    }
+
+    func testInsertOrFindFirst() {
+        var tree = Tree(order: 3)
+        for k in 0 ..< 21 {
+            tree.insert((2 * k, "\(2 * k)/1"))
+            tree.insert((2 * k, "\(2 * k)/2"))
+            tree.insert((2 * k, "\(2 * k)/3"))
+        }
+        tree.assertValid()
+        for k in 0 ..< 42 {
+            let found = tree.insertOrFind((k, "\(k)/*"), at: .first)
+            if k & 1 == 0 {
+                XCTAssertEqual(found?.0, k)
+                XCTAssertEqual(found?.1, "\(k)/1")
+            }
+            else {
+                XCTAssertNil(found)
+            }
+            tree.assertValid()
+        }
+        assertEqualElements(tree.map { $0.1 }, (0 ..< 42).flatMap { key -> [String] in
+            if key & 1 == 0 {
+                return ["\(key)/1", "\(key)/2", "\(key)/3"]
+            }
+            else {
+                return ["\(key)/*"]
+            }
+        })
+    }
+
+    func testInsertOrFindLastOrAfter() {
+        for selector: BTreeKeySelector in [.last, .after] {
+            var tree = Tree(order: 3)
+            for k in 0 ..< 21 {
+                tree.insert((2 * k, "\(2 * k)/1"))
+                tree.insert((2 * k, "\(2 * k)/2"))
+                tree.insert((2 * k, "\(2 * k)/3"))
+            }
+            tree.assertValid()
+            for k in 0 ..< 42 {
+                let found = tree.insertOrFind((k, "\(k)/*"), at: selector)
+                if k & 1 == 0 {
+                    XCTAssertEqual(found?.0, k)
+                    XCTAssertEqual(found?.1, "\(k)/3")
+                }
+                else {
+                    XCTAssertNil(found)
+                }
+                tree.assertValid()
+            }
+            assertEqualElements(tree.map { $0.1 }, (0 ..< 42).flatMap { key -> [String] in
+                if key & 1 == 0 {
+                    return ["\(key)/1", "\(key)/2", "\(key)/3"]
+                }
+                else {
+                    return ["\(key)/*"]
+                }
+            })
+        }
+    }
+
     func testRemoveFirstAndLast() {
         var empty = Tree()
         XCTAssertNil(empty.popFirst())

@@ -111,39 +111,79 @@ extension SortedSet: Collection {
         return Iterator(tree.makeIterator())
     }
 
+    /// Returns the successor of the given index.
+    ///
+    /// - Requires: `index` is a valid index of this set and it is not equal to `endIndex`.
+    /// - Complexity: Amortized O(1).
     public func index(after index: Index) -> Index {
         return tree.index(after: index)
     }
 
+    /// Replaces the given index with its successor.
+    ///
+    /// - Requires: `index` is a valid index of this set and it is not equal to `endIndex`.
+    /// - Complexity: Amortized O(1).
     public func formIndex(after index: inout Index) {
         tree.formIndex(after: &index)
     }
 
+    /// Returns the predecessor of the given index.
+    ///
+    /// - Requires: `index` is a valid index of this set and it is not equal to `startIndex`.
+    /// - Complexity: Amortized O(1).
     public func index(before index: Index) -> Index {
         return tree.index(before: index)
     }
 
+    /// Replaces the given index with its predecessor.
+    ///
+    /// - Requires: `index` is a valid index of this set and it is not equal to `startIndex`.
+    /// - Complexity: Amortized O(1).
     public func formIndex(before index: inout Index) {
         tree.formIndex(before: &index)
     }
 
+    /// Returns an index that is the specified distance from the given index.
+    ///
+    /// - Requires: `index` must be a valid index of this set.
+    ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
+    ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
     public func index(_ i: Index, offsetBy n: Int) -> Index {
         return tree.index(i, offsetBy: n)
     }
 
+    /// Offsets the given index by the specified distance.
+    ///
+    /// - Requires: `index` must be a valid index of this set.
+    ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
+    ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
     public func formIndex(_ i: inout Index, offsetBy n: Int) {
         tree.formIndex(&i, offsetBy: n)
     }
 
+    /// Returns an index that is the specified distance from the given index, unless that distance is beyond a given limiting index.
+    ///
+    /// - Requires: `index` and `limit` must be valid indices in this set. The operation must not advance the index beyond `endIndex` or before `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
     public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
         return tree.index(i, offsetBy: n, limitedBy: limit)
     }
 
+    /// Offsets the given index by the specified distance, or so that it equals the given limiting index.
+    ///
+    /// - Requires: `index` and `limit` must be valid indices in this set. The operation must not advance the index beyond `endIndex` or before `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
     @discardableResult
     public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
         return tree.formIndex(&i, offsetBy: n, limitedBy: limit)
     }
 
+    /// Returns the distance between two indices.
+    ///
+    /// - Requires: `start` and `end` must be valid indices in this set.
+    /// - Complexity: O(1)
     public func distance(from start: Index, to end: Index) -> Int {
         return tree.distance(from: start, to: end)
     }
@@ -152,6 +192,21 @@ extension SortedSet: Collection {
 extension SortedSet {
     //MARK: Offset-based access
 
+    /// Returns the offset of the element at `index`.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func index(ofOffset offset: Int) -> Index {
+        return tree.index(ofOffset: offset)
+    }
+
+    /// Returns the index of the element at `offset`.
+    ///
+    /// - Requires: `offset >= 0 && offset < count`
+    /// - Complexity: O(log(`count`))
+    public func offset(of index: Index) -> Int {
+        return tree.offset(of: index)
+    }
+    
     /// Returns the element at `offset` from the start of the set.
     ///
     /// - Complexity: O(log(`count`))
@@ -449,27 +504,28 @@ extension SortedSet {
 extension SortedSet {
     //MARK: Insertion
 
-    /// Insert a member into the set.
+    /// Insert a member into the set if it is not already present.
     ///
+    /// - Returns: `(true, newMember)` if `newMember` was not contained in the set.
+    ///    If an element equal to `newMember` was already contained in the set, the method returns `(false, oldMember)`,
+    ///    where `oldMember` is the element that was equal to `newMember`. In some cases, `oldMember` may be distinguishable
+    ///    from `newMember` by identity comparison or some other means.
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func insert(_ element: Element) -> (inserted: Bool, memberAfterInsert: Element) {
-        if let old = tree.insertOrFind((element, ())) {
-            return (false, old.0)
+    public mutating func insert(_ newMember: Element) -> (inserted: Bool, memberAfterInsert: Element) {
+        guard let old = tree.insertOrFind((newMember, ())) else {
+            return (true, newMember)
         }
-        else {
-            return (true, element)
-        }
+        return (false, old.0)
     }
 
     /// Inserts the given element into the set unconditionally.
     ///
     /// If an element equal to `newMember` is already contained in the set,
-    /// `newMember` replaces the existing element. In this example, an existing
-    /// element is inserted into `classDays`, a set of days of the week.
+    /// `newMember` replaces the existing element.
     ///
     /// - Parameter newMember: An element to insert into the set.
-    /// - Returns: The element equal to `newMember` that was originally in the set, if exists; otherwise, nil.
+    /// - Returns: The element equal to `newMember` that was originally in the set, if exists; otherwise, `nil`.
     ///   In some cases, the returned element may be distinguishable from `newMember` by identity
     ///   comparison or some other means.
     public mutating func update(with newMember: Element) -> Element? {
