@@ -45,7 +45,7 @@ class BTreeTests: XCTestCase {
         let tree = minimalTree(depth: 2, order: 5)
         let c = tree.count
         for i in 0 ... c {
-            let index = tree.startIndex.advanced(by: i)
+            let index = tree.index(tree.startIndex, offsetBy: i)
             let iterator = tree.makeIterator(from: index)
             assertEqualElements(IteratorSequence(iterator), (i ..< c).map { ($0, String($0)) })
         }
@@ -121,41 +121,61 @@ class BTreeTests: XCTestCase {
         }
     }
 
-    func testIterationUsingIndexingForward() {
+    func testIndexAfter() {
         let tree = maximalTree(depth: 3, order: 3)
+        let c = tree.count
         var index = tree.startIndex
-        var i = 0
-        while index != tree.endIndex {
+        for i in 0 ..< c {
             XCTAssertEqual(tree[index].0, i)
-            index = index.successor()
-            i += 1
+            index = tree.index(after: index)
         }
-        XCTAssertEqual(i, tree.count)
+        XCTAssertEqual(index, tree.endIndex)
     }
 
-    func testIterationUsingIndexingBackward() {
+    func testFormIndexAfter() {
         let tree = maximalTree(depth: 3, order: 3)
-        var index = tree.endIndex
-        var i = tree.count
-        while index != tree.startIndex {
-            index = index.predecessor()
-            i -= 1
+        let c = tree.count
+        var index = tree.startIndex
+        for i in 0 ..< c {
             XCTAssertEqual(tree[index].0, i)
+            tree.formIndex(after: &index)
         }
-        XCTAssertEqual(i, 0)
+        XCTAssertEqual(index, tree.endIndex)
     }
 
-    func testIndexAdvancedBy() {
+    func testIndexBefore() {
+        let tree = maximalTree(depth: 3, order: 3)
+        let c = tree.count
+        var index = tree.endIndex
+        for i in (0 ..< c).reversed() {
+            index = tree.index(before: index)
+            XCTAssertEqual(tree[index].0, i)
+        }
+        XCTAssertEqual(index, tree.startIndex)
+    }
+
+    func testFormIndexBefore() {
+        let tree = maximalTree(depth: 3, order: 3)
+        let c = tree.count
+        var index = tree.endIndex
+        for i in (0 ..< c).reversed() {
+            tree.formIndex(before: &index)
+            XCTAssertEqual(tree[index].0, i)
+        }
+        XCTAssertEqual(index, tree.startIndex)
+    }
+
+    func testIndexOffsetBy() {
         let tree = maximalTree(depth: 3, order: 3)
         let c = tree.count
         for i in 0 ... c {
-            let i1 = tree.startIndex.advanced(by: i)
+            let i1 = tree.index(tree.startIndex, offsetBy: i)
             XCTAssertEqual(i1.state.offset, i)
             if i < c {
                 XCTAssertEqual(i1.state.key, i)
             }
 
-            let i2 = tree.endIndex.advanced(by: -i)
+            let i2 = tree.index(tree.endIndex, offsetBy: -i)
             XCTAssertEqual(i2.state.offset, c - i)
             if i != 0 {
                 XCTAssertEqual(i2.state.key, c - i)
@@ -163,16 +183,41 @@ class BTreeTests: XCTestCase {
         }
     }
 
+    func testFormIndexOffsetBy() {
+        let tree = maximalTree(depth: 3, order: 3)
+        let c = tree.count
+        var index = tree.startIndex
+        var i = 0
+        var j = c
+        while i < j {
+            XCTAssertEqual(tree.offset(of: index), i)
+            if i < c {
+                XCTAssertEqual(tree[index].0, i)
+            }
+
+            tree.formIndex(&index, offsetBy: j - i)
+
+            XCTAssertEqual(tree.offset(of: index), j)
+            if i != 0 {
+                XCTAssertEqual(tree[index].0, j)
+            }
+
+            tree.formIndex(&index, offsetBy: i + 1 - j)
+            i += 1
+            j -= 1
+        }
+    }
+
     func testIndexDistanceTo() {
         let tree = maximalTree(depth: 3, order: 3)
         let c = tree.count
         for i in 0 ... c {
-            let i1 = tree.startIndex.advanced(by: i)
+            let i1 = tree.index(tree.startIndex, offsetBy: i)
             var i2 = tree.startIndex
             for j in 0 ... c {
-                XCTAssertEqual(i1.distance(to: i2), j - i)
+                XCTAssertEqual(tree.distance(from: i1, to: i2), j - i)
                 if j < c {
-                    i2 = i2.successor()
+                    tree.formIndex(after: &i2)
                 }
             }
         }
@@ -182,7 +227,7 @@ class BTreeTests: XCTestCase {
         let tree = maximalTree(depth: 3, order: 3)
         let c = tree.count
         for i in 0 ... c {
-            guard let i1 = tree.startIndex.advanced(by: i, limit: tree.endIndex) else {
+            guard let i1 = tree.index(tree.startIndex, offsetBy: i, limitedBy: tree.endIndex) else {
                 XCTFail()
                 continue
             }
@@ -191,7 +236,7 @@ class BTreeTests: XCTestCase {
                 XCTAssertEqual(i1.state.key, i)
             }
 
-            guard let i2 = tree.endIndex.advanced(by: -i, limit: tree.startIndex) else {
+            guard let i2 = tree.index(tree.endIndex, offsetBy: -i, limitedBy: tree.startIndex) else {
                 XCTFail()
                 continue
             }
@@ -201,8 +246,43 @@ class BTreeTests: XCTestCase {
             }
         }
         for i in c + 1 ..< c + 10 {
-            XCTAssertNil(tree.startIndex.advanced(by: i, limit: tree.endIndex))
-            XCTAssertNil(tree.endIndex.advanced(by: -i, limit: tree.startIndex))
+            XCTAssertNil(tree.index(tree.startIndex, offsetBy: i, limitedBy: tree.endIndex))
+            XCTAssertNil(tree.index(tree.endIndex, offsetBy: -i, limitedBy: tree.startIndex))
+        }
+    }
+    
+    func testFormIndexAdvancedByWithLimit() {
+        let tree = maximalTree(depth: 3, order: 3)
+        let c = tree.count
+        for i in 0 ... c {
+            var i1 = tree.startIndex
+            guard tree.formIndex(&i1, offsetBy: i, limitedBy: tree.endIndex) else {
+                XCTFail()
+                continue
+            }
+            XCTAssertEqual(tree.offset(of: i1), min(i, c))
+            if i < c {
+                XCTAssertEqual(tree[i1].0, i)
+            }
+
+            var i2 = tree.endIndex
+            guard tree.formIndex(&i2, offsetBy: -i, limitedBy: tree.startIndex) else {
+                XCTFail()
+                continue
+            }
+            XCTAssertEqual(tree.offset(of: i2), max(0, c - i))
+            if i != 0 {
+                XCTAssertEqual(tree[i2].0, max(0, c - i))
+            }
+        }
+        for i in c + 1 ..< c + 10 {
+            var i1 = tree.startIndex
+            XCTAssertFalse(tree.formIndex(&i1, offsetBy: i, limitedBy: tree.endIndex))
+            XCTAssertEqual(i1, tree.endIndex)
+
+            var i2 = tree.endIndex
+            XCTAssertFalse(tree.formIndex(&i2, offsetBy: -i, limitedBy: tree.startIndex))
+            XCTAssertEqual(i2, tree.startIndex)
         }
     }
 
@@ -270,9 +350,9 @@ class BTreeTests: XCTestCase {
 
         for k in (0 ..< count - 1).lazy.map({ 2 * $0 }) {
             let even = tree.index(forKey: k, choosing: .after)
-            XCTAssertTrue(even != nil && tree.startIndex.distance(to: even!) == k / 2 + 1, "\(k): \(tree.startIndex.distance(to: even!))")
+            XCTAssertTrue(even != nil && tree.distance(from: tree.startIndex, to: even!) == k / 2 + 1, "\(k): \(tree.distance(from: tree.startIndex, to: even!))")
             let odd = tree.index(forKey: k + 1, choosing: .after)
-            XCTAssertTrue(odd != nil && tree.startIndex.distance(to: odd!) == k / 2 + 1, "\(k): \(tree.startIndex.distance(to: odd!))")
+            XCTAssertTrue(odd != nil && tree.distance(from: tree.startIndex, to: odd!) == k / 2 + 1, "\(k): \(tree.distance(from: tree.startIndex, to: odd!))")
         }
         XCTAssertEqual(tree.index(forKey: -1, choosing: .after), tree.startIndex)
         XCTAssertNil(tree.index(forKey: 2 * count - 2, choosing: .after))
@@ -307,7 +387,7 @@ class BTreeTests: XCTestCase {
         var index = tree.startIndex
         for offset in 0 ..< count {
             XCTAssertEqual(tree[index].0, 2 * offset)
-            index = index.successor()
+            tree.formIndex(after: &index)
         }
         XCTAssertEqual(tree.offset(forIndex: index), count)
         XCTAssertEqual(index, tree.endIndex)
@@ -589,7 +669,7 @@ class BTreeTests: XCTestCase {
         for i in 0 ..< c {
             var copy = tree
 
-            let index = copy.startIndex.advanced(by: i)
+            let index = copy.index(copy.startIndex, offsetBy: i)
             copy.remove(at: index)
 
             var reference = (0 ..< c).map { ($0, String($0)) }
@@ -634,7 +714,7 @@ class BTreeTests: XCTestCase {
         let count = tree.count
         let reference = (0 ..< count).map { ($0, String($0)) }
         for i in 0 ... count {
-            let prefix = tree.prefix(upTo: tree.startIndex.advanced(by: i))
+            let prefix = tree.prefix(upTo: tree.index(tree.startIndex, offsetBy: i))
             prefix.assertValid()
             assertEqualElements(prefix, reference.prefix(upTo: i))
         }
@@ -656,7 +736,7 @@ class BTreeTests: XCTestCase {
         let count = tree.count
         let reference = (0 ..< count).map { ($0, String($0)) }
         for i in 0 ..< count {
-            let prefix = tree.prefix(through: tree.startIndex.advanced(by: i))
+            let prefix = tree.prefix(through: tree.index(tree.startIndex, offsetBy: i))
             prefix.assertValid()
             assertEqualElements(prefix, reference.prefix(through: i))
         }
@@ -700,7 +780,7 @@ class BTreeTests: XCTestCase {
         let count = tree.count
         let reference = (0 ..< count).map { ($0, String($0)) }
         for i in 0 ... count {
-            let suffix = tree.suffix(from: tree.startIndex.advanced(by: i))
+            let suffix = tree.suffix(from: tree.index(tree.startIndex, offsetBy: i))
             suffix.assertValid()
             assertEqualElements(suffix, reference.suffix(from: i))
         }
@@ -728,11 +808,11 @@ class BTreeTests: XCTestCase {
                 subtree.assertValid()
                 assertEqualElements(subtree, (i..<j).map { ($0, String($0)) })
                 if j < count {
-                    end.increment()
+                    tree.formIndex(after: &end)
                 }
             }
             if i < count {
-                start.increment()
+                tree.formIndex(after: &start)
             }
         }
     }

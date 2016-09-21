@@ -26,7 +26,7 @@ class SortedSetTests: XCTestCase {
         XCTAssertFalse(set.isEmpty)
         XCTAssertEqual(set.count, 1)
         XCTAssertNotEqual(set.startIndex, set.endIndex)
-        XCTAssertEqual(set.startIndex.successor(), set.endIndex)
+        XCTAssertEqual(set.index(after: set.startIndex), set.endIndex)
         assertEqualElements(set, [42])
 
         XCTAssertEqual(set[set.startIndex], 42)
@@ -79,8 +79,8 @@ class SortedSetTests: XCTestCase {
         var index = set.startIndex
         while index != set.endIndex {
             XCTAssertEqual(set[index], i)
-            XCTAssertEqual(set.startIndex.distance(to: index), i)
-            index = index.successor()
+            XCTAssertEqual(set.distance(from: set.startIndex, to: index), i)
+            set.formIndex(after: &index)
             i += 1
         }
         XCTAssertEqual(i, c)
@@ -96,9 +96,9 @@ class SortedSetTests: XCTestCase {
         while i <= j {
             assertEqualElements(set[start ..< end], i ..< j)
             i += 1
-            start = start.successor()
+            set.formIndex(after: &start)
             j -= 1
-            end = end.predecessor()
+            set.formIndex(before: &end)
         }
     }
 
@@ -206,7 +206,7 @@ class SortedSetTests: XCTestCase {
             assertEqualElements(set.prefix(through: i), 0 ... i)
             assertEqualElements(set.prefix(upTo: index), 0 ..< i)
             assertEqualElements(set.prefix(upTo: i), 0 ..< i)
-            index = index.successor()
+            set.formIndex(after: &index)
         }
         XCTAssertEqual(index, set.endIndex)
         assertEqualElements(set.prefix(c), 0 ..< c)
@@ -226,7 +226,7 @@ class SortedSetTests: XCTestCase {
             assertEqualElements(set.suffix(i), c - i ..< c)
             assertEqualElements(set.suffix(from: index), i ..< c)
             assertEqualElements(set.suffix(from: i), i ..< c)
-            index = index.successor()
+            set.formIndex(after: &index)
         }
         XCTAssertEqual(index, set.endIndex)
         assertEqualElements(set.suffix(c), 0 ..< c)
@@ -255,7 +255,7 @@ class SortedSetTests: XCTestCase {
         for i in 0 ..< 2 * c {
             let index = set.index(of: i)
             if i & 1 == 0 {
-                XCTAssertEqual(index, set.startIndex.advanced(by: i / 2))
+                XCTAssertEqual(index, set.index(set.startIndex, offsetBy: i / 2))
                 XCTAssertEqual(set[index!], i)
             }
             else {

@@ -154,40 +154,40 @@ extension Map: Collection {
     }
 
     public func index(after index: Index) -> Index {
-        return index.successor()
+        return tree.index(after: index)
     }
 
     public func formIndex(after index: inout Index) {
-        index.increment()
+        tree.formIndex(after: &index)
     }
 
     public func index(before index: Index) -> Index {
-        return index.predecessor()
+        return tree.index(before: index)
     }
 
     public func formIndex(before index: inout Index) {
-        index.decrement()
+        tree.formIndex(before: &index)
     }
 
     public func index(_ i: Index, offsetBy n: Int) -> Index {
-        return i.advanced(by: n)
-    }
-
-    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
-        return i.advanced(by: n, limit: limit)
-    }
-
-    public func distance(from start: Index, to end: Index) -> Int {
-        return end.distance(to: start)
+        return tree.index(i, offsetBy: n)
     }
 
     public func formIndex(_ i: inout Index, offsetBy n: Int) {
-        i.advance(by: n)
+        tree.formIndex(&i, offsetBy: n)
+    }
+
+    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+        return tree.index(i, offsetBy: n, limitedBy: limit)
     }
 
     @discardableResult
     public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
-        return i.advance(by: n, limitedBy: limit)
+        return tree.formIndex(&i, offsetBy: n, limitedBy: limit)
+    }
+
+    public func distance(from start: Index, to end: Index) -> Int {
+        return tree.distance(from: start, to: end)
     }
 }
 

@@ -8,10 +8,14 @@
 
 /// An index into a collection that uses a B-tree for storage.
 ///
+/// BTree indices belong to a specific tree instance. Trying to use them with any other tree
+/// instance (including one holding the exact same elements, or one derived from a mutated version of the
+/// original instance) will cause a runtime error.
+///
 /// This index satisfies `Collection`'s requirement for O(1) access, but
 /// it is only suitable for read-only processing -- most tree mutations will 
 /// invalidate all existing indexes.
-/// 
+///
 /// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a B-tree.
 public struct BTreeIndex<Key: Comparable, Value> {
     typealias Node = BTreeNode<Key, Value>
@@ -27,7 +31,7 @@ public struct BTreeIndex<Key: Comparable, Value> {
     ///
     /// - Requires: self is valid and not the end index.
     /// - Complexity: Amortized O(1).
-    public mutating func increment() {
+    mutating func increment() {
         state.moveForward()
     }
     
@@ -35,93 +39,40 @@ public struct BTreeIndex<Key: Comparable, Value> {
     ///
     /// - Requires: self is valid and not the start index.
     /// - Complexity: Amortized O(1).
-    public mutating func decrement() {
+    mutating func decrement() {
         state.moveBackward()
     }
 
     /// Advance this index by `distance` elements.
     ///
     /// - Complexity: O(log(*n*)) where *n* is the number of elements in the tree.
-    public mutating func advance(by distance: Int) {
+    mutating func advance(by distance: Int) {
         state.move(toOffset: state.offset + distance)
     }
 
     @discardableResult
-    public mutating func advance(by distance: Int, limitedBy limit: BTreeIndex) -> Bool {
-        state.expectRoot(limit.state.root)
-        if (distance >= 0 && state.offset + distance > limit.state.offset)
-            || (distance < 0 && state.offset + distance < limit.state.offset) {
+    mutating func advance(by distance: Int, limitedBy limit: BTreeIndex) -> Bool {
+        let originalDistance = limit.state.offset - state.offset
+        if (distance >= 0 && originalDistance >= 0 && distance > originalDistance)
+            || (distance <= 0 && originalDistance <= 0 && distance < originalDistance) {
             self = limit
             return false
         }
         state.move(toOffset: state.offset + distance)
         return true
     }
-
-    /// Return the next index after `self` in its collection.
-    ///
-    /// - Requires: self is valid and not the end index.
-    /// - Complexity: Amortized O(1).
-    public func successor() -> BTreeIndex {
-        var result = self
-        result.increment()
-        return result
-    }
-
-    /// Return the index preceding `self` in its collection.
-    ///
-    /// - Requires: self is valid and not the start index.
-    /// - Complexity: Amortized O(1).
-    public func predecessor() -> BTreeIndex {
-        var result = self
-        result.decrement()
-        return result
-    }
-
-    /// Return the result of advancing `self` by `n` positions.
-    /// 
-    /// - Complexity: O(log(`n`))
-    public func advanced(by n: Int) -> BTreeIndex {
-        var result = self
-        result.advance(by: n)
-        return result
-    }
-
-    /// Return the result of advancing self by `n` positions, or until it equals `limit`.
-    ///
-    /// - Complexity: O(log(`n`))
-    public func advanced(by n: Int, limit: BTreeIndex) -> BTreeIndex? {
-        state.expectRoot(limit.state.root)
-        let d = self.distance(to: limit)
-        if d > 0 ? d < n : d > n {
-            return nil
-        }
-        return self.advanced(by: n)
-    }
-
-    /// Return the number of steps between `self` an `end`.
-    ///
-    /// - Complexity: O(1)
-    public func distance(to end: BTreeIndex) -> Int {
-        state.expectRoot(end.state.root)
-        return end.state.offset - state.offset
-    }
 }
 
 extension BTreeIndex: Comparable {
     /// Return true iff `a` is equal to `b`.
     public static func ==(a: BTreeIndex, b: BTreeIndex) -> Bool {
-        guard let ar = a.state._root.value else { a.state.invalid() }
-        guard let br = b.state._root.value else { b.state.invalid() }
-        precondition(ar === br, "Indices to different trees cannot be compared")
+        precondition(a.state.root === b.state.root, "Indices to different trees cannot be compared")
         return a.state.offset == b.state.offset
     }
 
     /// Return true iff `a` is less than `b`.
     public static func <(a: BTreeIndex, b: BTreeIndex) -> Bool {
-        guard let ar = a.state._root.value else { a.state.invalid() }
-        guard let br = b.state._root.value else { b.state.invalid() }
-        precondition(ar === br, "Indices to different trees cannot be compared")
+        precondition(a.state.root === b.state.root, "Indices to different trees cannot be compared")
         return a.state.offset < b.state.offset
     }
 }

@@ -142,43 +142,111 @@ extension BTree: BidirectionalCollection {
         }
     }
 
-    public func index(after index: Index) -> Index {
-        return index.successor()
+    internal func checkIndex(_ index: Index) {
+        index.state.expectRoot(self.root)
     }
 
+    /// Returns the successor of the given index.
+    ///
+    /// - Requires: `index` is valid of this tree and it is not equal to `endIndex`.
+    /// - Complexity: Amortized O(1).
+    public func index(after index: Index) -> Index {
+        checkIndex(index)
+        var result = index
+        result.increment()
+        return result
+    }
+
+    /// Replaces the given index with its successor.
+    ///
+    /// - Requires: `index` is valid of this tree and it is not equal to `endIndex`.
+    /// - Complexity: Amortized O(1).
     public func formIndex(after index: inout Index) {
+        checkIndex(index)
         index.increment()
     }
 
+    /// Returns the predecessor of the given index.
+    ///
+    /// - Requires: `index` is valid of this tree and it is not equal to `startIndex`.
+    /// - Complexity: Amortized O(1).
     public func index(before index: Index) -> Index {
-        return index.predecessor()
+        checkIndex(index)
+        var result = index
+        result.decrement()
+        return result
     }
 
+    /// Replaces the given index with its predecessor.
+    ///
+    /// - Requires: `index` is valid of this tree and it is not equal to `startIndex`.
+    /// - Complexity: Amortized O(1).
     public func formIndex(before index: inout Index) {
+        checkIndex(index)
         index.decrement()
     }
 
+    /// Returns an index that is the specified distance from the given index.
+    ///
+    /// - Requires: `index` must be a valid index of this tree.
+    ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`. 
+    ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the tree.
     public func index(_ i: Index, offsetBy n: Int) -> Index {
-        return i.advanced(by: n)
+        checkIndex(i)
+        var result = i
+        result.advance(by: n)
+        return result
     }
 
-    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
-        return i.advanced(by: n, limit: limit)
-    }
-
-    public func distance(from start: Index, to end: Index) -> Int {
-        return end.distance(to: start)
-    }
-
+    /// Offsets the given index by the specified distance.
+    ///
+    /// - Requires: `index` must be a valid index of this tree.
+    ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
+    ///              If `n` is negative, it must not be less than the distance from `index` to `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the tree.
     public func formIndex(_ i: inout Index, offsetBy n: Int) {
+        checkIndex(i)
         i.advance(by: n)
     }
 
+    /// Returns an index that is the specified distance from the given index, unless that distance is beyond a given limiting index.
+    ///
+    /// - Requires: `index` must be a valid index in this tree. The operation must not advance the index beyond `endIndex` or before `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the tree.
+    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+        checkIndex(i)
+        checkIndex(limit)
+        let d = self.distance(from: i, to: limit)
+        if d > 0 ? d < n : d > n {
+            return nil
+        }
+        var result = i
+        result.advance(by: n)
+        return result
+    }
+
+    /// Offsets the given index by the specified distance, or so that it equals the given limiting index.
+    ///
+    /// - Requires: `index` must be a valid index in this tree. The operation must not advance the index beyond `endIndex` or before `startIndex`.
+    /// - Complexity: O(log(*count*)) where *count* is the number of elements in the tree.
     @discardableResult
     public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
+        checkIndex(i)
+        checkIndex(limit)
         return i.advance(by: n, limitedBy: limit)
     }
- }
+
+
+    /// Returns the distance between two indices.
+    ///
+    /// - Complexity: O(1)
+    public func distance(from start: Index, to end: Index) -> Int {
+        checkIndex(start)
+        checkIndex(end)
+        return end.state.offset - start.state.offset
+    }
+}
 
 /// When the tree contains multiple elements with the same key, you can use a key selector to specify
 /// which matching element you want to work with.
@@ -873,7 +941,7 @@ extension BTree {
     ///
     /// - Complexity: O(log(`count`))
     public func prefix(through stop: Index) -> BTree {
-        return prefix(upTo: stop.successor())
+        return prefix(upTo: self.index(after: stop))
     }
 
     /// Returns a subtree containing all elements whose key is less than or equal to `key`.
@@ -919,7 +987,9 @@ extension BTree {
         if start.state.offset == 0 {
             return self
         }
-        return start.predecessor().state.suffix()
+        var state = start.state
+        state.moveBackward()
+        return state.suffix()
     }
 
     /// Returns a subtree containing all elements whose key is greater than or equal to `key`.

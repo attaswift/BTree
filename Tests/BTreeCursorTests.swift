@@ -162,7 +162,7 @@ class BTreeCursorTests: XCTestCase {
         var tree = maximalTree(depth: 3, order: 3)
         let count = tree.count
         for i in 0 ... count {
-            let index = tree.startIndex.advanced(by: i)
+            let index = tree.index(tree.startIndex, offsetBy: i)
             tree.withCursor(at: index) { cursor in
                 XCTAssertEqual(cursor.offset, i)
                 if i != count {

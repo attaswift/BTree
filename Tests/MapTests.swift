@@ -48,7 +48,7 @@ class MapTests: XCTestCase {
                 XCTAssertLessThan(lastKey, key)
             }
             lastKey = key
-            index = index.successor()
+            map.formIndex(after: &index)
             i += 1
         }
         XCTAssertEqual(i, 5)
@@ -173,7 +173,7 @@ class MapTests: XCTestCase {
             let i = m.index(forKey: k)
             XCTAssertEqual(i, index)
             XCTAssertEqual(m[i!].0, k)
-            index = index.successor()
+            m.formIndex(after: &index)
         }
         XCTAssertEqual(index, m.endIndex)
 
@@ -185,7 +185,7 @@ class MapTests: XCTestCase {
         var m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
         for i in (0 ..< 100).reversed() {
             if i & 1 == 1 {
-                let index = m.startIndex.advanced(by: i)
+                let index = m.index(m.startIndex, offsetBy: i)
                 let element = m.remove(at: index)
                 XCTAssertEqual(element.0, i)
                 XCTAssertEqual(element.1, String(i))
@@ -222,7 +222,7 @@ class MapTests: XCTestCase {
         var index = m.startIndex
         for i in 0 ..< 100 {
             XCTAssertEqual(m.offset(for: index), i)
-            index = index.successor()
+            m.formIndex(after: &index)
         }
         XCTAssertEqual(m.offset(for: index), m.count)
         XCTAssertEqual(index, m.endIndex)
@@ -247,7 +247,7 @@ class MapTests: XCTestCase {
 
     func testSubmaps() {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
-        let indexRange = m.startIndex.advanced(by: 30) ..< m.startIndex.advanced(by: 80)
+        let indexRange = m.index(m.startIndex, offsetBy: 30) ..< m.index(m.startIndex, offsetBy: 80)
         let referenceSeq = (30..<80).map { ($0, String($0)) }
         assertEqualElements(m[indexRange], referenceSeq)
         assertEqualElements(m.submap(with: indexRange), referenceSeq)
