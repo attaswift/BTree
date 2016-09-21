@@ -274,25 +274,25 @@ class BTreeNodeTests: XCTestCase {
     func testSlotOfOffset() {
         let leaf = maximalNode(depth: 0, order: 5)
         for i in 0 ..< 5 {
-            XCTAssertEqual(leaf.slot(at: i).index, i)
-            XCTAssertEqual(leaf.slot(at: i).match, true)
-            XCTAssertEqual(leaf.slot(at: i).offset, i)
+            XCTAssertEqual(leaf.slot(atOffset: i).index, i)
+            XCTAssertEqual(leaf.slot(atOffset: i).match, true)
+            XCTAssertEqual(leaf.slot(atOffset: i).offset, i)
         }
 
         let node = maximalNode(depth: 1, order: 3)
         var p = 0
         for i in 0 ..< 3 {
-            XCTAssertEqual(node.slot(at: p).index, i)
-            XCTAssertEqual(node.slot(at: p).match, false)
-            XCTAssertEqual(node.slot(at: p).offset, p + 2)
+            XCTAssertEqual(node.slot(atOffset: p).index, i)
+            XCTAssertEqual(node.slot(atOffset: p).match, false)
+            XCTAssertEqual(node.slot(atOffset: p).offset, p + 2)
 
-            XCTAssertEqual(node.slot(at: p + 1).index, i)
-            XCTAssertEqual(node.slot(at: p + 1).match, false)
-            XCTAssertEqual(node.slot(at: p + 1).offset, p + 2)
+            XCTAssertEqual(node.slot(atOffset: p + 1).index, i)
+            XCTAssertEqual(node.slot(atOffset: p + 1).match, false)
+            XCTAssertEqual(node.slot(atOffset: p + 1).offset, p + 2)
 
-            XCTAssertEqual(node.slot(at: p + 2).index, i)
-            XCTAssertEqual(node.slot(at: p + 2).match, i != 2)
-            XCTAssertEqual(node.slot(at: p + 2).offset, p + 2)
+            XCTAssertEqual(node.slot(atOffset: p + 2).index, i)
+            XCTAssertEqual(node.slot(atOffset: p + 2).match, i != 2)
+            XCTAssertEqual(node.slot(atOffset: p + 2).offset, p + 2)
 
             p += 3
         }

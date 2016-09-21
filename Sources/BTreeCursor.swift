@@ -689,7 +689,7 @@ public final class BTreeCursor<Key: Comparable, Value> {
         if offset == count - n {
             var split = state.split()
             state = State(root: split.prefix.root, offset: offset)
-            split.suffix.insert(split.separator, at: 0)
+            split.suffix.insert(split.separator, atOffset: 0)
             return split.suffix
         }
         else {
@@ -699,7 +699,7 @@ public final class BTreeCursor<Key: Comparable, Value> {
             state.invalidate()
             let j = Node.join(left: left.root, separator: sep2, right: right.root)
             state = State(root: j, offset: offset)
-            mid.insert(sep1, at: 0)
+            mid.insert(sep1, atOffset: 0)
             return mid
         }
     }

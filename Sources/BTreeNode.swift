@@ -252,7 +252,7 @@ extension BTreeNode {
     }
 
     /// Return the slot of the element at `offset` in the subtree rooted at this node.
-    internal func slot(at offset: Int) -> (index: Int, match: Bool, offset: Int) {
+    internal func slot(atOffset offset: Int) -> (index: Int, match: Bool, offset: Int) {
         assert(offset >= 0 && offset <= count)
         if offset == count {
             return (index: elements.count, match: isLeaf, offset: count)

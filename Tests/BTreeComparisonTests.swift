@@ -93,7 +93,7 @@ class BTreeComparisonTests: XCTestCase {
         let a = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 5)
         let b = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 7)
         var c = a
-        c.setValue(at: 99, to: "*")
+        c.setValue(atOffset: 99, to: "*")
 
         XCTAssertTrue(a == b)
         XCTAssertFalse(a == c)

@@ -163,7 +163,7 @@ extension SortedSet {
     ///
     /// - Complexity: O(log(`count`))
     public subscript(offsetRange: Range<Int>) -> SortedSet<Element> {
-        return SortedSet(tree.subtree(with: offsetRange))
+        return SortedSet(tree.subtree(withOffsets: offsetRange))
     }
 }
 

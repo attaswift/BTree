@@ -27,7 +27,7 @@ internal protocol BTreePath {
     /// The root node of the underlying B-tree.
     var root: BTreeNode<Key, Value> { get }
 
-    /// The current offset of this path. (This is a simple stored property. Use `move(toOffset:)` to reposition 
+    /// The current offset of this path. (This is a simple stored property. Use `move(to:)` to reposition 
     /// the path on a different offset.)
     var offset: Int { get set }
 
@@ -254,11 +254,11 @@ extension BTreePath {
     mutating func descend(toOffset offset: Int) {
         assert(offset >= self.offset - node.count && offset <= self.offset)
         assert(self.slot == nil)
-        var slot = node.slot(at: offset - (self.offset - node.count))
+        var slot = node.slot(atOffset: offset - (self.offset - node.count))
         pushToSlots(slot.index, offsetOfSlot: slot.offset)
         while !slot.match {
             pushToPath()
-            slot = node.slot(at: offset - (self.offset - node.count))
+            slot = node.slot(atOffset: offset - (self.offset - node.count))
             pushToSlots(slot.index, offsetOfSlot: slot.offset)
         }
         assert(self.offset == offset)

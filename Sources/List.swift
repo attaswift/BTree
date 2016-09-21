@@ -113,7 +113,7 @@ extension List: MutableCollection, BidirectionalCollection {
             return tree.element(atOffset: index).1
         }
         set {
-            tree.setValue(at: index, to: newValue)
+            tree.setValue(atOffset: index, to: newValue)
         }
     }
 
@@ -122,7 +122,7 @@ extension List: MutableCollection, BidirectionalCollection {
     /// - Complexity: O(log(`count`)) for the getter, and O(log(`count`) + `range.count`) for the setter.
     public subscript(range: Range<Int>) -> List<Element> {
         get {
-            return List(tree.subtree(with: range))
+            return List(tree.subtree(withOffsets: range))
         }
         set {
             self.replaceSubrange(range, with: newValue)
@@ -355,14 +355,14 @@ extension List {
     ///
     /// - Complexity: O(log(`count`))
     public mutating func append(_ element: Element) {
-        tree.insert((EmptyKey(), element), at: tree.count)
+        tree.insert((EmptyKey(), element), atOffset: tree.count)
     }
 
     /// Insert `element` into this list at `index`.
     ///
     /// - Complexity: O(log(`count`))
     public mutating func insert(_ element: Element, at index: Int) {
-        tree.insert((EmptyKey(), element), at: index)
+        tree.insert((EmptyKey(), element), atOffset: index)
     }
 
     /// Append `list` to the end of this list.
@@ -419,7 +419,7 @@ extension List {
     @discardableResult
     public mutating func remove(at index: Int) -> Element {
         precondition(index >= 0 && index < count)
-        return tree.remove(at: index).1
+        return tree.remove(atOffset: index).1
     }
 
     /// Remove and return the first element.
@@ -428,7 +428,7 @@ extension List {
     @discardableResult
     public mutating func removeFirst() -> Element {
         precondition(count > 0)
-        return tree.remove(at: 0).1
+        return tree.remove(atOffset: 0).1
     }
 
     /// Remove the first `n` elements.
@@ -447,7 +447,7 @@ extension List {
     @discardableResult
     public mutating func removeLast() -> Element {
         precondition(count > 0)
-        return tree.remove(at: count - 1).1
+        return tree.remove(atOffset: count - 1).1
     }
 
     /// Remove and return the last `n` elements.
@@ -466,7 +466,7 @@ extension List {
     @discardableResult
     public mutating func popLast() -> Element? {
         guard count > 0 else { return nil }
-        return tree.remove(at: count - 1).1
+        return tree.remove(atOffset: count - 1).1
     }
 
     /// If the list is not empty, remove and return the first element. Otherwise return `nil`.
@@ -475,7 +475,7 @@ extension List {
     @discardableResult
     public mutating func popFirst() -> Element? {
         guard count > 0 else { return nil }
-        return tree.remove(at: 0).1
+        return tree.remove(atOffset: 0).1
     }
 
     /// Remove elements in the specified range of indexes.

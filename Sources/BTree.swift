@@ -302,7 +302,7 @@ public extension BTree {
         var offset = offset
         var node = root
         while !node.isLeaf {
-            let slot = node.slot(at: offset)
+            let slot = node.slot(atOffset: offset)
             if slot.match {
                 return node.elements[slot.index]
             }
@@ -390,7 +390,7 @@ public extension BTree {
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(1)
-    public func offset(forIndex index: Index) -> Int {
+    public func offset(of index: Index) -> Int {
         index.state.expectRoot(root)
         return index.state.offset
     }
@@ -399,7 +399,7 @@ public extension BTree {
     ///
     /// - Requires: `offset >= 0 && offset <= count`
     /// - Complexity: O(log(`count`))
-    public func index(forOffset offset: Int) -> Index {
+    public func index(ofOffset offset: Int) -> Index {
         return Index(BTreeWeakPath(root: root, offset: offset))
     }
 }
@@ -455,14 +455,14 @@ extension BTree {
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func setValue(at offset: Int, to value: Value) -> Value {
+    public mutating func setValue(atOffset offset: Int, to value: Value) -> Value {
         precondition(offset >= 0 && offset < count)
         makeUnique()
         var pos = count - offset
         var old: Value? = nil
         edit(
             descend: { node in
-                let slot = node.slot(at: node.count - pos)
+                let slot = node.slot(atOffset: node.count - pos)
                 if !slot.match {
                     // Continue descending.
                     pos -= node.count - slot.offset
@@ -487,7 +487,7 @@ extension BTree {
     /// - Note: When you need to perform multiple modifications on the same tree,
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
-    public mutating func insert(_ element: Element, at offset: Int) {
+    public mutating func insert(_ element: Element, atOffset offset: Int) {
         precondition(offset >= 0 && offset <= count)
         makeUnique()
         var pos = count - offset
@@ -495,7 +495,7 @@ extension BTree {
         var element = element
         edit(
             descend: { node in
-                let slot = node.slot(at: node.count - pos)
+                let slot = node.slot(atOffset: node.count - pos)
                 assert(slot.index == 0 || node.elements[slot.index - 1].0 <= element.0)
                 assert(slot.index == node.elements.count || node.elements[slot.index].0 >= element.0)
                 if !slot.match {
@@ -711,7 +711,7 @@ extension BTree {
     /// - Complexity: O(log(`count`))
     @discardableResult
     public mutating func removeFirst() -> Element {
-        return remove(at: 0)
+        return remove(atOffset: 0)
     }
 
     /// Remove and return the last element.
@@ -719,7 +719,7 @@ extension BTree {
     /// - Complexity: O(log(`count`))
     @discardableResult
     public mutating func removeLast() -> Element {
-        return remove(at: count - 1)
+        return remove(atOffset: count - 1)
     }
 
     /// Remove and return the first element, or return `nil` if the tree is empty.
@@ -728,7 +728,7 @@ extension BTree {
     @discardableResult
     public mutating func popFirst() -> Element? {
         guard !isEmpty else { return nil }
-        return remove(at: 0)
+        return remove(atOffset: 0)
     }
 
     /// Remove and return the first element, or return `nil` if the tree is empty.
@@ -737,7 +737,7 @@ extension BTree {
     @discardableResult
     public mutating func popLast() -> Element? {
         guard !isEmpty else { return nil }
-        return remove(at: count - 1)
+        return remove(atOffset: count - 1)
     }
 
     /// Remove the first `n` elements from this tree.
@@ -774,7 +774,7 @@ extension BTree {
     ///   `BTreeCursor` provides an alternative interface that's often more efficient.
     /// - Complexity: O(log(`count`))
     @discardableResult
-    public mutating func remove(at offset: Int) -> Element {
+    public mutating func remove(atOffset offset: Int) -> Element {
         precondition(offset >= 0 && offset < count)
         makeUnique()
         var pos = count - offset
@@ -782,7 +782,7 @@ extension BTree {
         var old: Element? = nil
         edit(
             descend: { node in
-                let slot = node.slot(at: node.count - pos)
+                let slot = node.slot(atOffset: node.count - pos)
                 if !slot.match {
                     // No match yet; continue descending.
                     assert(!node.isLeaf)
@@ -1025,7 +1025,7 @@ extension BTree {
     /// Return a subtree consisting of elements in the specified range of offsets.
     ///
     /// - Complexity: O(log(`count`))
-    public func subtree(with offsets: Range<Int>) -> BTree<Key, Value> {
+    public func subtree(withOffsets offsets: Range<Int>) -> BTree<Key, Value> {
         precondition(offsets.lowerBound >= 0 && offsets.upperBound <= count)
         if offsets.count == 0 {
             return BTree(order: order)

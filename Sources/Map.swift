@@ -339,16 +339,16 @@ extension Map {
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(forOffset offset: Int) -> Index {
-        return tree.index(forOffset: offset)
+    public func index(ofOffset offset: Int) -> Index {
+        return tree.index(ofOffset: offset)
     }
 
     /// Returns the index of the element at `offset`.
     ///
     /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
-    public func offset(for index: Index) -> Int {
-        return tree.offset(forIndex: index)
+    public func offset(of index: Index) -> Int {
+        return tree.offset(of: index)
     }
 
     /// Return the element stored at `offset` in this map.
@@ -363,7 +363,7 @@ extension Map {
     /// - Complexity: O(log(`count`))
     @discardableResult
     public mutating func updateValue(_ value: Value, atOffset offset: Int) -> Value {
-        return tree.setValue(at: offset, to: value)
+        return tree.setValue(atOffset: offset, to: value)
     }
 
     /// Remove and return the (key, value) pair at the specified offset from the start of the map.
@@ -371,7 +371,7 @@ extension Map {
     /// - Complexity: O(log(`count`))
     @discardableResult
     public mutating func remove(atOffset offset: Int) -> Element {
-        return tree.remove(at: offset)
+        return tree.remove(atOffset: offset)
     }
 
     /// Remove all (key, value) pairs in the specified offset range.
@@ -399,8 +399,8 @@ extension Map {
     /// Return a submap consisting of elements in the specified range of offsets.
     ///
     /// - Complexity: O(log(`count`))
-    public func submap(with offsets: Range<Int>) -> Map {
-        return Map(tree.subtree(with: offsets))
+    public func submap(withOffsets offsets: Range<Int>) -> Map {
+        return Map(tree.subtree(withOffsets: offsets))
     }
 
     /// Return a submap consisting of all elements with keys greater than or equal to `start` but less than `end`.

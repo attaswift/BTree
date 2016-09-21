@@ -213,7 +213,7 @@ class MapTests: XCTestCase {
     func testIndexOfOffset() {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
         for i in 0...100 {
-            XCTAssertEqual(m.index(forOffset: i), m.startIndex.advanced(by: i))
+            XCTAssertEqual(m.index(ofOffset: i), m.index(m.startIndex, offsetBy: i))
         }
     }
 
@@ -221,10 +221,10 @@ class MapTests: XCTestCase {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
         var index = m.startIndex
         for i in 0 ..< 100 {
-            XCTAssertEqual(m.offset(for: index), i)
+            XCTAssertEqual(m.offset(of: index), i)
             m.formIndex(after: &index)
         }
-        XCTAssertEqual(m.offset(for: index), m.count)
+        XCTAssertEqual(m.offset(of: index), m.count)
         XCTAssertEqual(index, m.endIndex)
     }
 
@@ -251,7 +251,7 @@ class MapTests: XCTestCase {
         let referenceSeq = (30..<80).map { ($0, String($0)) }
         assertEqualElements(m[indexRange], referenceSeq)
         assertEqualElements(m.submap(with: indexRange), referenceSeq)
-        assertEqualElements(m.submap(with: 30..<80), referenceSeq)
+        assertEqualElements(m.submap(withOffsets: 30..<80), referenceSeq)
         assertEqualElements(m.submap(from: 30, to: 80), referenceSeq)
         assertEqualElements(m.submap(from: 30, through: 79), referenceSeq)
     }
