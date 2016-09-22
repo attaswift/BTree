@@ -5,7 +5,7 @@ set -e
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 module="BTree"
-scheme="BTree-Mac"
+scheme="BTree-macOS"
 
 version="$(grep VERSION_STRING version.xcconfig | sed 's/^VERSION_STRING = //' | sed 's/ *$//')"
 case "$version" in
@@ -30,5 +30,4 @@ jazzy \
     --module "$module" \
     --root-url "https://lorentey.github.io/$module/reference/" \
     --theme fullwidth \
-    --output gh-pages/api \
-    --swift-version 2.2
+    --output gh-pages/api
