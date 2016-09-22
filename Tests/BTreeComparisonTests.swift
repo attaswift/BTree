@@ -14,7 +14,7 @@ private typealias Node = BTreeNode<Int, Void>
 private typealias Tree = BTree<Int, Void>
 private typealias Element = (Int, Void)
 
-private func makeTree<S: SequenceType where S.Generator.Element == Int>(s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree {
+private func makeTree<S: Sequence>(_ s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree where S.Iterator.Element == Int {
     var b = Builder(order: order, keysPerNode: keysPerNode ?? order - 1)
     for i in s {
         b.append((i, ()))
@@ -23,7 +23,7 @@ private func makeTree<S: SequenceType where S.Generator.Element == Int>(s: S, or
 }
 
 class BTreeComparisonTests: XCTestCase {
-    private func elements(range: Range<Int>) -> [Element] {
+    private func elements(_ range: CountableRange<Int>) -> [Element] {
         return range.map { ($0, ()) }
     }
 
@@ -37,13 +37,13 @@ class BTreeComparisonTests: XCTestCase {
         let c = makeTree(0 ..< 101)
         let d = makeTree(Array(0 ..< 99) + [0])
 
-        XCTAssertTrue(a.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(a.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertFalse(a.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertFalse(a.elementsEqual(d, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(b.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertFalse(c.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertFalse(d.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
+        XCTAssertTrue(a.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
+        XCTAssertFalse(a.elementsEqual(c, by: { $0.0 == $1.0 }))
+        XCTAssertFalse(a.elementsEqual(d, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertFalse(c.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertFalse(d.elementsEqual(a, by: { $0.0 == $1.0 }))
     }
 
     func test_elementsEqual_SharedNodes() {
@@ -51,39 +51,39 @@ class BTreeComparisonTests: XCTestCase {
         var b = a
         b.withCursorAtStart { $0.key = 0 }
         var c = a
-        c.withCursorAtOffset(99) { $0.key = 99 }
+        c.withCursor(atOffset: 99) { $0.key = 99 }
 
-        XCTAssertTrue(a.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(a.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(b.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(b.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(c.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-        XCTAssertTrue(c.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
+        XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(a.elementsEqual(c, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(b.elementsEqual(c, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(c.elementsEqual(a, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(c.elementsEqual(b, by: { $0.0 == $1.0 }))
     }
 
     func test_elementsEqual_ShiftedSharedNodes() {
-        let reference = Array(count: 100, repeatedValue: 42)
+        let reference = Array(repeating: 42, count: 100)
         let a = makeTree(reference)
         for i in 0 ..< 100 {
             var b = a
-            b.withCursorAtOffset(i) {
+            b.withCursor(atOffset: i) {
                 $0.remove()
                 $0.moveToEnd()
                 $0.insert((42, ()))
             }
             var c = a
-            c.withCursorAtOffset(i) {
+            c.withCursor(atOffset: i) {
                 $0.insert((42, ()))
                 $0.moveToEnd()
                 $0.moveBackward()
                 $0.remove()
             }
-            XCTAssertTrue(a.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(a.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(b.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(b.elementsEqual(c, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(c.elementsEqual(a, isEquivalent: { $0.0 == $1.0 }))
-            XCTAssertTrue(c.elementsEqual(b, isEquivalent: { $0.0 == $1.0 }))
+            XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(a.elementsEqual(c, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(b.elementsEqual(c, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(c.elementsEqual(a, by: { $0.0 == $1.0 }))
+            XCTAssertTrue(c.elementsEqual(b, by: { $0.0 == $1.0 }))
 
             assertEqualElements(a.map { $0.0 }, reference)
         }
@@ -93,7 +93,7 @@ class BTreeComparisonTests: XCTestCase {
         let a = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 5)
         let b = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 7)
         var c = a
-        c.setValueAt(99, to: "*")
+        c.setValue(atOffset: 99, to: "*")
 
         XCTAssertTrue(a == b)
         XCTAssertFalse(a == c)
@@ -105,40 +105,40 @@ class BTreeComparisonTests: XCTestCase {
     func test_isDisjointWith_SimpleCases() {
         let firstHalf = makeTree(0 ..< 100)
         let secondHalf = makeTree(100 ..< 200)
-        let even = makeTree(200.stride(to: 300, by: 2))
-        let odd = makeTree(201.stride(to: 300, by: 2))
-        var almostEven = makeTree(200.stride(to: 300, by: 2))
-        almostEven.withCursorAt(280) { $0.key = 281 }
+        let even = makeTree(stride(from: 200, to: 300, by: 2))
+        let odd = makeTree(stride(from: 201, to: 300, by: 2))
+        var almostEven = makeTree(stride(from: 200, to: 300, by: 2))
+        almostEven.withCursor(onKey: 280) { $0.key = 281 }
 
-        XCTAssertFalse(firstHalf.isDisjointWith(firstHalf))
-        XCTAssertTrue(firstHalf.isDisjointWith(secondHalf))
-        XCTAssertTrue(firstHalf.isDisjointWith(even))
-        XCTAssertTrue(firstHalf.isDisjointWith(odd))
-        XCTAssertTrue(firstHalf.isDisjointWith(almostEven))
+        XCTAssertFalse(firstHalf.isDisjoint(with: firstHalf))
+        XCTAssertTrue(firstHalf.isDisjoint(with: secondHalf))
+        XCTAssertTrue(firstHalf.isDisjoint(with: even))
+        XCTAssertTrue(firstHalf.isDisjoint(with: odd))
+        XCTAssertTrue(firstHalf.isDisjoint(with: almostEven))
 
-        XCTAssertTrue(secondHalf.isDisjointWith(firstHalf))
-        XCTAssertFalse(secondHalf.isDisjointWith(secondHalf))
-        XCTAssertTrue(secondHalf.isDisjointWith(even))
-        XCTAssertTrue(secondHalf.isDisjointWith(odd))
-        XCTAssertTrue(secondHalf.isDisjointWith(almostEven))
+        XCTAssertTrue(secondHalf.isDisjoint(with: firstHalf))
+        XCTAssertFalse(secondHalf.isDisjoint(with: secondHalf))
+        XCTAssertTrue(secondHalf.isDisjoint(with: even))
+        XCTAssertTrue(secondHalf.isDisjoint(with: odd))
+        XCTAssertTrue(secondHalf.isDisjoint(with: almostEven))
 
-        XCTAssertTrue(even.isDisjointWith(firstHalf))
-        XCTAssertTrue(even.isDisjointWith(secondHalf))
-        XCTAssertTrue(even.isDisjointWith(odd))
-        XCTAssertFalse(even.isDisjointWith(even))
-        XCTAssertFalse(even.isDisjointWith(almostEven))
+        XCTAssertTrue(even.isDisjoint(with: firstHalf))
+        XCTAssertTrue(even.isDisjoint(with: secondHalf))
+        XCTAssertTrue(even.isDisjoint(with: odd))
+        XCTAssertFalse(even.isDisjoint(with: even))
+        XCTAssertFalse(even.isDisjoint(with: almostEven))
 
-        XCTAssertTrue(odd.isDisjointWith(firstHalf))
-        XCTAssertTrue(odd.isDisjointWith(secondHalf))
-        XCTAssertFalse(odd.isDisjointWith(odd))
-        XCTAssertTrue(odd.isDisjointWith(even))
-        XCTAssertFalse(odd.isDisjointWith(almostEven))
+        XCTAssertTrue(odd.isDisjoint(with: firstHalf))
+        XCTAssertTrue(odd.isDisjoint(with: secondHalf))
+        XCTAssertFalse(odd.isDisjoint(with: odd))
+        XCTAssertTrue(odd.isDisjoint(with: even))
+        XCTAssertFalse(odd.isDisjoint(with: almostEven))
 
-        XCTAssertTrue(almostEven.isDisjointWith(firstHalf))
-        XCTAssertTrue(almostEven.isDisjointWith(secondHalf))
-        XCTAssertFalse(almostEven.isDisjointWith(odd))
-        XCTAssertFalse(almostEven.isDisjointWith(even))
-        XCTAssertFalse(almostEven.isDisjointWith(almostEven))
+        XCTAssertTrue(almostEven.isDisjoint(with: firstHalf))
+        XCTAssertTrue(almostEven.isDisjoint(with: secondHalf))
+        XCTAssertFalse(almostEven.isDisjoint(with: odd))
+        XCTAssertFalse(almostEven.isDisjoint(with: even))
+        XCTAssertFalse(almostEven.isDisjoint(with: almostEven))
     }
 
     func test_isSubsetOf_SimpleCases() {
@@ -149,41 +149,41 @@ class BTreeComparisonTests: XCTestCase {
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
         
-        XCTAssertTrue(a.isSubsetOf(b))
-        XCTAssertFalse(a.isSubsetOf(c))
-        XCTAssertTrue(a.isSubsetOf(d))
-        XCTAssertFalse(a.isSubsetOf(e))
-        XCTAssertFalse(a.isSubsetOf(f))
+        XCTAssertTrue(a.isSubset(of: b))
+        XCTAssertFalse(a.isSubset(of: c))
+        XCTAssertTrue(a.isSubset(of: d))
+        XCTAssertFalse(a.isSubset(of: e))
+        XCTAssertFalse(a.isSubset(of: f))
 
-        XCTAssertTrue(b.isSubsetOf(a))
-        XCTAssertFalse(b.isSubsetOf(c))
-        XCTAssertTrue(b.isSubsetOf(d))
-        XCTAssertFalse(b.isSubsetOf(e))
-        XCTAssertFalse(b.isSubsetOf(f))
+        XCTAssertTrue(b.isSubset(of: a))
+        XCTAssertFalse(b.isSubset(of: c))
+        XCTAssertTrue(b.isSubset(of: d))
+        XCTAssertFalse(b.isSubset(of: e))
+        XCTAssertFalse(b.isSubset(of: f))
 
-        XCTAssertTrue(c.isSubsetOf(a))
-        XCTAssertTrue(c.isSubsetOf(b))
-        XCTAssertTrue(c.isSubsetOf(d))
-        XCTAssertFalse(c.isSubsetOf(e))
-        XCTAssertFalse(c.isSubsetOf(f))
+        XCTAssertTrue(c.isSubset(of: a))
+        XCTAssertTrue(c.isSubset(of: b))
+        XCTAssertTrue(c.isSubset(of: d))
+        XCTAssertFalse(c.isSubset(of: e))
+        XCTAssertFalse(c.isSubset(of: f))
 
-        XCTAssertFalse(d.isSubsetOf(a))
-        XCTAssertFalse(d.isSubsetOf(b))
-        XCTAssertFalse(d.isSubsetOf(c))
-        XCTAssertFalse(d.isSubsetOf(e))
-        XCTAssertFalse(d.isSubsetOf(f))
+        XCTAssertFalse(d.isSubset(of: a))
+        XCTAssertFalse(d.isSubset(of: b))
+        XCTAssertFalse(d.isSubset(of: c))
+        XCTAssertFalse(d.isSubset(of: e))
+        XCTAssertFalse(d.isSubset(of: f))
 
-        XCTAssertTrue(e.isSubsetOf(a))
-        XCTAssertTrue(e.isSubsetOf(b))
-        XCTAssertFalse(e.isSubsetOf(c))
-        XCTAssertTrue(e.isSubsetOf(d))
-        XCTAssertFalse(e.isSubsetOf(f))
+        XCTAssertTrue(e.isSubset(of: a))
+        XCTAssertTrue(e.isSubset(of: b))
+        XCTAssertFalse(e.isSubset(of: c))
+        XCTAssertTrue(e.isSubset(of: d))
+        XCTAssertFalse(e.isSubset(of: f))
 
-        XCTAssertTrue(f.isSubsetOf(a))
-        XCTAssertTrue(f.isSubsetOf(b))
-        XCTAssertTrue(f.isSubsetOf(c))
-        XCTAssertTrue(f.isSubsetOf(d))
-        XCTAssertFalse(f.isSubsetOf(e))
+        XCTAssertTrue(f.isSubset(of: a))
+        XCTAssertTrue(f.isSubset(of: b))
+        XCTAssertTrue(f.isSubset(of: c))
+        XCTAssertTrue(f.isSubset(of: d))
+        XCTAssertFalse(f.isSubset(of: e))
     }
 
     func test_isStrictSubsetOf_SimpleCases() {
@@ -194,41 +194,41 @@ class BTreeComparisonTests: XCTestCase {
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
         
-        XCTAssertFalse(a.isStrictSubsetOf(b))
-        XCTAssertFalse(a.isStrictSubsetOf(c))
-        XCTAssertTrue(a.isStrictSubsetOf(d))
-        XCTAssertFalse(a.isStrictSubsetOf(e))
-        XCTAssertFalse(a.isStrictSubsetOf(f))
+        XCTAssertFalse(a.isStrictSubset(of: b))
+        XCTAssertFalse(a.isStrictSubset(of: c))
+        XCTAssertTrue(a.isStrictSubset(of: d))
+        XCTAssertFalse(a.isStrictSubset(of: e))
+        XCTAssertFalse(a.isStrictSubset(of: f))
 
-        XCTAssertFalse(b.isStrictSubsetOf(a))
-        XCTAssertFalse(b.isStrictSubsetOf(c))
-        XCTAssertTrue(b.isStrictSubsetOf(d))
-        XCTAssertFalse(b.isStrictSubsetOf(e))
-        XCTAssertFalse(b.isStrictSubsetOf(f))
+        XCTAssertFalse(b.isStrictSubset(of: a))
+        XCTAssertFalse(b.isStrictSubset(of: c))
+        XCTAssertTrue(b.isStrictSubset(of: d))
+        XCTAssertFalse(b.isStrictSubset(of: e))
+        XCTAssertFalse(b.isStrictSubset(of: f))
 
-        XCTAssertTrue(c.isStrictSubsetOf(a))
-        XCTAssertTrue(c.isStrictSubsetOf(b))
-        XCTAssertTrue(c.isStrictSubsetOf(d))
-        XCTAssertFalse(c.isStrictSubsetOf(e))
-        XCTAssertFalse(c.isStrictSubsetOf(f))
+        XCTAssertTrue(c.isStrictSubset(of: a))
+        XCTAssertTrue(c.isStrictSubset(of: b))
+        XCTAssertTrue(c.isStrictSubset(of: d))
+        XCTAssertFalse(c.isStrictSubset(of: e))
+        XCTAssertFalse(c.isStrictSubset(of: f))
 
-        XCTAssertFalse(d.isStrictSubsetOf(a))
-        XCTAssertFalse(d.isStrictSubsetOf(b))
-        XCTAssertFalse(d.isStrictSubsetOf(c))
-        XCTAssertFalse(d.isStrictSubsetOf(e))
-        XCTAssertFalse(d.isStrictSubsetOf(f))
+        XCTAssertFalse(d.isStrictSubset(of: a))
+        XCTAssertFalse(d.isStrictSubset(of: b))
+        XCTAssertFalse(d.isStrictSubset(of: c))
+        XCTAssertFalse(d.isStrictSubset(of: e))
+        XCTAssertFalse(d.isStrictSubset(of: f))
 
-        XCTAssertTrue(e.isStrictSubsetOf(a))
-        XCTAssertTrue(e.isStrictSubsetOf(b))
-        XCTAssertFalse(e.isStrictSubsetOf(c))
-        XCTAssertTrue(e.isStrictSubsetOf(d))
-        XCTAssertFalse(e.isStrictSubsetOf(f))
+        XCTAssertTrue(e.isStrictSubset(of: a))
+        XCTAssertTrue(e.isStrictSubset(of: b))
+        XCTAssertFalse(e.isStrictSubset(of: c))
+        XCTAssertTrue(e.isStrictSubset(of: d))
+        XCTAssertFalse(e.isStrictSubset(of: f))
 
-        XCTAssertTrue(f.isStrictSubsetOf(a))
-        XCTAssertTrue(f.isStrictSubsetOf(b))
-        XCTAssertTrue(f.isStrictSubsetOf(c))
-        XCTAssertTrue(f.isStrictSubsetOf(d))
-        XCTAssertFalse(f.isStrictSubsetOf(e))
+        XCTAssertTrue(f.isStrictSubset(of: a))
+        XCTAssertTrue(f.isStrictSubset(of: b))
+        XCTAssertTrue(f.isStrictSubset(of: c))
+        XCTAssertTrue(f.isStrictSubset(of: d))
+        XCTAssertFalse(f.isStrictSubset(of: e))
     }
 
     func test_isSupersetOf_SimpleCases() {
@@ -239,41 +239,41 @@ class BTreeComparisonTests: XCTestCase {
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
         
-        XCTAssertTrue(a.isSupersetOf(b))
-        XCTAssertTrue(a.isSupersetOf(c))
-        XCTAssertFalse(a.isSupersetOf(d))
-        XCTAssertTrue(a.isSupersetOf(e))
-        XCTAssertTrue(a.isSupersetOf(f))
+        XCTAssertTrue(a.isSuperset(of: b))
+        XCTAssertTrue(a.isSuperset(of: c))
+        XCTAssertFalse(a.isSuperset(of: d))
+        XCTAssertTrue(a.isSuperset(of: e))
+        XCTAssertTrue(a.isSuperset(of: f))
 
-        XCTAssertTrue(b.isSupersetOf(a))
-        XCTAssertTrue(b.isSupersetOf(c))
-        XCTAssertFalse(b.isSupersetOf(d))
-        XCTAssertTrue(b.isSupersetOf(e))
-        XCTAssertTrue(b.isSupersetOf(f))
+        XCTAssertTrue(b.isSuperset(of: a))
+        XCTAssertTrue(b.isSuperset(of: c))
+        XCTAssertFalse(b.isSuperset(of: d))
+        XCTAssertTrue(b.isSuperset(of: e))
+        XCTAssertTrue(b.isSuperset(of: f))
 
-        XCTAssertFalse(c.isSupersetOf(a))
-        XCTAssertFalse(c.isSupersetOf(b))
-        XCTAssertFalse(c.isSupersetOf(d))
-        XCTAssertFalse(c.isSupersetOf(e))
-        XCTAssertTrue(c.isSupersetOf(f))
+        XCTAssertFalse(c.isSuperset(of: a))
+        XCTAssertFalse(c.isSuperset(of: b))
+        XCTAssertFalse(c.isSuperset(of: d))
+        XCTAssertFalse(c.isSuperset(of: e))
+        XCTAssertTrue(c.isSuperset(of: f))
 
-        XCTAssertTrue(d.isSupersetOf(a))
-        XCTAssertTrue(d.isSupersetOf(b))
-        XCTAssertTrue(d.isSupersetOf(c))
-        XCTAssertTrue(d.isSupersetOf(e))
-        XCTAssertTrue(d.isSupersetOf(f))
+        XCTAssertTrue(d.isSuperset(of: a))
+        XCTAssertTrue(d.isSuperset(of: b))
+        XCTAssertTrue(d.isSuperset(of: c))
+        XCTAssertTrue(d.isSuperset(of: e))
+        XCTAssertTrue(d.isSuperset(of: f))
 
-        XCTAssertFalse(e.isSupersetOf(a))
-        XCTAssertFalse(e.isSupersetOf(b))
-        XCTAssertFalse(e.isSupersetOf(c))
-        XCTAssertFalse(e.isSupersetOf(d))
-        XCTAssertFalse(e.isSupersetOf(f))
+        XCTAssertFalse(e.isSuperset(of: a))
+        XCTAssertFalse(e.isSuperset(of: b))
+        XCTAssertFalse(e.isSuperset(of: c))
+        XCTAssertFalse(e.isSuperset(of: d))
+        XCTAssertFalse(e.isSuperset(of: f))
 
-        XCTAssertFalse(f.isSupersetOf(a))
-        XCTAssertFalse(f.isSupersetOf(b))
-        XCTAssertFalse(f.isSupersetOf(c))
-        XCTAssertFalse(f.isSupersetOf(d))
-        XCTAssertFalse(f.isSupersetOf(e))
+        XCTAssertFalse(f.isSuperset(of: a))
+        XCTAssertFalse(f.isSuperset(of: b))
+        XCTAssertFalse(f.isSuperset(of: c))
+        XCTAssertFalse(f.isSuperset(of: d))
+        XCTAssertFalse(f.isSuperset(of: e))
     }
 
     func test_isStrictSupersetOf_SimpleCases() {
@@ -284,41 +284,41 @@ class BTreeComparisonTests: XCTestCase {
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
         
-        XCTAssertFalse(b.isStrictSupersetOf(a))
-        XCTAssertFalse(c.isStrictSupersetOf(a))
-        XCTAssertTrue(d.isStrictSupersetOf(a))
-        XCTAssertFalse(e.isStrictSupersetOf(a))
-        XCTAssertFalse(f.isStrictSupersetOf(a))
+        XCTAssertFalse(b.isStrictSuperset(of: a))
+        XCTAssertFalse(c.isStrictSuperset(of: a))
+        XCTAssertTrue(d.isStrictSuperset(of: a))
+        XCTAssertFalse(e.isStrictSuperset(of: a))
+        XCTAssertFalse(f.isStrictSuperset(of: a))
 
-        XCTAssertFalse(a.isStrictSupersetOf(b))
-        XCTAssertFalse(c.isStrictSupersetOf(b))
-        XCTAssertTrue(d.isStrictSupersetOf(b))
-        XCTAssertFalse(e.isStrictSupersetOf(b))
-        XCTAssertFalse(f.isStrictSupersetOf(b))
+        XCTAssertFalse(a.isStrictSuperset(of: b))
+        XCTAssertFalse(c.isStrictSuperset(of: b))
+        XCTAssertTrue(d.isStrictSuperset(of: b))
+        XCTAssertFalse(e.isStrictSuperset(of: b))
+        XCTAssertFalse(f.isStrictSuperset(of: b))
 
-        XCTAssertTrue(a.isStrictSupersetOf(c))
-        XCTAssertTrue(b.isStrictSupersetOf(c))
-        XCTAssertTrue(d.isStrictSupersetOf(c))
-        XCTAssertFalse(e.isStrictSupersetOf(c))
-        XCTAssertFalse(f.isStrictSupersetOf(c))
+        XCTAssertTrue(a.isStrictSuperset(of: c))
+        XCTAssertTrue(b.isStrictSuperset(of: c))
+        XCTAssertTrue(d.isStrictSuperset(of: c))
+        XCTAssertFalse(e.isStrictSuperset(of: c))
+        XCTAssertFalse(f.isStrictSuperset(of: c))
 
-        XCTAssertFalse(a.isStrictSupersetOf(d))
-        XCTAssertFalse(b.isStrictSupersetOf(d))
-        XCTAssertFalse(c.isStrictSupersetOf(d))
-        XCTAssertFalse(e.isStrictSupersetOf(d))
-        XCTAssertFalse(f.isStrictSupersetOf(d))
+        XCTAssertFalse(a.isStrictSuperset(of: d))
+        XCTAssertFalse(b.isStrictSuperset(of: d))
+        XCTAssertFalse(c.isStrictSuperset(of: d))
+        XCTAssertFalse(e.isStrictSuperset(of: d))
+        XCTAssertFalse(f.isStrictSuperset(of: d))
 
-        XCTAssertTrue(a.isStrictSupersetOf(e))
-        XCTAssertTrue(b.isStrictSupersetOf(e))
-        XCTAssertFalse(c.isStrictSupersetOf(e))
-        XCTAssertTrue(d.isStrictSupersetOf(e))
-        XCTAssertFalse(f.isStrictSupersetOf(e))
+        XCTAssertTrue(a.isStrictSuperset(of: e))
+        XCTAssertTrue(b.isStrictSuperset(of: e))
+        XCTAssertFalse(c.isStrictSuperset(of: e))
+        XCTAssertTrue(d.isStrictSuperset(of: e))
+        XCTAssertFalse(f.isStrictSuperset(of: e))
 
-        XCTAssertTrue(a.isStrictSupersetOf(f))
-        XCTAssertTrue(b.isStrictSupersetOf(f))
-        XCTAssertTrue(c.isStrictSupersetOf(f))
-        XCTAssertTrue(d.isStrictSupersetOf(f))
-        XCTAssertFalse(e.isStrictSupersetOf(f))
+        XCTAssertTrue(a.isStrictSuperset(of: f))
+        XCTAssertTrue(b.isStrictSuperset(of: f))
+        XCTAssertTrue(c.isStrictSuperset(of: f))
+        XCTAssertTrue(d.isStrictSuperset(of: f))
+        XCTAssertFalse(e.isStrictSuperset(of: f))
     }
 
     func test_isSubsetOf_SharedNodes() {
@@ -328,9 +328,9 @@ class BTreeComparisonTests: XCTestCase {
         var z = x
         z.removeFirst()
 
-        XCTAssertTrue(x.isSubsetOf(x))
-        XCTAssertTrue(y.isSubsetOf(x))
-        XCTAssertTrue(z.isSubsetOf(x))
+        XCTAssertTrue(x.isSubset(of: x))
+        XCTAssertTrue(y.isSubset(of: x))
+        XCTAssertTrue(z.isSubset(of: x))
     }
 
     func test_isSubsetOf_DuplicateKey() {
@@ -338,26 +338,26 @@ class BTreeComparisonTests: XCTestCase {
         let y = makeTree([0, 1, 1, 1, 2, 2, 2, 2, 2, 3])
         let z = makeTree([0, 1, 2, 3, 4])
 
-        XCTAssertTrue(x.isSubsetOf(y))
-        XCTAssertTrue(x.isStrictSubsetOf(y))
-        XCTAssertTrue(x.isSubsetOf(z))
-        XCTAssertTrue(x.isStrictSubsetOf(z))
+        XCTAssertTrue(x.isSubset(of: y))
+        XCTAssertTrue(x.isStrictSubset(of: y))
+        XCTAssertTrue(x.isSubset(of: z))
+        XCTAssertTrue(x.isStrictSubset(of: z))
 
-        XCTAssertFalse(y.isSubsetOf(x))
-        XCTAssertFalse(y.isStrictSubsetOf(x))
-        XCTAssertTrue(y.isSubsetOf(z))
-        XCTAssertTrue(y.isStrictSubsetOf(z))
+        XCTAssertFalse(y.isSubset(of: x))
+        XCTAssertFalse(y.isStrictSubset(of: x))
+        XCTAssertTrue(y.isSubset(of: z))
+        XCTAssertTrue(y.isStrictSubset(of: z))
 
-        XCTAssertFalse(z.isSubsetOf(x))
-        XCTAssertFalse(z.isStrictSubsetOf(x))
-        XCTAssertFalse(z.isSubsetOf(y))
-        XCTAssertFalse(z.isStrictSubsetOf(y))
+        XCTAssertFalse(z.isSubset(of: x))
+        XCTAssertFalse(z.isStrictSubset(of: x))
+        XCTAssertFalse(z.isSubset(of: y))
+        XCTAssertFalse(z.isStrictSubset(of: y))
     }
 
     func test_isSubsetOf_() {
         let a = makeTree([3, 4, 5])
         let b = makeTree([0, 1, 2])
 
-        XCTAssertFalse(a.isSubsetOf(b))
+        XCTAssertFalse(a.isSubset(of: b))
     }
 }

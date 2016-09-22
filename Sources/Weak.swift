@@ -13,4 +13,3 @@ internal struct Weak<T: AnyObject> {
         self.value = value
     }
 }
-

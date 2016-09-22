@@ -16,11 +16,12 @@ extension BTree {
     /// - Parameter order: The desired B-tree order. If not specified (recommended), the default order is used.
     /// - Complexity: O(count * log(`count`))
     /// - SeeAlso: `init(sortedElements:order:fillFactor:)` for a (faster) variant that can be used if the sequence is already sorted.
-    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder) {
+    public init<S: Sequence>(_ elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder)
+        where S.Iterator.Element == Element {
         self.init(Node(order: order))
         withCursorAtEnd { cursor in
             for element in elements {
-                cursor.move(to: element.0, choosing: .Last)
+                cursor.move(to: element.0, choosing: .last)
                 let match = !cursor.isAtEnd && cursor.key == element.0
                 if match {
                     if dropDuplicates {
@@ -45,12 +46,12 @@ extension BTree {
     ///      If not specified, a value of 1.0 is used, i.e., nodes will be loaded with as many elements as possible.
     /// - Complexity: O(count)
     /// - SeeAlso: `init(elements:order:fillFactor:)` for a (slower) unsorted variant.
-    public init<S: SequenceType where S.Generator.Element == Element>(sortedElements elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder, fillFactor: Double = 1) {
-        var generator = elements.generate()
-        self.init(order: order, fillFactor: fillFactor, dropDuplicates: dropDuplicates, next: { generator.next() })
+    public init<S: Sequence>(sortedElements elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder, fillFactor: Double = 1) where S.Iterator.Element == Element {
+        var iterator = elements.makeIterator()
+        self.init(order: order, fillFactor: fillFactor, dropDuplicates: dropDuplicates, next: { iterator.next() })
     }
 
-    internal init(order: Int = Node.defaultOrder, fillFactor: Double = 1, dropDuplicates: Bool = false, @noescape next: () -> Element?) {
+    internal init(order: Int = Node.defaultOrder, fillFactor: Double = 1, dropDuplicates: Bool = false, next: () -> Element?) {
         precondition(order > 1)
         precondition(fillFactor >= 0.5 && fillFactor <= 1)
         let keysPerNode = Int(fillFactor * Double(order - 1) + 0.5)
@@ -74,7 +75,7 @@ extension BTree {
         else {
             var lastKey: Key? = nil
             while let element = next() {
-                precondition(lastKey <= element.0)
+                precondition(lastKey == nil || lastKey! <= element.0)
                 lastKey = element.0
                 builder.append(element)
             }
@@ -85,9 +86,9 @@ extension BTree {
 
 private enum BuilderState {
     /// The builder needs a separator element.
-    case Separator
+    case separator
     /// The builder is filling up a seedling node.
-    case Element
+    case element
 }
 
 /// A construct for efficiently building a fully loaded B-tree from a series of elements.
@@ -125,41 +126,41 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
         self.saplings = []
         self.separators = []
         self.seedling = Node(order: order)
-        self.state = .Element
+        self.state = .element
     }
 
-    mutating func append(element: Element) {
+    mutating func append(_ element: Element) {
         switch state {
-        case .Separator:
+        case .separator:
             separators.append(element)
-            state = .Element
-        case .Element:
+            state = .element
+        case .element:
             seedling.append(element)
             if seedling.count == keysPerNode {
                 closeSeedling()
-                state = .Separator
+                state = .separator
             }
         }
     }
 
     private mutating func closeSeedling() {
-        appendSapling(seedling)
+        append(sapling: seedling)
         seedling = Node(order: order)
     }
 
-    mutating func append(node: Node) {
+    mutating func append(_ node: Node) {
         appendWithoutCloning(node.clone())
     }
 
-    mutating func appendWithoutCloning(node: Node) {
+    mutating func appendWithoutCloning(_ node: Node) {
         assert(node.order == order)
         if node.depth == 0 {
             if node.isEmpty { return }
-            if state == .Separator {
+            if state == .separator {
                 assert(seedling.isEmpty)
                 separators.append(node.elements.removeFirst())
                 node.count -= 1
-                state = .Element
+                state = .element
                 if node.isEmpty { return }
                 seedling = node
             }
@@ -177,18 +178,18 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
             }
             if seedling.count >= keysPerNode {
                 closeSeedling()
-                state = .Separator
+                state = .separator
             }
             return
         }
 
-        if state == .Element && seedling.count > 0 {
+        if state == .element && seedling.count > 0 {
             let sep = seedling.elements.removeLast()
             seedling.count -= 1
             closeSeedling()
             separators.append(sep)
         }
-        if state == .Separator {
+        if state == .separator {
             let cursor = BTreeCursor(BTreeCursorPath(endOf: saplings.removeLast()))
             cursor.moveBackward()
             let separator = cursor.remove()
@@ -196,11 +197,11 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
             separators.append(separator)
         }
         assert(seedling.isEmpty)
-        appendSapling(node)
-        state = .Separator
+        append(sapling: node)
+        state = .separator
     }
 
-    private mutating func appendSapling(sapling: Node) {
+    private mutating func append(sapling: Node) {
         var sapling = sapling
         outer: while !saplings.isEmpty {
             assert(saplings.count == separators.count)
@@ -240,7 +241,7 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
             else if let splinter = previous.shiftSlots(separator: separator, node: sapling, target: keysPerNode) {
                 // We have made the previous sapling full; add it as a new one before trying again with the remainder.
                 assert(previous.elements.count == keysPerNode)
-                appendSapling(previous)
+                append(sapling: previous)
                 separators.append(splinter.separator)
                 sapling = splinter.node
             }
@@ -252,7 +253,6 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
         saplings.append(sapling)
     }
 
-    @warn_unused_result
     mutating func finish() -> Node {
         // Merge all saplings and the seedling into a single tree.
         var root: Node
@@ -267,7 +267,7 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
         while !saplings.isEmpty {
             root = Node.join(left: saplings.removeLast(), separator: separators.removeLast(), right: root)
         }
-        state = .Element
+        state = .element
         return root
     }
 }

@@ -14,7 +14,7 @@ class BTreeCursorTests: XCTestCase {
     typealias Tree = BTree<Int, String>
 
     func testCursorWithEmptyTree() {
-        func checkEmpty(cursor: BTreeCursor<Int, String>) {
+        func checkEmpty(_ cursor: BTreeCursor<Int, String>) {
             XCTAssertTrue(cursor.isValid)
             XCTAssertTrue(cursor.isAtStart)
             XCTAssertTrue(cursor.isAtEnd)
@@ -26,11 +26,11 @@ class BTreeCursorTests: XCTestCase {
         var tree = Tree()
         tree.withCursorAtStart(checkEmpty)
         tree.withCursorAtEnd(checkEmpty)
-        tree.withCursorAtOffset(0, body: checkEmpty)
-        tree.withCursorAt(42, choosing: .First, body: checkEmpty)
-        tree.withCursorAt(42, choosing: .Last, body: checkEmpty)
-        tree.withCursorAt(42, choosing: .After, body: checkEmpty)
-        tree.withCursorAt(42, choosing: .Any, body: checkEmpty)
+        tree.withCursor(atOffset: 0, body: checkEmpty)
+        tree.withCursor(onKey: 42, choosing: .first, body: checkEmpty)
+        tree.withCursor(onKey: 42, choosing: .last, body: checkEmpty)
+        tree.withCursor(onKey: 42, choosing: .after, body: checkEmpty)
+        tree.withCursor(onKey: 42, choosing: .any, body: checkEmpty)
     }
 
     func testCursorAtStart() {
@@ -58,13 +58,13 @@ class BTreeCursorTests: XCTestCase {
         var tree = maximalTree(depth: 3, order: 4)
         let c = tree.count
         for p in 0 ..< c {
-            tree.withCursorAtOffset(p) { cursor in
+            tree.withCursor(atOffset: p) { cursor in
                 XCTAssertEqual(cursor.offset, p)
                 XCTAssertEqual(cursor.key, p)
                 XCTAssertEqual(cursor.value, String(p))
             }
         }
-        tree.withCursorAtOffset(c) { cursor in
+        tree.withCursor(atOffset: c) { cursor in
             XCTAssertTrue(cursor.isAtEnd)
         }
     }
@@ -80,10 +80,10 @@ class BTreeCursorTests: XCTestCase {
         tree.assertValid()
 
         for i in 0 ..< count {
-            tree.withCursorAt(2 * i + 1, choosing: .First) { cursor in
+            tree.withCursor(onKey: 2 * i + 1, choosing: .first) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
             }
-            tree.withCursorAt(2 * i, choosing: .First) { cursor in
+            tree.withCursor(onKey: 2 * i, choosing: .first) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * i)
                 XCTAssertEqual(cursor.key, 2 * i)
                 XCTAssertEqual(cursor.value, String(2 * i) + "/1")
@@ -102,10 +102,10 @@ class BTreeCursorTests: XCTestCase {
         tree.assertValid()
 
         for i in 0 ..< count {
-            tree.withCursorAt(2 * i + 1, choosing: .Last) { cursor in
+            tree.withCursor(onKey: 2 * i + 1, choosing: .last) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
             }
-            tree.withCursorAt(2 * i, choosing: .Last) { cursor in
+            tree.withCursor(onKey: 2 * i, choosing: .last) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * i + 2)
                 XCTAssertEqual(cursor.key, 2 * i)
                 XCTAssertEqual(cursor.value, String(2 * i) + "/3")
@@ -124,10 +124,10 @@ class BTreeCursorTests: XCTestCase {
         tree.assertValid()
 
         for i in 0 ..< count {
-            tree.withCursorAt(2 * i + 1, choosing: .After) { cursor in
+            tree.withCursor(onKey: 2 * i + 1, choosing: .after) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
             }
-            tree.withCursorAt(2 * i, choosing: .After) { cursor in
+            tree.withCursor(onKey: 2 * i, choosing: .after) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
                 XCTAssertEqual(cursor.key, 2 * (i + 1))
                 XCTAssertEqual(cursor.value, String(2 * (i + 1)) + "/1")
@@ -146,10 +146,10 @@ class BTreeCursorTests: XCTestCase {
         tree.assertValid()
 
         for i in 0 ..< count {
-            tree.withCursorAt(2 * i + 1) { cursor in
+            tree.withCursor(onKey: 2 * i + 1) { cursor in
                 XCTAssertEqual(cursor.offset, 3 * (i + 1))
             }
-            tree.withCursorAt(2 * i) { cursor in
+            tree.withCursor(onKey: 2 * i) { cursor in
                 XCTAssertGreaterThanOrEqual(cursor.offset, 3 * i)
                 XCTAssertLessThan(cursor.offset, 3 * (i + 1))
                 XCTAssertEqual(cursor.key, 2 * i)
@@ -162,8 +162,8 @@ class BTreeCursorTests: XCTestCase {
         var tree = maximalTree(depth: 3, order: 3)
         let count = tree.count
         for i in 0 ... count {
-            let index = tree.startIndex.advancedBy(i)
-            tree.withCursorAt(index) { cursor in
+            let index = tree.index(tree.startIndex, offsetBy: i)
+            tree.withCursor(at: index) { cursor in
                 XCTAssertEqual(cursor.offset, i)
                 if i != count {
                     XCTAssertEqual(cursor.key, i)
@@ -209,7 +209,7 @@ class BTreeCursorTests: XCTestCase {
         var tree = maximalTree(depth: 2, order: 5)
         let c = tree.count
         for i in 0 ... c {
-            tree.withCursorAtOffset(i) { cursor in
+            tree.withCursor(atOffset: i) { cursor in
                 cursor.moveToEnd()
                 XCTAssertTrue(cursor.isAtEnd)
                 XCTAssertEqual(cursor.offset, c)
@@ -423,7 +423,7 @@ class BTreeCursorTests: XCTestCase {
         let c = 30
         tree.withCursorAtStart() { cursor in
             XCTAssertTrue(cursor.isAtEnd)
-            for i in (c - 1).stride(through: 0, by: -1) {
+            for i in stride(from: c - 1, through: 0, by: -1) {
                 cursor.insert((i, String(i)))
                 XCTAssertEqual(cursor.count, c - i)
                 XCTAssertEqual(cursor.offset, 1)
@@ -442,11 +442,11 @@ class BTreeCursorTests: XCTestCase {
         let tree = Tree(sortedElements: reference, order: 5)
         for i in 0 ... c {
             var test = tree
-            test.withCursorAtOffset(i) { cursor in
+            test.withCursor(atOffset: i) { cursor in
                 cursor.insert((i, "*\(i)"))
             }
             var expected = reference
-            expected.insert((i, "*\(i)"), atIndex: i)
+            expected.insert((i, "*\(i)"), at: i)
             test.assertValid()
             assertEqualElements(test, expected)
             assertEqualElements(tree, reference)
@@ -505,7 +505,7 @@ class BTreeCursorTests: XCTestCase {
         let tree = maximalTree(depth: 2, order: 5)
         for i in 0..<tree.count {
             var copy = tree
-            copy.withCursorAtOffset(i) { cursor in
+            copy.withCursor(atOffset: i) { cursor in
                 let removed = cursor.remove()
                 XCTAssertEqual(removed.0, i)
                 XCTAssertEqual(removed.1, String(i))
@@ -521,7 +521,7 @@ class BTreeCursorTests: XCTestCase {
         for i in 0 ..< count {
             for n in 0 ... count - i {
                 var copy = tree
-                copy.withCursorAtOffset(i) { cursor in
+                copy.withCursor(atOffset: i) { cursor in
                     cursor.remove(n)
                 }
                 copy.assertValid()
@@ -539,7 +539,7 @@ class BTreeCursorTests: XCTestCase {
         for i in 0 ..< count {
             for n in 0 ... count - i {
                 var copy = tree
-                copy.withCursorAtOffset(i) { cursor in
+                copy.withCursor(atOffset: i) { cursor in
                     let extracted = cursor.extract(n)
                     extracted.assertValid()
                     assertEqualElements(extracted, (i ..< i + n).map { ($0, String($0)) })
@@ -572,25 +572,25 @@ class BTreeCursorTests: XCTestCase {
         XCTAssertTrue(t1.isEmpty)
 
         var t2 = maximalTree(depth: 2, order: 3)
-        t2.withCursorAtOffset(c - 1) { cursor in
+        t2.withCursor(atOffset: c - 1) { cursor in
             cursor.removeAllBefore(includingCurrent: true)
         }
         XCTAssertTrue(t2.isEmpty)
 
         var t3 = maximalTree(depth: 2, order: 3)
-        t3.withCursorAtOffset(c - 1) { cursor in
+        t3.withCursor(atOffset: c - 1) { cursor in
             cursor.removeAllBefore(includingCurrent: false)
         }
         assertEqualElements(t3, [(c - 1, String(c - 1))])
 
         var t4 = maximalTree(depth: 2, order: 3)
-        t4.withCursorAtOffset(c - 10) { cursor in
+        t4.withCursor(atOffset: c - 10) { cursor in
             cursor.removeAllBefore(includingCurrent: true)
         }
         assertEqualElements(t4, (c - 9 ..< c).map { ($0, String($0)) })
 
         var t5 = maximalTree(depth: 2, order: 3)
-        t5.withCursorAtOffset(c - 10) { cursor in
+        t5.withCursor(atOffset: c - 10) { cursor in
             cursor.removeAllBefore(includingCurrent: false)
         }
         assertEqualElements(t5, (c - 10 ..< c).map { ($0, String($0)) })
@@ -622,32 +622,32 @@ class BTreeCursorTests: XCTestCase {
         assertEqualElements(t2, [(0, "0")])
 
         var t3 = maximalTree(depth: 2, order: 3)
-        t3.withCursorAtOffset(1) { cursor in
+        t3.withCursor(atOffset: 1) { cursor in
             cursor.removeAllAfter(includingCurrent: true)
         }
         assertEqualElements(t3, [(0, "0")])
 
         var t4 = maximalTree(depth: 2, order: 3)
-        t4.withCursorAtOffset(1) { cursor in
+        t4.withCursor(atOffset: 1) { cursor in
             cursor.removeAllAfter(includingCurrent: false)
         }
         assertEqualElements(t4, [(0, "0"), (1, "1")])
 
         var t5 = maximalTree(depth: 2, order: 3)
-        t5.withCursorAtOffset(10) { cursor in
+        t5.withCursor(atOffset: 10) { cursor in
             cursor.removeAllAfter(includingCurrent: true)
         }
         assertEqualElements(t5, (0 ..< 10).map { ($0, String($0)) })
 
         var t6 = maximalTree(depth: 2, order: 3)
-        t6.withCursorAtOffset(10) { cursor in
+        t6.withCursor(atOffset: 10) { cursor in
             cursor.removeAllAfter(includingCurrent: false)
         }
         assertEqualElements(t6, (0 ... 10).map { ($0, String($0)) })
 
         var t7 = maximalTree(depth: 2, order: 3)
         let c = t7.count
-        t7.withCursorAtOffset(c - 1) { cursor in
+        t7.withCursor(atOffset: c - 1) { cursor in
             cursor.removeAllAfter(includingCurrent: false)
         }
         assertEqualElements(t7, (0 ..< c).map { ($0, String($0)) })

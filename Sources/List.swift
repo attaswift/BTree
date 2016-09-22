@@ -19,18 +19,18 @@
 /// Using the batch operations provided by `List` can often be much faster than processing individual elements
 /// one by one. For example, splitting a list or concatenating two lists can be done in O(log(n)) time.
 ///
-/// - Note: While `List` implements all formal requirements of `CollectionType`, it violates the semantic requirement 
-///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(`count`))`. Collection algorithms that
-///   rely on subscripting will have higher complexity than expected. (This does not affect algorithms that use
-///   generate() to iterate over elements.)
+/// - Note: `List` implements all formal requirements of `CollectionType`, but it violates the semantic requirement
+///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(count))`, since it requires an offset
+///   lookup in the B-tree. However, B-trees for typical element sizes and counts are extremely shallow 
+///   (~5-10 levels for a billion elements), so in practice offset lookup behaves more like `O(1)` than `O(log(count))`.
 ///
 public struct List<Element> {
     internal typealias Tree = BTree<EmptyKey, Element>
 
     /// The B-tree that serves as storage.
-    internal private(set) var tree: Tree
+    internal fileprivate(set) var tree: Tree
 
-    private init(_ tree: Tree) {
+    internal init(_ tree: Tree) {
         self.tree = tree
     }
     
@@ -40,23 +40,18 @@ public struct List<Element> {
     }
 }
 
-/// A dummy, zero-size key that is useful in B-trees that don't need key-based lookup.
-internal struct EmptyKey: Comparable { }
-internal func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
-internal func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
-
 extension List {
     //MARK: Initializers
 
     /// Initialize a new list from the given elements.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements in the sequence.
-    public init<S: SequenceType where S.Generator.Element == Element>(_ elements: S) {
+    public init<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
         self.init(Tree(sortedElements: elements.lazy.map { (EmptyKey(), $0) }))
     }
 }
 
-extension List: ArrayLiteralConvertible {
+extension List: ExpressibleByArrayLiteral {
     //MARK: Conversion from an array literal
 
     /// Initialize a new list from the given elements.
@@ -71,7 +66,7 @@ extension List: CustomStringConvertible {
     /// A textual representation of this list.
     public var description: String {
         let contents = self.map { element in String(reflecting: element) }
-        return "[" + contents.joinWithSeparator(", ") + "]"
+        return "[" + contents.joined(separator: ", ") + "]"
     }
 }
 
@@ -79,15 +74,15 @@ extension List: CustomDebugStringConvertible {
     /// A textual representation of this list, suitable for debugging.
     public var debugDescription: String {
         let contents = self.map { element in String(reflecting: element) }
-        return "[" + contents.joinWithSeparator(", ") + "]"
+        return "[" + contents.joined(separator: ", ") + "]"
     }
 }
 
-extension List: MutableCollectionType {
+extension List: MutableCollection, BidirectionalCollection {
     //MARK: CollectionType
     
     public typealias Index = Int
-    public typealias Generator = BTreeValueGenerator<Element>
+    public typealias Iterator = BTreeValueIterator<Element>
     public typealias SubSequence = List<Element>
 
     /// Always zero, which is the index of the first element when non-empty.
@@ -115,10 +110,10 @@ extension List: MutableCollectionType {
     /// - Complexity: O(log(`count`))
     public subscript(index: Int) -> Element {
         get {
-            return tree.elementAtOffset(index).1
+            return tree.element(atOffset: index).1
         }
         set {
-            tree.setValueAt(index, to: newValue)
+            tree.setValue(atOffset: index, to: newValue)
         }
     }
 
@@ -127,17 +122,88 @@ extension List: MutableCollectionType {
     /// - Complexity: O(log(`count`)) for the getter, and O(log(`count`) + `range.count`) for the setter.
     public subscript(range: Range<Int>) -> List<Element> {
         get {
-            return List(tree.subtree(with: range))
+            return List(tree.subtree(withOffsets: range))
         }
         set {
-            self.replaceRange(range, with: newValue)
+            self.replaceSubrange(range, with: newValue)
         }
     }
 
-    /// Return a generator over all elements in this list.
-    @warn_unused_result
-    public func generate() -> Generator {
-        return Generator(tree.generate())
+    /// Return an iterator over all elements in this list.
+    public func makeIterator() -> Iterator {
+        return Iterator(tree.makeIterator())
+    }
+
+    /// Return the successor value of `index`. This method does not verify that the given index or the result are valid in this list.
+    public func index(after index: Index) -> Index {
+        return index + 1
+    }
+
+    /// Replace `index` by its successor.
+    /// This method does not verify that the given index or the result are valid in this list.
+    public func formIndex(after index: inout Index) {
+        index += 1
+    }
+
+    /// Return the predecessor value of `index`. 
+    /// This method does not verify that the given index or the result are valid in this list.
+    public func index(before index: Index) -> Index {
+        return index - 1
+    }
+
+    /// Replace `index` by its predecessor.
+    /// This method does not verify that the given index or the result are valid in this list.
+    public func formIndex(before index: inout Index) {
+        index -= 1
+    }
+
+    /// Add `n` to `i` and return the result. 
+    /// This method does not verify that the given index or the result are valid in this list.
+    public func index(_ i: Index, offsetBy n: Int) -> Index {
+        return i + n
+    }
+
+    /// Add `n` to `i` in place. 
+    /// This method does not verify that the given index or the result are valid in this list.
+    public func formIndex(_ i: inout Index, offsetBy n: Int) {
+        i += n
+    }
+
+    /// Add `n` to `i` and return the result, unless the result would exceed (or, in case of negative `n`, go under) `limit`, in which case return `nil`.
+    /// This method does not verify that the given indices (or the resulting value) are valid in this list.
+    public func index(_ i: Index, offsetBy n: Int, limitedBy limit: Index) -> Index? {
+        if (n >= 0 && i + n > limit) || (n < 0 && i + n < limit) {
+            return nil
+        }
+        return i + n
+    }
+
+    /// Add `n` to `i` in place, unless the result would exceed (or, in case of negative `n`, go under) `limit`, in which case set `i` to `limit`.
+    /// This method does not verify that the given indices (or the resulting value) are valid in this list.
+    @discardableResult
+    public func formIndex(_ i: inout Index, offsetBy n: Int, limitedBy limit: Index) -> Bool {
+        if (n >= 0 && i + n > limit) || (n < 0 && i + n < limit) {
+            i = limit
+            return false
+        }
+        i += n
+        return true
+    }
+
+    /// Return the difference between `end` and `start`.
+    /// This method does not verify that the given indices are valid in this list.
+    public func distance(from start: Index, to end: Index) -> Int {
+        return end - start
+    }
+
+    /// Return the first element in this list, or `nil` if the list is empty.
+    public var first: Element? {
+        return tree.first?.1
+    }
+
+    /// Return the last element in this list, or `nil` if the list is empty.
+    public var last: Element? {
+        return tree.last?.1
     }
 }
 
@@ -147,7 +213,7 @@ extension List {
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func forEach(@noescape body: (Element) throws -> ()) rethrows {
+    public func forEach(_ body: (Element) throws -> ()) rethrows {
         try tree.forEach { try body($0.1) }
     }
 
@@ -155,8 +221,7 @@ extension List {
     /// The elements are transformed in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
-    public func map<T>(@noescape transform: (Element) throws -> T) rethrows -> [T] {
+    public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
         result.reserveCapacity(self.count)
         try self.forEach {
@@ -168,11 +233,10 @@ extension List {
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`result.count`)
-    @warn_unused_result
-    public func flatMap<S: SequenceType>(transform: (Element) throws -> S) rethrows -> [S.Generator.Element] {
-        var result: [S.Generator.Element] = []
+    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Iterator.Element] {
+        var result: [S.Iterator.Element] = []
         try self.forEach { element in
-            result.appendContentsOf(try transform(element))
+            result.append(contentsOf: try transform(element))
         }
         return result
     }
@@ -180,8 +244,7 @@ extension List {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
-    public func flatMap<T>(@noescape transform: (Element) throws -> T?) rethrows -> [T] {
+    public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
         try self.forEach { element in
             if let t = try transform(element) {
@@ -198,11 +261,10 @@ extension List {
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
-    public func reduce<T>(initial: T, @noescape combine: (T, Element) throws -> T) rethrows -> T {
-        var result = initial
+    public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
+        var result = initialResult
         try self.forEach {
-            result = try combine(result, $0)
+            result = try nextPartialResult(result, $0)
         }
         return result
     }
@@ -210,8 +272,7 @@ extension List {
     /// Return an `Array` containing the non-`nil` results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
-    public func filter(@noescape includeElement: (Element) throws -> Bool) rethrows -> [Element] {
+    public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
         try self.forEach {
             if try includeElement($0) {
@@ -234,17 +295,15 @@ public extension List {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    @warn_unused_result
-    public func elementsEqual(other: List<Element>, @noescape isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
-        return try self.tree.elementsEqual(other.tree, isEquivalent: { try isEquivalent($0.1, $1.1) })
+    public func elementsEqual(_ other: List<Element>, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+        return try self.tree.elementsEqual(other.tree, by: { try isEquivalent($0.1, $1.1) })
     }
 
     /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if
     /// such value is not found.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
-    public func indexOf(@noescape predicate: (Element) throws -> Bool) rethrows -> Index? {
+    public func index(where predicate: (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
         try self.tree.forEach { element -> Bool in
             if try predicate(element.1) {
@@ -268,16 +327,14 @@ public extension List where Element: Equatable {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    @warn_unused_result
-    public func elementsEqual(other: List<Element>) -> Bool {
-        return self.tree.elementsEqual(other.tree, isEquivalent: { $0.1 == $1.1 })
+    public func elementsEqual(_ other: List<Element>) -> Bool {
+        return self.tree.elementsEqual(other.tree, by: { $0.1 == $1.1 })
     }
 
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
     ///
     /// - Complexity: O(`count`)
-    @warn_unused_result
-    public func indexOf(element: Element) -> Index? {
+    public func index(of element: Element) -> Index? {
         var i = 0
         self.tree.forEach { e -> Bool in
             if element == e.1 {
@@ -290,9 +347,23 @@ public extension List where Element: Equatable {
     }
 
     /// Return true iff `element` is in `self`.
-    @warn_unused_result
-    public func contains(element: Element) -> Bool {
-        return indexOf(element) != nil
+    public func contains(_ element: Element) -> Bool {
+        return index(of: element) != nil
+    }
+
+    /// Returns true iff the two lists have the same elements in the same order.
+    ///
+    /// This function skips over shared subtrees when possible; this can drastically improve performance when the
+    /// two lists are divergent mutations originating from the same value.
+    ///
+    /// - Complexity: O(`count`)
+    public static func ==(a: List, b: List) -> Bool {
+        return a.elementsEqual(b)
+    }
+
+    /// Returns false iff the two lists do not have the same elements in the same order.
+    public static func !=(a: List, b: List) -> Bool {
+        return !(a == b)
     }
 }
 
@@ -302,22 +373,22 @@ extension List {
     /// Append `element` to the end of this list.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func append(element: Element) {
-        tree.insert((EmptyKey(), element), at: tree.count)
+    public mutating func append(_ element: Element) {
+        tree.insert((EmptyKey(), element), atOffset: tree.count)
     }
 
     /// Insert `element` into this list at `index`.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func insert(element: Element, atIndex index: Int) {
-        tree.insert((EmptyKey(), element), at: index)
+    public mutating func insert(_ element: Element, at index: Int) {
+        tree.insert((EmptyKey(), element), atOffset: index)
     }
 
     /// Append `list` to the end of this list.
     ///
     /// - Complexity: O(log(`self.count + list.count`))
-    public mutating func appendContentsOf(list: List<Element>) {
-        tree.withCursorAtOffset(tree.count) { cursor in
+    public mutating func append(contentsOf list: List<Element>) {
+        tree.withCursor(atOffset: tree.count) { cursor in
             cursor.insert(list.tree)
         }
     }
@@ -325,12 +396,12 @@ extension List {
     /// Append the contents of `elements` to the end of this list.
     ///
     /// - Complexity: O(log(`count`) + *n*) where *n* is the number of elements in the sequence.
-    public mutating func appendContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S) {
+    public mutating func append<S: Sequence>(contentsOf elements: S) where S.Iterator.Element == Element {
         if let list = elements as? List<Element> {
-            appendContentsOf(list)
+            append(contentsOf: list)
             return
         }
-        tree.withCursorAtOffset(tree.count) { cursor in
+        tree.withCursor(atOffset: tree.count) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
     }
@@ -338,8 +409,8 @@ extension List {
     /// Insert `list` as a sublist of this list starting at `index`.
     ///
     /// - Complexity: O(log(`self.count + list.count`))
-    public mutating func insertContentsOf(list: List<Element>, at index: Int) {
-        tree.withCursorAtOffset(index) { cursor in
+    public mutating func insert(contentsOf list: List<Element>, at index: Int) {
+        tree.withCursor(atOffset: index) { cursor in
             cursor.insert(list.tree)
         }
     }
@@ -347,12 +418,12 @@ extension List {
     /// Insert the contents of `elements` into this list starting at `index`.
     ///
     /// - Complexity: O(log(`self.count`) + *n*) where *n* is the number of elements inserted.
-    public mutating func insertContentsOf<S: SequenceType where S.Generator.Element == Element>(elements: S, at index: Int) {
+    public mutating func insert<S: Sequence>(contentsOf elements: S, at index: Int) where S.Iterator.Element == Element {
         if let list = elements as? List<Element> {
-            insertContentsOf(list, at: index)
+            insert(contentsOf: list, at: index)
             return
         }
-        tree.withCursorAtOffset(index) { cursor in
+        tree.withCursor(atOffset: index) { cursor in
             cursor.insert(elements.lazy.map { (EmptyKey(), $0) })
         }
     }
@@ -364,25 +435,27 @@ extension List {
     /// Remove and return the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
-    public mutating func removeAtIndex(index: Int) -> Element {
+    @discardableResult
+    public mutating func remove(at index: Int) -> Element {
         precondition(index >= 0 && index < count)
-        return tree.removeAt(index).1
+        return tree.remove(atOffset: index).1
     }
 
     /// Remove and return the first element.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     public mutating func removeFirst() -> Element {
         precondition(count > 0)
-        return tree.removeAt(0).1
+        return tree.remove(atOffset: 0).1
     }
 
     /// Remove the first `n` elements.
     ///
     /// - Complexity: O(log(`count`) + `n`)
-    public mutating func removeFirst(n: Int) {
+    public mutating func removeFirst(_ n: Int) {
         precondition(n <= count)
-        tree.withCursorAtOffset(0) { cursor in
+        tree.withCursor(atOffset: 0) { cursor in
             cursor.remove(n)
         }
     }
@@ -390,17 +463,18 @@ extension List {
     /// Remove and return the last element.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     public mutating func removeLast() -> Element {
         precondition(count > 0)
-        return tree.removeAt(count - 1).1
+        return tree.remove(atOffset: count - 1).1
     }
 
     /// Remove and return the last `n` elements.
     ///
     /// - Complexity: O(log(`count`) + `n`)
-    public mutating func removeLast(n: Int) {
+    public mutating func removeLast(_ n: Int) {
         precondition(n <= count)
-        tree.withCursorAtOffset(count - n) { cursor in
+        tree.withCursor(atOffset: count - n) { cursor in
             cursor.remove(n)
         }
     }
@@ -408,25 +482,27 @@ extension List {
     /// If the list is not empty, remove and return the last element. Otherwise return `nil`.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     public mutating func popLast() -> Element? {
         guard count > 0 else { return nil }
-        return tree.removeAt(count - 1).1
+        return tree.remove(atOffset: count - 1).1
     }
 
     /// If the list is not empty, remove and return the first element. Otherwise return `nil`.
     ///
     /// - Complexity: O(log(`count`))
+    @discardableResult
     public mutating func popFirst() -> Element? {
         guard count > 0 else { return nil }
-        return tree.removeAt(0).1
+        return tree.remove(atOffset: 0).1
     }
 
     /// Remove elements in the specified range of indexes.
     ///
     /// - Complexity: O(log(`self.count`) + `range.count`)
-    public mutating func removeRange(range: Range<Int>) {
-        precondition(range.startIndex >= 0 && range.endIndex <= count)
-        tree.withCursorAtOffset(range.startIndex) { cursor in
+    public mutating func removeSubrange(_ range: Range<Int>) {
+        precondition(range.lowerBound >= 0 && range.upperBound <= count)
+        tree.withCursor(atOffset: range.lowerBound) { cursor in
             cursor.remove(range.count)
         }
     }
@@ -439,15 +515,15 @@ extension List {
     }
 }
 
-extension List: RangeReplaceableCollectionType {
+extension List: RangeReplaceableCollection {
     //MARK: Range replacement
 
     /// Replace elements in `range` with `elements`.
     ///
     /// - Complexity: O(log(`count`) + `range.count`)
-    public mutating func replaceRange(range: Range<Int>, with elements: List<Element>) {
-        precondition(range.startIndex >= 0 && range.endIndex <= count)
-        tree.withCursorAtOffset(range.startIndex) { cursor in
+    public mutating func replaceSubrange(_ range: Range<Int>, with elements: List<Element>) {
+        precondition(range.lowerBound >= 0 && range.upperBound <= count)
+        tree.withCursor(atOffset: range.lowerBound) { cursor in
             cursor.remove(range.count)
             cursor.insert(elements.tree)
         }
@@ -456,50 +532,34 @@ extension List: RangeReplaceableCollectionType {
     /// Replace elements in `range` with `elements`.
     ///
     /// - Complexity: O(log(`count`) + `max(range.count, elements.count)`)
-    public mutating func replaceRange<C: CollectionType where C.Generator.Element == Element>(range: Range<Int>, with elements: C) {
-        precondition(range.startIndex >= 0 && range.endIndex <= count)
+    public mutating func replaceSubrange<C: Collection>(_ range: Range<Int>, with elements: C) where C.Iterator.Element == Element {
+        precondition(range.lowerBound >= 0 && range.upperBound <= count)
         if let list = elements as? List<Element> {
-            replaceRange(range, with: list)
+            replaceSubrange(range, with: list)
             return
         }
-        tree.withCursorAtOffset(range.startIndex) { cursor in
-            var generator = Optional(elements.generate())
-            while cursor.offset < range.endIndex {
-                guard let element = generator!.next() else { generator = nil; break }
+        tree.withCursor(atOffset: range.lowerBound) { cursor in
+            var iterator = Optional(elements.makeIterator())
+            while cursor.offset < range.upperBound {
+                guard let element = iterator!.next() else { iterator = nil; break }
                 cursor.value = element
                 cursor.moveForward()
             }
-            if cursor.offset < range.endIndex {
-                cursor.remove(range.endIndex - cursor.offset)
+            if cursor.offset < range.upperBound {
+                cursor.remove(range.upperBound - cursor.offset)
             }
             else {
-                cursor.insert(GeneratorSequence(generator!).lazy.map { (EmptyKey(), $0) })
+                cursor.insert(IteratorSequence(iterator!).lazy.map { (EmptyKey(), $0) })
             }
         }
     }
 }
 
-/// Returns true iff the two lists have the same elements in the same order.
-///
-/// This function skips over shared subtrees when possible; this can drastically improve performance when the
-/// two lists are divergent mutations originating from the same value.
-///
-/// - Complexity: O(`count`)
-@warn_unused_result
-public func ==<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
-    return a.elementsEqual(b)
-}
-
-/// Returns false iff the two lists do not have the same elements in the same order.
-@warn_unused_result
-public func !=<Element: Equatable>(a: List<Element>, b: List<Element>) -> Bool {
-    return !(a == b)
-}
-
-/// Concatenate `a` with `b` and return the resulting `List`.
-@warn_unused_result
-public func +<Element>(a: List<Element>, b: List<Element>) -> List<Element> {
-    var result = a
-    result.appendContentsOf(b)
-    return result
+extension List {
+    /// Concatenate `a` with `b` and return the resulting `List`.
+    public static func +(a: List, b: List) -> List {
+        var result = a
+        result.append(contentsOf: b)
+        return result
+    }
 }

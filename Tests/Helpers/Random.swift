@@ -10,20 +10,20 @@ import Foundation
 
 /// Returns a random number sampled from a uniform distribution from 0 to limit.
 /// - Returns: A number in range `0..<limit`
-func random(limit: Int) -> Int {
+func random(_ limit: Int) -> Int {
     return Int(arc4random_uniform(UInt32(limit)))
 }
 
 extension Array {
     /// Returns a copy of this array with all elements randomly shuffled.
-    func shuffle() -> Array<Element> {
+    func shuffled() -> Array<Element> {
         var copy = self
-        copy.shuffleInPlace()
+        copy.shuffle()
         return copy
     }
 
     /// Randomly shuffles the elements of this array.
-    mutating func shuffleInPlace() {
+    mutating func shuffle() {
         let count = self.count
         for i in 0..<count {
             let j = random(count)

@@ -1,6 +1,6 @@
 # Fast Ordered Collections for Swift<br> Using In-Memory B-Trees 
 
-[![Swift 2.2 and 3](https://img.shields.io/badge/Swift-2.2 & 3-blue.svg)](https://swift.org) 
+[![Swift 3.0](https://img.shields.io/badge/Swift-3.0-blue.svg)](https://swift.org) 
 [![License](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/lorentey/BTree/blob/master/LICENCE.md)
 [![Platform](https://img.shields.io/badge/platforms-OS_X%20∙%20iOS%20∙%20watchOS%20∙%20tvOS-blue.svg)](https://developer.apple.com/platforms/)
 
@@ -40,9 +40,9 @@ ordered collection types that use B-trees for their underlying storage.
     removal of any subrange of elements, or extraction of an arbitrary sub-list are also
     operations with O(log(*n*)) complexity.
 
--   [`OrderedSet<Element>`][OrderedSet] implements an ordered collection of unique comparable elements.
+-   [`SortedSet<Element>`][SortedSet] implements an ordered collection of unique comparable elements.
     It is like `Set` in the standard library, but lookup, insertion and removal of any element
-    has logarithmic complexity. Elements in an `OrderedSet` are kept sorted in ascending order.
+    has logarithmic complexity. Elements in an `SortedSet` are kept sorted in ascending order.
     Operations working on full sets (such as taking the union, intersection or difference) 
     can take as little as O(log(*n*)) time if the elements in the source sets aren't interleaved.
 
@@ -61,10 +61,9 @@ better with these than standard collections; continue reading to find out why!)
 
 [Map]: http://lorentey.github.io/BTree/api/Structs/Map.html
 [List]: http://lorentey.github.io/BTree/api/Structs/List.html
-[OrderedSet]: http://lorentey.github.io/BTree/api/Structs/OrderedSet.html
+[SortedSet]: http://lorentey.github.io/BTree/api/Structs/SortedSet.html
 
-`BTree` requires Swift 2.2. An experimental version with support for preview versions of Swift 3 is available on 
-the `swift3` branch.  
+`BTree` 3.0.0 requires Swift 3.0. (The last release supporting Swift 2 was 2.1.0.)
 
 ### <a name="api">[Reference Documentation][doc]</a>
 
@@ -392,11 +391,11 @@ Let's enumerate:
     [efficient positional lookup][BTree.elementAtOffset]
     is possible.  For any *i*, you can get, set, remove or insert the *i*th item in the tree in log(n) time.
 
--   There is a [`BTreeGenerator`][BTreeGenerator] and a [`BTreeIndex`][BTreeIndex] that provide the
+-   There is a [`BTreeIterator`][BTreeIterator] and a [`BTreeIndex`][BTreeIndex] that provide the
     usual generator/indexing semantics. While individual element lookup usually takes O(log(n))
     operations, iterating over all elements via these interfaces requires linear time. Using the
     generator is faster than indexing, so you should prefer using it whenever possible. 
-    There are methods to start a generator from the middle of the tree: 
+    There are methods to start an iterator from the middle of the tree: 
     from any offset, any index, or any key.
     
 -   Note that [`forEach`][BTree.forEach] has a specialized recursive implementation, 
@@ -425,9 +424,9 @@ Let's enumerate:
       are wrappers around a [`BTreeWeakPath`][BTreeWeakPath], which uses weak references, and 
       needs to tread very carefully in order to detect when one of its references gets out of date.
       
-    - Meanwhile a [`BTreeGenerator`][BTreeGenerator] is supposed to support standalone iteration over the
+    - Meanwhile a [`BTreeIterator`][BTreeIterator] is supposed to support standalone iteration over the
       contents of the tree, so it must contain strong references. It uses a
-      [`BTreeStrongPath`][BTreeStrongPath] to represent the path of its next element. While a generator only
+      [`BTreeStrongPath`][BTreeStrongPath] to represent the path of its next element. While an iterator only
       needs to be able to move one step forward, `BTreeStrongPath` supports the full tree navigation API,
       making it very useful elsewhere in the codebase whenever we need a kind of read-only cursor into a
       tree. For example, the tree merging algorithm uses strong paths to represent its current positions in
@@ -442,8 +441,8 @@ Let's enumerate:
       whenever the path moves off a node's branch in the tree.
           
 [BTreePath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreePath.swift
-[BTreeWeakPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeIndex.swift#L130
-[BTreeStrongPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeGenerator.swift#L68
+[BTreeWeakPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeIndex.swift#L87
+[BTreeStrongPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeIterator.swift#L74
 [BTreeCursorPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeCursor.swift#L96
 
 -   It would be overkill to create an explicit path to look up or modify a single element in the tree
@@ -451,7 +450,7 @@ Let's enumerate:
     implement the same sort of lookups and simple mutations. 
     They are faster when you need to retrieve a single item, but they aren't efficient when called repeatedly.
     
-[BTree-lookups]: https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L174
+[BTree-lookups]: https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L281
 
 -   `BTree` includes a [bulk loading algorithm][BTree.bulkLoad] that efficiently initializes fully loaded
     trees from any sorted sequence. You can also specify a fill factor that's less than 100% if you expect to
@@ -463,22 +462,22 @@ Let's enumerate:
     appending elements to a newly created tree. Beside individual elements, it also supports efficiently 
     appending entire B-trees. This comes useful in optimized tree merging algorithms.
 
-[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_q_q0__
+[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_xq__
 [BTreeBuilder]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeBuilder.swift
     
--   Constructing a B-tree from an unsorted sequence of elements inserts the elements into the tree one by
+-   [Constructing a B-tree from an unsorted sequence of elements][BTree.unsorted-load] inserts the elements into the tree one by
     one; no buffer is allocated to sort elements before loading them into the tree. This is done more
-    efficiently than calling [`BTree.insert`][BTree.insert] with each element one by one, but it is likely still slower than
+    efficiently than calling [an insertion method][BTree.insert] with each element one by one, but it is likely still slower than
     a quicksort. (So sort elements on your own if you can spare the extra memory.)
 
-[BTree.insert]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree6insertu0_Rq_Ss10Comparable_FRGS0_q_q0__FTTq_q0__2atOS_16BTreeKeySelector_T_
-[BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecu0__Rq_Ss10Comparableqd__Ss12SequenceTypezqqqd__S2_9GeneratorSs13GeneratorType7ElementTq_q0___FMGS0_q_q0__FTqd__14dropDuplicatesSb5orderSi_GS0_q_q0__
+[BTree.insert]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/Insertion
+[BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFTqd__14dropDuplicatesSb5orderSi_GS0_xq__
 
 -   The package contains O(log(n)) methods to [extract a range of elements as a new B-tree][BTree.subtree]
     and to [insert a B-tree into another B-tree][BTreeCursor.insertTree]. (Keys need to remain ordered
     correctly, though.)
     
--   Merge operations (such as `BTree.union` and `BTree.exclusiveOr`) are highly tuned to detect when
+-   Merge operations (such as `BTree.union` and `BTree.symmetricDifference`) are highly tuned to detect when
     they can skip over entire subtrees on their input, linking them into the result or skipping their contents
     as required. For input trees that contain long runs of distinct elements, these operations
     can finish in as little as O(log(*n*)) time. These algorithms are expressed on top of a general
@@ -487,14 +486,14 @@ Let's enumerate:
 [BTree]: http://lorentey.github.io/BTree/api/Structs/BTree.html
 [BTreeNode]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift
 [BTreeKeySelector]: http://lorentey.github.io/BTree/api/Enums/BTreeKeySelector.html
-[BTreeGenerator]: http://lorentey.github.io/BTree/api/Structs/BTreeGenerator.html
+[BTreeIterator]: http://lorentey.github.io/BTree/api/Structs/BTreeIterator.html
 [BTreeIndex]: http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html
 [BTreeCursor]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html
-[BTree.elementAtOffset]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree15elementAtOffsetu0_Rq_Ss10Comparable_FGS0_q_q0__FSiTq_q0__
-[BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachu0_Rq_Ss10Comparable_FGS0_q_q0__FzFzTq_q0__T_T_
-[BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertu0_Rq_Ss10Comparable_FGS0_q_q0__FGVS_5BTreeq_q0__T_
-[BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeu0_Rq_Ss10Comparable_FGS0_q_q0__FT4fromq_2toq__GS0_q_q0__
-[BTreeMerger]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L160
+[BTree.elementAtOffset]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7elementFT8atOffsetSi_Txq__
+[BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachFzFzTxq__T_T_
+[BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertFGVS_5BTreexq__T_
+[BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeFT4fromx2tox_GS0_xq__
+[BTreeMerger]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L217
 
 ### <a name="generics">Remark on Performance of Imported Generics</a>
 <a name="perf"></a>
@@ -524,9 +523,5 @@ Plus, if this strategy would be used across many modules, it would lead to a C++
 A better (but still rather unsatisfactory) workaround is to compile the collection code with the single module 
 that benefits most from specialization. The rest of the modules will still have access to it, if in a much slower way.
 
-The Swift compiler team, true to their nature, have come up with a remarkably nice, pragmatic solution to this 
-problem: a future compiler version will likely support a new attribute (`@_specialize`) that will allow library 
-developers like myself to explicitly list a set of types for which their public generics would be specialized in the 
-compiled package. This will allow us to have super fast, template-like generics for the handful of type combinations that 
-really benefit from it, but still allows generics to be compiled just once and reused many times. 
-(Thus, compilation will be super fast -- in stark contrast to C++ templates.)
+The Swift compiler team has plans to address this issue in future compiler versions, e.g., by allowing library authors 
+to manually specialize generics for a predetermined set of type parameters.
