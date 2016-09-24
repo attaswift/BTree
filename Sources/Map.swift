@@ -100,7 +100,7 @@ extension Map: CustomDebugStringConvertible {
     }
 }
 
-extension Map: Collection {
+extension Map: BidirectionalCollection {
     //MARK: CollectionType
     
     public typealias Index = BTreeIndex<Key, Value>

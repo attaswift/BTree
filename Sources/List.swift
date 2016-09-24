@@ -22,7 +22,8 @@
 /// - Note: `List` implements all formal requirements of `CollectionType`, but it violates the semantic requirement
 ///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(count))`, since it requires an offset
 ///   lookup in the B-tree. However, B-trees for typical element sizes and counts are extremely shallow 
-///   (~5-10 levels for a billion elements), so in practice offset lookup behaves more like `O(1)` than `O(log(count))`.
+///   (less than 5 levels for a billion elements), so with practical element counts, offset lookup typically 
+///   behaves more like `O(1)` than `O(log(count))`.
 ///
 public struct List<Element> {
     internal typealias Tree = BTree<EmptyKey, Element>
@@ -78,10 +79,11 @@ extension List: CustomDebugStringConvertible {
     }
 }
 
-extension List: MutableCollection, BidirectionalCollection {
+extension List: MutableCollection, RandomAccessCollection {
     //MARK: CollectionType
     
     public typealias Index = Int
+    public typealias Indices = CountableRange<Int>
     public typealias Iterator = BTreeValueIterator<Element>
     public typealias SubSequence = List<Element>
 

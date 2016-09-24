@@ -59,7 +59,7 @@ extension SortedSet {
     }
 }
 
-extension SortedSet: Collection {
+extension SortedSet: BidirectionalCollection {
     //MARK: CollectionType
 
     public typealias Index = BTreeIndex<Element, Void>
