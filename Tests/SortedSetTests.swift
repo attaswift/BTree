@@ -494,4 +494,26 @@ class SortedSetTests: XCTestCase {
         XCTAssertTrue(a.isStrictSuperset(of: c))
         XCTAssertFalse(b.isStrictSuperset(of: c))
     }
+
+    func test_shift() {
+        var a = SortedSet((0 ..< 10).map { 2 * $0 })
+
+        a.shift(startingAt: 5, by: 5)
+        assertEqualElements(a, [0, 2, 4, 11, 13, 15, 17, 19, 21, 23])
+
+        a.shift(startingAt: 19, by: -1)
+        assertEqualElements(a, [0, 2, 4, 11, 13, 15, 17, 18, 20, 22])
+
+        a.shift(startingAt: 12, by: -10)
+        assertEqualElements(a, [0, 3, 5, 7, 8, 10, 12])
+
+        a.shift(startingAt: 1, by: 0)
+        assertEqualElements(a, [0, 3, 5, 7, 8, 10, 12])
+
+        a.shift(startingAt: 15, by: 5)
+        assertEqualElements(a, [0, 3, 5, 7, 8, 10, 12])
+
+        a.shift(startingAt: 15, by: -5)
+        assertEqualElements(a, [0, 3, 5, 7, 8])
+    }
 }

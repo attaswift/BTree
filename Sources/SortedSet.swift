@@ -726,3 +726,25 @@ extension SortedSet {
         self = self.subtracting(other)
     }
 }
+
+extension SortedSet where Element: Strideable {
+    /// Shift the value of all elements starting at `start` by `delta`.
+    /// For a positive `delta`, this shifts elements to the right, creating an empty gap in `start ..< start + delta`.
+    /// For a negative `delta`, this shifts elements to the left, removing any elements in the range `start + delta ..< start` that were previously in the set.
+    ///
+    /// - Complexity: O(`self.count`). The elements are modified in place.
+    public mutating func shift(startingAt start: Element, by delta: Element.Stride) {
+        guard delta != 0 else { return }
+        tree.withCursor(onKey: start) { cursor in
+            if delta < 0 {
+                let offset = cursor.offset
+                cursor.move(to: start.advanced(by: delta))
+                cursor.remove(offset - cursor.offset)
+            }
+            while !cursor.isAtEnd {
+                cursor.key = cursor.key.advanced(by: delta)
+                cursor.moveForward()
+            }
+        }
+    }
+}
