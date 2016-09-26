@@ -296,7 +296,7 @@ extension BTreeNode {
     internal func offset(ofSlot slot: Int) -> Int {
         let c = elements.count
         assert(slot >= 0 && slot <= c)
-        guard !isLeaf else {
+        if isLeaf {
             return slot
         }
         if slot == c {
