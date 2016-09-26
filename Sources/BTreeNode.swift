@@ -41,9 +41,9 @@ internal final class BTreeNode<Key: Comparable, Value> {
     internal var count: Int
 
     /// The order of this B-tree. An internal node will have at most this many children.
-    internal var _order: Int32
+    internal let _order: Int32
     /// The depth of this B-tree.
-    internal var _depth: Int32
+    internal let _depth: Int32
 
     internal var depth: Int { return numericCast(_depth) }
     internal var order: Int { return numericCast(_order) }
@@ -555,11 +555,11 @@ extension BTreeNode {
     }
 
     func swapContents(with other: Node) {
+        precondition(self._depth == other._depth)
+        precondition(self._order == other._order)
         swap(&self.elements, &other.elements)
         swap(&self.children, &other.children)
         swap(&self.count, &other.count)
-        swap(&self._depth, &other._depth)
-        swap(&self._order, &other._order)
     }
 
     /// Create and return a new B-tree consisting of elements of `left`,`separator` and the elements of `right`,
