@@ -167,6 +167,21 @@ class SortedSetTests: XCTestCase {
         XCTAssertEqual(s.distance(from: s.index(ofOffset: 3), to: s.index(ofOffset: 8)), 5)
     }
 
+    func test_offsetOfMember() {
+        let s = SortedSet(sortedElements: (0 ..< 10).map { 2 * $0 })
+        for m in 0 ..< 20 {
+            if m & 1 == 0 {
+                XCTAssertEqual(s.offset(of: m), m / 2)
+            }
+            else {
+                XCTAssertNil(s.offset(of: m))
+            }
+        }
+        XCTAssertNil(s.offset(of: -2))
+        XCTAssertNil(s.offset(of: -1))
+        XCTAssertNil(s.offset(of: 20))
+    }
+
     func test_forEach() {
         let c = 10_000
         let set = SortedSet(0 ..< c)

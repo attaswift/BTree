@@ -192,6 +192,13 @@ extension SortedSet: BidirectionalCollection {
 extension SortedSet {
     //MARK: Offset-based access
 
+    /// Return the offset of `member`, if it is an element of this set. Otherwise, return `nil`.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func offset(of member: Element) -> Int? {
+        return tree.offset(forKey: member)
+    }
+
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(log(`count`))
