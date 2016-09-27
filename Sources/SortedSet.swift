@@ -559,6 +559,15 @@ extension SortedSet {
         return tree.remove(at: index).0
     }
 
+    /// Remove the member at the given offset.
+    ///
+    /// - Complexity: O(log(`count`))
+    @discardableResult
+    public mutating func remove(atOffset offset: Int) -> Element {
+        return tree.remove(atOffset: offset).0
+    }
+
+
     /// Remove and return the smallest member in this set.
     ///
     /// - Complexity: O(log(`count`))
