@@ -743,7 +743,101 @@ extension SortedSet {
     }
 }
 
+extension SortedSet {
+    //MARK: Interactions with ranges
+
+    /// Return the count of elements in this set that are in `range`.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public func count(elementsIn range: Range<Element>) -> Int {
+        var path = BTreeStrongPath(root: tree.root, key: range.lowerBound, choosing: .first)
+        let lowerOffset = path.offset
+        path.move(to: range.upperBound, choosing: .first)
+        return path.offset - lowerOffset
+    }
+
+    /// Return the count of elements in this set that are in `range`.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public func count(elementsIn range: ClosedRange<Element>) -> Int {
+        var path = BTreeStrongPath(root: tree.root, key: range.lowerBound, choosing: .first)
+        let lowerOffset = path.offset
+        path.move(to: range.upperBound, choosing: .after)
+        return path.offset - lowerOffset
+    }
+
+    /// Return a set consisting of all members in `self` that are also in `range`.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public func intersection(elementsIn range: Range<Element>) -> SortedSet<Element> {
+        return self.suffix(from: range.lowerBound).prefix(upTo: range.upperBound)
+    }
+
+    /// Return a set consisting of all members in `self` that are also in `range`.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public func intersection(elementsIn range: ClosedRange<Element>) -> SortedSet<Element> {
+        return self.suffix(from: range.lowerBound).prefix(through: range.upperBound)
+    }
+
+    /// Remove all members from this set that are not included in `range`.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public mutating func formIntersection(elementsIn range: Range<Element>) {
+        self = self.intersection(elementsIn: range)
+    }
+
+    /// Remove all members from this set that are not included in `range`.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public mutating func formIntersection(elementsIn range: ClosedRange<Element>) {
+        self = self.intersection(elementsIn: range)
+    }
+
+    /// Remove all elements in `range` from this set.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public mutating func subtract(elementsIn range: Range<Element>) {
+        tree.withCursor(onKey: range.upperBound, choosing: .first) { cursor in
+            let upperOffset = cursor.offset
+            cursor.move(to: range.lowerBound, choosing: .first)
+            cursor.remove(upperOffset - cursor.offset)
+        }
+    }
+
+    /// Remove all elements in `range` from this set.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public mutating func subtract(elementsIn range: ClosedRange<Element>) {
+        tree.withCursor(onKey: range.upperBound, choosing: .after) { cursor in
+            let upperOffset = cursor.offset
+            cursor.move(to: range.lowerBound, choosing: .first)
+            cursor.remove(upperOffset - cursor.offset)
+        }
+    }
+
+    /// Return a set containing those members of this set that aren't also included in `range`.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public mutating func subtracting(elementsIn range: Range<Element>) -> SortedSet<Element> {
+        var copy = self
+        copy.subtract(elementsIn: range)
+        return copy
+    }
+
+    /// Return a set containing those members of this set that aren't also included in `range`.
+    ///
+    /// - Complexity: O(log(`self.count`))
+    public mutating func subtracting(elementsIn range: ClosedRange<Element>) -> SortedSet<Element> {
+        var copy = self
+        copy.subtract(elementsIn: range)
+        return copy
+    }
+}
+
 extension SortedSet where Element: Strideable {
+    //MARK: Shifting
+
     /// Shift the value of all elements starting at `start` by `delta`.
     /// For a positive `delta`, this shifts elements to the right, creating an empty gap in `start ..< start + delta`.
     /// For a negative `delta`, this shifts elements to the left, removing any elements in the range `start + delta ..< start` that were previously in the set.
