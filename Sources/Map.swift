@@ -376,16 +376,16 @@ extension Map {
 extension Map {
     //MARK: Offset-based access
 
-    /// Returns the offset of the element at `index`.
+    /// Returns the index of the element at `offset`.
     ///
+    /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
     public func index(ofOffset offset: Int) -> Index {
         return tree.index(ofOffset: offset)
     }
 
-    /// Returns the index of the element at `offset`.
+    /// Returns the offset of the element at `index`.
     ///
-    /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
     public func offset(of index: Index) -> Int {
         return tree.offset(of: index)
