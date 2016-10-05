@@ -391,6 +391,13 @@ extension Map {
         return tree.offset(of: index)
     }
 
+    /// Returns the offset of the element with the given key, or `nil` if there is no such element.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func offset(of key: Key) -> Int? {
+        return tree.offset(forKey: key)
+    }
+
     /// Return the element stored at `offset` in this map.
     ///
     /// - Complexity: O(log(`count`))
