@@ -259,6 +259,19 @@ class MapTests: XCTestCase {
         XCTAssertEqual(index, m.endIndex)
     }
 
+    func testOffsetOfKey() {
+        let m = Map<Int, String>(sortedElements: (0..<50).map { (2 * $0, String(2 * $0)) })
+        for k in 0 ..< 100 {
+            let offset = m.offset(of: k)
+            if k & 1 == 0 {
+                XCTAssertEqual(offset, k / 2)
+            }
+            else {
+                XCTAssertNil(offset)
+            }
+        }
+    }
+
     func testElementAtOffset() {
         let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
         for i in 0 ..< 100 {

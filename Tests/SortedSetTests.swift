@@ -419,6 +419,15 @@ class SortedSetTests: XCTestCase {
         }
     }
 
+    func test_removeAtOffset() {
+        let c = 100
+        var set = SortedSet(0 ..< c)
+        for offset in 0 ..< c / 2 {
+            XCTAssertEqual(set.remove(atOffset: offset), 2 * offset)
+        }
+        assertEqualElements(set, (0 ..< c / 2).map { 2 * $0 + 1 })
+    }
+
     func test_removeFamily() {
         var set = SortedSet(0 ..< 20)
 
@@ -508,6 +517,68 @@ class SortedSetTests: XCTestCase {
         XCTAssertTrue(a.isStrictSuperset(of: b))
         XCTAssertTrue(a.isStrictSuperset(of: c))
         XCTAssertFalse(b.isStrictSuperset(of: c))
+    }
+
+    func test_countElementsInRange() {
+        let s = SortedSet(sortedElements: 0 ..< 10_000)
+        XCTAssertEqual(s.count(elementsIn: -100 ..< -10), 0)
+        XCTAssertEqual(s.count(elementsIn: 0 ..< 100), 100)
+        XCTAssertEqual(s.count(elementsIn: 3 ..< 9_999), 9_996)
+        XCTAssertEqual(s.count(elementsIn: 0 ..< 10_000), 10_000)
+        XCTAssertEqual(s.count(elementsIn: -100 ..< 100), 100)
+        XCTAssertEqual(s.count(elementsIn: 9_900 ..< 10_100), 100)
+        XCTAssertEqual(s.count(elementsIn: -100 ..< 20_000), 10_000)
+
+
+        XCTAssertEqual(s.count(elementsIn: -100 ... -10), 0)
+        XCTAssertEqual(s.count(elementsIn: 0 ... 100), 101)
+        XCTAssertEqual(s.count(elementsIn: 3 ... 9_999), 9_997)
+        XCTAssertEqual(s.count(elementsIn: 0 ... 9_999), 10_000)
+        XCTAssertEqual(s.count(elementsIn: -100 ... 100), 101)
+        XCTAssertEqual(s.count(elementsIn: 9_900 ... 10_100), 100)
+        XCTAssertEqual(s.count(elementsIn: -100 ... 20_000), 10_000)
+    }
+
+    func test_intersectionWithRange() {
+        var s = SortedSet(sortedElements: 0 ..< 10_000)
+        assertEqualElements(s.intersection(elementsIn: -100 ..< -10), [])
+        assertEqualElements(s.intersection(elementsIn: 100 ..< 9_900), 100 ..< 9_900)
+        assertEqualElements(s.intersection(elementsIn: -100 ..< 100), 0 ..< 100)
+        assertEqualElements(s.intersection(elementsIn: 9_900 ..< 10_100), 9_900 ..< 10_000)
+        assertEqualElements(s.intersection(elementsIn: 10_100 ..< 10_200), [])
+
+        assertEqualElements(s.intersection(elementsIn: -100 ... -10), [])
+        assertEqualElements(s.intersection(elementsIn: 100 ... 9_900), 100 ... 9_900)
+        assertEqualElements(s.intersection(elementsIn: -100 ... 100), 0 ... 100)
+        assertEqualElements(s.intersection(elementsIn: 9_900 ... 10_100), 9_900 ..< 10_000)
+        assertEqualElements(s.intersection(elementsIn: 10_100 ... 10_200), [])
+
+        s.formIntersection(elementsIn: 1_000 ..< 2_000)
+        assertEqualElements(s, 1_000 ..< 2_000)
+
+        s.formIntersection(elementsIn: 1_100 ... 1_200)
+        assertEqualElements(s, 1_100 ... 1_200)
+    }
+
+    func test_subtractionOfRange() {
+        var s = SortedSet(sortedElements: 0 ..< 10_000)
+        assertEqualElements(s.subtracting(elementsIn: -100 ..< 0), 0 ..< 10_000)
+        assertEqualElements(s.subtracting(elementsIn: 100 ..< 9_900), Array(0 ..< 100) + Array(9_900 ..< 10_000))
+        assertEqualElements(s.subtracting(elementsIn: -100 ..< 100), 100 ..< 10_000)
+        assertEqualElements(s.subtracting(elementsIn: 9_900 ..< 10_100), 0 ..< 9_900)
+        assertEqualElements(s.subtracting(elementsIn: 10_000 ..< 10_100), 0 ..< 10_000)
+
+        assertEqualElements(s.subtracting(elementsIn: -100 ... -1), 0 ..< 10_000)
+        assertEqualElements(s.subtracting(elementsIn: 100 ... 9_900), Array(0 ..< 100) + Array(9_901 ..< 10_000))
+        assertEqualElements(s.subtracting(elementsIn: -100 ... 100), 101 ..< 10_000)
+        assertEqualElements(s.subtracting(elementsIn: 9_900 ... 10_100), 0 ..< 9_900)
+        assertEqualElements(s.subtracting(elementsIn: 10_000 ... 10_100), 0 ..< 10_000)
+
+        s.subtract(elementsIn: 1_000 ..< 9_000)
+        assertEqualElements(s, Array(0 ..< 1_000) + Array(9_000 ..< 10_000))
+
+        s.subtract(elementsIn: 100 ... 900)
+        assertEqualElements(s, Array(0 ..< 100) + Array(901 ..< 1_000) + Array(9_000 ..< 10_000))
     }
 
     func test_shift() {
