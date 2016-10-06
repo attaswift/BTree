@@ -20,8 +20,13 @@ internal class Foo: NSObject {
 }
 
 class BridgedListTests: XCTestCase {
+    #if Debug
+    let count = 5_000 // Make sure this is larger than the default tree order to get full code coverage
+    #else
+    let count = 100_000
+    #endif
+
     func testLeaks() {
-        let count = 100_000
         weak var test: Foo? = nil
         do {
             let list = List((0 ..< count).lazy.map { Foo($0) })
@@ -33,7 +38,6 @@ class BridgedListTests: XCTestCase {
     }
 
     func testCopy() {
-        let count = 100_000
         let list = List((0 ..< count).lazy.map { Foo($0) })
         let arrayView = list.arrayView
         let copy = arrayView.copy(with: nil) as AnyObject
@@ -41,7 +45,6 @@ class BridgedListTests: XCTestCase {
     }
 
     func testArrayBaseline() {
-        let count = 100_000
         let array = (0 ..< count).map { Foo($0) as Any }
         measure {
             var i = 0
@@ -50,12 +53,11 @@ class BridgedListTests: XCTestCase {
                 XCTAssertEqual(foo.value, i)
                 i += 1
             }
-            XCTAssertEqual(i, count)
+            XCTAssertEqual(i, self.count)
         }
     }
 
     func testListBaseline() {
-        let count = 100_000
         let list = List((0 ..< count).lazy.map { Foo($0) as Any })
         measure {
             var i = 0
@@ -64,12 +66,11 @@ class BridgedListTests: XCTestCase {
                 XCTAssertEqual(foo.value, i)
                 i += 1
             }
-            XCTAssertEqual(i, count)
+            XCTAssertEqual(i, self.count)
         }
     }
 
     func testFastEnumeration() {
-        let count = 100_000
         let list = List((0 ..< count).lazy.map { Foo($0) })
         measure {
             let arrayView = list.arrayView
@@ -79,12 +80,11 @@ class BridgedListTests: XCTestCase {
                 XCTAssertEqual(foo.value, i)
                 i += 1
             }
-            XCTAssertEqual(i, count)
+            XCTAssertEqual(i, self.count)
         }
     }
 
     func testObjectEnumerator() {
-        let count = 100_000
         let list = List((0 ..< count).lazy.map { Foo($0) })
         measure {
             let arrayView = list.arrayView
@@ -95,12 +95,11 @@ class BridgedListTests: XCTestCase {
                 XCTAssertEqual(foo.value, i)
                 i += 1
             }
-            XCTAssertEqual(i, count)
+            XCTAssertEqual(i, self.count)
         }
     }
 
     func testIndexing() {
-        let count = 100_000
         let list = List((0 ..< count).lazy.map { Foo($0) })
         measure {
             let arrayView = list.arrayView
