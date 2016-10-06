@@ -8,7 +8,7 @@ Pod::Spec.new do |spec|
     spec.summary      = 'In-memory B-trees and ordered collections in Swift'
     spec.author       = 'Károly Lőrentey'
     spec.homepage     = 'https://github.com/lorentey/BTree'
-    spec.license      = { :type => 'MIT', :file => 'LICENCE.md' }
+    spec.license      = { :type => 'MIT', :file => 'LICENSE.md' }
     spec.source       = { :git => 'https://github.com/lorentey/BTree.git', :tag => 'v3.1.0' }
     spec.source_files = 'Sources/*.swift'
     spec.social_media_url = 'https://twitter.com/lorentey'
