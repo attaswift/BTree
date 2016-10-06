@@ -63,7 +63,7 @@ better with these than standard collections; continue reading to find out why!)
 [List]: http://lorentey.github.io/BTree/api/Structs/List.html
 [SortedSet]: http://lorentey.github.io/BTree/api/Structs/SortedSet.html
 
-`BTree` 3.0.0 requires Swift 3.0. (The last release supporting Swift 2 was 2.1.0.)
+The latest version of `BTree` requires Swift 3.0. (The last release supporting Swift 2 was 2.1.0.)
 
 ### <a name="api">[Reference Documentation][doc]</a>
 
