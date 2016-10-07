@@ -417,6 +417,52 @@ extension SortedSet {
     public func index(of member: Element) -> BTreeIndex<Element, Void>? {
         return tree.index(forKey: member)
     }
+
+    /// Returns the index of the lowest member of this set that is strictly greater than `element`, or `nil` if there is no such element.
+    ///
+    /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
+    ///
+    /// - Complexity: O(log(`count`))
+    public func lowestIndex(above element: Element) -> BTreeIndex<Element, Void>? {
+        let index = tree.index(forInserting: element, at: .last)
+        if tree.offset(of: index) == tree.count { return nil }
+        return index
+    }
+
+    /// Returns the index of the lowest member of this set that is greater than or equal to `element`, or `nil` if there is no such element.
+    ///
+    /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
+    ///
+    /// - Complexity: O(log(`count`))
+    public func lowestIndex(notBelow element: Element) -> BTreeIndex<Element, Void>? {
+        let index = tree.index(forInserting: element, at: .first)
+        if tree.offset(of: index) == tree.count { return nil }
+        return index
+    }
+
+    /// Returns the index of the highest member of this set that is strictly less than `element`, or `nil` if there is no such element.
+    ///
+    /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
+    ///
+    /// - Complexity: O(log(`count`))
+    public func highestIndex(below element: Element) -> BTreeIndex<Element, Void>? {
+        var index = tree.index(forInserting: element, at: .first)
+        if tree.offset(of: index) == 0 { return nil }
+        tree.formIndex(before: &index)
+        return index
+    }
+
+    /// Returns the index of the highest member of this set that is less than or equal to `element`, or `nil` if there is no such element.
+    ///
+    /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
+    ///
+    /// - Complexity: O(log(`count`))
+    public func highestIndex(notAbove element: Element) -> BTreeIndex<Element, Void>? {
+        var index = tree.index(forInserting: element, at: .last)
+        if tree.offset(of: index) == 0 { return nil }
+        tree.formIndex(before: &index)
+        return index
+    }
 }
 
 extension SortedSet {

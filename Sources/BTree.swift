@@ -353,10 +353,23 @@ public extension BTree {
     /// Returns an index to an element in this tree with the specified key, or `nil` if there is no such element.
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
+    /// This method never returns `endIndex`.
+    ///
     /// - Complexity: O(log(`count`))
     public func index(forKey key: Key, choosing selector: BTreeKeySelector = .any) -> Index? {
         let path = BTreeWeakPath(root: root, key: key, choosing: selector)
         guard !path.isAtEnd && (selector == .after || path.key == key) else { return nil }
+        return Index(path)
+    }
+
+    /// Returns an index that points to the position where a new element with the specified key would
+    /// be inserted into this tree. This is useful for finding the nearest element above or below `key`.
+    ///
+    /// The returned index may be `endIndex` if the tree is empty or `key` is greater than or equal to the key of the largest element.
+    ///
+    /// - Complexity: O(log(`count`))
+    public func index(forInserting key: Key, at selector: BTreeKeySelector = .any) -> Index {
+        let path = BTreeWeakPath(root: root, key: key, choosing: selector == .last ? .after : selector)
         return Index(path)
     }
 
