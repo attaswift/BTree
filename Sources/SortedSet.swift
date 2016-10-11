@@ -661,7 +661,6 @@ extension SortedSet {
     }
 
     /// Remove all members from this set.
-    @discardableResult
     public mutating func removeAll() {
         tree.removeAll()
     }
