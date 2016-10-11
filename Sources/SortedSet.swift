@@ -581,6 +581,7 @@ extension SortedSet {
     /// - Returns: The element equal to `newMember` that was originally in the set, if exists; otherwise, `nil`.
     ///   In some cases, the returned element may be distinguishable from `newMember` by identity
     ///   comparison or some other means.
+    @discardableResult
     public mutating func update(with newMember: Element) -> Element? {
         return tree.insertOrReplace((newMember, ()))?.0
     }
