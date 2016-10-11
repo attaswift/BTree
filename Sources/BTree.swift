@@ -922,6 +922,7 @@ extension BTree {
     }
 
     /// Returns a subtree containing all but the last `n` elements.
+    /// If `n` exceeds the number of elements in the tree, the result is an empty tree.
     ///
     /// - Complexity: O(log(`count`))
     public func dropLast(_ n: Int) -> BTree {
@@ -986,6 +987,7 @@ extension BTree {
     }
 
     /// Returns a subtree containing all but the first `n` elements.
+    /// If `n` exceeds the number of elements in the tree, the result is an empty tree.
     ///
     /// - Complexity: O(log(`count`))
     public func dropFirst(_ n: Int) -> BTree {

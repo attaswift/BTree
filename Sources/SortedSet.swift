@@ -16,7 +16,7 @@
 /// (Thus, mutation of shared ordered sets may be cheaper than ordinary sets, which need to copy all elements.)
 ///
 /// Set operations on ordered sets (such as taking the union, intersection or difference) can take as little as
-/// O(log(n)) time if the elements in the source sets aren't interleaved.
+/// O(log(n)) time if the elements in the input sets aren't too interleaved.
 public struct SortedSet<Element: Comparable>: SetAlgebra {
     internal typealias Tree = BTree<Element, Void>
 
@@ -100,7 +100,7 @@ extension SortedSet: BidirectionalCollection {
 
     /// Return the subset consisting of elements in the given range of indexes.
     ///
-    /// - Requires: The indexes in `range` originated from an unmutated copy of this set.
+    /// - Requires: The indices in `range` originated from an unmutated copy of this set.
     /// - Complexity: O(log(`count`))
     public subscript(range: Range<Index>) -> SortedSet<Element> {
         return SortedSet(tree[range])
@@ -143,7 +143,7 @@ extension SortedSet: BidirectionalCollection {
         tree.formIndex(before: &index)
     }
 
-    /// Returns an index that is the specified distance from the given index.
+    /// Returns an index that is at the specified distance from the given index.
     ///
     /// - Requires: `index` must be a valid index of this set.
     ///              If `n` is positive, it must not exceed the distance from `index` to `endIndex`.
@@ -163,7 +163,7 @@ extension SortedSet: BidirectionalCollection {
         tree.formIndex(&i, offsetBy: n)
     }
 
-    /// Returns an index that is the specified distance from the given index, unless that distance is beyond a given limiting index.
+    /// Returns an index that is at the specified distance from the given index, unless that distance is beyond a given limiting index.
     ///
     /// - Requires: `index` and `limit` must be valid indices in this set. The operation must not advance the index beyond `endIndex` or before `startIndex`.
     /// - Complexity: O(log(*count*)) where *count* is the number of elements in the set.
@@ -294,28 +294,32 @@ extension SortedSet {
     /// - Complexity: O(log(`count`))
     public func max() -> Element? { return last }
 
-    // Return a copy of this set with the smallest element removed.
+    /// Return a copy of this set with the smallest element removed.
+    /// If this set is empty, the result is an empty set.
     ///
     /// - Complexity: O(log(`count`))
     public func dropFirst() -> SortedSet {
         return SortedSet(tree.dropFirst())
     }
 
-    // Return a copy of this set with the `n` smallest elements removed.
+    /// Return a copy of this set with the `n` smallest elements removed.
+    /// If `n` exceeds the number of elements in the set, the result is an empty set.
     ///
     /// - Complexity: O(log(`count`))
     public func dropFirst(_ n: Int) -> SortedSet {
         return SortedSet(tree.dropFirst(n))
     }
 
-    // Return a copy of this set with the largest element removed.
+    /// Return a copy of this set with the largest element removed.
+    /// If this set is empty, the result is an empty set.
     ///
     /// - Complexity: O(log(`count`))
     public func dropLast() -> SortedSet {
         return SortedSet(tree.dropLast())
     }
 
-    // Return a copy of this set with the `n` largest elements removed.
+    /// Return a copy of this set with the `n` largest elements removed.
+    /// If `n` exceeds the number of elements in the set, the result is an empty set.
     ///
     /// - Complexity: O(log(`count`))
     public func dropLast(_ n: Int) -> SortedSet {
@@ -324,7 +328,7 @@ extension SortedSet {
 
     /// Returns a subset, up to `maxLength` in size, containing the smallest elements in this set.
     ///
-    /// If `maxLength` exceeds `self.count`, the result contains all the elements of `self`.
+    /// If `maxLength` exceeds the number of elements, the result contains all the elements of `self`.
     ///
     /// - Complexity: O(log(`count`))
     public func prefix(_  maxLength: Int) -> SortedSet {
@@ -471,7 +475,7 @@ extension SortedSet {
     /// Return `true` iff `self` and `other` contain the same elements.
     ///
     /// This method skips over shared subtrees when possible; this can drastically improve performance when the
-    /// two lists are divergent mutations originating from the same value.
+    /// two sets are divergent mutations originating from the same value.
     ///
     /// - Complexity:  O(`count`)
     public func elementsEqual(_ other: SortedSet<Element>) -> Bool {
@@ -517,8 +521,8 @@ extension SortedSet {
     /// Returns `true` iff all members in this set are also included in `other`, but the two sets aren't equal.
     ///
     /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets may be skipped instead
+    /// of elementwise processing, which can drastically improve performance.
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
@@ -530,8 +534,8 @@ extension SortedSet {
     /// Returns `true` iff all members in `other` are also included in this set.
     ///
     /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets may be skipped instead
+    /// of elementwise processing, which can drastically improve performance.
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
@@ -543,8 +547,8 @@ extension SortedSet {
     /// Returns `true` iff all members in `other` are also included in this set, but the two sets aren't equal.
     ///
     /// The elements of the two input sets may be freely interleaved.
-    /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-    /// linked into the result instead of copying, which can drastically improve performance.
+    /// However, if there are long runs of non-interleaved elements, parts of the input sets may be skipped instead
+    /// of elementwise processing, which can drastically improve performance.
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
@@ -672,7 +676,7 @@ extension SortedSet {
 
     /// Return an `Array` containing the members of this set, in ascending order.
     ///
-    /// `Map` already keeps its elements sorted, so this is equivalent to `Array(self)`.
+    /// `SortedSet` already keeps its elements sorted, so this is equivalent to `Array(self)`.
     ///
     /// - Complexity: O(`count`)
     public func sorted() -> [Element] {

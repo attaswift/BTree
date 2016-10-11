@@ -16,14 +16,14 @@ extension BTree {
     ///
     /// The elements of the two input trees may interleave and overlap in any combination.
     /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This drastically improves performance.
+    /// linked into the result instead of elementwise processing. This may drastically improve performance.
     ///
     /// This function does not perform special handling of shared nodes between the two trees, because
     /// the semantics of the operation require individual processing of all keys that appear in both trees.
     ///
     /// - SeeAlso: `distinctUnion(_:)` for the distinct variant of the same operation.
     /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
+    ///    - O(`self.count` + `tree.count`) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant number of interleaving element runs.
     public func union(_ other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
@@ -44,7 +44,7 @@ extension BTree {
     ///
     /// The elements of the two input trees may interleave and overlap in any combination.
     /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This drastically improves performance.
+    /// linked into the result instead of elementwise processing. This may drastically improve performance.
     ///
     /// This function also detects shared subtrees between the two trees,
     /// and links them directly into the result when possible.
@@ -70,7 +70,7 @@ extension BTree {
     ///
     /// The elements of the two input trees may interleave and overlap in any combination.
     /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// skipped or linked into the result instead of elementwise processing. This drastically improves performance.
+    /// skipped or linked into the result instead of elementwise processing. This may drastically improve performance.
     ///
     /// This function also detects and skips over shared subtrees between the two trees.
     /// (Keys that appear in both trees otherwise require individual processing.)
@@ -89,18 +89,18 @@ extension BTree {
         return m.finish()
     }
 
-    /// Return a tree combining the elements of two input trees except those whose keys appear in both inputs.
+    /// Return a tree combining the elements of two input trees except those whose keys appear in both trees.
     ///
     /// The elements of the two input trees may interleave and overlap in any combination.
     /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This drastically improves performance.
+    /// linked into the result instead of elementwise processing. This may drastically improve performance.
     ///
     /// This function also detects and skips over shared subtrees between the two trees.
     /// (Keys that appear in both trees otherwise require individual processing.)
     ///
     /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func symmetricDifference(_ other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
@@ -114,19 +114,21 @@ extension BTree {
     }
 
 
-    /// Return a tree with the same elements as `second` except those whose keys are not also in `first`.
+    /// Return a tree with the same elements as `other` except those whose keys are not also in `self`.
+    /// The result is independent of the number of duplicate keys that match; if there is but a single member in `self`
+    /// with a matching key, then all elements in `other` are kept that have the same key.
     ///
     /// The elements of the two input trees may interleave and overlap in any combination.
     /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// skipped instead of elementwise processing. This drastically improves performance.
+    /// skipped instead of elementwise processing. This may drastically improve performance.
     ///
     /// This function also detects shared subtrees between the two trees,
     /// and links them directly into the result when possible.
     /// (Keys that appear in both trees otherwise require individual processing.)
     ///
     /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func intersection(_ other: BTree) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
