@@ -46,6 +46,14 @@ ordered collection types that use B-trees for their underlying storage.
     Operations working on full sets (such as taking the union, intersection or difference) 
     can take as little as O(log(*n*)) time if the elements in the source sets aren't interleaved.
 
+-   `SortedBag<Element>` (coming soon in version 3.2) implements an ordered [multiset][multiset] with 
+    comparable elements. This is a generalization of a set that allows multiple instances of the same value.
+    (The standard library does not include such a collection, although you can use a dictionary to emulate one 
+    by storing the multiplicities of the keys as values.)
+    The implementation provided in this package stores each duplicate element separately, which may come useful
+    if your elements are reference types with identities or you have some other means to distinguish between equal elements.
+    `SortedBag` operations have the same time complexities as the equivalent operations in `SortedSet`.
+
 -   [`BTree<Key, Value>`][BTree] is the underlying primitive collection that serves as base storage
     for all of the above collections. It is a general key-value store with full support
     for elements with duplicate keys; it provides a sum of all operations individually provided
@@ -62,6 +70,7 @@ better with these than standard collections; continue reading to find out why!)
 [Map]: http://lorentey.github.io/BTree/api/Structs/Map.html
 [List]: http://lorentey.github.io/BTree/api/Structs/List.html
 [SortedSet]: http://lorentey.github.io/BTree/api/Structs/SortedSet.html
+[multiset]: https://en.wikipedia.org/wiki/Set_(abstract_data_type)#Multiset
 
 The latest version of `BTree` requires Swift 3.0. (The last release supporting Swift 2 was 2.1.0.)
 
