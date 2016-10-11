@@ -89,6 +89,31 @@ extension BTree {
         return m.finish()
     }
 
+    /// Return a tree containing those members of `first` whose keys aren't also included in `second`.
+    /// For elements in `first` whose key multiplicity exceeds that of matching members in `second`,
+    /// the extra elements are kept in the result.
+    ///
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// skipped or linked into the result instead of elementwise processing. This may drastically improve performance.
+    ///
+    /// This function also detects and skips over shared subtrees between the two trees.
+    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `tree.count`)) in general.
+    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
+    public func bagSubtracting(_ other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
+        while !m.done {
+            m.copyFromFirst(.excludingOtherKey)
+            m.skipFromSecond(.excludingOtherKey)
+            m.skipMatchingNumberOfCommonElements()
+        }
+        m.appendFirst()
+        return m.finish()
+    }
+
     /// Return a tree combining the elements of two input trees except those whose keys appear in both trees.
     ///
     /// The elements of the two input trees may interleave and overlap in any combination.
@@ -113,6 +138,31 @@ extension BTree {
         return m.finish()
     }
 
+    /// Return a tree combining the elements of two input trees except those whose keys appear in both trees.
+    /// For duplicate keys that have different multiplicities in the two trees, the last *d* elements with matching keys
+    /// from the tree with greater multiplicity is kept in the result (where *d* is the absolute difference of multiplicities).
+    ///
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// linked into the result instead of elementwise processing. This may drastically improve performance.
+    ///
+    /// This function also detects and skips over shared subtrees between the two trees.
+    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    public func bagSymmetricDifference(_ other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
+        while !m.done {
+            m.copyFromFirst(.excludingOtherKey)
+            m.copyFromSecond(.excludingOtherKey)
+            m.skipMatchingNumberOfCommonElements()
+        }
+        m.appendFirst()
+        m.appendSecond()
+        return m.finish()
+    }
 
     /// Return a tree with the same elements as `other` except those whose keys are not also in `self`.
     /// The result is independent of the number of duplicate keys that match; if there is but a single member in `self`
@@ -135,6 +185,31 @@ extension BTree {
             m.skipFromFirst(.excludingOtherKey)
             m.skipFromSecond(.excludingOtherKey)
             m.copyCommonElementsFromSecond()
+        }
+        return m.finish()
+    }
+
+    /// Return a tree with those members from `other` whose key also appear in `self`.
+    /// Members with duplicate keys are carefully matched in both trees; only as many members are kept from `other` as
+    /// the number of elements with matching keys in `self`.
+    ///
+    /// The elements of the two input trees may interleave and overlap in any combination.
+    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    /// skipped instead of elementwise processing. This may drastically improve performance.
+    ///
+    /// This function also detects shared subtrees between the two trees,
+    /// and links them directly into the result when possible.
+    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Complexity:
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    public func bagIntersection(_ other: BTree) -> BTree {
+        var m = BTreeMerger(first: self, second: other)
+        while !m.done {
+            m.skipFromFirst(.excludingOtherKey)
+            m.skipFromSecond(.excludingOtherKey)
+            m.copyMatchingNumberOfCommonElementsFromSecond()
         }
         return m.finish()
     }
@@ -382,6 +457,34 @@ internal struct BTreeMerger<Key: Comparable, Value> {
         }
     }
 
+    mutating func copyMatchingNumberOfCommonElementsFromSecond() {
+        while !done && a.key == b.key {
+            if a.node === b.node && a.node.isLeaf && a.slot == 0 && b.slot == 0 {
+                /// We're at the first element of a shared subtree. Find the ancestor at which the shared subtree
+                /// starts, and append it in a single step.
+                ///
+                /// It might happen that a shared node begins with a key that we've already fully processed in one of the trees.
+                /// In this case, we cannot skip elementwise processing, since the trees are at different offsets in
+                /// the shared subtree. The slot & leaf checks above & below ensure that this isn't the case.
+                repeat {
+                    if a.ascendOneLevel() { done = true }
+                    if b.ascendOneLevel() { done = true }
+                } while !done && a.node === b.node && a.slot == 0 && b.slot == 0
+                builder.append(b.isAtEnd ? b.root : b.node.children[b.slot!])
+                if !a.isAtEnd { a.ascendToKey() }
+                if !b.isAtEnd { b.ascendToKey() }
+            }
+            else {
+                // Copy one matching element from the second tree, then step forward.
+                // TODO: Count the number of matching elements in a and link entire subtrees from b into the result when possible.
+                builder.append(b.element)
+                a.moveForward()
+                b.moveForward()
+                done = a.isAtEnd || b.isAtEnd
+            }
+        }
+    }
+
     /// Ignore and jump over the longest possible sequence of elements that share the same key in both trees,
     /// starting at the current positions.
     ///
@@ -425,6 +528,31 @@ internal struct BTreeMerger<Key: Comparable, Value> {
                     doneB = b.isAtEnd
                 }
                 done = doneA || doneB
+            }
+        }
+    }
+
+    mutating func skipMatchingNumberOfCommonElements() {
+        while !done && a.key == b.key {
+            if a.node === b.node && a.node.isLeaf && a.slot == 0 && b.slot == 0 {
+                /// We're at the first element of a shared subtree. Find the ancestor at which the shared subtree
+                /// starts, and append it in a single step.
+                ///
+                /// It might happen that a shared node begins with a key that we've already fully processed in one of the trees.
+                /// In this case, we cannot skip elementwise processing, since the trees are at different offsets in
+                /// the shared subtree. The slot & leaf checks above & below ensure that this isn't the case.
+                repeat {
+                    if a.ascendOneLevel() { done = true }
+                    if b.ascendOneLevel() { done = true }
+                } while !done && a.node === b.node && a.slot == 0 && b.slot == 0
+                if !a.isAtEnd { a.ascendToKey() }
+                if !b.isAtEnd { b.ascendToKey() }
+            }
+            else {
+                // Skip one matching element from both trees.
+                a.moveForward()
+                b.moveForward()
+                done = a.isAtEnd || b.isAtEnd
             }
         }
     }
