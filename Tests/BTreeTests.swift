@@ -358,6 +358,44 @@ class BTreeTests: XCTestCase {
         XCTAssertNil(tree.index(forKey: 2 * count - 2, choosing: .after))
     }
 
+    func testIndexForInsertingKey() {
+        let count = 42
+        let tree = Tree(sortedElements: (0 ..< count).map { ($0 & ~1, String($0)) }, order: 3)
+
+        for k in 0 ..< count {
+            let first = tree.index(forInserting: k, at: .first)
+            let last = tree.index(forInserting: k, at: .last)
+
+            if k & 1 == 0 { // Even keys are in the tree, twice
+                XCTAssertEqual(tree[first].1, "\(k)")
+                if k == (count - 1) & ~1 {
+                    XCTAssertEqual(last, tree.endIndex)
+                }
+                else {
+                    XCTAssertEqual(tree[last].1, "\(k + 2)")
+                }
+            }
+            else { // Odd keys aren't in the tree
+                print(k)
+                XCTAssertEqual(first, last)
+                if k - 1 == (count - 1) & ~1 {
+                    XCTAssertEqual(first, tree.endIndex)
+                }
+                else {
+                    XCTAssertEqual(tree[first].1, "\(k + 1)")
+                }
+            }
+
+            let after = tree.index(forInserting: k, at: .after)
+            XCTAssertEqual(after, last)
+
+            let any = tree.index(forInserting: k, at: .any)
+            XCTAssertGreaterThanOrEqual(any, first)
+            XCTAssertLessThanOrEqual(any, after)
+        }
+    }
+
+
     func testOffsetOfKey() {
         let count = 42
         let tree = Tree(sortedElements: (0 ..< count).map { (2 * $0, String(2 * $0)) }, order: 3)
