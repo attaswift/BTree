@@ -33,7 +33,7 @@ extension BTree {
         }
         m.appendFirst()
         m.appendSecond()
-        return BTree(m.finish())
+        return m.finish()
     }
 
     /// Calculate the distinct union of two trees, and return the result.
