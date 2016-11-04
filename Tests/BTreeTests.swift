@@ -376,7 +376,6 @@ class BTreeTests: XCTestCase {
                 }
             }
             else { // Odd keys aren't in the tree
-                print(k)
                 XCTAssertEqual(first, last)
                 if k - 1 == (count - 1) & ~1 {
                     XCTAssertEqual(first, tree.endIndex)
