@@ -170,7 +170,6 @@ class BTreeBuilderTests: XCTestCase {
         var i = 0
         for _ in 0 ..< 5 {
             let node = maximalNode(depth: 1, order: 5, offset: i)
-            print(node.map { $0.0 })
             i += node.count
             builder.append(node)
         }
@@ -186,7 +185,6 @@ class BTreeBuilderTests: XCTestCase {
             builder.append((i, String(i)))
             i += 1
             let node = minimalNode(depth: 1, order: 5, offset: i)
-            print(node.map { $0.0 })
             i += node.count
             builder.append(node)
         }
@@ -203,7 +201,6 @@ class BTreeBuilderTests: XCTestCase {
             builder.append((i + 1, String(i + 1)))
             i += 2
             let node = minimalNode(depth: 1, order: 5, offset: i)
-            print(node.map { $0.0 })
             i += node.count
             builder.append(node)
         }
