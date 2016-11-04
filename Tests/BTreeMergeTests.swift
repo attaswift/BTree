@@ -25,7 +25,7 @@ class BTreeMergeTests: XCTestCase {
 
     func makeTree<S: Sequence>(_ s: S, order: Int = 5, keysPerNode: Int? = nil) -> Tree where S.Iterator.Element == Int {
         var b = Builder(order: order, keysPerNode: keysPerNode ?? order - 1)
-        for i in s {
+        for i in s.sorted() {
             b.append((i, ()))
         }
         return Tree(b.finish())
@@ -120,6 +120,21 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual([0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
     }
 
+    func test_Union_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let expected = keys.union(subtree.map { $0.0 }).sorted()
+            
+            let u1 = subtree.union(tree)
+            u1.assertKeysEqual(expected)
+
+            let u2 = tree.union(subtree)
+            u2.assertKeysEqual(expected)
+        }
+    }
+
     //MARK: Distinct Union
 
     func test_DistinctUnion_simple() {
@@ -209,7 +224,21 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
     }
 
-    //MARK: Subtract
+    func test_DistinctUnion_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let u1 = subtree.distinctUnion(tree)
+            u1.assertKeysEqual(tree.map { $0.0 })
+
+            let expected = keys.subtractingAll(subtree.map { $0.0 }).union(subtree.map { $0.0 }).sorted()
+            let u2 = tree.distinctUnion(subtree)
+            u2.assertKeysEqual(expected)
+        }
+    }
+
+    //MARK: Subtraction
 
     func test_Subtract_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -298,10 +327,127 @@ class BTreeMergeTests: XCTestCase {
         u2.assertValid()
         u2.assertKeysEqual([7].repeatEach(20))
     }
-    
-    //MARK: Exclusive Or
 
-    func test_ExclusiveOr_simple() {
+    func test_Subtract_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let u1 = subtree.subtracting(tree)
+            u1.assertKeysEqual([])
+
+            let u2 = tree.subtracting(subtree)
+            u2.assertKeysEqual(keys.subtractingAll(subtree.map { $0.0 }).sorted())
+        }
+    }
+
+    //MARK: Bag Subtraction
+
+    func test_BagSubtract_simple() {
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+
+        let u0 = empty.bagSubtracting(empty)
+        u0.assertValid()
+        u0.assertKeysEqual(empty)
+
+        let u1 = even.bagSubtracting(empty)
+        u1.assertValid()
+        u1.assertKeysEqual(even)
+
+        let u2 = empty.bagSubtracting(even)
+        u2.assertValid()
+        u2.assertKeysEqual(empty)
+
+        let u3 = even.bagSubtracting(even)
+        u3.assertValid()
+        u3.assertKeysEqual(empty)
+    }
+
+    func test_BagSubtract_evenOdd() {
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
+
+        let u1 = even.bagSubtracting(odd)
+        u1.assertValid()
+        u1.assertKeysEqual(even)
+
+        let u2 = odd.bagSubtracting(even)
+        u2.assertValid()
+        u2.assertKeysEqual(odd)
+    }
+
+    func test_BagSubtract_halves() {
+        let first = makeTree(0..<50)
+        let second = makeTree(50..<100)
+
+        let u1 = first.bagSubtracting(second)
+        u1.assertValid()
+        u1.assertKeysEqual(first)
+
+        let u2 = second.bagSubtracting(first)
+        u2.assertValid()
+        u2.assertKeysEqual(second)
+    }
+
+    func test_BagSubtract_longDuplicates() {
+        let keys = (0 ..< 10).repeatEach(20)
+        let first = makeTree(keys[0 ..< 95])
+        let second = makeTree(keys[95 ..< 200])
+
+        let u1 = first.bagSubtracting(second)
+        u1.assertValid()
+        u1.assertKeysEqual((0 ..< 4).repeatEach(20) + Array(repeating: 4, count: 10))
+
+        let u2 = second.bagSubtracting(first)
+        u2.assertValid()
+        u2.assertKeysEqual((5 ..< 10).repeatEach(20))
+    }
+
+    func test_BagSubtract_duplicateResolution() {
+        let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
+        let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
+
+        let u1 = first.bagSubtracting(second)
+        u1.assertValid()
+        u1.assertKeysEqual([0, 0, 4, 6, 6, 6, 7, 7])
+
+        let u2 = second.bagSubtracting(first)
+        u2.assertValid()
+        u2.assertKeysEqual([1, 1, 3, 8])
+    }
+
+    func test_BagSubtract_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursor(atOffset: 140) { $0.remove(20) }
+        second.withCursor(atOffset: 60) { $0.remove(20) }
+
+        let u1 = first.bagSubtracting(second)
+        u1.assertValid()
+        u1.assertKeysEqual([3].repeatEach(20))
+        
+        let u2 = second.bagSubtracting(first)
+        u2.assertValid()
+        u2.assertKeysEqual([7].repeatEach(20))
+    }
+
+    func test_BagSubtract_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let u1 = subtree.bagSubtracting(tree)
+            u1.assertKeysEqual([])
+
+            let expected = keys.subtracting(subtree.map { $0.0 }).sorted()
+            let u2 = tree.bagSubtracting(subtree)
+            u2.assertKeysEqual(expected)
+        }
+    }
+
+    //MARK: Symmetric difference
+
+    func test_SymmetricDifference_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
         let u0 = empty.symmetricDifference(empty)
@@ -321,7 +467,7 @@ class BTreeMergeTests: XCTestCase {
         u3.assertKeysEqual(empty)
     }
 
-    func test_ExclusiveOr_evenOdd() {
+    func test_SymmetricDifference_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
@@ -334,7 +480,7 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual(0 ..< 100)
     }
 
-    func test_ExclusiveOr_halves() {
+    func test_SymmetricDifference_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
@@ -347,7 +493,7 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual(0 ..< 100)
     }
 
-    func test_ExclusiveOr_longDuplicates() {
+    func test_SymmetricDifference_longDuplicates() {
         let keys = (0 ..< 10).repeatEach(20)
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
@@ -361,7 +507,7 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
     }
 
-    func test_ExclusiveOr_duplicateResolution() {
+    func test_SymmetricDifference_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
@@ -374,7 +520,7 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual([1, 1, 4, 7, 7, 8])
     }
 
-    func test_ExclusiveOr_sharedNodes() {
+    func test_SymmetricDifference_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
@@ -389,10 +535,129 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual([3, 7].repeatEach(20))
     }
 
+    func test_SymmetricDifference_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let expectedKeys = keys.subtractingAll(subtree.map { $0.0 }).sorted()
 
-    //MARK: Intersect
+            let u1 = subtree.symmetricDifference(tree)
+            u1.assertKeysEqual(expectedKeys)
 
-    func test_Intersect_simple() {
+            let u2 = tree.symmetricDifference(subtree)
+            u2.assertKeysEqual(expectedKeys)
+        }
+    }
+
+    //MARK: Bag Symmetric Difference
+
+    func test_BagSymmetricDifference_simple() {
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+
+        let u0 = empty.bagSymmetricDifference(empty)
+        u0.assertValid()
+        u0.assertKeysEqual(empty)
+
+        let u1 = even.bagSymmetricDifference(empty)
+        u1.assertValid()
+        u1.assertKeysEqual(even)
+
+        let u2 = empty.bagSymmetricDifference(even)
+        u2.assertValid()
+        u2.assertKeysEqual(even)
+
+        let u3 = even.bagSymmetricDifference(even)
+        u3.assertValid()
+        u3.assertKeysEqual(empty)
+    }
+
+    func test_BagSymmetricDifference_evenOdd() {
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
+
+        let u1 = even.bagSymmetricDifference(odd)
+        u1.assertValid()
+        u1.assertKeysEqual(0 ..< 100)
+
+        let u2 = odd.bagSymmetricDifference(even)
+        u2.assertValid()
+        u2.assertKeysEqual(0 ..< 100)
+    }
+
+    func test_BagSymmetricDifference_halves() {
+        let first = makeTree(0..<50)
+        let second = makeTree(50..<100)
+
+        let u1 = first.bagSymmetricDifference(second)
+        u1.assertValid()
+        u1.assertKeysEqual(0 ..< 100)
+
+        let u2 = second.bagSymmetricDifference(first)
+        u2.assertValid()
+        u2.assertKeysEqual(0 ..< 100)
+    }
+
+    func test_BagSymmetricDifference_longDuplicates() {
+        let keys = (0 ..< 10).repeatEach(20)
+        let first = makeTree(keys[0 ..< 90])
+        let second = makeTree(keys[90 ..< 200])
+
+        let u1 = first.bagSymmetricDifference(second)
+        u1.assertValid()
+        u1.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
+
+        let u2 = second.bagSymmetricDifference(first)
+        u2.assertValid()
+        u2.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
+    }
+
+    func test_BagSymmetricDifference_duplicateResolution() {
+        let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
+        let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
+
+        let u1 = first.bagSymmetricDifference(second)
+        u1.assertValid()
+        u1.assertKeysEqual([0, 0, 1, 1, 3, 4, 6, 6, 6, 7, 7, 8])
+
+        let u2 = second.bagSymmetricDifference(first)
+        u2.assertValid()
+        u2.assertKeysEqual([0, 0, 1, 1, 3, 4, 6, 6, 6, 7, 7, 8])
+    }
+
+    func test_BagSymmetricDifference_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursor(atOffset: 140) { $0.remove(20) }
+        second.withCursor(atOffset: 60) { $0.remove(20) }
+
+        let u1 = first.bagSymmetricDifference(second)
+        u1.assertValid()
+        u1.assertKeysEqual([3, 7].repeatEach(20))
+
+        let u2 = second.bagSymmetricDifference(first)
+        u2.assertValid()
+        u2.assertKeysEqual([3, 7].repeatEach(20))
+    }
+
+    func test_BagSymmetricDifference_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let expectedKeys = keys.subtracting(subtree.map { $0.0 }).sorted()
+
+            let u1 = subtree.bagSymmetricDifference(tree)
+            u1.assertKeysEqual(expectedKeys)
+
+            let u2 = tree.bagSymmetricDifference(subtree)
+            u2.assertKeysEqual(expectedKeys)
+        }
+    }
+
+    //MARK: Intersection
+
+    func test_Intersection_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
         let u0 = empty.intersection(empty)
@@ -412,7 +677,7 @@ class BTreeMergeTests: XCTestCase {
         u3.assertKeysEqual(even)
     }
 
-    func test_Intersect_evenOdd() {
+    func test_Intersection_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
@@ -425,7 +690,7 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual(empty)
     }
 
-    func test_Intersect_halves() {
+    func test_Intersection_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
@@ -438,7 +703,7 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual(empty)
     }
 
-    func test_Intersect_longDuplicates() {
+    func test_Intersection_longDuplicates() {
         let keys = (0 ..< 10).repeatEach(20)
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
@@ -452,7 +717,7 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual([4].repeatEach(10))
     }
 
-    func test_Intersect_duplicateResolution() {
+    func test_Intersection_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
@@ -465,7 +730,7 @@ class BTreeMergeTests: XCTestCase {
         u2.assertKeysEqual([0, 0, 0, 0, 3, 6, 6, 6, 6])
     }
 
-    func test_Intersect_sharedNodes() {
+    func test_Intersection_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
@@ -478,6 +743,125 @@ class BTreeMergeTests: XCTestCase {
         let u2 = second.intersection(first)
         u2.assertValid()
         u2.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
+    }
+
+    func test_Intersection_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let expected = Set(subtree.map { $0.0 }).sorted().repeatEach(3)
+            let u1 = subtree.intersection(tree)
+            u1.assertKeysEqual(expected)
+
+            let u2 = tree.intersection(subtree)
+            u2.assertKeysEqual(subtree.map { $0.0 })
+        }
+    }
+
+    //MARK: Bag Intersection
+
+    func test_BagIntersection_simple() {
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+
+        let u0 = empty.bagIntersection(empty)
+        u0.assertValid()
+        u0.assertKeysEqual(empty)
+
+        let u1 = even.bagIntersection(empty)
+        u1.assertValid()
+        u1.assertKeysEqual(empty)
+
+        let u2 = empty.bagIntersection(even)
+        u2.assertValid()
+        u2.assertKeysEqual(empty)
+
+        let u3 = even.bagIntersection(even)
+        u3.assertValid()
+        u3.assertKeysEqual(even)
+    }
+
+    func test_BagIntersection_evenOdd() {
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
+
+        let u1 = even.bagIntersection(odd)
+        u1.assertValid()
+        u1.assertKeysEqual(empty)
+
+        let u2 = odd.bagIntersection(even)
+        u2.assertValid()
+        u2.assertKeysEqual(empty)
+    }
+
+    func test_BagIntersection_halves() {
+        let first = makeTree(0..<50)
+        let second = makeTree(50..<100)
+
+        let u1 = first.bagIntersection(second)
+        u1.assertValid()
+        u1.assertKeysEqual(empty)
+
+        let u2 = second.bagIntersection(first)
+        u2.assertValid()
+        u2.assertKeysEqual(empty)
+    }
+
+    func test_BagIntersection_longDuplicates() {
+        let keys = (0 ..< 10).repeatEach(20)
+        let first = makeTree(keys[0 ..< 90])
+        let second = makeTree(keys[90 ..< 200])
+
+        let u1 = first.bagIntersection(second)
+        u1.assertValid()
+        u1.assertKeysEqual([4].repeatEach(10))
+
+        let u2 = second.bagIntersection(first)
+        u2.assertValid()
+        u2.assertKeysEqual([4].repeatEach(10))
+    }
+
+    func test_BagIntersection_duplicateResolution() {
+        let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
+        let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
+
+        let u1 = first.bagIntersection(second)
+        u1.assertValid()
+        u1.assertKeysEqual([0, 0, 3, 6])
+
+        let u2 = second.bagIntersection(first)
+        u2.assertValid()
+        u2.assertKeysEqual([0, 0, 3, 6])
+    }
+
+    func test_BagIntersection_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursor(atOffset: 140) { $0.remove(20) }
+        second.withCursor(atOffset: 60) { $0.remove(20) }
+
+        let u1 = first.bagIntersection(second)
+        u1.assertValid()
+        u1.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
+
+        let u2 = second.bagIntersection(first)
+        u2.assertValid()
+        u2.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
+    }
+
+    func test_BagIntersection_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let expectedKeys = subtree.map { $0.0 }
+
+            let u1 = subtree.bagIntersection(tree)
+            u1.assertKeysEqual(expectedKeys)
+
+            let u2 = tree.bagIntersection(subtree)
+            u2.assertKeysEqual(expectedKeys)
+        }
     }
 
     // MARK: Sequence-based operations

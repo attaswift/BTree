@@ -245,6 +245,120 @@ class BTreeSupportTests: XCTestCase {
     }
 }
 
+struct DictionaryBagIndex<Element: Hashable>: Comparable {
+    let dictionaryIndex: Dictionary<Element, Int>.Index
+    let elementIndex: Int
+
+    init(_ dictionaryIndex: Dictionary<Element, Int>.Index, _ elementIndex: Int) {
+        self.dictionaryIndex = dictionaryIndex
+        self.elementIndex = elementIndex
+    }
+
+    static func <(left: DictionaryBagIndex, right: DictionaryBagIndex) -> Bool {
+        return (left.dictionaryIndex, left.elementIndex) < (right.dictionaryIndex, right.elementIndex)
+    }
+
+    static func ==(left: DictionaryBagIndex, right: DictionaryBagIndex) -> Bool {
+        return (left.dictionaryIndex, left.elementIndex) == (right.dictionaryIndex, right.elementIndex)
+    }
+}
+
+struct DictionaryBag<Element: Hashable>: Collection {
+    typealias Index = DictionaryBagIndex<Element>
+
+    private var bag: [Element: Int] = [:]
+
+    private(set) var count: Int = 0
+
+    init() {}
+
+    init<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+        self.init()
+        self.formUnion(elements)
+    }
+
+    var startIndex: Index {
+        return Index(bag.startIndex, 0)
+    }
+
+    var endIndex: Index {
+        return Index(bag.endIndex, 0)
+    }
+
+    func index(after i: Index) -> Index {
+        let c = bag[i.dictionaryIndex].value
+        if i.elementIndex < c - 1 {
+            return Index(i.dictionaryIndex, i.elementIndex + 1)
+        }
+        else {
+            return Index(bag.index(after: i.dictionaryIndex), 0)
+        }
+    }
+
+    subscript(index: Index) -> Element {
+        let entry = bag[index.dictionaryIndex]
+        precondition(index.elementIndex < entry.value)
+        return entry.key
+    }
+
+    mutating func insert(_ element: Element) {
+        let c = bag[element] ?? 0
+        bag[element] = c + 1
+        count += 1
+    }
+
+    mutating func remove(_ element: Element) {
+        let c = bag[element] ?? 0
+        if c == 1 {
+            bag[element] = nil
+            count -= 1
+        }
+        else if c > 1 {
+            bag[element] = c - 1
+            count -= 1
+        }
+    }
+
+    mutating func subtract<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+        for element in elements {
+            self.remove(element)
+        }
+    }
+
+    mutating func subtractAll<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+        for element in elements {
+            if let c = bag[element] {
+                bag[element] = nil
+                count -= c
+            }
+        }
+    }
+
+    func subtracting<S: Sequence>(_ elements: S) -> DictionaryBag where S.Iterator.Element == Element {
+        var bag = self
+        bag.subtract(elements)
+        return bag
+    }
+
+    func subtractingAll<S: Sequence>(_ elements: S) -> DictionaryBag where S.Iterator.Element == Element {
+        var bag = self
+        bag.subtractAll(elements)
+        return bag
+    }
+
+    mutating func formUnion<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+        for element in elements {
+            self.insert(element)
+        }
+    }
+
+    func union<S: Sequence>(_ elements: S) -> DictionaryBag where S.Iterator.Element == Element {
+        var bag = self
+        bag.formUnion(elements)
+        return bag
+    }
+}
+
 struct Ref<Target: AnyObject>: Hashable {
     let target: Target
     var hashValue: Int {
