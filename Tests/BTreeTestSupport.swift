@@ -14,6 +14,10 @@ extension BTree {
     func assertValid(file: StaticString = #file, line: UInt = #line) {
         root.assertValid(file: file, line: line)
     }
+
+    func forEachSubtree(_ operation: (BTree) -> Void) {
+        root.forEachNode { node in operation(BTree(node)) }
+    }
 }
 
 extension BTreeNode {
@@ -93,9 +97,19 @@ extension BTreeNode {
     }
 
     func forEachNode(_ operation: (Node) -> Void) {
-        operation(self)
-        for child in children {
-            child.forEachNode(operation)
+        for level in (0 ... self.depth).reversed() {
+            forEachNode(onLevel: level, operation)
+        }
+    }
+
+    func forEachNode(onLevel level: Int, _ operation: (Node) -> Void) {
+        if level == 0 {
+            operation(self)
+        }
+        else {
+            for child in children {
+                child.forEachNode(onLevel: level - 1, operation)
+            }
         }
     }
 
@@ -228,5 +242,15 @@ class BTreeSupportTests: XCTestCase {
         }
         
         assertEqualElements(node, (0..<3).map { ($0, String($0)) })
+    }
+}
+
+struct Ref<Target: AnyObject>: Hashable {
+    let target: Target
+    var hashValue: Int {
+        return ObjectIdentifier(target).hashValue
+    }
+    static func ==(left: Ref, right: Ref) -> Bool {
+        return left.target === right.target
     }
 }

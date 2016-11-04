@@ -549,7 +549,7 @@ extension BTreeNode {
             }
         }
         if node.children.count == 1 {
-            return Splinter(separator: rsep, node: node.children[0])
+            return Splinter(separator: rsep, node: node.makeChildUnique(0))
         }
         return Splinter(separator: rsep, node: node)
     }

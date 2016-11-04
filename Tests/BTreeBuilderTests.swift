@@ -212,4 +212,68 @@ class BTreeBuilderTests: XCTestCase {
         assertEqualElements(node.map { $0.0 }, 0 ..< i)
     }
 
+    func testAppendingTheSameNode() {
+        // First, create a node with uniform keys.
+        let nodeSize = 20
+        var b = Builder(order: 5, keysPerNode: 4)
+        for i in 0 ..< nodeSize {
+            b.append((0, "\(i)"))
+        }
+        let node = b.finish()
+        let values = (0 ..< nodeSize).map { "\($0)" }
+
+        // Next, append this node 10 times to a new builder.
+        var builder = Builder(order: 5, keysPerNode: 4)
+        let appendCount = 10
+        for _ in 0 ..< appendCount {
+            builder.append(node)
+            assertEqualElements(node.map { $0.1 }, values)
+        }
+        let large = builder.finish()
+        assertEqualElements(large.map { $0.1 }, (0 ..< appendCount).flatMap { _ in values })
+
+        // The result should have duplicate nodes.
+        var nodes: Set<Ref<Node>> = []
+        var nodeCount = 0
+        large.forEachNode { node in
+            nodes.insert(Ref(target: node))
+            nodeCount += 1
+        }
+        XCTAssertLessThan(nodes.count, nodeCount)
+    }
+
+    func testAppendingSubtrees() {
+        // First, create a node with uniform keys.
+        let nodeSize = 50
+        var b = Builder(order: 5, keysPerNode: 4)
+        for i in 0 ..< nodeSize {
+            b.append((0, "\(i)"))
+        }
+        let node = b.finish()
+
+        var values: [Node] = []
+        node.forEachNode { n in
+            values.append(n.clone())
+        }
+
+        // Next, append all subtrees of this node to a new builder.
+        var builder = Builder(order: 5, keysPerNode: 4)
+        node.forEachNode { n in
+            builder.append(n)
+        }
+        let large = builder.finish()
+
+        // Result should have the same elements as the previously extracted subtree array.
+        assertEqualElements(large.map { $0.1 }, values.flatMap { $0.map { $0.1 } })
+
+        // The node should have the exact same subnodes as before.
+        var i = 0
+        node.forEachNode { n in
+            let expected = values[i]
+            XCTAssertEqual(n.count, expected.count)
+            assertEqualElements(n.elements, expected.elements)
+            XCTAssertTrue(n.children.elementsEqual(expected.children, by: ===))
+            i += 1
+        }
+    }
 }
