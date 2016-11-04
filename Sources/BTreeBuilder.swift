@@ -203,7 +203,7 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
 
     private mutating func append(sapling: Node) {
         var sapling = sapling
-        outer: while !saplings.isEmpty {
+        while !saplings.isEmpty {
             assert(saplings.count == separators.count)
             var previous = saplings.removeLast()
             let separator = separators.removeLast()
@@ -212,8 +212,8 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
             while previous.depth < sapling.depth {
                 if saplings.isEmpty {
                     // If the single remaining sapling is too shallow, just join it to the new sapling and call it a day.
-                    sapling = Node.join(left: previous, separator: separator, right: sapling)
-                    break outer
+                    saplings.append(Node.join(left: previous, separator: separator, right: sapling))
+                    return
                 }
                 previous = Node.join(left: saplings.removeLast(), separator: separators.removeLast(), right: previous)
             }
