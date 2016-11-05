@@ -320,6 +320,98 @@ class SortedSetTests: XCTestCase {
         }
     }
 
+    func test_lowestIndexAbove() {
+        let c = 100
+        let set = SortedSet((0 ..< c).map { 2 * $0 })
+
+        for i in 0 ..< 2 * c {
+            let index = set.lowestIndex(above: i)
+            if i < 2 * (c - 1) {
+                XCTAssertNotNil(index)
+                guard let index = index else { continue }
+                let element = set[index]
+                if i & 1 == 0 {
+                    XCTAssertEqual(element, i + 2)
+                }
+                else {
+                    XCTAssertEqual(element, i + 1)
+                }
+            }
+            else {
+                XCTAssertNil(index)
+            }
+        }
+    }
+
+    func test_lowestIndexNotBelow() {
+        let c = 100
+        let set = SortedSet((0 ..< c).map { 2 * $0 })
+
+        for i in 0 ..< 2 * c {
+            let index = set.lowestIndex(notBelow: i)
+            if i < 2 * c - 1 {
+                XCTAssertNotNil(index)
+                guard let index = index else { continue }
+                let element = set[index]
+                if i & 1 == 0 {
+                    XCTAssertEqual(element, i)
+                }
+                else {
+                    XCTAssertEqual(element, i + 1)
+                }
+            }
+            else {
+                XCTAssertNil(index)
+            }
+        }
+    }
+
+    func test_highestIndexBelow() {
+        let c = 100
+        let set = SortedSet((0 ..< c).map { 2 * $0 })
+
+        for i in -2 ..< 2 * c {
+            let index = set.highestIndex(below: i)
+            if i > 0 {
+                XCTAssertNotNil(index)
+                guard let index = index else { continue }
+                let element = set[index]
+                if i & 1 == 0 {
+                    XCTAssertEqual(element, i - 2)
+                }
+                else {
+                    XCTAssertEqual(element, i - 1)
+                }
+            }
+            else {
+                XCTAssertNil(index)
+            }
+        }
+    }
+
+    func test_highestIndexNotAbove() {
+        let c = 100
+        let set = SortedSet((0 ..< c).map { 2 * $0 })
+
+        for i in -2 ..< 2 * c {
+            let index = set.highestIndex(notAbove: i)
+            if i >= 0 {
+                XCTAssertNotNil(index)
+                guard let index = index else { continue }
+                let element = set[index]
+                if i & 1 == 0 {
+                    XCTAssertEqual(element, i)
+                }
+                else {
+                    XCTAssertEqual(element, i - 1)
+                }
+            }
+            else {
+                XCTAssertNil(index)
+            }
+        }
+    }
+
     func test_insert() {
         var set = SortedSet<Test>()
         let one1 = Test(1)
