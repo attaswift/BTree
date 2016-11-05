@@ -97,6 +97,10 @@
 		BBB224EC1C7B9ED60049FEF6 /* BTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224D91C7B9BAA0049FEF6 /* BTreeTests.swift */; };
 		BBB224ED1C7B9ED60049FEF6 /* MapTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */; };
 		BBB224EE1C7B9ED60049FEF6 /* ListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */; };
+		BBB5062C1DCE210900D0FC8E /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5062B1DCE210900D0FC8E /* Compatibility.swift */; };
+		BBB5062D1DCE210900D0FC8E /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5062B1DCE210900D0FC8E /* Compatibility.swift */; };
+		BBB5062E1DCE210900D0FC8E /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5062B1DCE210900D0FC8E /* Compatibility.swift */; };
+		BBB5062F1DCE210900D0FC8E /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5062B1DCE210900D0FC8E /* Compatibility.swift */; };
 		BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 		BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 		BBCB23E51C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */; };
@@ -191,6 +195,7 @@
 		BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = ListTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MapTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BBB224EF1C7BA09B0049FEF6 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		BBB5062B1DCE210900D0FC8E /* Compatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compatibility.swift; sourceTree = "<group>"; };
 		BBBA30481C4946660019830F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String Manipulation.swift"; sourceTree = "<group>"; };
 		BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeComparisons.swift; sourceTree = "<group>"; };
@@ -317,6 +322,7 @@
 				BB79ECE61D5B8876005F9D8F /* BridgedList.swift */,
 				BBA55CD61C7F383C00455736 /* SortedSet.swift */,
 				BB4828701DAD362100384B20 /* SortedBag.swift */,
+				BBB5062B1DCE210900D0FC8E /* Compatibility.swift */,
 				BB54D0B41C1F0357008A462B /* Info.plist */,
 			);
 			path = Sources;
@@ -629,6 +635,7 @@
 				BB7773841C6CA07C00991A06 /* BTreeIndex.swift in Sources */,
 				BBD622791C77568D00B6BF46 /* BTree.swift in Sources */,
 				BB7773871C6CA08B00991A06 /* Weak.swift in Sources */,
+				BBB5062C1DCE210900D0FC8E /* Compatibility.swift in Sources */,
 				BBA55CDC1C7F5C8E00455736 /* BTreePath.swift in Sources */,
 				BB7773901C6E57B300991A06 /* BTreeCursor.swift in Sources */,
 				BB097FB31C236EFD00CB718A /* Map.swift in Sources */,
@@ -675,6 +682,7 @@
 				BB8FE9A71C7C8D720051268F /* BTreeIndex.swift in Sources */,
 				BB8FE9AA1C7C8D720051268F /* List.swift in Sources */,
 				BB8FE9A61C7C8D720051268F /* BTreeIterator.swift in Sources */,
+				BBB5062E1DCE210900D0FC8E /* Compatibility.swift in Sources */,
 				BBA55CDE1C7F5C8E00455736 /* BTreePath.swift in Sources */,
 				BB8FE9A51C7C8D720051268F /* BTreeNode.swift in Sources */,
 				BB8FE9A91C7C8D720051268F /* Map.swift in Sources */,
@@ -697,6 +705,7 @@
 				BB8FE9D21C7C8F6B0051268F /* List.swift in Sources */,
 				BB8FE9CE1C7C8F6B0051268F /* BTreeIterator.swift in Sources */,
 				BBA55CDF1C7F5C8E00455736 /* BTreePath.swift in Sources */,
+				BBB5062F1DCE210900D0FC8E /* Compatibility.swift in Sources */,
 				BB5B27C41C7FD71B00ED8D38 /* SortedSet.swift in Sources */,
 				BB8FE9CD1C7C8F6B0051268F /* BTreeNode.swift in Sources */,
 				BB8FE9D11C7C8F6B0051268F /* Map.swift in Sources */,
@@ -743,6 +752,7 @@
 				BBEB88AC1D03716200AA8CC3 /* BTreeComparisons.swift in Sources */,
 				BBD6227A1C77568D00B6BF46 /* BTree.swift in Sources */,
 				BBEB88AE1D03874D00AA8CC3 /* List.swift in Sources */,
+				BBB5062D1DCE210900D0FC8E /* Compatibility.swift in Sources */,
 				BBEB88A91D03716200AA8CC3 /* BTreeCursor.swift in Sources */,
 				BBEB88A71D0370C800AA8CC3 /* BTreePath.swift in Sources */,
 				BBEB88AD1D03874D00AA8CC3 /* Map.swift in Sources */,

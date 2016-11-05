@@ -6,220 +6,196 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
+public enum BTreeMergeStrategy {
+    case groupingMatches
+    case countingMatches
+}
+
 extension BTree {
     //MARK: Merging and set operations
 
-    /// Merge all elements from two trees into a new tree, and return it.
+    /// Merge elements from two trees into a new tree, and return it.
     ///
-    /// This is the non-distinct union operation: all elements from both trees are kept.
-    /// The result may have duplicate keys, even if the input trees only had unique keys on their own.
+    /// - Parameter other: Any tree with the same order as `self`.
     ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This may drastically improve performance.
+    /// - Parameter strategy:
+    ///      When `.groupingMatches`, elements in `self` whose keys also appear in `other` are not included in the result.
+    ///      If neither input tree had duplicate keys on its own, the result won't have any duplicates, either.
     ///
-    /// This function does not perform special handling of shared nodes between the two trees, because
-    /// the semantics of the operation require individual processing of all keys that appear in both trees.
+    ///      When `.countingMatches`, all elements in both trees are kept in the result, including ones with duplicate keys.
+    ///      The result may have duplicate keys, even if the input trees only had unique-keyed elements.
     ///
-    /// - SeeAlso: `distinctUnion(_:)` for the distinct variant of the same operation.
+    /// - Returns: A tree with elements from `self` with matching keys in `other` removed.
+    ///
+    /// - Note:
+    ///     The elements of the two input trees may interleave and overlap in any combination.
+    ///     However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    ///     skipped instead of elementwise processing. This may drastically improve performance.
+    ///
+    ///     When `strategy == .groupingMatches`, this function also detects shared subtrees between the two trees,
+    ///     and links them directly into the result when possible. (Otherwise matching keys are individually processed.)
+    ///
+    /// - Requires: `self.order == other.order`
+    ///
     /// - Complexity:
-    ///    - O(`self.count` + `tree.count`) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant number of interleaving element runs.
-    public func union(_ other: BTree) -> BTree {
+    ///    - O(min(`self.count`, `other.count`)) in general.
+    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
+    public func union(_ other: BTree, by strategy: BTreeMergeStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.copyFromFirst(.includingOtherKey)
-            m.copyFromSecond(.excludingOtherKey)
+        switch strategy {
+        case .groupingMatches:
+            while !m.done {
+                m.copyFromFirst(.excludingOtherKey)
+                m.copyFromSecond(.excludingOtherKey)
+                m.copyCommonElementsFromSecond()
+            }
+        case .countingMatches:
+            while !m.done {
+                m.copyFromFirst(.includingOtherKey)
+                m.copyFromSecond(.excludingOtherKey)
+            }
         }
         m.appendFirst()
         m.appendSecond()
         return m.finish()
     }
 
-    /// Calculate the distinct union of two trees, and return the result.
-    /// If the same key appears in both trees, only the matching element(s) in the second tree will be
-    /// included in the result.
+    /// Return a tree with the same elements as `self` except those with matching keys in `other`.
     ///
-    /// If neither input trees had duplicate keys on its own, the result won't have any duplicates, either.
+    /// - Parameter other: Any tree with the same order as `self`.
     ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This may drastically improve performance.
+    /// - Parameter strategy:
+    ///      When `.groupingMatches`, all elements in `self` that have a matching key in `other` are removed.
     ///
-    /// This function also detects shared subtrees between the two trees,
-    /// and links them directly into the result when possible.
-    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///      When `.countingMatches`, for each key in `self`, only as many matching elements are removed as the key's multiplicity in `other`.
     ///
-    /// - SeeAlso: `union(_:)` for the non-distinct variant of the same operation.
-    /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func distinctUnion(_ other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.copyFromFirst(.excludingOtherKey)
-            m.copyFromSecond(.excludingOtherKey)
-            m.copyCommonElementsFromSecond()
-        }
-        m.appendFirst()
-        m.appendSecond()
-        return m.finish()
-    }
-
-    /// Return a tree with the same elements as `first` except those whose keys are also in `second`.
+    /// - Returns: A tree with elements from `self` with matching keys in `other` removed.
     ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// skipped or linked into the result instead of elementwise processing. This may drastically improve performance.
+    /// - Note:
+    ///     The elements of the two input trees may interleave and overlap in any combination.
+    ///     However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    ///     skipped or linked into the result instead of elementwise processing. This may drastically improve performance.
     ///
-    /// This function also detects and skips over shared subtrees between the two trees.
-    /// (Keys that appear in both trees otherwise require individual processing.)
+    ///     This function also detects and skips over shared subtrees between the two trees.
+    ///     (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Requires: `self.order == other.order`
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func subtracting(_ other: BTree) -> BTree {
+    public func subtracting(_ other: BTree, by strategy: BTreeMergeStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.excludingOtherKey)
             m.skipFromSecond(.excludingOtherKey)
-            m.skipCommonElements()
+            switch strategy {
+            case .groupingMatches:
+                m.skipCommonElements()
+            case .countingMatches:
+                m.skipMatchingNumberOfCommonElements()
+            }
         }
         m.appendFirst()
         return m.finish()
     }
 
-    /// Return a tree containing those members of `first` whose keys aren't also included in `second`.
-    /// For elements in `first` whose key multiplicity exceeds that of matching members in `second`,
-    /// the extra elements are kept in the result.
-    ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// skipped or linked into the result instead of elementwise processing. This may drastically improve performance.
-    ///
-    /// This function also detects and skips over shared subtrees between the two trees.
-    /// (Keys that appear in both trees otherwise require individual processing.)
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `tree.count`)) in general.
-    ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func bagSubtracting(_ other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.copyFromFirst(.excludingOtherKey)
-            m.skipFromSecond(.excludingOtherKey)
-            m.skipMatchingNumberOfCommonElements()
-        }
-        m.appendFirst()
-        return m.finish()
-    }
 
-    /// Return a tree combining the elements of two input trees except those whose keys appear in both trees.
+    /// Return a tree combining the elements of `self` and `other` except those whose keys can be matched in both trees.
     ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This may drastically improve performance.
+    /// - Parameter other: Any tree with the same order as `self`.
     ///
-    /// This function also detects and skips over shared subtrees between the two trees.
-    /// (Keys that appear in both trees otherwise require individual processing.)
+    /// - Parameter strategy:
+    ///      When `.groupingMatches`, all elements in both trees are removed whose key appears in both
+    ///      trees, regardless of their multiplicities.
+    ///
+    ///      When `.countingMatches`, for each key, only as many matching elements are removed as the minimum of the
+    ///        key's multiplicities in the two trees, leaving "extra" occurences from the "longer" tree in the result.
+    ///
+    /// - Returns: A tree combining elements of `self` and `other` except those whose keys can be matched in both trees.
+    ///
+    /// - Note:
+    ///     The elements of the two input trees may interleave and overlap in any combination.
+    ///     However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    ///     linked into the result instead of elementwise processing. This may drastically improve performance.
+    ///
+    ///     This function also detects and skips over shared subtrees between the two trees.
+    ///     (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Requires: `self.order == other.order`
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func symmetricDifference(_ other: BTree) -> BTree {
+    public func symmetricDifference(_ other: BTree, by strategy: BTreeMergeStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.excludingOtherKey)
             m.copyFromSecond(.excludingOtherKey)
-            m.skipCommonElements()
+            switch strategy {
+            case .groupingMatches:
+                m.skipCommonElements()
+            case .countingMatches:
+                m.skipMatchingNumberOfCommonElements()
+            }
         }
         m.appendFirst()
         m.appendSecond()
         return m.finish()
     }
 
-    /// Return a tree combining the elements of two input trees except those whose keys appear in both trees.
-    /// For duplicate keys that have different multiplicities in the two trees, the last *d* elements with matching keys
-    /// from the tree with greater multiplicity is kept in the result (where *d* is the absolute difference of multiplicities).
+    /// Return a tree with those elements of `other` whose keys are also included in `self`.
     ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// linked into the result instead of elementwise processing. This may drastically improve performance.
+    /// - Parameter other: Any tree with the same order as `self`.
     ///
-    /// This function also detects and skips over shared subtrees between the two trees.
-    /// (Keys that appear in both trees otherwise require individual processing.)
+    /// - Parameter strategy:
+    ///      When `.groupingMatches`, all elements in `other` are included that have matching keys
+    ///      in `self`, regardless of multiplicities.
     ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func bagSymmetricDifference(_ other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.copyFromFirst(.excludingOtherKey)
-            m.copyFromSecond(.excludingOtherKey)
-            m.skipMatchingNumberOfCommonElements()
-        }
-        m.appendFirst()
-        m.appendSecond()
-        return m.finish()
-    }
-
-    /// Return a tree with the same elements as `other` except those whose keys are not also in `self`.
-    /// The result is independent of the number of duplicate keys that match; if there is but a single member in `self`
-    /// with a matching key, then all elements in `other` are kept that have the same key.
+    ///      When `.countingMatches`, for each key, only as many matching elements from `other` are kept as 
+    ///      the minimum of the key's multiplicities in the two trees.
     ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// skipped instead of elementwise processing. This may drastically improve performance.
+    /// - Returns: A tree combining elements of `self` and `other` except those whose keys can be matched in both trees.
     ///
-    /// This function also detects shared subtrees between the two trees,
-    /// and links them directly into the result when possible.
-    /// (Keys that appear in both trees otherwise require individual processing.)
+    /// - Note:
+    ///      The elements of the two input trees may interleave and overlap in any combination.
+    ///      However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
+    ///      skipped instead of elementwise processing. This may drastically improve performance.
+    ///
+    ///      This function also detects shared subtrees between the two trees,
+    ///      and links them directly into the result when possible.
+    ///      (Keys that appear in both trees otherwise require individual processing.)
+    ///
+    /// - Requires: `self.order == other.order`
     ///
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func intersection(_ other: BTree) -> BTree {
+    public func intersection(_ other: BTree, by strategy: BTreeMergeStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.skipFromFirst(.excludingOtherKey)
             m.skipFromSecond(.excludingOtherKey)
-            m.copyCommonElementsFromSecond()
+            switch strategy {
+            case .groupingMatches:
+                m.copyCommonElementsFromSecond()
+            case .countingMatches:
+                m.copyMatchingNumberOfCommonElementsFromSecond()
+            }
         }
         return m.finish()
     }
-
-    /// Return a tree with those members from `other` whose key also appear in `self`.
-    /// Members with duplicate keys are carefully matched in both trees; only as many members are kept from `other` as
-    /// the number of elements with matching keys in `self`.
-    ///
-    /// The elements of the two input trees may interleave and overlap in any combination.
-    /// However, if there are long runs of non-interleaved elements, parts of the input trees will be entirely
-    /// skipped instead of elementwise processing. This may drastically improve performance.
-    ///
-    /// This function also detects shared subtrees between the two trees,
-    /// and links them directly into the result when possible.
-    /// (Keys that appear in both trees otherwise require individual processing.)
-    ///
-    /// - Complexity:
-    ///    - O(min(`self.count`, `other.count`)) in general.
-    ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func bagIntersection(_ other: BTree) -> BTree {
-        var m = BTreeMerger(first: self, second: other)
-        while !m.done {
-            m.skipFromFirst(.excludingOtherKey)
-            m.skipFromSecond(.excludingOtherKey)
-            m.copyMatchingNumberOfCommonElementsFromSecond()
-        }
-        return m.finish()
-    }
-
 
     /// Return a tree that contains all elements in `self` whose key is not in the supplied sorted sequence.
     ///
+    /// - Note:
+    ///      The keys of `self` may interleave and overlap with `sortedKeys` in any combination.
+    ///      However, if there are long runs of non-interleaved keys, parts of `self` will be entirely
+    ///      skipped instead of elementwise processing. This may drastically improve performance.
+    ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
-    /// - Complexity: O(*n* * log(`count`)), where *n* is the number of keys in `sortedKeys`.
-    public func subtracting<S: Sequence>(sortedKeys: S) -> BTree where S.Iterator.Element == Key {
+    /// - Complexity: O(*n* + `self.count`), where *n* is the number of keys in `sortedKeys`.
+    public func subtracting<S: Sequence>(sortedKeys: S, by strategy: BTreeMergeStrategy) -> BTree where S.Iterator.Element == Key {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
@@ -227,15 +203,23 @@ extension BTree {
         var path = BTreeStrongPath(startOf: self.root)
         outer: for key in sortedKeys {
             precondition(lastKey == nil || lastKey! <= key)
+            lastKey = key
             while path.key < key {
                 b.append(path.nextPart(until: .excluding(key)))
                 if path.isAtEnd { break outer }
             }
-            while path.key == key {
-                path.nextPart(until: .including(key))
-                if path.isAtEnd { break outer }
+            switch strategy {
+            case .groupingMatches:
+                while path.key == key {
+                    path.nextPart(until: .including(key))
+                    if path.isAtEnd { break outer }
+                }
+            case .countingMatches:
+                if path.key == key {
+                    path.moveForward()
+                    if path.isAtEnd { break outer }
+                }
             }
-            lastKey = key
         }
         if !path.isAtEnd {
             b.append(path.element)
@@ -246,9 +230,14 @@ extension BTree {
 
     /// Return a tree that contains all elements in `self` whose key is in the supplied sorted sequence.
     ///
+    /// - Note:
+    ///      The keys of `self` may interleave and overlap with `sortedKeys` in any combination.
+    ///      However, if there are long runs of non-interleaved keys, parts of `self` will be entirely
+    ///      skipped instead of elementwise processing. This may drastically improve performance.
+    ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
-    /// - Complexity: O(*n* * log(`count`)), where *n* is the number of keys in `sortedKeys`.
-    public func intersection<S: Sequence>(sortedKeys: S) -> BTree where S.Iterator.Element == Key {
+    /// - Complexity: O(*n* + `self.count`), where *n* is the number of keys in `sortedKeys`.
+    public func intersection<S: Sequence>(sortedKeys: S, by strategy: BTreeMergeStrategy) -> BTree where S.Iterator.Element == Key {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
@@ -256,15 +245,24 @@ extension BTree {
         var path = BTreeStrongPath(startOf: self.root)
         outer: for key in sortedKeys {
             precondition(lastKey == nil || lastKey! <= key)
+            lastKey = key
             while path.key < key {
                 path.nextPart(until: .excluding(key))
                 if path.isAtEnd { break outer }
             }
-            while path.key == key {
-                b.append(path.nextPart(until: .including(key)))
-                if path.isAtEnd { break outer }
+            switch strategy {
+            case .groupingMatches:
+                while path.key == key {
+                    b.append(path.nextPart(until: .including(key)))
+                    if path.isAtEnd { break outer }
+                }
+            case .countingMatches:
+                if path.key == key {
+                    b.append(path.element)
+                    path.moveForward()
+                    if path.isAtEnd { break outer }
+                }
             }
-            lastKey = key
         }
         return BTree(b.finish())
     }

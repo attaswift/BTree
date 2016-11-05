@@ -698,7 +698,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func union(_ other: SortedSet<Element>) -> SortedSet<Element> {
-        return SortedSet(self.tree.distinctUnion(other.tree))
+        return SortedSet(self.tree.union(other.tree, by: .groupingMatches))
     }
 
     /// Return a set consisting of all members in `other` that are also in this set.
@@ -711,7 +711,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func intersection(_ other: SortedSet<Element>) -> SortedSet<Element> {
-        return SortedSet(self.tree.intersection(other.tree))
+        return SortedSet(self.tree.intersection(other.tree, by: .groupingMatches))
     }
 
     /// Return a set consisting of members from `self` and `other` that aren't in both sets at once.
@@ -724,7 +724,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func symmetricDifference(_ other: SortedSet<Element>) -> SortedSet<Element> {
-        return SortedSet(self.tree.symmetricDifference(other.tree))
+        return SortedSet(self.tree.symmetricDifference(other.tree, by: .groupingMatches))
     }
 
     /// Add all members in `other` to this set.
@@ -776,7 +776,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func subtracting(_ other: SortedSet) -> SortedSet {
-        return SortedSet(self.tree.subtracting(other.tree))
+        return SortedSet(self.tree.subtracting(other.tree, by: .groupingMatches))
     }
 
     /// Remove all members from this set that are also included in `other`.

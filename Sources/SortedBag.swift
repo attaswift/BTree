@@ -741,7 +741,7 @@ extension SortedBag {
     ///    - O(`self.count` + `other.count`) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func union(_ other: SortedBag<Element>) -> SortedBag<Element> {
-        return SortedBag(self.tree.union(other.tree))
+        return SortedBag(self.tree.union(other.tree, by: .countingMatches))
     }
 
     /// Add all members in `other` to this bag, also keeping all existing instances already in `self`.
@@ -768,7 +768,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func intersection(_ other: SortedBag<Element>) -> SortedBag<Element> {
-        return SortedBag(self.tree.bagIntersection(other.tree))
+        return SortedBag(self.tree.intersection(other.tree, by: .countingMatches))
     }
 
     /// Remove all members from this bag that are not also included in `other`.
@@ -797,7 +797,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func subtracting(_ other: SortedBag) -> SortedBag {
-        return SortedBag(self.tree.bagSubtracting(other.tree))
+        return SortedBag(self.tree.subtracting(other.tree, by: .countingMatches))
     }
 
     /// Remove all members from this bag that are also included in `other`.
@@ -827,7 +827,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func symmetricDifference(_ other: SortedBag<Element>) -> SortedBag<Element> {
-        return SortedBag(self.tree.bagSymmetricDifference(other.tree))
+        return SortedBag(self.tree.symmetricDifference(other.tree, by: .countingMatches))
     }
 
     /// Replace `self` with a set consisting of members from `self` and `other` that aren't in both sets at once.

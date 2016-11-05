@@ -31,735 +31,735 @@ class BTreeMergeTests: XCTestCase {
         return Tree(b.finish())
     }
 
-    //MARK: Union
+    //MARK: Union by grouping matches
 
-    func test_Union_simple() {
+    func test_unionByGrouping_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
-        let u0 = empty.union(empty)
+        let u0 = empty.union(empty, by: .groupingMatches)
         u0.assertValid()
         u0.assertKeysEqual(empty)
 
-        let u1 = even.union(empty)
+        let u1 = even.union(empty, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(even)
 
-        let u2 = empty.union(even)
+        let u2 = empty.union(even, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(even)
 
-        let u3 = even.union(even)
+        let u3 = even.union(even, by: .groupingMatches)
         u3.assertValid()
-        u3.assertKeysEqual((0 ..< 100).map { $0 & ~1 })
+        u3.assertKeysEqual(stride(from: 0, to: 100, by: 2))
     }
 
-    func test_Union_evenOdd() {
+    func test_unionByGrouping_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
-        let u1 = even.union(odd)
+        let u1 = even.union(odd, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(0 ..< 100)
 
-        let u2 = odd.union(even)
+        let u2 = odd.union(even, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(0 ..< 100)
     }
 
-    func test_Union_halves() {
+    func test_unionByGrouping_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = first.union(second)
+        let u1 = first.union(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(0 ..< 100)
 
-        let u2 = second.union(first)
+        let u2 = second.union(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(0 ..< 100)
     }
 
-    func test_Union_longDuplicates() {
-        let first = makeTree((0 ..< 90).repeatEach(20))
-        let second = makeTree((90 ..< 200).repeatEach(20))
+    func test_unionByGrouping_longDuplicates() {
+        let first = makeTree((0 ..< 100).repeatEach(20))
+        let second = makeTree((100 ..< 200).repeatEach(20))
 
-        let u1 = first.union(second)
+        let u1 = first.union(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual((0 ..< 200).repeatEach(20))
 
-        let u2 = second.union(first)
+        let u2 = second.union(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual((0 ..< 200).repeatEach(20))
     }
 
-    func test_Union_duplicateResolution() {
+    func test_unionByGrouping_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = first.union(second)
+        let u1 = first.union(second, by: .groupingMatches)
         u1.assertValid()
-        u1.assertKeysEqual([0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
+        u1.assertKeysEqual([0, 0, 1, 1, 3, 3, 4, 6, 7, 7, 8])
 
-        let u2 = second.union(first)
+        let u2 = second.union(first, by: .groupingMatches)
         u2.assertValid()
-        u2.assertKeysEqual([0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
+        u2.assertKeysEqual([0, 0, 0, 0, 1, 1, 3, 4, 6, 6, 6, 6, 7, 7, 8])
     }
 
-    func test_Union_sharedNodes() {
+    func test_unionByGrouping_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
         second.withCursor(atOffset: 60) { $0.remove(20) }
 
-        let u1 = first.union(second)
+        let u1 = first.union(second, by: .groupingMatches)
+        u1.assertValid()
+        u1.assertKeysEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
+
+        let u2 = second.union(first, by: .groupingMatches)
+        u2.assertValid()
+        u2.assertKeysEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
+    }
+
+    func test_unionByGrouping_subtrees() {
+        let count = 50
+        let keys = DictionaryBag((0 ..< count).repeatEach(3))
+        let tree = makeTree(keys)
+        tree.forEachSubtree { subtree in
+            let u1 = subtree.union(tree, by: .groupingMatches)
+            u1.assertKeysEqual(tree.map { $0.0 })
+
+            let expected = keys.subtractingAll(subtree.map { $0.0 }).union(subtree.map { $0.0 }).sorted()
+            let u2 = tree.union(subtree, by: .groupingMatches)
+            u2.assertKeysEqual(expected)
+        }
+    }
+
+    //MARK: Union by counting matches
+
+    func test_unionByCounting_simple() {
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+
+        let u0 = empty.union(empty, by: .countingMatches)
+        u0.assertValid()
+        u0.assertKeysEqual(empty)
+
+        let u1 = even.union(empty, by: .countingMatches)
+        u1.assertValid()
+        u1.assertKeysEqual(even)
+
+        let u2 = empty.union(even, by: .countingMatches)
+        u2.assertValid()
+        u2.assertKeysEqual(even)
+
+        let u3 = even.union(even, by: .countingMatches)
+        u3.assertValid()
+        u3.assertKeysEqual((0 ..< 100).map { $0 & ~1 })
+    }
+
+    func test_unionByCounting_evenOdd() {
+        let even = makeTree(stride(from: 0, to: 100, by: 2))
+        let odd = makeTree(stride(from: 1, to: 100, by: 2))
+
+        let u1 = even.union(odd, by: .countingMatches)
+        u1.assertValid()
+        u1.assertKeysEqual(0 ..< 100)
+
+        let u2 = odd.union(even, by: .countingMatches)
+        u2.assertValid()
+        u2.assertKeysEqual(0 ..< 100)
+    }
+
+    func test_unionByCounting_halves() {
+        let first = makeTree(0..<50)
+        let second = makeTree(50..<100)
+
+        let u1 = first.union(second, by: .countingMatches)
+        u1.assertValid()
+        u1.assertKeysEqual(0 ..< 100)
+
+        let u2 = second.union(first, by: .countingMatches)
+        u2.assertValid()
+        u2.assertKeysEqual(0 ..< 100)
+    }
+
+    func test_unionByCounting_longDuplicates() {
+        let first = makeTree((0 ..< 90).repeatEach(20))
+        let second = makeTree((90 ..< 200).repeatEach(20))
+
+        let u1 = first.union(second, by: .countingMatches)
+        u1.assertValid()
+        u1.assertKeysEqual((0 ..< 200).repeatEach(20))
+
+        let u2 = second.union(first, by: .countingMatches)
+        u2.assertValid()
+        u2.assertKeysEqual((0 ..< 200).repeatEach(20))
+    }
+
+    func test_unionByCounting_duplicateResolution() {
+        let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
+        let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
+
+        let u1 = first.union(second, by: .countingMatches)
+        u1.assertValid()
+        u1.assertKeysEqual([0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
+
+        let u2 = second.union(first, by: .countingMatches)
+        u2.assertValid()
+        u2.assertKeysEqual([0, 0, 0, 0, 0, 0, 1, 1, 3, 3, 3, 4, 6, 6, 6, 6, 6, 7, 7, 8])
+    }
+
+    func test_unionByCounting_sharedNodes() {
+        var first = makeTree((0 ..< 10).repeatEach(20))
+        var second = first
+        first.withCursor(atOffset: 140) { $0.remove(20) }
+        second.withCursor(atOffset: 60) { $0.remove(20) }
+
+        let u1 = first.union(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
 
-        let u2 = second.union(first)
+        let u2 = second.union(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([0, 0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 7, 8, 8, 9, 9].repeatEach(20))
     }
 
-    func test_Union_subtrees() {
+    func test_unionByCounting_subtrees() {
         let count = 50
         let keys = DictionaryBag((0 ..< count).repeatEach(3))
         let tree = makeTree(keys)
         tree.forEachSubtree { subtree in
             let expected = keys.union(subtree.map { $0.0 }).sorted()
             
-            let u1 = subtree.union(tree)
+            let u1 = subtree.union(tree, by: .countingMatches)
             u1.assertKeysEqual(expected)
 
-            let u2 = tree.union(subtree)
+            let u2 = tree.union(subtree, by: .countingMatches)
             u2.assertKeysEqual(expected)
         }
     }
 
-    //MARK: Distinct Union
+    //MARK: Subtracting by grouping matches
 
-    func test_DistinctUnion_simple() {
+    func test_subtractingByGrouping_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
-        let u0 = empty.distinctUnion(empty)
+        let u0 = empty.subtracting(empty, by: .groupingMatches)
         u0.assertValid()
         u0.assertKeysEqual(empty)
 
-        let u1 = even.distinctUnion(empty)
+        let u1 = even.subtracting(empty, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(even)
 
-        let u2 = empty.distinctUnion(even)
-        u2.assertValid()
-        u2.assertKeysEqual(even)
-
-        let u3 = even.distinctUnion(even)
-        u3.assertValid()
-        u3.assertKeysEqual(stride(from: 0, to: 100, by: 2))
-    }
-
-    func test_DistinctUnion_evenOdd() {
-        let even = makeTree(stride(from: 0, to: 100, by: 2))
-        let odd = makeTree(stride(from: 1, to: 100, by: 2))
-
-        let u1 = even.distinctUnion(odd)
-        u1.assertValid()
-        u1.assertKeysEqual(0 ..< 100)
-
-        let u2 = odd.distinctUnion(even)
-        u2.assertValid()
-        u2.assertKeysEqual(0 ..< 100)
-    }
-
-    func test_DistinctUnion_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
-
-        let u1 = first.distinctUnion(second)
-        u1.assertValid()
-        u1.assertKeysEqual(0 ..< 100)
-
-        let u2 = second.distinctUnion(first)
-        u2.assertValid()
-        u2.assertKeysEqual(0 ..< 100)
-    }
-
-    func test_DistinctUnion_longDuplicates() {
-        let first = makeTree((0 ..< 100).repeatEach(20))
-        let second = makeTree((100 ..< 200).repeatEach(20))
-
-        let u1 = first.distinctUnion(second)
-        u1.assertValid()
-        u1.assertKeysEqual((0 ..< 200).repeatEach(20))
-
-        let u2 = second.distinctUnion(first)
-        u2.assertValid()
-        u2.assertKeysEqual((0 ..< 200).repeatEach(20))
-    }
-
-    func test_DistinctUnion_duplicateResolution() {
-        let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
-        let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
-
-        let u1 = first.distinctUnion(second)
-        u1.assertValid()
-        u1.assertKeysEqual([0, 0, 1, 1, 3, 3, 4, 6, 7, 7, 8])
-
-        let u2 = second.distinctUnion(first)
-        u2.assertValid()
-        u2.assertKeysEqual([0, 0, 0, 0, 1, 1, 3, 4, 6, 6, 6, 6, 7, 7, 8])
-    }
-
-    func test_DistinctUnion_sharedNodes() {
-        var first = makeTree((0 ..< 10).repeatEach(20))
-        var second = first
-        first.withCursor(atOffset: 140) { $0.remove(20) }
-        second.withCursor(atOffset: 60) { $0.remove(20) }
-
-        let u1 = first.distinctUnion(second)
-        u1.assertValid()
-        u1.assertKeysEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
-
-        let u2 = second.distinctUnion(first)
-        u2.assertValid()
-        u2.assertKeysEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].repeatEach(20))
-    }
-
-    func test_DistinctUnion_subtrees() {
-        let count = 50
-        let keys = DictionaryBag((0 ..< count).repeatEach(3))
-        let tree = makeTree(keys)
-        tree.forEachSubtree { subtree in
-            let u1 = subtree.distinctUnion(tree)
-            u1.assertKeysEqual(tree.map { $0.0 })
-
-            let expected = keys.subtractingAll(subtree.map { $0.0 }).union(subtree.map { $0.0 }).sorted()
-            let u2 = tree.distinctUnion(subtree)
-            u2.assertKeysEqual(expected)
-        }
-    }
-
-    //MARK: Subtraction
-
-    func test_Subtract_simple() {
-        let even = makeTree(stride(from: 0, to: 100, by: 2))
-
-        let u0 = empty.subtracting(empty)
-        u0.assertValid()
-        u0.assertKeysEqual(empty)
-
-        let u1 = even.subtracting(empty)
-        u1.assertValid()
-        u1.assertKeysEqual(even)
-
-        let u2 = empty.subtracting(even)
+        let u2 = empty.subtracting(even, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(empty)
 
-        let u3 = even.subtracting(even)
+        let u3 = even.subtracting(even, by: .groupingMatches)
         u3.assertValid()
         u3.assertKeysEqual(empty)
     }
 
-    func test_Subtract_evenOdd() {
+    func test_subtractingByGrouping_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
-        let u1 = even.subtracting(odd)
+        let u1 = even.subtracting(odd, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(even)
 
-        let u2 = odd.subtracting(even)
+        let u2 = odd.subtracting(even, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(odd)
     }
 
-    func test_Subtract_halves() {
+    func test_subtractingByGrouping_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = first.subtracting(second)
+        let u1 = first.subtracting(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(first)
 
-        let u2 = second.subtracting(first)
+        let u2 = second.subtracting(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(second)
     }
 
-    func test_Subtract_longDuplicates() {
+    func test_subtractingByGrouping_longDuplicates() {
         let keys = (0 ..< 10).repeatEach(20)
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
 
-        let u1 = first.subtracting(second)
+        let u1 = first.subtracting(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual((0 ..< 4).repeatEach(20))
 
-        let u2 = second.subtracting(first)
+        let u2 = second.subtracting(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual((5 ..< 10).repeatEach(20))
     }
 
-    func test_Subtract_duplicateResolution() {
+    func test_subtractingByGrouping_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = first.subtracting(second)
+        let u1 = first.subtracting(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual([4, 7, 7])
 
-        let u2 = second.subtracting(first)
+        let u2 = second.subtracting(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual([1, 1, 8])
     }
 
-    func test_Subtract_sharedNodes() {
+    func test_subtractingByGrouping_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
         second.withCursor(atOffset: 60) { $0.remove(20) }
 
-        let u1 = first.subtracting(second)
+        let u1 = first.subtracting(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual([3].repeatEach(20))
 
-        let u2 = second.subtracting(first)
+        let u2 = second.subtracting(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual([7].repeatEach(20))
     }
 
-    func test_Subtract_subtrees() {
+    func test_subtractingByGrouping_subtrees() {
         let count = 50
         let keys = DictionaryBag((0 ..< count).repeatEach(3))
         let tree = makeTree(keys)
         tree.forEachSubtree { subtree in
-            let u1 = subtree.subtracting(tree)
+            let u1 = subtree.subtracting(tree, by: .groupingMatches)
             u1.assertKeysEqual([])
 
-            let u2 = tree.subtracting(subtree)
+            let u2 = tree.subtracting(subtree, by: .groupingMatches)
             u2.assertKeysEqual(keys.subtractingAll(subtree.map { $0.0 }).sorted())
         }
     }
 
-    //MARK: Bag Subtraction
+    //MARK: Subtracting by counting matches
 
-    func test_BagSubtract_simple() {
+    func test_subtractingByCounting_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
-        let u0 = empty.bagSubtracting(empty)
+        let u0 = empty.subtracting(empty, by: .countingMatches)
         u0.assertValid()
         u0.assertKeysEqual(empty)
 
-        let u1 = even.bagSubtracting(empty)
+        let u1 = even.subtracting(empty, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(even)
 
-        let u2 = empty.bagSubtracting(even)
+        let u2 = empty.subtracting(even, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(empty)
 
-        let u3 = even.bagSubtracting(even)
+        let u3 = even.subtracting(even, by: .countingMatches)
         u3.assertValid()
         u3.assertKeysEqual(empty)
     }
 
-    func test_BagSubtract_evenOdd() {
+    func test_subtractingByCounting_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
-        let u1 = even.bagSubtracting(odd)
+        let u1 = even.subtracting(odd, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(even)
 
-        let u2 = odd.bagSubtracting(even)
+        let u2 = odd.subtracting(even, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(odd)
     }
 
-    func test_BagSubtract_halves() {
+    func test_subtractingByCounting_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = first.bagSubtracting(second)
+        let u1 = first.subtracting(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(first)
 
-        let u2 = second.bagSubtracting(first)
+        let u2 = second.subtracting(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(second)
     }
 
-    func test_BagSubtract_longDuplicates() {
+    func test_subtractingByCounting_longDuplicates() {
         let keys = (0 ..< 10).repeatEach(20)
         let first = makeTree(keys[0 ..< 95])
         let second = makeTree(keys[95 ..< 200])
 
-        let u1 = first.bagSubtracting(second)
+        let u1 = first.subtracting(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual((0 ..< 4).repeatEach(20) + Array(repeating: 4, count: 10))
 
-        let u2 = second.bagSubtracting(first)
+        let u2 = second.subtracting(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual((5 ..< 10).repeatEach(20))
     }
 
-    func test_BagSubtract_duplicateResolution() {
+    func test_subtractingByCounting_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = first.bagSubtracting(second)
+        let u1 = first.subtracting(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([0, 0, 4, 6, 6, 6, 7, 7])
 
-        let u2 = second.bagSubtracting(first)
+        let u2 = second.subtracting(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([1, 1, 3, 8])
     }
 
-    func test_BagSubtract_sharedNodes() {
+    func test_subtractingByCounting_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
         second.withCursor(atOffset: 60) { $0.remove(20) }
 
-        let u1 = first.bagSubtracting(second)
+        let u1 = first.subtracting(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([3].repeatEach(20))
         
-        let u2 = second.bagSubtracting(first)
+        let u2 = second.subtracting(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([7].repeatEach(20))
     }
 
-    func test_BagSubtract_subtrees() {
+    func test_subtractingByCounting_subtrees() {
         let count = 50
         let keys = DictionaryBag((0 ..< count).repeatEach(3))
         let tree = makeTree(keys)
         tree.forEachSubtree { subtree in
-            let u1 = subtree.bagSubtracting(tree)
+            let u1 = subtree.subtracting(tree, by: .countingMatches)
             u1.assertKeysEqual([])
 
             let expected = keys.subtracting(subtree.map { $0.0 }).sorted()
-            let u2 = tree.bagSubtracting(subtree)
+            let u2 = tree.subtracting(subtree, by: .countingMatches)
             u2.assertKeysEqual(expected)
         }
     }
 
-    //MARK: Symmetric difference
+    //MARK: Symmetric difference by grouping matches
 
-    func test_SymmetricDifference_simple() {
+    func test_symmetricDifferenceByGrouping_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
-        let u0 = empty.symmetricDifference(empty)
+        let u0 = empty.symmetricDifference(empty, by: .groupingMatches)
         u0.assertValid()
         u0.assertKeysEqual(empty)
 
-        let u1 = even.symmetricDifference(empty)
+        let u1 = even.symmetricDifference(empty, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(even)
 
-        let u2 = empty.symmetricDifference(even)
+        let u2 = empty.symmetricDifference(even, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(even)
 
-        let u3 = even.symmetricDifference(even)
+        let u3 = even.symmetricDifference(even, by: .groupingMatches)
         u3.assertValid()
         u3.assertKeysEqual(empty)
     }
 
-    func test_SymmetricDifference_evenOdd() {
+    func test_symmetricDifferenceByGrouping_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
-        let u1 = even.symmetricDifference(odd)
+        let u1 = even.symmetricDifference(odd, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(0 ..< 100)
 
-        let u2 = odd.symmetricDifference(even)
+        let u2 = odd.symmetricDifference(even, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(0 ..< 100)
     }
 
-    func test_SymmetricDifference_halves() {
+    func test_symmetricDifferenceByGrouping_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = first.symmetricDifference(second)
+        let u1 = first.symmetricDifference(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(0 ..< 100)
 
-        let u2 = second.symmetricDifference(first)
+        let u2 = second.symmetricDifference(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(0 ..< 100)
     }
 
-    func test_SymmetricDifference_longDuplicates() {
+    func test_symmetricDifferenceByGrouping_longDuplicates() {
         let keys = (0 ..< 10).repeatEach(20)
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
 
-        let u1 = first.symmetricDifference(second)
+        let u1 = first.symmetricDifference(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
 
-        let u2 = second.symmetricDifference(first)
+        let u2 = second.symmetricDifference(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
     }
 
-    func test_SymmetricDifference_duplicateResolution() {
+    func test_symmetricDifferenceByGrouping_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = first.symmetricDifference(second)
+        let u1 = first.symmetricDifference(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual([1, 1, 4, 7, 7, 8])
 
-        let u2 = second.symmetricDifference(first)
+        let u2 = second.symmetricDifference(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual([1, 1, 4, 7, 7, 8])
     }
 
-    func test_SymmetricDifference_sharedNodes() {
+    func test_symmetricDifferenceByGrouping_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
         second.withCursor(atOffset: 60) { $0.remove(20) }
 
-        let u1 = first.symmetricDifference(second)
+        let u1 = first.symmetricDifference(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual([3, 7].repeatEach(20))
 
-        let u2 = second.symmetricDifference(first)
+        let u2 = second.symmetricDifference(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual([3, 7].repeatEach(20))
     }
 
-    func test_SymmetricDifference_subtrees() {
+    func test_symmetricDifferenceByGrouping_subtrees() {
         let count = 50
         let keys = DictionaryBag((0 ..< count).repeatEach(3))
         let tree = makeTree(keys)
         tree.forEachSubtree { subtree in
             let expectedKeys = keys.subtractingAll(subtree.map { $0.0 }).sorted()
 
-            let u1 = subtree.symmetricDifference(tree)
+            let u1 = subtree.symmetricDifference(tree, by: .groupingMatches)
             u1.assertKeysEqual(expectedKeys)
 
-            let u2 = tree.symmetricDifference(subtree)
+            let u2 = tree.symmetricDifference(subtree, by: .groupingMatches)
             u2.assertKeysEqual(expectedKeys)
         }
     }
 
-    //MARK: Bag Symmetric Difference
+    //MARK: Symmetric Difference by counting matches
 
-    func test_BagSymmetricDifference_simple() {
+    func test_symmetricDifferenceByCounting_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
-        let u0 = empty.bagSymmetricDifference(empty)
+        let u0 = empty.symmetricDifference(empty, by: .countingMatches)
         u0.assertValid()
         u0.assertKeysEqual(empty)
 
-        let u1 = even.bagSymmetricDifference(empty)
+        let u1 = even.symmetricDifference(empty, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(even)
 
-        let u2 = empty.bagSymmetricDifference(even)
+        let u2 = empty.symmetricDifference(even, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(even)
 
-        let u3 = even.bagSymmetricDifference(even)
+        let u3 = even.symmetricDifference(even, by: .countingMatches)
         u3.assertValid()
         u3.assertKeysEqual(empty)
     }
 
-    func test_BagSymmetricDifference_evenOdd() {
+    func test_symmetricDifferenceByCounting_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
-        let u1 = even.bagSymmetricDifference(odd)
+        let u1 = even.symmetricDifference(odd, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(0 ..< 100)
 
-        let u2 = odd.bagSymmetricDifference(even)
+        let u2 = odd.symmetricDifference(even, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(0 ..< 100)
     }
 
-    func test_BagSymmetricDifference_halves() {
+    func test_symmetricDifferenceByCounting_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = first.bagSymmetricDifference(second)
+        let u1 = first.symmetricDifference(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(0 ..< 100)
 
-        let u2 = second.bagSymmetricDifference(first)
+        let u2 = second.symmetricDifference(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(0 ..< 100)
     }
 
-    func test_BagSymmetricDifference_longDuplicates() {
+    func test_symmetricDifferenceByCounting_longDuplicates() {
         let keys = (0 ..< 10).repeatEach(20)
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
 
-        let u1 = first.bagSymmetricDifference(second)
+        let u1 = first.symmetricDifference(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
 
-        let u2 = second.bagSymmetricDifference(first)
+        let u2 = second.symmetricDifference(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual((0 ..< 4).repeatEach(20) + (5 ..< 10).repeatEach(20))
     }
 
-    func test_BagSymmetricDifference_duplicateResolution() {
+    func test_symmetricDifferenceByCounting_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = first.bagSymmetricDifference(second)
+        let u1 = first.symmetricDifference(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([0, 0, 1, 1, 3, 4, 6, 6, 6, 7, 7, 8])
 
-        let u2 = second.bagSymmetricDifference(first)
+        let u2 = second.symmetricDifference(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([0, 0, 1, 1, 3, 4, 6, 6, 6, 7, 7, 8])
     }
 
-    func test_BagSymmetricDifference_sharedNodes() {
+    func test_symmetricDifferenceByCounting_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
         second.withCursor(atOffset: 60) { $0.remove(20) }
 
-        let u1 = first.bagSymmetricDifference(second)
+        let u1 = first.symmetricDifference(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([3, 7].repeatEach(20))
 
-        let u2 = second.bagSymmetricDifference(first)
+        let u2 = second.symmetricDifference(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([3, 7].repeatEach(20))
     }
 
-    func test_BagSymmetricDifference_subtrees() {
+    func test_symmetricDifferenceByCounting_subtrees() {
         let count = 50
         let keys = DictionaryBag((0 ..< count).repeatEach(3))
         let tree = makeTree(keys)
         tree.forEachSubtree { subtree in
             let expectedKeys = keys.subtracting(subtree.map { $0.0 }).sorted()
 
-            let u1 = subtree.bagSymmetricDifference(tree)
+            let u1 = subtree.symmetricDifference(tree, by: .countingMatches)
             u1.assertKeysEqual(expectedKeys)
 
-            let u2 = tree.bagSymmetricDifference(subtree)
+            let u2 = tree.symmetricDifference(subtree, by: .countingMatches)
             u2.assertKeysEqual(expectedKeys)
         }
     }
 
-    //MARK: Intersection
+    //MARK: Intersection by grouping matches
 
-    func test_Intersection_simple() {
+    func test_IntersectionByGrouping_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
-        let u0 = empty.intersection(empty)
+        let u0 = empty.intersection(empty, by: .groupingMatches)
         u0.assertValid()
         u0.assertKeysEqual(empty)
 
-        let u1 = even.intersection(empty)
+        let u1 = even.intersection(empty, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(empty)
 
-        let u2 = empty.intersection(even)
+        let u2 = empty.intersection(even, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(empty)
 
-        let u3 = even.intersection(even)
+        let u3 = even.intersection(even, by: .groupingMatches)
         u3.assertValid()
         u3.assertKeysEqual(even)
     }
 
-    func test_Intersection_evenOdd() {
+    func test_IntersectionByGrouping_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
-        let u1 = even.intersection(odd)
+        let u1 = even.intersection(odd, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(empty)
 
-        let u2 = odd.intersection(even)
+        let u2 = odd.intersection(even, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(empty)
     }
 
-    func test_Intersection_halves() {
+    func test_IntersectionByGrouping_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = first.intersection(second)
+        let u1 = first.intersection(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual(empty)
 
-        let u2 = second.intersection(first)
+        let u2 = second.intersection(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual(empty)
     }
 
-    func test_Intersection_longDuplicates() {
+    func test_IntersectionByGrouping_longDuplicates() {
         let keys = (0 ..< 10).repeatEach(20)
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
 
-        let u1 = first.intersection(second)
+        let u1 = first.intersection(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual([4].repeatEach(10))
 
-        let u2 = second.intersection(first)
+        let u2 = second.intersection(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual([4].repeatEach(10))
     }
 
-    func test_Intersection_duplicateResolution() {
+    func test_IntersectionByGrouping_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = first.intersection(second)
+        let u1 = first.intersection(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual([0, 0, 3, 3, 6])
 
-        let u2 = second.intersection(first)
+        let u2 = second.intersection(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual([0, 0, 0, 0, 3, 6, 6, 6, 6])
     }
 
-    func test_Intersection_sharedNodes() {
+    func test_IntersectionByGrouping_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
         second.withCursor(atOffset: 60) { $0.remove(20) }
 
-        let u1 = first.intersection(second)
+        let u1 = first.intersection(second, by: .groupingMatches)
         u1.assertValid()
         u1.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
 
-        let u2 = second.intersection(first)
+        let u2 = second.intersection(first, by: .groupingMatches)
         u2.assertValid()
         u2.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
     }
 
-    func test_Intersection_subtrees() {
+    func test_IntersectionByGrouping_subtrees() {
         let count = 50
         let keys = DictionaryBag((0 ..< count).repeatEach(3))
         let tree = makeTree(keys)
         tree.forEachSubtree { subtree in
             let expected = Set(subtree.map { $0.0 }).sorted().repeatEach(3)
-            let u1 = subtree.intersection(tree)
+            let u1 = subtree.intersection(tree, by: .groupingMatches)
             u1.assertKeysEqual(expected)
 
-            let u2 = tree.intersection(subtree)
+            let u2 = tree.intersection(subtree, by: .groupingMatches)
             u2.assertKeysEqual(subtree.map { $0.0 })
         }
     }
 
-    func test_Intersection_withModifiedSelf() {
+    func test_IntersectionByGrouping_withModifiedSelf() {
         var tree = BTree<Int, Int>(order: 5)
         for i in 0 ..< 10 {
             for j in 0 ..< 2 {
@@ -773,153 +773,207 @@ class BTreeMergeTests: XCTestCase {
                 cursor.remove(2)
             }
             other.assertValid()
-            let test = tree.intersection(other)
+            let test = tree.intersection(other, by: .groupingMatches)
             XCTAssertEqual(test.map { $0.0 }, other.map { $0.0 })
         }
     }
 
-    //MARK: Bag Intersection
+    //MARK: Intersection by counting matches
 
-    func test_BagIntersection_simple() {
+    func test_IntersectionByCounting_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
 
-        let u0 = empty.bagIntersection(empty)
+        let u0 = empty.intersection(empty, by: .countingMatches)
         u0.assertValid()
         u0.assertKeysEqual(empty)
 
-        let u1 = even.bagIntersection(empty)
+        let u1 = even.intersection(empty, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(empty)
 
-        let u2 = empty.bagIntersection(even)
+        let u2 = empty.intersection(even, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(empty)
 
-        let u3 = even.bagIntersection(even)
+        let u3 = even.intersection(even, by: .countingMatches)
         u3.assertValid()
         u3.assertKeysEqual(even)
     }
 
-    func test_BagIntersection_evenOdd() {
+    func test_IntersectionByCounting_evenOdd() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
         let odd = makeTree(stride(from: 1, to: 100, by: 2))
 
-        let u1 = even.bagIntersection(odd)
+        let u1 = even.intersection(odd, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(empty)
 
-        let u2 = odd.bagIntersection(even)
+        let u2 = odd.intersection(even, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(empty)
     }
 
-    func test_BagIntersection_halves() {
+    func test_IntersectionByCounting_halves() {
         let first = makeTree(0..<50)
         let second = makeTree(50..<100)
 
-        let u1 = first.bagIntersection(second)
+        let u1 = first.intersection(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual(empty)
 
-        let u2 = second.bagIntersection(first)
+        let u2 = second.intersection(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual(empty)
     }
 
-    func test_BagIntersection_longDuplicates() {
+    func test_IntersectionByCounting_longDuplicates() {
         let keys = (0 ..< 10).repeatEach(20)
         let first = makeTree(keys[0 ..< 90])
         let second = makeTree(keys[90 ..< 200])
 
-        let u1 = first.bagIntersection(second)
+        let u1 = first.intersection(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([4].repeatEach(10))
 
-        let u2 = second.bagIntersection(first)
+        let u2 = second.intersection(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([4].repeatEach(10))
     }
 
-    func test_BagIntersection_duplicateResolution() {
+    func test_IntersectionByCounting_duplicateResolution() {
         let first = makeTree([0, 0, 0, 0, 3, 4, 6, 6, 6, 6, 7, 7])
         let second = makeTree([0, 0, 1, 1, 3, 3, 6, 8])
 
-        let u1 = first.bagIntersection(second)
+        let u1 = first.intersection(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([0, 0, 3, 6])
 
-        let u2 = second.bagIntersection(first)
+        let u2 = second.intersection(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([0, 0, 3, 6])
     }
 
-    func test_BagIntersection_sharedNodes() {
+    func test_IntersectionByCounting_sharedNodes() {
         var first = makeTree((0 ..< 10).repeatEach(20))
         var second = first
         first.withCursor(atOffset: 140) { $0.remove(20) }
         second.withCursor(atOffset: 60) { $0.remove(20) }
 
-        let u1 = first.bagIntersection(second)
+        let u1 = first.intersection(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
 
-        let u2 = second.bagIntersection(first)
+        let u2 = second.intersection(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([0, 1, 2, 4, 5, 6, 8, 9].repeatEach(20))
     }
 
-    func test_BagIntersection_subtrees() {
+    func test_IntersectionByCounting_subtrees() {
         let count = 50
         let keys = DictionaryBag((0 ..< count).repeatEach(3))
         let tree = makeTree(keys)
         tree.forEachSubtree { subtree in
             let expectedKeys = subtree.map { $0.0 }
 
-            let u1 = subtree.bagIntersection(tree)
+            let u1 = subtree.intersection(tree, by: .countingMatches)
             u1.assertKeysEqual(expectedKeys)
 
-            let u2 = tree.bagIntersection(subtree)
+            let u2 = tree.intersection(subtree, by: .countingMatches)
             u2.assertKeysEqual(expectedKeys)
         }
     }
 
     // MARK: Sequence-based operations
 
-    func test_subtract_sequence() {
+    func test_subtractingSequenceByGrouping() {
         let tree = BTree(sortedElements: (0 ..< 100).map { ($0, String($0)) })
 
-        assertEqualElements(tree.subtracting(sortedKeys: []), tree)
-        assertEqualElements(BTree<Int, String>().subtracting(sortedKeys: [1, 2, 3]), [])
+        assertEqualElements(tree.subtracting(sortedKeys: [], by: .groupingMatches), tree)
+        assertEqualElements(BTree<Int, String>().subtracting(sortedKeys: [1, 2, 3], by: .groupingMatches), [])
 
-        let t1 = tree.subtracting(sortedKeys: (0 ..< 50).map { 2 * $0 })
+        let t1 = tree.subtracting(sortedKeys: (0 ..< 50).map { 2 * $0 }, by: .groupingMatches)
         assertEqualElements(t1.map { $0.0 }, (0 ..< 50).map { 2 * $0 + 1 })
 
-        let t2 = tree.subtracting(sortedKeys: 0 ..< 50)
+        let t2 = tree.subtracting(sortedKeys: 0 ..< 50, by: .groupingMatches)
         assertEqualElements(t2.map { $0.0 }, 50 ..< 100)
 
-        let t3 = tree.subtracting(sortedKeys: 50 ..< 100)
+        let t3 = tree.subtracting(sortedKeys: 50 ..< 100, by: .groupingMatches)
         assertEqualElements(t3.map { $0.0 }, 0 ..< 50)
 
-        let t4 = tree.subtracting(sortedKeys: 100 ..< 200)
+        let t4 = tree.subtracting(sortedKeys: 100 ..< 200, by: .groupingMatches)
         assertEqualElements(t4.map { $0.0 }, 0 ..< 100)
+
+        let tree2 = BTree(sortedElements: (0 ..< 100).map { ($0 / 2, String($0)) })
+        let t5 = tree2.subtracting(sortedKeys: 0 ..< 50, by: .groupingMatches)
+        assertEqualElements(t5.map { $0.0 }, [])
     }
 
-    func test_intersect_sequence() {
+    func test_subtractingSequenceByCounting() {
         let tree = BTree(sortedElements: (0 ..< 100).map { ($0, String($0)) })
 
-        assertEqualElements(tree.intersection(sortedKeys: []), [])
-        assertEqualElements(BTree<Int, String>().intersection(sortedKeys: [1, 2, 3]), [])
+        assertEqualElements(tree.subtracting(sortedKeys: [], by: .countingMatches), tree)
+        assertEqualElements(BTree<Int, String>().subtracting(sortedKeys: [1, 2, 3], by: .countingMatches), [])
 
-        let t1 = tree.intersection(sortedKeys: (0 ..< 50).map { 2 * $0 })
+        let t1 = tree.subtracting(sortedKeys: (0 ..< 50).map { 2 * $0 }, by: .countingMatches)
+        assertEqualElements(t1.map { $0.0 }, (0 ..< 50).map { 2 * $0 + 1 })
+
+        let t2 = tree.subtracting(sortedKeys: 0 ..< 50, by: .countingMatches)
+        assertEqualElements(t2.map { $0.0 }, 50 ..< 100)
+
+        let t3 = tree.subtracting(sortedKeys: 50 ..< 100, by: .countingMatches)
+        assertEqualElements(t3.map { $0.0 }, 0 ..< 50)
+
+        let t4 = tree.subtracting(sortedKeys: 100 ..< 200, by: .countingMatches)
+        assertEqualElements(t4.map { $0.0 }, 0 ..< 100)
+
+        let tree2 = BTree(sortedElements: (0 ..< 100).map { ($0 / 2, String($0)) })
+        let t5 = tree2.subtracting(sortedKeys: 0 ..< 50, by: .countingMatches)
+        assertEqualElements(t5.map { $0.0 }, 0 ..< 50)
+    }
+
+    func test_intersectionWithSequenceByGrouping() {
+        let tree = BTree(sortedElements: (0 ..< 100).map { ($0, String($0)) })
+
+        assertEqualElements(tree.intersection(sortedKeys: [], by: .groupingMatches), [])
+        assertEqualElements(BTree<Int, String>().intersection(sortedKeys: [1, 2, 3], by: .groupingMatches), [])
+
+        let t1 = tree.intersection(sortedKeys: (0 ..< 50).map { 2 * $0 }, by: .groupingMatches)
         assertEqualElements(t1.map { $0.0 }, (0 ..< 50).map { 2 * $0 })
 
-        let t2 = tree.intersection(sortedKeys: 0 ..< 50)
+        let t2 = tree.intersection(sortedKeys: 0 ..< 50, by: .groupingMatches)
         assertEqualElements(t2.map { $0.0 }, 0 ..< 50)
 
-        let t3 = tree.intersection(sortedKeys: 50 ..< 100)
+        let t3 = tree.intersection(sortedKeys: 50 ..< 100, by: .groupingMatches)
         assertEqualElements(t3.map { $0.0 }, 50 ..< 100)
 
-        let t4 = tree.intersection(sortedKeys: 100 ..< 200)
+        let t4 = tree.intersection(sortedKeys: 100 ..< 200, by: .groupingMatches)
         assertEqualElements(t4.map { $0.0 }, [])
+
+        let tree2 = BTree(sortedElements: (0 ..< 100).map { ($0 / 2, String($0)) })
+        let t5 = tree2.intersection(sortedKeys: 0 ..< 50, by: .groupingMatches)
+        assertEqualElements(t5.map { $0.0 }, (0 ..< 50).repeatEach(2))
+    }
+
+    func test_intersectionWithSequenceByCounting() {
+        let tree = BTree(sortedElements: (0 ..< 100).map { ($0, String($0)) })
+
+        assertEqualElements(tree.intersection(sortedKeys: [], by: .countingMatches), [])
+        assertEqualElements(BTree<Int, String>().intersection(sortedKeys: [1, 2, 3], by: .countingMatches), [])
+
+        let t1 = tree.intersection(sortedKeys: (0 ..< 50).map { 2 * $0 }, by: .countingMatches)
+        assertEqualElements(t1.map { $0.0 }, (0 ..< 50).map { 2 * $0 })
+
+        let t2 = tree.intersection(sortedKeys: 0 ..< 50, by: .countingMatches)
+        assertEqualElements(t2.map { $0.0 }, 0 ..< 50)
+
+        let t3 = tree.intersection(sortedKeys: 50 ..< 100, by: .countingMatches)
+        assertEqualElements(t3.map { $0.0 }, 50 ..< 100)
+
+        let t4 = tree.intersection(sortedKeys: 100 ..< 200, by: .countingMatches)
+        assertEqualElements(t4.map { $0.0 }, [])
+
+        let tree2 = BTree(sortedElements: (0 ..< 100).map { ($0 / 2, String($0)) })
+        let t5 = tree2.intersection(sortedKeys: 0 ..< 50, by: .countingMatches)
+        assertEqualElements(t5.map { $0.0 }, (0 ..< 50))
     }
 }

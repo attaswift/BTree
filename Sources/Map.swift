@@ -518,7 +518,7 @@ extension Map {
     ///
     /// - Complexity: O(`count`)
     public func merging(_ other: Map) -> Map {
-        return Map(self.tree.distinctUnion(other.tree))
+        return Map(self.tree.union(other.tree, by: .groupingMatches))
     }
 
     /// Return a map that combines elements from `a` with those in `b`.
@@ -540,7 +540,7 @@ extension Map {
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
     public func including(_ keys: SortedSet<Key>) -> Map {
-        return Map(self.tree.intersection(sortedKeys: keys))
+        return Map(self.tree.intersection(sortedKeys: keys, by: .groupingMatches))
     }
 
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
@@ -554,7 +554,7 @@ extension Map {
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
     public func excluding(_ keys: SortedSet<Key>) -> Map {
-        return Map(self.tree.subtracting(sortedKeys: keys))
+        return Map(self.tree.subtracting(sortedKeys: keys, by: .groupingMatches))
     }
 
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.
