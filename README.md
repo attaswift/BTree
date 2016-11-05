@@ -519,8 +519,8 @@ Relying on `import` will incur a *10-200x slowdown* when your collection is hold
 value types. (The effect is much reduced for reference types, though.)
 
 Without access to the full source code of the collection, the compiler is unable to optimize away abstractions
-like virtual dispatch tables, function calls and the rest of the *fluff* we've learned to pretty much don't care about 
-for stuff inside a module. In cross-module generics, even retrieving a single `Int` will necessarily go through 
+like virtual dispatch tables, function calls and the rest of the *fluff* we've learned to mostly ignore
+inside a module. In cross-module generics, even retrieving a single `Int` will necessarily go through 
 at least one lookup to a virtual table. This is because the code that implements the unspecialized generic also executes 
 for type parameters that contain reference types, whose reference count needs to be maintained.
 
