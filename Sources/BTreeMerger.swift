@@ -228,11 +228,11 @@ extension BTree {
         outer: for key in sortedKeys {
             precondition(lastKey == nil || lastKey! <= key)
             while path.key < key {
-                b.append(path.nextPart(until: key, inclusive: false))
+                b.append(path.nextPart(until: .excluding(key)))
                 if path.isAtEnd { break outer }
             }
             while path.key == key {
-                path.nextPart(until: key, inclusive: true)
+                path.nextPart(until: .including(key))
                 if path.isAtEnd { break outer }
             }
             lastKey = key
@@ -257,11 +257,11 @@ extension BTree {
         outer: for key in sortedKeys {
             precondition(lastKey == nil || lastKey! <= key)
             while path.key < key {
-                path.nextPart(until: key, inclusive: false)
+                path.nextPart(until: .excluding(key))
                 if path.isAtEnd { break outer }
             }
             while path.key == key {
-                b.append(path.nextPart(until: key, inclusive: true))
+                b.append(path.nextPart(until: .including(key)))
                 if path.isAtEnd { break outer }
             }
             lastKey = key
@@ -270,18 +270,30 @@ extension BTree {
     }
 }
 
-enum BTreeCopyLimit {
+enum BTreeLimit<Key: Comparable> {
+    case including(Key)
+    case excluding(Key)
+
+    func match(_ key: Key) -> Bool {
+        switch self {
+        case .including(let limit):
+            return key <= limit
+        case .excluding(let limit):
+            return key < limit
+        }
+    }
+}
+
+enum BTreeRelativeLimit {
     case includingOtherKey
     case excludingOtherKey
 
-    var inclusive: Bool { return self == .includingOtherKey }
-
-    func match<Key: Comparable>(_ key: Key, with reference: Key) -> Bool {
+    func with<Key: Comparable>(_ key: Key) -> BTreeLimit<Key> {
         switch self {
         case .includingOtherKey:
-            return key <= reference
+            return .including(key)
         case .excludingOtherKey:
-            return key < reference
+            return .excluding(key)
         }
     }
 }
@@ -292,6 +304,9 @@ enum BTreeCopyLimit {
 /// At each step you can decide which tree to merge elements/subtrees from next, until we reach the end of
 /// one of the trees.
 internal struct BTreeMerger<Key: Comparable, Value> {
+    typealias Limit = BTreeLimit<Key>
+    typealias Node = BTreeNode<Key, Value>
+
     private var a: BTreeStrongPath<Key, Value>
     private var b: BTreeStrongPath<Key, Value>
     private var builder: BTreeBuilder<Key, Value>
@@ -324,11 +339,12 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     ///
     /// - Complexity: O(log(first.count))
     mutating func appendFirst() {
-        guard !a.isAtEnd else { return }
-        builder.append(a.element)
-        builder.append(a.suffix().root)
-        a.moveToEnd()
-        done = true
+        if !a.isAtEnd {
+            builder.append(a.element)
+            builder.append(a.suffix().root)
+            a.moveToEnd()
+            done = true
+        }
     }
 
     /// Append the rest of the second tree to the end of the result tree, jump to the end of the second tree, and
@@ -339,11 +355,12 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     ///
     /// - Complexity: O(log(first.count))
     mutating func appendSecond() {
-        guard !b.isAtEnd else { return }
-        builder.append(b.element)
-        builder.append(b.suffix().root)
-        b.moveToEnd()
-        done = true
+        if !b.isAtEnd {
+            builder.append(b.element)
+            builder.append(b.suffix().root)
+            b.moveToEnd()
+            done = true
+        }
     }
 
     /// Copy elements from the first tree (starting at the current position) that are less than (or, when `limit`
@@ -355,10 +372,18 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     /// if it reaches the end of the first tree.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements copied.
-    mutating func copyFromFirst(_ limit: BTreeCopyLimit) {
-        while !done && limit.match(a.key, with: b.key) {
-            builder.append(a.nextPart(until: b.key, inclusive: limit.inclusive))
-            done = a.isAtEnd
+    mutating func copyFromFirst(_ limit: BTreeRelativeLimit) {
+        if !b.isAtEnd {
+            copyFromFirst(limit.with(b.key))
+        }
+    }
+
+    mutating func copyFromFirst(_ limit: Limit) {
+        while !a.isAtEnd && limit.match(a.key) {
+            builder.append(a.nextPart(until: limit))
+        }
+        if a.isAtEnd {
+            done = true
         }
     }
 
@@ -371,10 +396,18 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     /// if it reaches the end of the second tree.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements copied.
-    mutating func copyFromSecond(_ limit: BTreeCopyLimit) {
-        while !done && limit.match(b.key, with: a.key) {
-            builder.append(b.nextPart(until: a.key, inclusive: limit.inclusive))
-            done = b.isAtEnd
+    mutating func copyFromSecond(_ limit: BTreeRelativeLimit) {
+        if !a.isAtEnd {
+            copyFromSecond(limit.with(a.key))
+        }
+    }
+
+    mutating func copyFromSecond(_ limit: Limit) {
+        while !b.isAtEnd && limit.match(b.key) {
+            builder.append(b.nextPart(until: limit))
+        }
+        if b.isAtEnd {
+            done = true
         }
     }
 
@@ -387,10 +420,18 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     /// if it reaches the end of the first tree.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements skipped.
-    mutating func skipFromFirst(_ limit: BTreeCopyLimit) {
-        while !done && limit.match(a.key, with: b.key) {
-            a.nextPart(until: b.key, inclusive: limit.inclusive)
-            done = a.isAtEnd
+    mutating func skipFromFirst(_ limit: BTreeRelativeLimit) {
+        if !b.isAtEnd {
+            skipFromFirst(limit.with(b.key))
+        }
+    }
+
+    mutating func skipFromFirst(_ limit: Limit) {
+        while !a.isAtEnd && limit.match(a.key) {
+            a.nextPart(until: limit)
+        }
+        if a.isAtEnd {
+            done = true
         }
     }
 
@@ -403,10 +444,18 @@ internal struct BTreeMerger<Key: Comparable, Value> {
     /// if it reaches the end of the second tree.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements skipped.
-    mutating func skipFromSecond(_ limit: BTreeCopyLimit) {
-        while !done && limit.match(b.key, with: a.key) {
-            b.nextPart(until: a.key, inclusive: limit.inclusive)
-            done = b.isAtEnd
+    mutating func skipFromSecond(_ limit: BTreeRelativeLimit) {
+        if !a.isAtEnd {
+            skipFromSecond(limit.with(a.key))
+        }
+    }
+
+    mutating func skipFromSecond(_ limit: Limit) {
+        while !b.isAtEnd && limit.match(b.key) {
+            b.nextPart(until: limit)
+        }
+        if b.isAtEnd {
+            done = true
         }
     }
 
@@ -430,29 +479,32 @@ internal struct BTreeMerger<Key: Comparable, Value> {
                 /// It might happen that a shared node begins with a key that we've already fully processed in one of the trees.
                 /// In this case, we cannot skip elementwise processing, since the trees are at different offsets in
                 /// the shared subtree. The slot & leaf checks above & below ensure that this isn't the case.
+                var key: Key
+                var common: Node
                 repeat {
-                    if a.ascendOneLevel() { done = true }
-                    if b.ascendOneLevel() { done = true }
-                } while !done && a.node === b.node && a.slot == 0 && b.slot == 0
-                builder.append(b.isAtEnd ? b.root : b.node.children[b.slot!])
-                if !a.isAtEnd { a.ascendToKey() }
-                if !b.isAtEnd { b.ascendToKey() }
+                    key = a.node.last!.0
+                    a.ascendOneLevel()
+                    common = b.ascendOneLevel()
+                } while !a.isAtEnd && !b.isAtEnd && a.node === b.node && a.slot == 0 && b.slot == 0
+                builder.append(common)
+                if !a.isAtEnd {
+                    a.ascendToKey()
+                    skipFromFirst(.including(key))
+                }
+                if !b.isAtEnd {
+                    b.ascendToKey()
+                    copyFromSecond(.including(key))
+                }
+                if a.isAtEnd || b.isAtEnd {
+                    done = true
+                }
             }
             else {
                 // Process the next run of equal keys in both trees, skipping them in `first`, but copying them from `second`.
                 // Note that we cannot leave matching elements in either tree, even if we reach the end of the other.
                 let key = a.key
-                var doneA = false
-                while !doneA && a.key == key {
-                    a.nextPart(until: key, inclusive: true)
-                    doneA = a.isAtEnd
-                }
-                var doneB = false
-                while !doneB && b.key == key {
-                    builder.append(b.nextPart(until: key, inclusive: true))
-                    doneB = b.isAtEnd
-                }
-                done = doneA || doneB
+                skipFromFirst(.including(key))
+                copyFromSecond(.including(key))
             }
         }
     }
@@ -466,13 +518,17 @@ internal struct BTreeMerger<Key: Comparable, Value> {
                 /// It might happen that a shared node begins with a key that we've already fully processed in one of the trees.
                 /// In this case, we cannot skip elementwise processing, since the trees are at different offsets in
                 /// the shared subtree. The slot & leaf checks above & below ensure that this isn't the case.
+                var common: Node
                 repeat {
-                    if a.ascendOneLevel() { done = true }
-                    if b.ascendOneLevel() { done = true }
-                } while !done && a.node === b.node && a.slot == 0 && b.slot == 0
-                builder.append(b.isAtEnd ? b.root : b.node.children[b.slot!])
+                    a.ascendOneLevel()
+                    common = b.ascendOneLevel()
+                } while !a.isAtEnd && !b.isAtEnd && a.node === b.node && a.slot == 0 && b.slot == 0
+                builder.append(common)
                 if !a.isAtEnd { a.ascendToKey() }
                 if !b.isAtEnd { b.ascendToKey() }
+                if a.isAtEnd || b.isAtEnd {
+                    done = true
+                }
             }
             else {
                 // Copy one matching element from the second tree, then step forward.
@@ -504,30 +560,31 @@ internal struct BTreeMerger<Key: Comparable, Value> {
                 ///
                 /// This variant doesn't care about where we're in the shared subtree.
                 /// It assumes that if we ignore one set of common keys, we're ignoring all.
-                assert(a.node.isLeaf && b.node.isLeaf)
-                while !done && a.node === b.node {
+                var key: Key
+                repeat {
+                    key = a.node.last!.0
                     assert(a.slot == b.slot)
-                    if a.ascendOneLevel() { done = true }
-                    if b.ascendOneLevel() { done = true }
+                    a.ascendOneLevel()
+                    b.ascendOneLevel()
+                    if a.isAtEnd || b.isAtEnd {
+                        done = true
+                    }
+                } while !done && a.node === b.node
+                if !a.isAtEnd {
+                    a.ascendToKey()
+                    skipFromFirst(.including(key))
                 }
-                if !a.isAtEnd { a.ascendToKey() }
-                if !b.isAtEnd { b.ascendToKey() }
+                if !b.isAtEnd {
+                    b.ascendToKey()
+                    skipFromSecond(.including(key))
+                }
             }
             else {
                 // Process the next run of equal keys in both trees, skipping them in both trees.
                 // Note that we cannot leave matching elements in either tree, even if we reach the end of the other.
                 let key = a.key
-                var doneA = false
-                while !doneA && a.key == key {
-                    a.nextPart(until: key, inclusive: true)
-                    doneA = a.isAtEnd
-                }
-                var doneB = false
-                while !doneB && b.key == key {
-                    b.nextPart(until: key, inclusive: true)
-                    doneB = b.isAtEnd
-                }
-                done = doneA || doneB
+                skipFromFirst(.including(key))
+                skipFromSecond(.including(key))
             }
         }
     }
@@ -542,8 +599,11 @@ internal struct BTreeMerger<Key: Comparable, Value> {
                 /// In this case, we cannot skip elementwise processing, since the trees are at different offsets in
                 /// the shared subtree. The slot & leaf checks above & below ensure that this isn't the case.
                 repeat {
-                    if a.ascendOneLevel() { done = true }
-                    if b.ascendOneLevel() { done = true }
+                    a.ascendOneLevel()
+                    b.ascendOneLevel()
+                    if a.isAtEnd || b.isAtEnd {
+                        done = true
+                    }
                 } while !done && a.node === b.node && a.slot == 0 && b.slot == 0
                 if !a.isAtEnd { a.ascendToKey() }
                 if !b.isAtEnd { b.ascendToKey() }
@@ -570,7 +630,7 @@ extension BTreeBuilder {
         case .element(let element):
             self.append(element)
         case .node(let node):
-            self.appendWithoutCloning(node.clone())
+            self.append(node)
         case .nodeRange(let node, let range):
             self.appendWithoutCloning(Node(node: node, slotRange: range))
         }
@@ -578,6 +638,8 @@ extension BTreeBuilder {
 }
 
 internal extension BTreeStrongPath {
+    typealias Limit = BTreeLimit<Key>
+
     /// The parent of `node` and the slot of `node` in its parent, or `nil` if `node` is the root node.
     private var parent: (Node, Int)? {
         guard !_path.isEmpty else { return nil }
@@ -609,15 +671,15 @@ internal extension BTreeStrongPath {
     /// Remove the deepest path component, leaving the path at the element following the node that was previously focused,
     /// or the spot after all elements if the node was the rightmost child.
     @discardableResult
-    mutating func ascendOneLevel() -> Bool {
+    mutating func ascendOneLevel() -> Node {
         if length == 1 {
             offset = count
             slot = node.elements.count
-            return true
+            return node
         }
         popFromSlots()
         popFromPath()
-        return isAtEnd
+        return node.children[slot!]
     }
 
     /// If this path got to a slot at the end of a node but it hasn't reached the end of the tree yet,
@@ -637,12 +699,8 @@ internal extension BTreeStrongPath {
     /// - Requires: The current position is not at the end of the tree, and the current key is matching the condition above.
     /// - Complexity: O(log(*n*)) where *n* is the number of elements in the returned part.
     @discardableResult
-    mutating func nextPart(until key: Key, inclusive: Bool) -> BTreePart<Key, Value> {
-        func match(_ k: Key) -> Bool {
-            return (inclusive && k <= key) || (!inclusive && k < key)
-        }
-
-        assert(!isAtEnd && match(self.key))
+    mutating func nextPart(until limit: Limit) -> BTreePart<Key, Value> {
+        assert(!isAtEnd && limit.match(self.key))
 
         // Find furthest ancestor whose entire leftmost subtree is guaranteed to consist of matching elements.
         assert(!isAtEnd)
@@ -650,7 +708,7 @@ internal extension BTreeStrongPath {
         if slot == 0 && node.isLeaf {
             while slot == 0 {
                 guard let pk = parentKey else { break }
-                guard match(pk) else { break }
+                guard limit.match(pk) else { break }
                 ascendOneLevel()
                 includeLeftmostSubtree = true
             }
@@ -661,16 +719,16 @@ internal extension BTreeStrongPath {
         }
 
         // Find range of matching elements in `node`.
-        assert(match(self.key))
+        assert(limit.match(self.key))
         let startSlot = slot!
         var endSlot = startSlot + 1
-        while endSlot < node.elements.count && match(node.elements[endSlot].0) {
+        while endSlot < node.elements.count && limit.match(node.elements[endSlot].0) {
             endSlot += 1
         }
 
         // See if we can include the subtree following the last matching element.
         // This is a log(n) check but it's worth it.
-        let includeRightmostSubtree = node.isLeaf || match(node.children[endSlot].last!.0)
+        let includeRightmostSubtree = node.isLeaf || limit.match(node.children[endSlot].last!.0)
         if includeRightmostSubtree {
             defer { skipForward(endSlot - startSlot) }
             return .nodeRange(node, startSlot ..< endSlot)

@@ -92,11 +92,11 @@ extension BTree {
                     return false
                 }
                 while a.key < b.key {
-                    a.nextPart(until: b.key, inclusive: false)
+                    a.nextPart(until: .excluding(b.key))
                     if a.isAtEnd { break outer }
                 }
                 while b.key < a.key {
-                    b.nextPart(until: a.key, inclusive: false)
+                    b.nextPart(until: .excluding(a.key))
                     if b.isAtEnd { break outer }
                 }
             }
@@ -164,10 +164,10 @@ extension BTree {
                     }
                     let key = a.key
                     repeat {
-                        a.nextPart(until: key, inclusive: true)
+                        a.nextPart(until: .including(key))
                     } while !a.isAtEnd && a.key == key
                     repeat {
-                        b.nextPart(until: key, inclusive: true)
+                        b.nextPart(until: .including(key))
                     } while !b.isAtEnd && b.key == key
                     if a.isAtEnd {
                         knownStrict = knownStrict || !b.isAtEnd
@@ -177,7 +177,7 @@ extension BTree {
                 }
                 while b.key < a.key {
                     knownStrict = true
-                    b.nextPart(until: a.key, inclusive: false)
+                    b.nextPart(until: .excluding(a.key))
                     if b.isAtEnd { return false }
                 }
             }

@@ -759,6 +759,25 @@ class BTreeMergeTests: XCTestCase {
         }
     }
 
+    func test_Intersection_withModifiedSelf() {
+        var tree = BTree<Int, Int>(order: 5)
+        for i in 0 ..< 10 {
+            for j in 0 ..< 2 {
+                tree.insert((i, j))
+            }
+        }
+
+        for i in 0 ..< 10 {
+            var other = tree
+            other.withCursor(atOffset: 2 * i) { cursor in
+                cursor.remove(2)
+            }
+            other.assertValid()
+            let test = tree.intersection(other)
+            XCTAssertEqual(test.map { $0.0 }, other.map { $0.0 })
+        }
+    }
+
     //MARK: Bag Intersection
 
     func test_BagIntersection_simple() {
