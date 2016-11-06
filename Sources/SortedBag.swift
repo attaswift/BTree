@@ -3,7 +3,7 @@
 //  BTree
 //
 //  Created by Károly Lőrentey on 2016-10-11.
-//  Copyright © 2016. Károly Lőrentey. All rights reserved.
+//  Copyright © 2016 Károly Lőrentey.
 //
 
 /// A sorted collection of comparable elements; also known as a multiset.
