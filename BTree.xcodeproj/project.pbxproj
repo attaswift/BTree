@@ -202,6 +202,7 @@
 		BBB506681DD0D18400D0FC8E /* SortedSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SortedSet.swift; sourceTree = "<group>"; };
 		BBB506791DD0D18D00D0FC8E /* BridgedList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BridgedList.swift; sourceTree = "<group>"; };
 		BBB5067E1DD0D19600D0FC8E /* Compatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compatibility.swift; sourceTree = "<group>"; };
+		BBB506831DD0D91C00D0FC8E /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		BBBA30481C4946660019830F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String Manipulation.swift"; sourceTree = "<group>"; };
 		BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeComparisonTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -281,6 +282,7 @@
 			isa = PBXGroup;
 			children = (
 				BB0D75D91C1F045C00538080 /* README.md */,
+				BBB506831DD0D91C00D0FC8E /* CHANGELOG.md */,
 				BBB224EF1C7BA09B0049FEF6 /* LICENSE.md */,
 				BBBA30481C4946660019830F /* .travis.yml */,
 				BB471D9D1DA58D5B002550B0 /* .codecov.yml */,
