@@ -35,12 +35,13 @@ class BTreeComparisonTests: XCTestCase {
         let a = makeTree(0 ..< 100)
         let b = makeTree(0 ..< 100)
         let c = makeTree(0 ..< 101)
-        let d = makeTree(Array(0 ..< 99) + [0])
+        let d = makeTree([0] + Array(0 ..< 99))
 
         XCTAssertTrue(a.elementsEqual(a, by: { $0.0 == $1.0 }))
         XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
         XCTAssertFalse(a.elementsEqual(c, by: { $0.0 == $1.0 }))
         XCTAssertFalse(a.elementsEqual(d, by: { $0.0 == $1.0 }))
+
         XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
         XCTAssertFalse(c.elementsEqual(a, by: { $0.0 == $1.0 }))
         XCTAssertFalse(d.elementsEqual(a, by: { $0.0 == $1.0 }))
@@ -167,42 +168,44 @@ class BTreeComparisonTests: XCTestCase {
         let d = makeTree(0 ..< 101)
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
-        
-        XCTAssertTrue(a.isSubset(of: b))
-        XCTAssertFalse(a.isSubset(of: c))
-        XCTAssertTrue(a.isSubset(of: d))
-        XCTAssertFalse(a.isSubset(of: e))
-        XCTAssertFalse(a.isSubset(of: f))
 
-        XCTAssertTrue(b.isSubset(of: a))
-        XCTAssertFalse(b.isSubset(of: c))
-        XCTAssertTrue(b.isSubset(of: d))
-        XCTAssertFalse(b.isSubset(of: e))
-        XCTAssertFalse(b.isSubset(of: f))
+        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+            XCTAssertTrue(a.isSubset(of: b, by: strategy))
+            XCTAssertFalse(a.isSubset(of: c, by: strategy))
+            XCTAssertTrue(a.isSubset(of: d, by: strategy))
+            XCTAssertFalse(a.isSubset(of: e, by: strategy))
+            XCTAssertFalse(a.isSubset(of: f, by: strategy))
 
-        XCTAssertTrue(c.isSubset(of: a))
-        XCTAssertTrue(c.isSubset(of: b))
-        XCTAssertTrue(c.isSubset(of: d))
-        XCTAssertFalse(c.isSubset(of: e))
-        XCTAssertFalse(c.isSubset(of: f))
+            XCTAssertTrue(b.isSubset(of: a, by: strategy))
+            XCTAssertFalse(b.isSubset(of: c, by: strategy))
+            XCTAssertTrue(b.isSubset(of: d, by: strategy))
+            XCTAssertFalse(b.isSubset(of: e, by: strategy))
+            XCTAssertFalse(b.isSubset(of: f, by: strategy))
 
-        XCTAssertFalse(d.isSubset(of: a))
-        XCTAssertFalse(d.isSubset(of: b))
-        XCTAssertFalse(d.isSubset(of: c))
-        XCTAssertFalse(d.isSubset(of: e))
-        XCTAssertFalse(d.isSubset(of: f))
+            XCTAssertTrue(c.isSubset(of: a, by: strategy))
+            XCTAssertTrue(c.isSubset(of: b, by: strategy))
+            XCTAssertTrue(c.isSubset(of: d, by: strategy))
+            XCTAssertFalse(c.isSubset(of: e, by: strategy))
+            XCTAssertFalse(c.isSubset(of: f, by: strategy))
 
-        XCTAssertTrue(e.isSubset(of: a))
-        XCTAssertTrue(e.isSubset(of: b))
-        XCTAssertFalse(e.isSubset(of: c))
-        XCTAssertTrue(e.isSubset(of: d))
-        XCTAssertFalse(e.isSubset(of: f))
+            XCTAssertFalse(d.isSubset(of: a, by: strategy))
+            XCTAssertFalse(d.isSubset(of: b, by: strategy))
+            XCTAssertFalse(d.isSubset(of: c, by: strategy))
+            XCTAssertFalse(d.isSubset(of: e, by: strategy))
+            XCTAssertFalse(d.isSubset(of: f, by: strategy))
 
-        XCTAssertTrue(f.isSubset(of: a))
-        XCTAssertTrue(f.isSubset(of: b))
-        XCTAssertTrue(f.isSubset(of: c))
-        XCTAssertTrue(f.isSubset(of: d))
-        XCTAssertFalse(f.isSubset(of: e))
+            XCTAssertTrue(e.isSubset(of: a, by: strategy))
+            XCTAssertTrue(e.isSubset(of: b, by: strategy))
+            XCTAssertFalse(e.isSubset(of: c, by: strategy))
+            XCTAssertTrue(e.isSubset(of: d, by: strategy))
+            XCTAssertFalse(e.isSubset(of: f, by: strategy))
+
+            XCTAssertTrue(f.isSubset(of: a, by: strategy))
+            XCTAssertTrue(f.isSubset(of: b, by: strategy))
+            XCTAssertTrue(f.isSubset(of: c, by: strategy))
+            XCTAssertTrue(f.isSubset(of: d, by: strategy))
+            XCTAssertFalse(f.isSubset(of: e, by: strategy))
+        }
     }
 
     func test_isStrictSubsetOf_SimpleCases() {
@@ -212,42 +215,44 @@ class BTreeComparisonTests: XCTestCase {
         let d = makeTree(0 ..< 101)
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
-        
-        XCTAssertFalse(a.isStrictSubset(of: b))
-        XCTAssertFalse(a.isStrictSubset(of: c))
-        XCTAssertTrue(a.isStrictSubset(of: d))
-        XCTAssertFalse(a.isStrictSubset(of: e))
-        XCTAssertFalse(a.isStrictSubset(of: f))
 
-        XCTAssertFalse(b.isStrictSubset(of: a))
-        XCTAssertFalse(b.isStrictSubset(of: c))
-        XCTAssertTrue(b.isStrictSubset(of: d))
-        XCTAssertFalse(b.isStrictSubset(of: e))
-        XCTAssertFalse(b.isStrictSubset(of: f))
+        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+            XCTAssertFalse(a.isStrictSubset(of: b, by: strategy))
+            XCTAssertFalse(a.isStrictSubset(of: c, by: strategy))
+            XCTAssertTrue(a.isStrictSubset(of: d, by: strategy))
+            XCTAssertFalse(a.isStrictSubset(of: e, by: strategy))
+            XCTAssertFalse(a.isStrictSubset(of: f, by: strategy))
 
-        XCTAssertTrue(c.isStrictSubset(of: a))
-        XCTAssertTrue(c.isStrictSubset(of: b))
-        XCTAssertTrue(c.isStrictSubset(of: d))
-        XCTAssertFalse(c.isStrictSubset(of: e))
-        XCTAssertFalse(c.isStrictSubset(of: f))
+            XCTAssertFalse(b.isStrictSubset(of: a, by: strategy))
+            XCTAssertFalse(b.isStrictSubset(of: c, by: strategy))
+            XCTAssertTrue(b.isStrictSubset(of: d, by: strategy))
+            XCTAssertFalse(b.isStrictSubset(of: e, by: strategy))
+            XCTAssertFalse(b.isStrictSubset(of: f, by: strategy))
 
-        XCTAssertFalse(d.isStrictSubset(of: a))
-        XCTAssertFalse(d.isStrictSubset(of: b))
-        XCTAssertFalse(d.isStrictSubset(of: c))
-        XCTAssertFalse(d.isStrictSubset(of: e))
-        XCTAssertFalse(d.isStrictSubset(of: f))
+            XCTAssertTrue(c.isStrictSubset(of: a, by: strategy))
+            XCTAssertTrue(c.isStrictSubset(of: b, by: strategy))
+            XCTAssertTrue(c.isStrictSubset(of: d, by: strategy))
+            XCTAssertFalse(c.isStrictSubset(of: e, by: strategy))
+            XCTAssertFalse(c.isStrictSubset(of: f, by: strategy))
 
-        XCTAssertTrue(e.isStrictSubset(of: a))
-        XCTAssertTrue(e.isStrictSubset(of: b))
-        XCTAssertFalse(e.isStrictSubset(of: c))
-        XCTAssertTrue(e.isStrictSubset(of: d))
-        XCTAssertFalse(e.isStrictSubset(of: f))
+            XCTAssertFalse(d.isStrictSubset(of: a, by: strategy))
+            XCTAssertFalse(d.isStrictSubset(of: b, by: strategy))
+            XCTAssertFalse(d.isStrictSubset(of: c, by: strategy))
+            XCTAssertFalse(d.isStrictSubset(of: e, by: strategy))
+            XCTAssertFalse(d.isStrictSubset(of: f, by: strategy))
 
-        XCTAssertTrue(f.isStrictSubset(of: a))
-        XCTAssertTrue(f.isStrictSubset(of: b))
-        XCTAssertTrue(f.isStrictSubset(of: c))
-        XCTAssertTrue(f.isStrictSubset(of: d))
-        XCTAssertFalse(f.isStrictSubset(of: e))
+            XCTAssertTrue(e.isStrictSubset(of: a, by: strategy))
+            XCTAssertTrue(e.isStrictSubset(of: b, by: strategy))
+            XCTAssertFalse(e.isStrictSubset(of: c, by: strategy))
+            XCTAssertTrue(e.isStrictSubset(of: d, by: strategy))
+            XCTAssertFalse(e.isStrictSubset(of: f, by: strategy))
+
+            XCTAssertTrue(f.isStrictSubset(of: a, by: strategy))
+            XCTAssertTrue(f.isStrictSubset(of: b, by: strategy))
+            XCTAssertTrue(f.isStrictSubset(of: c, by: strategy))
+            XCTAssertTrue(f.isStrictSubset(of: d, by: strategy))
+            XCTAssertFalse(f.isStrictSubset(of: e, by: strategy))
+        }
     }
 
     func test_isSupersetOf_SimpleCases() {
@@ -257,42 +262,44 @@ class BTreeComparisonTests: XCTestCase {
         let d = makeTree(0 ..< 101)
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
-        
-        XCTAssertTrue(a.isSuperset(of: b))
-        XCTAssertTrue(a.isSuperset(of: c))
-        XCTAssertFalse(a.isSuperset(of: d))
-        XCTAssertTrue(a.isSuperset(of: e))
-        XCTAssertTrue(a.isSuperset(of: f))
 
-        XCTAssertTrue(b.isSuperset(of: a))
-        XCTAssertTrue(b.isSuperset(of: c))
-        XCTAssertFalse(b.isSuperset(of: d))
-        XCTAssertTrue(b.isSuperset(of: e))
-        XCTAssertTrue(b.isSuperset(of: f))
+        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+            XCTAssertTrue(a.isSuperset(of: b, by: strategy))
+            XCTAssertTrue(a.isSuperset(of: c, by: strategy))
+            XCTAssertFalse(a.isSuperset(of: d, by: strategy))
+            XCTAssertTrue(a.isSuperset(of: e, by: strategy))
+            XCTAssertTrue(a.isSuperset(of: f, by: strategy))
 
-        XCTAssertFalse(c.isSuperset(of: a))
-        XCTAssertFalse(c.isSuperset(of: b))
-        XCTAssertFalse(c.isSuperset(of: d))
-        XCTAssertFalse(c.isSuperset(of: e))
-        XCTAssertTrue(c.isSuperset(of: f))
+            XCTAssertTrue(b.isSuperset(of: a, by: strategy))
+            XCTAssertTrue(b.isSuperset(of: c, by: strategy))
+            XCTAssertFalse(b.isSuperset(of: d, by: strategy))
+            XCTAssertTrue(b.isSuperset(of: e, by: strategy))
+            XCTAssertTrue(b.isSuperset(of: f, by: strategy))
 
-        XCTAssertTrue(d.isSuperset(of: a))
-        XCTAssertTrue(d.isSuperset(of: b))
-        XCTAssertTrue(d.isSuperset(of: c))
-        XCTAssertTrue(d.isSuperset(of: e))
-        XCTAssertTrue(d.isSuperset(of: f))
+            XCTAssertFalse(c.isSuperset(of: a, by: strategy))
+            XCTAssertFalse(c.isSuperset(of: b, by: strategy))
+            XCTAssertFalse(c.isSuperset(of: d, by: strategy))
+            XCTAssertFalse(c.isSuperset(of: e, by: strategy))
+            XCTAssertTrue(c.isSuperset(of: f, by: strategy))
 
-        XCTAssertFalse(e.isSuperset(of: a))
-        XCTAssertFalse(e.isSuperset(of: b))
-        XCTAssertFalse(e.isSuperset(of: c))
-        XCTAssertFalse(e.isSuperset(of: d))
-        XCTAssertFalse(e.isSuperset(of: f))
+            XCTAssertTrue(d.isSuperset(of: a, by: strategy))
+            XCTAssertTrue(d.isSuperset(of: b, by: strategy))
+            XCTAssertTrue(d.isSuperset(of: c, by: strategy))
+            XCTAssertTrue(d.isSuperset(of: e, by: strategy))
+            XCTAssertTrue(d.isSuperset(of: f, by: strategy))
 
-        XCTAssertFalse(f.isSuperset(of: a))
-        XCTAssertFalse(f.isSuperset(of: b))
-        XCTAssertFalse(f.isSuperset(of: c))
-        XCTAssertFalse(f.isSuperset(of: d))
-        XCTAssertFalse(f.isSuperset(of: e))
+            XCTAssertFalse(e.isSuperset(of: a, by: strategy))
+            XCTAssertFalse(e.isSuperset(of: b, by: strategy))
+            XCTAssertFalse(e.isSuperset(of: c, by: strategy))
+            XCTAssertFalse(e.isSuperset(of: d, by: strategy))
+            XCTAssertFalse(e.isSuperset(of: f, by: strategy))
+
+            XCTAssertFalse(f.isSuperset(of: a, by: strategy))
+            XCTAssertFalse(f.isSuperset(of: b, by: strategy))
+            XCTAssertFalse(f.isSuperset(of: c, by: strategy))
+            XCTAssertFalse(f.isSuperset(of: d, by: strategy))
+            XCTAssertFalse(f.isSuperset(of: e, by: strategy))
+        }
     }
 
     func test_isStrictSupersetOf_SimpleCases() {
@@ -302,42 +309,44 @@ class BTreeComparisonTests: XCTestCase {
         let d = makeTree(0 ..< 101)
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
-        
-        XCTAssertFalse(b.isStrictSuperset(of: a))
-        XCTAssertFalse(c.isStrictSuperset(of: a))
-        XCTAssertTrue(d.isStrictSuperset(of: a))
-        XCTAssertFalse(e.isStrictSuperset(of: a))
-        XCTAssertFalse(f.isStrictSuperset(of: a))
 
-        XCTAssertFalse(a.isStrictSuperset(of: b))
-        XCTAssertFalse(c.isStrictSuperset(of: b))
-        XCTAssertTrue(d.isStrictSuperset(of: b))
-        XCTAssertFalse(e.isStrictSuperset(of: b))
-        XCTAssertFalse(f.isStrictSuperset(of: b))
+        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+            XCTAssertFalse(b.isStrictSuperset(of: a, by: strategy))
+            XCTAssertFalse(c.isStrictSuperset(of: a, by: strategy))
+            XCTAssertTrue(d.isStrictSuperset(of: a, by: strategy))
+            XCTAssertFalse(e.isStrictSuperset(of: a, by: strategy))
+            XCTAssertFalse(f.isStrictSuperset(of: a, by: strategy))
 
-        XCTAssertTrue(a.isStrictSuperset(of: c))
-        XCTAssertTrue(b.isStrictSuperset(of: c))
-        XCTAssertTrue(d.isStrictSuperset(of: c))
-        XCTAssertFalse(e.isStrictSuperset(of: c))
-        XCTAssertFalse(f.isStrictSuperset(of: c))
+            XCTAssertFalse(a.isStrictSuperset(of: b, by: strategy))
+            XCTAssertFalse(c.isStrictSuperset(of: b, by: strategy))
+            XCTAssertTrue(d.isStrictSuperset(of: b, by: strategy))
+            XCTAssertFalse(e.isStrictSuperset(of: b, by: strategy))
+            XCTAssertFalse(f.isStrictSuperset(of: b, by: strategy))
 
-        XCTAssertFalse(a.isStrictSuperset(of: d))
-        XCTAssertFalse(b.isStrictSuperset(of: d))
-        XCTAssertFalse(c.isStrictSuperset(of: d))
-        XCTAssertFalse(e.isStrictSuperset(of: d))
-        XCTAssertFalse(f.isStrictSuperset(of: d))
+            XCTAssertTrue(a.isStrictSuperset(of: c, by: strategy))
+            XCTAssertTrue(b.isStrictSuperset(of: c, by: strategy))
+            XCTAssertTrue(d.isStrictSuperset(of: c, by: strategy))
+            XCTAssertFalse(e.isStrictSuperset(of: c, by: strategy))
+            XCTAssertFalse(f.isStrictSuperset(of: c, by: strategy))
 
-        XCTAssertTrue(a.isStrictSuperset(of: e))
-        XCTAssertTrue(b.isStrictSuperset(of: e))
-        XCTAssertFalse(c.isStrictSuperset(of: e))
-        XCTAssertTrue(d.isStrictSuperset(of: e))
-        XCTAssertFalse(f.isStrictSuperset(of: e))
+            XCTAssertFalse(a.isStrictSuperset(of: d, by: strategy))
+            XCTAssertFalse(b.isStrictSuperset(of: d, by: strategy))
+            XCTAssertFalse(c.isStrictSuperset(of: d, by: strategy))
+            XCTAssertFalse(e.isStrictSuperset(of: d, by: strategy))
+            XCTAssertFalse(f.isStrictSuperset(of: d, by: strategy))
 
-        XCTAssertTrue(a.isStrictSuperset(of: f))
-        XCTAssertTrue(b.isStrictSuperset(of: f))
-        XCTAssertTrue(c.isStrictSuperset(of: f))
-        XCTAssertTrue(d.isStrictSuperset(of: f))
-        XCTAssertFalse(e.isStrictSuperset(of: f))
+            XCTAssertTrue(a.isStrictSuperset(of: e, by: strategy))
+            XCTAssertTrue(b.isStrictSuperset(of: e, by: strategy))
+            XCTAssertFalse(c.isStrictSuperset(of: e, by: strategy))
+            XCTAssertTrue(d.isStrictSuperset(of: e, by: strategy))
+            XCTAssertFalse(f.isStrictSuperset(of: e, by: strategy))
+
+            XCTAssertTrue(a.isStrictSuperset(of: f, by: strategy))
+            XCTAssertTrue(b.isStrictSuperset(of: f, by: strategy))
+            XCTAssertTrue(c.isStrictSuperset(of: f, by: strategy))
+            XCTAssertTrue(d.isStrictSuperset(of: f, by: strategy))
+            XCTAssertFalse(e.isStrictSuperset(of: f, by: strategy))
+        }
     }
 
     func test_isSubsetOf_SharedNodes() {
@@ -347,9 +356,45 @@ class BTreeComparisonTests: XCTestCase {
         var z = x
         z.removeFirst()
 
-        XCTAssertTrue(x.isSubset(of: x))
-        XCTAssertTrue(y.isSubset(of: x))
-        XCTAssertTrue(z.isSubset(of: x))
+        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+            XCTAssertTrue(x.isSubset(of: x, by: strategy))
+            XCTAssertTrue(y.isSubset(of: x, by: strategy))
+            XCTAssertTrue(z.isSubset(of: x, by: strategy))
+        }
+    }
+
+    func test_isSubsetOf_Subtrees() {
+        let tree = makeTree((0 ..< 100).repeatEach(3))
+        tree.forEachSubtree { subtree in
+            XCTAssertTrue(subtree.isSubset(of: tree, by: .groupingMatches))
+            XCTAssertTrue(subtree.isSubset(of: tree, by: .countingMatches))
+
+            XCTAssertEqual(tree.isSubset(of: subtree, by: .groupingMatches), subtree.count == tree.count)
+            XCTAssertEqual(tree.isSubset(of: subtree, by: .countingMatches), subtree.count == tree.count)
+
+            XCTAssertEqual(subtree.isStrictSubset(of: tree, by: .groupingMatches), subtree.count != tree.count)
+            XCTAssertEqual(subtree.isStrictSubset(of: tree, by: .countingMatches), subtree.count != tree.count)
+            XCTAssertFalse(tree.isStrictSubset(of: subtree, by: .groupingMatches))
+
+            XCTAssertFalse(tree.isStrictSubset(of: subtree, by: .countingMatches))
+        }
+    }
+
+    func test_isSupersetOf_Subtrees() {
+        let tree = makeTree((0 ..< 100).repeatEach(3))
+        tree.forEachSubtree { subtree in
+            XCTAssertTrue(tree.isSuperset(of: subtree, by: .groupingMatches))
+            XCTAssertTrue(tree.isSuperset(of: subtree, by: .countingMatches))
+
+            XCTAssertEqual(subtree.isSuperset(of: tree, by: .groupingMatches), subtree.count == tree.count)
+            XCTAssertEqual(subtree.isSuperset(of: tree, by: .countingMatches), subtree.count == tree.count)
+
+            XCTAssertEqual(tree.isStrictSuperset(of: subtree, by: .groupingMatches), subtree.count != tree.count)
+            XCTAssertEqual(tree.isStrictSuperset(of: subtree, by: .countingMatches), subtree.count != tree.count)
+
+            XCTAssertFalse(subtree.isStrictSuperset(of: tree, by: .groupingMatches))
+            XCTAssertFalse(subtree.isStrictSuperset(of: tree, by: .countingMatches))
+        }
     }
 
     func test_isSubsetOf_DuplicateKey() {
@@ -357,39 +402,57 @@ class BTreeComparisonTests: XCTestCase {
         let y = makeTree([0, 1, 1, 1, 2, 2, 2, 2, 2, 3])
         let z = makeTree([0, 1, 2, 3, 4])
 
-        XCTAssertTrue(x.isSubset(of: y))
-        XCTAssertTrue(x.isStrictSubset(of: y))
-        XCTAssertTrue(x.isSubset(of: z))
-        XCTAssertTrue(x.isStrictSubset(of: z))
+        XCTAssertTrue(x.isSubset(of: y, by: .groupingMatches))
+        XCTAssertTrue(x.isSubset(of: z, by: .groupingMatches))
+        XCTAssertTrue(x.isStrictSubset(of: y, by: .groupingMatches))
+        XCTAssertTrue(x.isStrictSubset(of: z, by: .groupingMatches))
 
-        XCTAssertFalse(y.isSubset(of: x))
-        XCTAssertFalse(y.isStrictSubset(of: x))
-        XCTAssertTrue(y.isSubset(of: z))
-        XCTAssertTrue(y.isStrictSubset(of: z))
+        XCTAssertFalse(x.isSubset(of: y, by: .countingMatches))
+        XCTAssertFalse(x.isSubset(of: z, by: .countingMatches))
+        XCTAssertFalse(x.isStrictSubset(of: y, by: .countingMatches))
+        XCTAssertFalse(x.isStrictSubset(of: z, by: .countingMatches))
 
-        XCTAssertFalse(z.isSubset(of: x))
-        XCTAssertFalse(z.isStrictSubset(of: x))
-        XCTAssertFalse(z.isSubset(of: y))
-        XCTAssertFalse(z.isStrictSubset(of: y))
+        XCTAssertFalse(y.isSubset(of: x, by: .groupingMatches))
+        XCTAssertTrue(y.isSubset(of: z, by: .groupingMatches))
+        XCTAssertFalse(y.isStrictSubset(of: x, by: .groupingMatches))
+        XCTAssertTrue(y.isStrictSubset(of: z, by: .groupingMatches))
+
+        XCTAssertFalse(y.isSubset(of: x, by: .countingMatches))
+        XCTAssertFalse(y.isSubset(of: z, by: .countingMatches))
+        XCTAssertFalse(y.isStrictSubset(of: x, by: .countingMatches))
+        XCTAssertFalse(y.isStrictSubset(of: z, by: .countingMatches))
+
+        XCTAssertFalse(z.isSubset(of: x, by: .groupingMatches))
+        XCTAssertFalse(z.isSubset(of: y, by: .groupingMatches))
+        XCTAssertFalse(z.isStrictSubset(of: x, by: .groupingMatches))
+        XCTAssertFalse(z.isStrictSubset(of: y, by: .groupingMatches))
+
+        XCTAssertFalse(z.isSubset(of: x, by: .countingMatches))
+        XCTAssertFalse(z.isSubset(of: y, by: .countingMatches))
+        XCTAssertFalse(z.isStrictSubset(of: x, by: .countingMatches))
+        XCTAssertFalse(z.isStrictSubset(of: y, by: .countingMatches))
     }
 
-    func test_isSubsetOf_Subtrees() {
-        let tree = makeTree((0 ..< 100).repeatEach(3))
-        tree.forEachSubtree { subtree in
-            XCTAssertTrue(subtree.isSubset(of: tree))
-            XCTAssertEqual(tree.isSubset(of: subtree), subtree.count == tree.count)
-            XCTAssertEqual(subtree.isStrictSubset(of: tree), subtree.count != tree.count)
-            XCTAssertFalse(tree.isStrictSubset(of: subtree))
-        }
-    }
+    func test_isSubsetOf_LongDuplicateKeyRuns() {
+        let a1 = makeTree(Array(repeating: 0, count: 20) + Array(repeating: 1, count: 100) + Array(repeating: 2, count: 30))
+        let a2 = makeTree(Array(repeating: 0, count: 20) + Array(repeating: 1, count: 100) + Array(repeating: 2, count: 30))
+        let b = makeTree(Array(repeating: 0, count: 20) + Array(repeating: 1, count: 99) + Array(repeating: 2, count: 30))
+        let c = makeTree(Array(repeating: 0, count: 20) + Array(repeating: 1, count: 101) + Array(repeating: 2, count: 30))
 
-    func test_isSupersetOf_Subtrees() {
-        let tree = makeTree((0 ..< 100).repeatEach(3))
-        tree.forEachSubtree { subtree in
-            XCTAssertTrue(tree.isSuperset(of: subtree))
-            XCTAssertEqual(subtree.isSuperset(of: tree), subtree.count == tree.count)
-            XCTAssertEqual(tree.isStrictSuperset(of: subtree), subtree.count != tree.count)
-            XCTAssertFalse(subtree.isStrictSuperset(of: tree))
-        }
+        XCTAssertTrue(a1.isSubset(of: a2, by: .groupingMatches))
+        XCTAssertTrue(a1.isSubset(of: b, by: .groupingMatches))
+        XCTAssertTrue(a1.isSubset(of: c, by: .groupingMatches))
+
+        XCTAssertFalse(a1.isStrictSubset(of: a2, by: .groupingMatches))
+        XCTAssertFalse(a1.isStrictSubset(of: b, by: .groupingMatches))
+        XCTAssertFalse(a1.isStrictSubset(of: c, by: .groupingMatches))
+
+        XCTAssertTrue(a1.isSubset(of: a2, by: .countingMatches))
+        XCTAssertFalse(a1.isSubset(of: b, by: .countingMatches))
+        XCTAssertTrue(a1.isSubset(of: c, by: .countingMatches))
+
+        XCTAssertFalse(a1.isStrictSubset(of: a2, by: .countingMatches))
+        XCTAssertFalse(a1.isStrictSubset(of: b, by: .countingMatches))
+        XCTAssertTrue(a1.isStrictSubset(of: c, by: .countingMatches))
     }
 }

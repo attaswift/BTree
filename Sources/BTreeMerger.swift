@@ -6,7 +6,7 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
-public enum BTreeMergeStrategy {
+public enum BTreeMatchStrategy {
     case groupingMatches
     case countingMatches
 }
@@ -40,7 +40,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func union(_ other: BTree, by strategy: BTreeMergeStrategy) -> BTree {
+    public func union(_ other: BTree, by strategy: BTreeMatchStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         switch strategy {
         case .groupingMatches:
@@ -84,7 +84,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func subtracting(_ other: BTree, by strategy: BTreeMergeStrategy) -> BTree {
+    public func subtracting(_ other: BTree, by strategy: BTreeMatchStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.excludingOtherKey)
@@ -127,7 +127,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func symmetricDifference(_ other: BTree, by strategy: BTreeMergeStrategy) -> BTree {
+    public func symmetricDifference(_ other: BTree, by strategy: BTreeMatchStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.excludingOtherKey)
@@ -171,7 +171,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func intersection(_ other: BTree, by strategy: BTreeMergeStrategy) -> BTree {
+    public func intersection(_ other: BTree, by strategy: BTreeMatchStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.skipFromFirst(.excludingOtherKey)
@@ -195,7 +195,7 @@ extension BTree {
     ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
     /// - Complexity: O(*n* + `self.count`), where *n* is the number of keys in `sortedKeys`.
-    public func subtracting<S: Sequence>(sortedKeys: S, by strategy: BTreeMergeStrategy) -> BTree where S.Iterator.Element == Key {
+    public func subtracting<S: Sequence>(sortedKeys: S, by strategy: BTreeMatchStrategy) -> BTree where S.Iterator.Element == Key {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
@@ -237,7 +237,7 @@ extension BTree {
     ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
     /// - Complexity: O(*n* + `self.count`), where *n* is the number of keys in `sortedKeys`.
-    public func intersection<S: Sequence>(sortedKeys: S, by strategy: BTreeMergeStrategy) -> BTree where S.Iterator.Element == Key {
+    public func intersection<S: Sequence>(sortedKeys: S, by strategy: BTreeMatchStrategy) -> BTree where S.Iterator.Element == Key {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
@@ -481,8 +481,9 @@ internal struct BTreeMerger<Key: Comparable, Value> {
                 var common: Node
                 repeat {
                     key = a.node.last!.0
+                    common = a.node
                     a.ascendOneLevel()
-                    common = b.ascendOneLevel()
+                    b.ascendOneLevel()
                 } while !a.isAtEnd && !b.isAtEnd && a.node === b.node && a.slot == 0 && b.slot == 0
                 builder.append(common)
                 if !a.isAtEnd {
@@ -518,8 +519,9 @@ internal struct BTreeMerger<Key: Comparable, Value> {
                 /// the shared subtree. The slot & leaf checks above & below ensure that this isn't the case.
                 var common: Node
                 repeat {
+                    common = a.node
                     a.ascendOneLevel()
-                    common = b.ascendOneLevel()
+                    b.ascendOneLevel()
                 } while !a.isAtEnd && !b.isAtEnd && a.node === b.node && a.slot == 0 && b.slot == 0
                 builder.append(common)
                 if !a.isAtEnd { a.ascendToKey() }
@@ -589,7 +591,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
 
     mutating func skipMatchingNumberOfCommonElements() {
         while !done && a.key == b.key {
-            if a.node === b.node && a.node.isLeaf && a.slot == 0 && b.slot == 0 {
+            if a.node === b.node && a.node.isLeaf && a.slot == b.slot {
                 /// We're at the first element of a shared subtree. Find the ancestor at which the shared subtree
                 /// starts, and append it in a single step.
                 ///
@@ -602,7 +604,7 @@ internal struct BTreeMerger<Key: Comparable, Value> {
                     if a.isAtEnd || b.isAtEnd {
                         done = true
                     }
-                } while !done && a.node === b.node && a.slot == 0 && b.slot == 0
+                } while !done && a.node === b.node && a.slot == b.slot
                 if !a.isAtEnd { a.ascendToKey() }
                 if !b.isAtEnd { b.ascendToKey() }
             }
@@ -620,6 +622,25 @@ internal enum BTreePart<Key: Comparable, Value> {
     case element((Key, Value))
     case node(BTreeNode<Key, Value>)
     case nodeRange(BTreeNode<Key, Value>, CountableRange<Int>)
+}
+
+extension BTreePart {
+    var count: Int {
+        switch self {
+        case .element(_, _):
+            return 1
+        case .node(let node):
+            return node.count
+        case .nodeRange(let parent, let range):
+            var count = range.count
+            if !parent.isLeaf {
+                for i in range.lowerBound ... range.upperBound {
+                    count += parent.children[i].count
+                }
+            }
+            return count
+        }
+    }
 }
 
 extension BTreeBuilder {
@@ -668,16 +689,14 @@ internal extension BTreeStrongPath {
 
     /// Remove the deepest path component, leaving the path at the element following the node that was previously focused,
     /// or the spot after all elements if the node was the rightmost child.
-    @discardableResult
-    mutating func ascendOneLevel() -> Node {
+    mutating func ascendOneLevel() {
         if length == 1 {
             offset = count
             slot = node.elements.count
-            return node
+            return
         }
         popFromSlots()
         popFromPath()
-        return node.children[slot!]
     }
 
     /// If this path got to a slot at the end of a node but it hasn't reached the end of the tree yet,
@@ -704,10 +723,9 @@ internal extension BTreeStrongPath {
         assert(!isAtEnd)
         var includeLeftmostSubtree = false
         if slot == 0 && node.isLeaf {
-            while slot == 0 {
-                guard let pk = parentKey else { break }
-                guard limit.match(pk) else { break }
-                ascendOneLevel()
+            while slot == 0, let pk = parentKey, limit.match(pk) {
+                popFromSlots()
+                popFromPath()
                 includeLeftmostSubtree = true
             }
         }

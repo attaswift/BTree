@@ -515,7 +515,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func isSubset(of other: SortedSet<Element>) -> Bool {
-        return tree.isSubset(of: other.tree)
+        return tree.isSubset(of: other.tree, by: .groupingMatches)
     }
 
     /// Returns `true` iff all members in this set are also included in `other`, but the two sets aren't equal.
@@ -528,7 +528,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func isStrictSubset(of other: SortedSet<Element>) -> Bool {
-        return tree.isStrictSubset(of: other.tree)
+        return tree.isStrictSubset(of: other.tree, by: .groupingMatches)
     }
 
     /// Returns `true` iff all members in `other` are also included in this set.
@@ -541,7 +541,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func isSuperset(of other: SortedSet<Element>) -> Bool {
-        return tree.isSuperset(of: other.tree)
+        return tree.isSuperset(of: other.tree, by: .groupingMatches)
     }
 
     /// Returns `true` iff all members in `other` are also included in this set, but the two sets aren't equal.
@@ -554,7 +554,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func isStrictSuperset(of other: SortedSet<Element>) -> Bool {
-        return tree.isStrictSuperset(of: other.tree)
+        return tree.isStrictSuperset(of: other.tree, by: .groupingMatches)
     }
 }
 

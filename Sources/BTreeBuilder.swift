@@ -129,7 +129,22 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
         self.state = .element
     }
 
+    var lastKey: Key? {
+        switch state {
+        case .separator:
+            return saplings.last?.last?.0
+        case .element:
+            return seedling.last?.0 ?? separators.last?.0
+        }
+    }
+
+    func isValidNextKey(_ key: Key) -> Bool {
+        guard let last = lastKey else { return true }
+        return last <= key
+    }
+
     mutating func append(_ element: Element) {
+        assert(isValidNextKey(element.0))
         switch state {
         case .separator:
             separators.append(element)
@@ -154,8 +169,9 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
 
     mutating func appendWithoutCloning(_ node: Node) {
         assert(node.order == order)
+        if node.isEmpty { return }
+        assert(isValidNextKey(node.first!.0))
         if node.depth == 0 {
-            if node.isEmpty { return }
             if state == .separator {
                 assert(seedling.isEmpty)
                 separators.append(node.elements.removeFirst())

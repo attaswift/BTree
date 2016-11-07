@@ -536,7 +536,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func isSubset(of other: SortedBag<Element>) -> Bool {
-        return tree.isSubset(of: other.tree)
+        return tree.isSubset(of: other.tree, by: .countingMatches)
     }
 
     /// Returns `true` iff all members in this bag are also included in `other`, but the two bags aren't equal.
@@ -549,7 +549,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func isStrictSubset(of other: SortedBag<Element>) -> Bool {
-        return tree.isStrictSubset(of: other.tree)
+        return tree.isStrictSubset(of: other.tree, by: .countingMatches)
     }
 
     /// Returns `true` iff all members in `other` are also included in this bag.
@@ -562,7 +562,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func isSuperset(of other: SortedBag<Element>) -> Bool {
-        return tree.isSuperset(of: other.tree)
+        return tree.isSuperset(of: other.tree, by: .countingMatches)
     }
 
     /// Returns `true` iff all members in `other` are also included in this bag, but the two bags aren't equal.
@@ -575,7 +575,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func isStrictSuperset(of other: SortedBag<Element>) -> Bool {
-        return tree.isStrictSuperset(of: other.tree)
+        return tree.isStrictSuperset(of: other.tree, by: .countingMatches)
     }
 }
 

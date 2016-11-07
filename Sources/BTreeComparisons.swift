@@ -109,8 +109,8 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSubset(of tree: BTree) -> Bool {
-        return isSubset(of: tree, strict: false)
+    public func isSubset(of tree: BTree, by strategy: BTreeMatchStrategy) -> Bool {
+        return isSubset(of: tree, by: strategy, strict: false)
     }
 
     /// Returns true iff all keys in `self` are also in `tree`,
@@ -119,8 +119,8 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSubset(of tree: BTree) -> Bool {
-        return isSubset(of: tree, strict: true)
+    public func isStrictSubset(of tree: BTree, by strategy: BTreeMatchStrategy) -> Bool {
+        return isSubset(of: tree, by: strategy, strict: true)
     }
 
     /// Returns true iff all keys in `tree` are also in `self`.
@@ -128,8 +128,8 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSuperset(of tree: BTree) -> Bool {
-        return tree.isSubset(of: self, strict: false)
+    public func isSuperset(of tree: BTree, by strategy: BTreeMatchStrategy) -> Bool {
+        return tree.isSubset(of: self, by: strategy, strict: false)
     }
 
     /// Returns true iff all keys in `tree` are also in `self`,
@@ -138,55 +138,71 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSuperset(of tree: BTree) -> Bool {
-        return tree.isSubset(of: self, strict: true)
+    public func isStrictSuperset(of tree: BTree, by strategy: BTreeMatchStrategy) -> Bool {
+        return tree.isSubset(of: self, by: strategy, strict: true)
     }
 
-    internal func isSubset(of tree: BTree, strict: Bool) -> Bool {
+    internal func isSubset(of tree: BTree, by strategy: BTreeMatchStrategy, strict: Bool) -> Bool {
         var a = BTreeStrongPath(startOf: self.root)
         var b = BTreeStrongPath(startOf: tree.root)
         var knownStrict = false
-        if !a.isAtEnd && !b.isAtEnd {
-            outer: while true {
-                if a.key < b.key {
-                    return false
+        outer: while !a.isAtEnd && !b.isAtEnd {
+            while a.key == b.key {
+                if a.node === b.node && a.slot == b.slot {
+                    // Ascend to first ancestor that isn't shared.
+                    repeat {
+                        a.ascendOneLevel()
+                        b.ascendOneLevel()
+                    } while !a.isAtEnd && a.node === b.node && a.slot == b.slot
+                    if a.isAtEnd || b.isAtEnd { break outer }
+                    a.ascendToKey()
+                    b.ascendToKey()
                 }
-                while a.key == b.key {
-                    while a.node === b.node && a.slot == b.slot {
-                        // Ascend to first ancestor that isn't shared.
-                        repeat {
-                            a.ascendOneLevel()
-                            b.ascendOneLevel()
-                        } while !a.isAtEnd && !b.isAtEnd && a.node === b.node && a.slot == b.slot
-                        if a.isAtEnd || b.isAtEnd { break outer }
-                        a.ascendToKey()
-                        b.ascendToKey()
-                    }
-                    let key = a.key
-                    repeat {
+                let key = a.key
+                switch strategy {
+                case .groupingMatches:
+                    while !a.isAtEnd && a.key == key {
                         a.nextPart(until: .including(key))
-                    } while !a.isAtEnd && a.key == key
-                    repeat {
+                    }
+                    while !b.isAtEnd && b.key == key {
                         b.nextPart(until: .including(key))
-                    } while !b.isAtEnd && b.key == key
+                    }
+                    if a.isAtEnd || b.isAtEnd { break outer }
+                case .countingMatches:
+                    var acount = 0
+                    while !a.isAtEnd && a.key == key {
+                        acount += a.nextPart(until: .including(key)).count
+                    }
+                    var bcount = 0
+                    while !b.isAtEnd && b.key == key {
+                        bcount += b.nextPart(until: .including(key)).count
+                    }
+                    if acount > bcount {
+                        return false
+                    }
+                    if acount < bcount {
+                        knownStrict = true
+                    }
                     if a.isAtEnd || b.isAtEnd { break outer }
                 }
-                while b.key < a.key {
-                    knownStrict = true
-                    b.nextPart(until: .excluding(a.key))
-                    if b.isAtEnd { return false }
-                }
+            }
+            if a.key < b.key {
+                return false
+            }
+            while b.key < a.key {
+                knownStrict = true
+                b.nextPart(until: .excluding(a.key))
+                if b.isAtEnd { return false }
             }
         }
+
         if a.isAtEnd {
             if !b.isAtEnd {
                 return true
             }
         }
-        else {
-            if b.isAtEnd {
-                return false
-            }
+        else if b.isAtEnd {
+            return false
         }
         return !strict || knownStrict
     }
