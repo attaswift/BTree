@@ -634,11 +634,9 @@ extension SortedBag {
     ///
     /// - Complexity: O(log(`count`))
     public mutating func removeAll(_ member: Element) {
-        let endOffset = tree.offset(forKey: member, choosing: .after)!
+        guard let endOffset = tree.offset(forKey: member, choosing: .last) else { return }
         tree.withCursor(onKey: member, choosing: .first) { cursor in
-            if cursor.offset != endOffset {
-                cursor.remove(endOffset - cursor.offset)
-            }
+            cursor.remove(1 + endOffset - cursor.offset)
         }
     }
 
