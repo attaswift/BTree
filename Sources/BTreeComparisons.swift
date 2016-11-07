@@ -24,7 +24,7 @@ extension BTree {
 
         var a = BTreeStrongPath(startOf: self.root)
         var b = BTreeStrongPath(startOf: other.root)
-        while !a.isAtEnd {
+        while !a.isAtEnd { // No need to check b: the trees have the same length, and each iteration moves equal steps in both trees.
             if a.node === b.node && a.slot == b.slot {
                 // Ascend to first ancestor that isn't shared.
                 repeat {
@@ -157,8 +157,8 @@ extension BTree {
                         repeat {
                             a.ascendOneLevel()
                             b.ascendOneLevel()
-                        } while !a.isAtEnd && a.node === b.node && a.slot == b.slot
-                        if a.isAtEnd { break outer }
+                        } while !a.isAtEnd && !b.isAtEnd && a.node === b.node && a.slot == b.slot
+                        if a.isAtEnd || b.isAtEnd { break outer }
                         a.ascendToKey()
                         b.ascendToKey()
                     }
@@ -169,17 +169,23 @@ extension BTree {
                     repeat {
                         b.nextPart(until: .including(key))
                     } while !b.isAtEnd && b.key == key
-                    if a.isAtEnd {
-                        knownStrict = knownStrict || !b.isAtEnd
-                        break outer
-                    }
-                    if b.isAtEnd { return false }
+                    if a.isAtEnd || b.isAtEnd { break outer }
                 }
                 while b.key < a.key {
                     knownStrict = true
                     b.nextPart(until: .excluding(a.key))
                     if b.isAtEnd { return false }
                 }
+            }
+        }
+        if a.isAtEnd {
+            if !b.isAtEnd {
+                return true
+            }
+        }
+        else {
+            if b.isAtEnd {
+                return false
             }
         }
         return !strict || knownStrict
