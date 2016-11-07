@@ -371,11 +371,13 @@ Let's enumerate:
     future optimizations, such as moving node counts up to parent nodes.)
 
 -   By default, the tree order (a.k.a., the fanout, or the maximum number of children) is set such
-    that [each node stores about 16KiB data][BTreeNode]. Larger node sizes make lookups faster, while
+    that [each node stores about 16KiB data][bTreeNodeSize]. Larger node sizes make lookups faster, while
     insertion/removal becomes slower -- 16KiB is a good enough approximation of the optimal node size
     on most modern systems.  (But you can also set a custom node size if you know better. Note though
     that you cannot mix-n-match trees of different orders.)  Thus, on a 64-bit system, a B-tree
     holding `Int` elements will store about 2047 elements per node. Wow!
+
+[bTreeNodeSize]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift#L23
 
 -   Individual B-tree nodes may be independently shared between multiple B-trees.  When mutating a
     (partially or fully) shared tree, copy-on-write is restricted to only clone the nodes whose subtree is
@@ -460,7 +462,7 @@ Let's enumerate:
     implement the same sort of lookups and simple mutations. 
     They are faster when you need to retrieve a single item, but they aren't efficient when called repeatedly.
     
-[BTree-lookups]: https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L281
+[BTree-lookups]: https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L280-L419
 
 -   `BTree` includes a [bulk loading algorithm][BTree.bulkLoad] that efficiently initializes fully loaded
     trees from any sorted sequence. You can also specify a fill factor that's less than 100% if you expect to
@@ -487,9 +489,9 @@ Let's enumerate:
     and to [insert a B-tree into another B-tree][BTreeCursor.insertTree]. (Keys need to remain ordered
     correctly, though.)
     
--   Merge operations (such as `BTree.union` and `BTree.symmetricDifference`) are highly tuned to detect when
-    they can skip over entire subtrees on their input, linking them into the result or skipping their contents
-    as required. For input trees that contain long runs of distinct elements, these operations
+-   Merge operations (such as [`BTree.union`][BTree.union] and [`BTree.symmetricDifference`)][BTree.symmetricDifference]
+    are highly tuned to detect when they can skip over entire subtrees on their input, linking them into the result or 
+    skipping their contents as required. For input trees that contain long runs of distinct elements, these operations
     can finish in as little as O(log(*n*)) time. These algorithms are expressed on top of a general
     tree merging construct called [`BTreeMerger`][BTreeMerger].
 
@@ -503,7 +505,9 @@ Let's enumerate:
 [BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachFzFzTxq__T_T_
 [BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertFGVS_5BTreexq__T_
 [BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeFT4fromx2tox_GS0_xq__
-[BTreeMerger]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L217
+[BTree.union]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree5unionFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__
+[BTree.symmetricDifference]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree19symmetricDifferenceFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__
+[BTreeMerger]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L318
 
 ### <a name="generics">Remark on Performance of Imported Generics</a>
 <a name="perf"></a>
