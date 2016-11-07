@@ -101,6 +101,9 @@
 		BBB5062D1DCE210900D0FC8E /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5062B1DCE210900D0FC8E /* Compatibility.swift */; };
 		BBB5062E1DCE210900D0FC8E /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5062B1DCE210900D0FC8E /* Compatibility.swift */; };
 		BBB5062F1DCE210900D0FC8E /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB5062B1DCE210900D0FC8E /* Compatibility.swift */; };
+		BBB506351DCF6EB300D0FC8E /* SortedBagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB506301DCF6EAD00D0FC8E /* SortedBagTests.swift */; };
+		BBB506361DCF6EB300D0FC8E /* SortedBagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB506301DCF6EAD00D0FC8E /* SortedBagTests.swift */; };
+		BBB506371DCF6EB400D0FC8E /* SortedBagTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB506301DCF6EAD00D0FC8E /* SortedBagTests.swift */; };
 		BBCABF9C1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 		BBCABF9D1C2ECF8900825BF5 /* String Manipulation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */; };
 		BBCB23E51C89FD1A00A6E276 /* BTreeComparisons.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */; };
@@ -196,6 +199,7 @@
 		BBB224DC1C7B9BAA0049FEF6 /* MapTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = MapTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BBB224EF1C7BA09B0049FEF6 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		BBB5062B1DCE210900D0FC8E /* Compatibility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compatibility.swift; sourceTree = "<group>"; };
+		BBB506301DCF6EAD00D0FC8E /* SortedBagTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SortedBagTests.swift; sourceTree = "<group>"; };
 		BBBA30481C4946660019830F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String Manipulation.swift"; sourceTree = "<group>"; };
 		BBCB23E41C89FD1A00A6E276 /* BTreeComparisons.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BTreeComparisons.swift; sourceTree = "<group>"; };
@@ -344,6 +348,7 @@
 				BBB224DB1C7B9BAA0049FEF6 /* ListTests.swift */,
 				BB1F888D1D91BB2000974C2F /* BridgedListTests.swift */,
 				BBCB23ED1C8A510000A6E276 /* SortedSetTests.swift */,
+				BBB506301DCF6EAD00D0FC8E /* SortedBagTests.swift */,
 				BB1747481C289539002C929C /* Reusable Test Helpers */,
 			);
 			path = Tests;
@@ -665,6 +670,7 @@
 				BB5B27D91C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
 				BBB224E41C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */,
 				BBB224E61C7B9ED60049FEF6 /* BTreeTests.swift in Sources */,
+				BBB506351DCF6EB300D0FC8E /* SortedBagTests.swift in Sources */,
 				BB17475D1C289539002C929C /* Random.swift in Sources */,
 				BB5B27D51C83B99800ED8D38 /* BTreeBuilderTests.swift in Sources */,
 			);
@@ -735,6 +741,7 @@
 				BB5B27DB1C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
 				BB8FE9D81C7C8F730051268F /* ListTests.swift in Sources */,
 				BB8FE9DC1C7C8F730051268F /* String Manipulation.swift in Sources */,
+				BBB506371DCF6EB400D0FC8E /* SortedBagTests.swift in Sources */,
 				BB8FE9D91C7C8F730051268F /* Random.swift in Sources */,
 				BB5B27D71C83B99900ED8D38 /* BTreeBuilderTests.swift in Sources */,
 			);
@@ -782,6 +789,7 @@
 				BB5B27DA1C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
 				BBB224EA1C7B9ED60049FEF6 /* BTreeNodeTests.swift in Sources */,
 				BBB224EC1C7B9ED60049FEF6 /* BTreeTests.swift in Sources */,
+				BBB506361DCF6EB300D0FC8E /* SortedBagTests.swift in Sources */,
 				BB17475E1C289539002C929C /* Random.swift in Sources */,
 				BB5B27D61C83B99900ED8D38 /* BTreeBuilderTests.swift in Sources */,
 			);
