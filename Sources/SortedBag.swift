@@ -959,9 +959,13 @@ extension SortedBag where Element: Strideable {
 
     /// Shift the value of all elements starting at index `start` by `delta`.
     ///
+    /// This variant does not ever remove elements from the bag; if `delta` is negative, its absolute value
+    /// must not be greater than the difference between the element at `start` and the element previous to it (if any).
+    ///
+    /// - Requires: `start == self.startIndex || self[self.index(before: startIndex)] <= self[index] + delta
     /// - Complexity: O(`self.count`). The elements are modified in place.
     public mutating func shift(startingAt start: Index, by delta: Element.Stride) {
-        guard delta != 0 else { return }
+        guard delta != 0, tree.offset(of: start) != count else { return }
         tree.withCursor(at: start) { cursor in
             if delta < 0 && !cursor.isAtStart {
                 let k = cursor.key.advanced(by: delta)
