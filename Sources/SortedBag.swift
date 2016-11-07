@@ -7,19 +7,22 @@
 //
 
 /// A sorted collection of comparable elements; also known as a multiset.
-/// `SortedBag` is like a `SortedSet` that allows multiple members that are equal to each other.
+/// `SortedBag` is like a `SortedSet` except it can contain multiple members that are equal to each other.
 /// Lookup, insertion and removal of any element has logarithmic complexity.
 ///
 /// `SortedBag` stores duplicate elements in their entirety; it doesn't just count multiplicities.
 /// This is an important feature when equal elements can be distinguished by identity comparison or some other means.
+/// (If you're OK with just counting duplicates, use a `Map` or a `Dictionary` with the multiplicity as the value.)
 ///
 /// `SortedBag` is a struct with copy-on-write value semantics, like Swift's standard collection types.
-/// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other ordered sets.
-/// Mutating a set whose storage is (partially or completely) shared requires copying of only O(log(`count`)) elements.
-/// (Thus, mutation of shared ordered sets may be cheaper than ordinary sets, which need to copy all elements.)
+/// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other sorted sets or bags.
+/// Mutating a bag whose storage is (partially or completely) shared requires copying of only O(log(`count`)) elements.
+/// (Thus, mutation of shared `SortedBag`s may be cheaper than ordinary `Set`s, which need to copy all elements.)
 ///
-/// Set operations on ordered sets (such as taking the union, intersection or difference) can take as little as
+/// Set operations on sorted bags (such as taking the union, intersection or difference) can take as little as
 /// O(log(n)) time if the elements in the input bags aren't too interleaved.
+///
+/// - SeeAlso: `SortedSet`
 public struct SortedBag<Element: Comparable>: SetAlgebra {
     internal typealias Tree = BTree<Element, Void>
 

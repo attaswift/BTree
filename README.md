@@ -60,7 +60,7 @@ ordered collection types that use B-trees for their underlying storage.
     by the higher-level abstractions above (and more!).
 
     The `BTree` type is public; you may want to use it if you need a collection flavor that 
-    isn't provided by default (such as a MultiMap or a Bag), 
+    isn't provided by default (such as a multimap) 
     or if you need to use an operation that isn't exposed by the wrappers.
     
 All of these collections are structs and they implement the same copy-on-write value semantics as

@@ -11,12 +11,14 @@
 /// Lookup, insertion and removal of any element has logarithmic complexity.
 ///
 /// `SortedSet` is a struct with copy-on-write value semantics, like Swift's standard collection types.
-/// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other ordered sets.
+/// It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other sorted sets.
 /// Mutating a set whose storage is (partially or completely) shared requires copying of only O(log(`count`)) elements.
-/// (Thus, mutation of shared ordered sets may be cheaper than ordinary sets, which need to copy all elements.)
+/// (Thus, mutation of shared `SortedSet`s may be cheaper than ordinary `Set`s, which need to copy all elements.)
 ///
-/// Set operations on ordered sets (such as taking the union, intersection or difference) can take as little as
+/// Set operations on sorted sets (such as taking the union, intersection or difference) can take as little as
 /// O(log(n)) time if the elements in the input sets aren't too interleaved.
+///
+/// - SeeAlso: `SortedBag`
 public struct SortedSet<Element: Comparable>: SetAlgebra {
     internal typealias Tree = BTree<Element, Void>
 
