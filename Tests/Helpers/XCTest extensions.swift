@@ -48,6 +48,13 @@ extension BTree {
 
 internal extension Sequence {
     func repeatEach(_ count: Int) -> Array<Iterator.Element> {
-        return flatMap { Array<Iterator.Element>(repeating: $0, count: count) }
+        var result: [Iterator.Element] = []
+        result.reserveCapacity(count * underestimatedCount)
+        for element in self {
+            for _ in 0 ..< count {
+                result.append(element)
+            }
+        }
+        return result
     }
 }
