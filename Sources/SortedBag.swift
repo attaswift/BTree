@@ -451,7 +451,7 @@ extension SortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func lowestIndex(above element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, Void>? {
         let index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -462,7 +462,7 @@ extension SortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func lowestIndex(notBelow element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, Void>? {
         let index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -473,7 +473,7 @@ extension SortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func highestIndex(below element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfLastElement(before element: Element) -> BTreeIndex<Element, Void>? {
         var index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -485,7 +485,7 @@ extension SortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func highestIndex(notAbove element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, Void>? {
         var index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)

@@ -320,12 +320,12 @@ class SortedSetTests: XCTestCase {
         }
     }
 
-    func test_lowestIndexAbove() {
+    func test_indexOfFirstElementAfter() {
         let c = 100
         let set = SortedSet((0 ..< c).map { 2 * $0 })
 
         for i in 0 ..< 2 * c {
-            let index = set.lowestIndex(above: i)
+            let index = set.indexOfFirstElement(after: i)
             if i < 2 * (c - 1) {
                 XCTAssertNotNil(index)
                 guard let index = index else { continue }
@@ -343,12 +343,12 @@ class SortedSetTests: XCTestCase {
         }
     }
 
-    func test_lowestIndexNotBelow() {
+    func test_indexOfFirstElementNotBefore() {
         let c = 100
         let set = SortedSet((0 ..< c).map { 2 * $0 })
 
         for i in 0 ..< 2 * c {
-            let index = set.lowestIndex(notBelow: i)
+            let index = set.indexOfFirstElement(notBefore: i)
             if i < 2 * c - 1 {
                 XCTAssertNotNil(index)
                 guard let index = index else { continue }
@@ -366,12 +366,12 @@ class SortedSetTests: XCTestCase {
         }
     }
 
-    func test_highestIndexBelow() {
+    func test_indexOfLastElementBefore() {
         let c = 100
         let set = SortedSet((0 ..< c).map { 2 * $0 })
 
         for i in -2 ..< 2 * c {
-            let index = set.highestIndex(below: i)
+            let index = set.indexOfLastElement(before: i)
             if i > 0 {
                 XCTAssertNotNil(index)
                 guard let index = index else { continue }
@@ -389,12 +389,12 @@ class SortedSetTests: XCTestCase {
         }
     }
 
-    func test_highestIndexNotAbove() {
+    func test_indexOfLastElementNotAfter() {
         let c = 100
         let set = SortedSet((0 ..< c).map { 2 * $0 })
 
         for i in -2 ..< 2 * c {
-            let index = set.highestIndex(notAbove: i)
+            let index = set.indexOfLastElement(notAfter: i)
             if i >= 0 {
                 XCTAssertNotNil(index)
                 guard let index = index else { continue }

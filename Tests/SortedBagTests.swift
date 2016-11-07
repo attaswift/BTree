@@ -363,12 +363,12 @@ class SortedBagTests: XCTestCase {
         }
     }
 
-    func test_lowestIndexAbove() {
+    func test_indexOfFirstElementAfter() {
         let c = 100
         let bag = SortedBag((0 ..< c).map { 2 * $0 }.repeatEach(3))
 
         for i in 0 ..< 2 * c {
-            let index = bag.lowestIndex(above: i)
+            let index = bag.indexOfFirstElement(after: i)
             if i < 2 * (c - 1) {
                 XCTAssertNotNil(index)
                 guard let index = index else { continue }
@@ -381,12 +381,12 @@ class SortedBagTests: XCTestCase {
         }
     }
 
-    func test_lowestIndexNotBelow() {
+    func test_indexOfFirstElementNotBefore() {
         let c = 100
         let bag = SortedBag((0 ..< c).map { 2 * $0 }.repeatEach(3))
 
         for i in 0 ..< 2 * c {
-            let index = bag.lowestIndex(notBelow: i)
+            let index = bag.indexOfFirstElement(notBefore: i)
             if i < 2 * c - 1 {
                 XCTAssertNotNil(index)
                 guard let index = index else { continue }
@@ -407,12 +407,12 @@ class SortedBagTests: XCTestCase {
         }
     }
 
-    func test_highestIndexBelow() {
+    func test_indexOfLastElementBefore() {
         let c = 100
         let bag = SortedBag((0 ..< c).map { 2 * $0 }.repeatEach(3))
 
         for i in -2 ..< 2 * c {
-            let index = bag.highestIndex(below: i)
+            let index = bag.indexOfLastElement(before: i)
             if i > 0 {
                 XCTAssertNotNil(index)
                 guard let index = index else { continue }
@@ -433,12 +433,12 @@ class SortedBagTests: XCTestCase {
         }
     }
 
-    func test_highestIndexNotAbove() {
+    func test_indexOfLastElementNotAfter() {
         let c = 100
         let bag = SortedBag((0 ..< c).map { 2 * $0 }.repeatEach(3))
 
         for i in -2 ..< 2 * c {
-            let index = bag.highestIndex(notAbove: i)
+            let index = bag.indexOfLastElement(notAfter: i)
             if i >= 0 {
                 XCTAssertNotNil(index)
                 guard let index = index else { continue }
