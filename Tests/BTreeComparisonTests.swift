@@ -102,6 +102,25 @@ class BTreeComparisonTests: XCTestCase {
         XCTAssertTrue(a != c)
     }
 
+    func test_elementsEqual_Subtrees() {
+        let tree = makeTree((0 ..< 100).repeatEach(3))
+        tree.forEachSubtree { subtree in
+            XCTAssertEqual(subtree.elementsEqual(tree, by: { $0.0 == $1.0 }), subtree.count == tree.count)
+            XCTAssertEqual(tree.elementsEqual(subtree, by: { $0.0 == $1.0 }), subtree.count == tree.count)
+        }
+    }
+
+    func test_elementsEqual_sharedSuffix() {
+        let a = makeTree((0 ..< 100).repeatEach(3))
+        var b = a
+        b.removeFirst()
+        b.insert((0, ()))
+
+        XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
+        XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
+    }
+
+
     func test_isDisjointWith_SimpleCases() {
         let firstHalf = makeTree(0 ..< 100)
         let secondHalf = makeTree(100 ..< 200)
@@ -354,10 +373,23 @@ class BTreeComparisonTests: XCTestCase {
         XCTAssertFalse(z.isStrictSubset(of: y))
     }
 
-    func test_isSubsetOf_() {
-        let a = makeTree([3, 4, 5])
-        let b = makeTree([0, 1, 2])
+    func test_isSubsetOf_Subtrees() {
+        let tree = makeTree((0 ..< 100).repeatEach(3))
+        tree.forEachSubtree { subtree in
+            XCTAssertTrue(subtree.isSubset(of: tree))
+            XCTAssertEqual(tree.isSubset(of: subtree), subtree.count == tree.count)
+            XCTAssertEqual(subtree.isStrictSubset(of: tree), subtree.count != tree.count)
+            XCTAssertFalse(tree.isStrictSubset(of: subtree))
+        }
+    }
 
-        XCTAssertFalse(a.isSubset(of: b))
+    func test_isSupersetOf_Subtrees() {
+        let tree = makeTree((0 ..< 100).repeatEach(3))
+        tree.forEachSubtree { subtree in
+            XCTAssertTrue(tree.isSuperset(of: subtree))
+            XCTAssertEqual(subtree.isSuperset(of: tree), subtree.count == tree.count)
+            XCTAssertEqual(tree.isStrictSuperset(of: subtree), subtree.count != tree.count)
+            XCTAssertFalse(subtree.isStrictSuperset(of: tree))
+        }
     }
 }
