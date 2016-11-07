@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>BTreeValueIterator Struct Reference</title>
+    <title>BTreeMatchingStrategy Enum Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset="utf-8">
@@ -11,9 +11,9 @@
   </head>
   <body>
 
-    <a name="//apple_ref/swift/Struct/BTreeValueIterator" class="dashAnchor"></a>
+    <a name="//apple_ref/swift/Enum/BTreeMatchingStrategy" class="dashAnchor"></a>
 
-    <a title="BTreeValueIterator Struct Reference"></a>
+    <a title="BTreeMatchingStrategy Enum Reference"></a>
 
     <header class="header">
       <p class="header-col header-col--primary">
@@ -41,7 +41,7 @@
     <p class="breadcrumbs">
       <a class="breadcrumb" href="../index.html">BTree Reference</a>
       <img class="carat" src="../img/carat.png" />
-      BTreeValueIterator Struct Reference
+      BTreeMatchingStrategy Enum Reference
     </p>
 
     <div class="content-wrapper">
@@ -104,14 +104,14 @@
 
         <section class="section">
           <div class="section-content">
-            <h1>BTreeValueIterator</h1>
+            <h1>BTreeMatchingStrategy</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BTreeValueIterator</span><span class="o">&lt;</span><span class="kt">Value</span><span class="o">&gt;</span><span class="p">:</span> <span class="kt">IteratorProtocol</span></code></pre>
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">BTreeMatchingStrategy</span></code></pre>
 
                 </div>
               </div>
-            <p>An iterator for the values stored in a B-tree with an empty key.</p>
+            <p>The matching strategy to use when comparing elements from two trees with duplicate keys.</p>
 
           </div>
         </section>
@@ -123,9 +123,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/s:FV5BTree18BTreeValueIterator4nextFT_GSqx_"></a>
-                    <a name="//apple_ref/swift/Method/next()" class="dashAnchor"></a>
-                    <a class="token" href="#/s:FV5BTree18BTreeValueIterator4nextFT_GSqx_">next()</a>
+                    <a name="/s:FO5BTree21BTreeMatchingStrategy15groupingMatchesFMS0_S0_"></a>
+                    <a name="//apple_ref/swift/Element/groupingMatches" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO5BTree21BTreeMatchingStrategy15groupingMatchesFMS0_S0_">groupingMatches</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -133,25 +133,62 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Advance to the next element and return it, or return <code>nil</code> if no next element exists.</p>
+                        <p>Use a matching strategy appropriate for a set. I.e., match partition classes over key equality rather than individual keys.</p>
 
-<div class="aside aside-complexity">
-    <p class="aside-title">Complexity</p>
-    Amortized O(1)
-
-</div>
+<p>This strategy ignores the multiplicity of keys, and only consider whether a key is included in the two trees at all.
+E.g., a single element from one tree will be considered a match for any positive number of elements with the same key in
+the other tree.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">next</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Value</span><span class="p">?</span></code></pre>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="n">groupingMatches</span></code></pre>
 
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/BTreeIterator.swift#L50-L52">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/BTreeMerger.swift#L17">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FO5BTree21BTreeMatchingStrategy15countingMatchesFMS0_S0_"></a>
+                    <a name="//apple_ref/swift/Element/countingMatches" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FO5BTree21BTreeMatchingStrategy15countingMatchesFMS0_S0_">countingMatches</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Use a matching strategy appropriate for a multiset. I.e., try to establish a one-to-one correspondence between 
+elements from the two trees with equal keys.</p>
+
+<p>This strategy keeps track of the multiplicity of each key, and matches every element from one tree with 
+at most a single element with an equal key from the other tree. If a key has different multiplicities in 
+the two trees, duplicate elements above the lesser multiplicity will not be considered matching.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">case</span> <span class="n">countingMatches</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/BTreeMerger.swift#L25">Show on GitHub</a>
                       </div>
                     </section>
                   </div>

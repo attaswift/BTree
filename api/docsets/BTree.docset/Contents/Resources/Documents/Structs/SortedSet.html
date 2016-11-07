@@ -61,6 +61,9 @@
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Enums/BTreeKeySelector.html">BTreeKeySelector</a>
               </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/BTreeMatchingStrategy.html">BTreeMatchingStrategy</a>
+              </li>
             </ul>
           </li>
           <li class="nav-group-name">
@@ -88,6 +91,9 @@
                 <a class="nav-group-task-link" href="../Structs/Map.html">Map</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/SortedBag.html">SortedBag</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="../Structs/SortedSet.html">SortedSet</a>
               </li>
             </ul>
@@ -110,12 +116,18 @@
 Lookup, insertion and removal of any element has logarithmic complexity.</p>
 
 <p><code>SortedSet</code> is a struct with copy-on-write value semantics, like Swift&rsquo;s standard collection types.
-It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other ordered sets.
+It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other sorted sets.
 Mutating a set whose storage is (partially or completely) shared requires copying of only O(log(<code>count</code>)) elements.
-(Thus, mutation of shared ordered sets may be cheaper than ordinary sets, which need to copy all elements.)</p>
+(Thus, mutation of shared <code>SortedSet</code>s may be cheaper than ordinary <code>Set</code>s, which need to copy all elements.)</p>
 
-<p>Set operations on ordered sets (such as taking the union, intersection or difference) can take as little as
-O(log(n)) time if the elements in the source sets aren&rsquo;t interleaved.</p>
+<p>Set operations on sorted sets (such as taking the union, intersection or difference) can take as little as
+O(log(n)) time if the elements in the input sets aren&rsquo;t too interleaved.</p>
+
+<div class="aside aside-see-also">
+    <p class="aside-title">See also</p>
+    <code><a href="../Structs/SortedBag.html">SortedBag</a></code>
+
+</div>
 
           </div>
         </section>
@@ -156,7 +168,7 @@ O(log(n)) time if the elements in the source sets aren&rsquo;t interleaved.</p>
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L35-L37">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L37-L39">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -193,7 +205,7 @@ If the sequence contains duplicate items, only the last instance will be kept in
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L43-L45">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L45-L47">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -230,7 +242,7 @@ If the sequence contains duplicate items, only the last instance will be kept in
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L51-L53">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L53-L55">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -261,7 +273,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L57-L59">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L59-L61">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -314,7 +326,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L97">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L99">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -336,7 +348,7 @@ If the array literal contains duplicate items, only the last instance will be ke
 
 <div class="aside aside-requires">
     <p class="aside-title">Requires</p>
-    The indexes in <code>range</code> originated from an unmutated copy of this set.
+    The indices in <code>range</code> originated from an unmutated copy of this set.
 
 </div>
 
@@ -356,7 +368,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L105">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L107">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -392,7 +404,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L72-L74">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L74-L76">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -428,7 +440,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L79-L81">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L81-L83">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -458,7 +470,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L84-L86">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L86-L88">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -488,7 +500,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L89-L91">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L91-L93">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -518,7 +530,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L110-L112">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L112-L114">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -560,7 +572,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L118-L120">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L120-L122">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -602,7 +614,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L126-L128">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L128-L130">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -644,7 +656,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L134-L136">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L136-L138">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -686,7 +698,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L142-L144">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L144-L146">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -704,7 +716,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Returns an index that is the specified distance from the given index.</p>
+                        <p>Returns an index that is at the specified distance from the given index.</p>
 
 <div class="aside aside-requires">
     <p class="aside-title">Requires</p>
@@ -730,7 +742,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L152-L154">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L154-L156">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -774,7 +786,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L162-L164">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L164-L166">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -792,7 +804,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Returns an index that is the specified distance from the given index, unless that distance is beyond a given limiting index.</p>
+                        <p>Returns an index that is at the specified distance from the given index, unless that distance is beyond a given limiting index.</p>
 
 <div class="aside aside-requires">
     <p class="aside-title">Requires</p>
@@ -816,7 +828,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L170-L172">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L172-L174">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -858,7 +870,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L179-L181">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L181-L183">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -900,7 +912,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L187-L189">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L189-L191">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -947,7 +959,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L220">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L222">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -983,7 +995,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L227">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L229">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1019,7 +1031,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L198-L200">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L200-L202">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1055,7 +1067,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L205-L207">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L207-L209">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1097,7 +1109,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L213-L215">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L215-L217">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1138,7 +1150,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L236-L238">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L238-L240">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1168,7 +1180,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L241-L243">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L243-L245">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1198,7 +1210,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L246-L248">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L248-L250">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1228,7 +1240,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L251-L253">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L253-L255">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1258,7 +1270,7 @@ If the array literal contains duplicate items, only the last instance will be ke
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L256-L264">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L258-L266">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1290,7 +1302,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L269-L271">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L271-L273">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1337,7 +1349,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L280">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L282">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1373,7 +1385,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L285">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L287">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1409,7 +1421,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L290">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L292">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1445,7 +1457,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L295">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L297">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1463,7 +1475,10 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <div class="aside aside-complexity">
+                        <p>Return a copy of this set with the smallest element removed.
+If this set is empty, the result is an empty set.</p>
+
+<div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
     O(log(<code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet5countSi">count</a></code>))
 
@@ -1479,7 +1494,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L300-L302">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L303-L305">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1497,7 +1512,10 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <div class="aside aside-complexity">
+                        <p>Return a copy of this set with the <code>n</code> smallest elements removed.
+If <code>n</code> exceeds the number of elements in the set, the result is an empty set.</p>
+
+<div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
     O(log(<code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet5countSi">count</a></code>))
 
@@ -1513,7 +1531,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L307-L309">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L311-L313">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1531,7 +1549,10 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <div class="aside aside-complexity">
+                        <p>Return a copy of this set with the largest element removed.
+If this set is empty, the result is an empty set.</p>
+
+<div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
     O(log(<code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet5countSi">count</a></code>))
 
@@ -1547,7 +1568,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L314-L316">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L319-L321">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1565,7 +1586,10 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <div class="aside aside-complexity">
+                        <p>Return a copy of this set with the <code>n</code> largest elements removed.
+If <code>n</code> exceeds the number of elements in the set, the result is an empty set.</p>
+
+<div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
     O(log(<code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet5countSi">count</a></code>))
 
@@ -1581,7 +1605,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L321-L323">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L327-L329">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1601,7 +1625,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                       <div class="abstract">
                         <p>Returns a subset, up to <code>maxLength</code> in size, containing the smallest elements in this set.</p>
 
-<p>If <code>maxLength</code> exceeds <code>self.count</code>, the result contains all the elements of <code>self</code>.</p>
+<p>If <code>maxLength</code> exceeds the number of elements, the result contains all the elements of <code>self</code>.</p>
 
 <div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
@@ -1619,7 +1643,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L330-L332">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L336-L338">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1655,7 +1679,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L337-L339">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L343-L345">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1692,7 +1716,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L345-L347">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L351-L353">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1728,7 +1752,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L352-L354">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L358-L360">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1765,7 +1789,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L360-L362">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L366-L368">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1803,7 +1827,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L369-L371">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L375-L377">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1839,7 +1863,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L376-L378">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L382-L384">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1876,7 +1900,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L384-L386">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L390-L392">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1917,7 +1941,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L393-L396">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L399-L402">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1947,7 +1971,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L399-L401">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L405-L407">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -1994,7 +2018,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L410-L412">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L416-L418">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2030,7 +2054,159 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L417-L419">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L423-L425">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree9SortedSet19indexOfFirstElementFT5afterx_GSqGVS_10BTreeIndexxT___"></a>
+                    <a name="//apple_ref/swift/Method/indexOfFirstElement(after:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree9SortedSet19indexOfFirstElementFT5afterx_GSqGVS_10BTreeIndexxT___">indexOfFirstElement(after:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the index of the lowest member of this set that is strictly greater than <code>element</code>, or <code>nil</code> if there is no such element.</p>
+
+<p>This function never returns <code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet8endIndexGVS_10BTreeIndexxT__">endIndex</a></code>. (If it returns non-nil, the returned index can be used to subscript the set.)</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">indexOfFirstElement</span><span class="p">(</span><span class="n">after</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/BTreeIndex.html">BTreeIndex</a></span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">,</span> <span class="kt">Void</span><span class="o">&gt;</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L432-L436">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree9SortedSet19indexOfFirstElementFT9notBeforex_GSqGVS_10BTreeIndexxT___"></a>
+                    <a name="//apple_ref/swift/Method/indexOfFirstElement(notBefore:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree9SortedSet19indexOfFirstElementFT9notBeforex_GSqGVS_10BTreeIndexxT___">indexOfFirstElement(notBefore:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the index of the lowest member of this set that is greater than or equal to <code>element</code>, or <code>nil</code> if there is no such element.</p>
+
+<p>This function never returns <code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet8endIndexGVS_10BTreeIndexxT__">endIndex</a></code>. (If it returns non-nil, the returned index can be used to subscript the set.)</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">indexOfFirstElement</span><span class="p">(</span><span class="n">notBefore</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/BTreeIndex.html">BTreeIndex</a></span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">,</span> <span class="kt">Void</span><span class="o">&gt;</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L443-L447">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree9SortedSet18indexOfLastElementFT6beforex_GSqGVS_10BTreeIndexxT___"></a>
+                    <a name="//apple_ref/swift/Method/indexOfLastElement(before:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree9SortedSet18indexOfLastElementFT6beforex_GSqGVS_10BTreeIndexxT___">indexOfLastElement(before:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the index of the highest member of this set that is strictly less than <code>element</code>, or <code>nil</code> if there is no such element.</p>
+
+<p>This function never returns <code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet8endIndexGVS_10BTreeIndexxT__">endIndex</a></code>. (If it returns non-nil, the returned index can be used to subscript the set.)</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">indexOfLastElement</span><span class="p">(</span><span class="n">before</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/BTreeIndex.html">BTreeIndex</a></span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">,</span> <span class="kt">Void</span><span class="o">&gt;</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L454-L459">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree9SortedSet18indexOfLastElementFT8notAfterx_GSqGVS_10BTreeIndexxT___"></a>
+                    <a name="//apple_ref/swift/Method/indexOfLastElement(notAfter:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree9SortedSet18indexOfLastElementFT8notAfterx_GSqGVS_10BTreeIndexxT___">indexOfLastElement(notAfter:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the index of the highest member of this set that is less than or equal to <code>element</code>, or <code>nil</code> if there is no such element.</p>
+
+<p>This function never returns <code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet8endIndexGVS_10BTreeIndexxT__">endIndex</a></code>. (If it returns non-nil, the returned index can be used to subscript the set.)</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/SortedSet.html#/s:vV5BTree9SortedSet5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">indexOfLastElement</span><span class="p">(</span><span class="n">notAfter</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Structs/BTreeIndex.html">BTreeIndex</a></span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">,</span> <span class="kt">Void</span><span class="o">&gt;</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L466-L471">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2062,7 +2238,7 @@ I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]
                         <p>Return <code>true</code> iff <code>self</code> and <code>other</code> contain the same elements.</p>
 
 <p>This method skips over shared subtrees when possible; this can drastically improve performance when the
-two lists are divergent mutations originating from the same value.</p>
+two sets are divergent mutations originating from the same value.</p>
 
 <div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
@@ -2080,7 +2256,7 @@ two lists are divergent mutations originating from the same value.</p>
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L431-L433">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L483-L485">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2119,7 +2295,7 @@ two sets are divergent mutations originating from the same value.</p>
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L441-L443">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L493-L495">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2162,7 +2338,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L454-L456">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L506-L508">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2205,7 +2381,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L467-L469">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L519-L521">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2226,8 +2402,8 @@ linked into the result instead of copying, which can drastically improve perform
                         <p>Returns <code>true</code> iff all members in this set are also included in <code>other</code>, but the two sets aren&rsquo;t equal.</p>
 
 <p>The elements of the two input sets may be freely interleaved.
-However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-linked into the result instead of copying, which can drastically improve performance.</p>
+However, if there are long runs of non-interleaved elements, parts of the input sets may be skipped instead
+of elementwise processing, which can drastically improve performance.</p>
 
 <div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
@@ -2248,7 +2424,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L480-L482">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L532-L534">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2269,8 +2445,8 @@ linked into the result instead of copying, which can drastically improve perform
                         <p>Returns <code>true</code> iff all members in <code>other</code> are also included in this set.</p>
 
 <p>The elements of the two input sets may be freely interleaved.
-However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-linked into the result instead of copying, which can drastically improve performance.</p>
+However, if there are long runs of non-interleaved elements, parts of the input sets may be skipped instead
+of elementwise processing, which can drastically improve performance.</p>
 
 <div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
@@ -2291,7 +2467,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L493-L495">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L545-L547">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2312,8 +2488,8 @@ linked into the result instead of copying, which can drastically improve perform
                         <p>Returns <code>true</code> iff all members in <code>other</code> are also included in this set, but the two sets aren&rsquo;t equal.</p>
 
 <p>The elements of the two input sets may be freely interleaved.
-However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
-linked into the result instead of copying, which can drastically improve performance.</p>
+However, if there are long runs of non-interleaved elements, parts of the input sets may be skipped instead
+of elementwise processing, which can drastically improve performance.</p>
 
 <div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
@@ -2334,7 +2510,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L506-L508">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L558-L560">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2395,7 +2571,7 @@ from <code>newMember</code> by identity comparison or some other means.
 
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L522-L527">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L574-L579">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2467,7 +2643,7 @@ comparison or some other means.
 
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L538-L540">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L591-L593">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2514,7 +2690,7 @@ comparison or some other means.
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L550-L552">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L603-L605">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2550,7 +2726,7 @@ comparison or some other means.
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L558-L560">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L611-L613">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2586,7 +2762,7 @@ comparison or some other means.
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L566-L568">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L619-L621">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2622,7 +2798,7 @@ comparison or some other means.
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L590-L592">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L643-L645">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2658,7 +2834,7 @@ comparison or some other means.
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L613-L615">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L666-L668">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2688,7 +2864,7 @@ comparison or some other means.
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L619-L621">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L671-L673">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2719,7 +2895,7 @@ comparison or some other means.
                       <div class="abstract">
                         <p>Return an <code>Array</code> containing the members of this set, in ascending order.</p>
 
-<p><code><a href="../Structs/Map.html">Map</a></code> already keeps its elements sorted, so this is equivalent to <code>Array(self)</code>.</p>
+<p><code>SortedSet</code> already keeps its elements sorted, so this is equivalent to <code>Array(self)</code>.</p>
 
 <div class="aside aside-complexity">
     <p class="aside-title">Complexity</p>
@@ -2737,7 +2913,7 @@ comparison or some other means.
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L632-L635">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L684-L687">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2791,7 +2967,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L650-L652">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L702-L704">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2834,7 +3010,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L663-L665">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L715-L717">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2877,7 +3053,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L676-L678">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L728-L730">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2920,7 +3096,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L689-L691">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L741-L743">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -2963,7 +3139,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L702-L704">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L754-L756">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3006,7 +3182,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L715-L717">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L767-L769">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3049,7 +3225,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L728-L730">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L780-L782">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3092,7 +3268,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L741-L743">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L793-L795">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3139,7 +3315,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L752-L757">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L804-L809">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3175,7 +3351,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L762-L767">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L814-L819">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3211,7 +3387,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L772-L774">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L824-L826">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3247,7 +3423,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L779-L781">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L831-L833">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3283,7 +3459,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L786-L788">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L838-L840">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3319,7 +3495,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L793-L795">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L845-L847">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3355,7 +3531,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L800-L806">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L852-L858">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3391,7 +3567,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L811-L817">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L863-L869">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3427,7 +3603,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L822-L826">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L874-L878">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3463,7 +3639,7 @@ linked into the result instead of copying, which can drastically improve perform
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L831-L835">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L883-L887">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3512,7 +3688,7 @@ For a negative <code>delta</code>, this shifts elements to the left, removing an
                         </div>
                       </div>
                       <div class="slightly-smaller">
-                        <a href="https://github.com/lorentey/BTree/tree/v3.1.0/Sources/SortedSet.swift#L846-L859">Show on GitHub</a>
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.0/Sources/SortedSet.swift#L898-L911">Show on GitHub</a>
                       </div>
                     </section>
                   </div>
@@ -3525,7 +3701,7 @@ For a negative <code>delta</code>, this shifts elements to the left, removing an
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-10-06)</p>
+      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-11-07)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>

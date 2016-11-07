@@ -60,6 +60,9 @@
               <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Enums/BTreeKeySelector.html">BTreeKeySelector</a>
               </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/BTreeMatchingStrategy.html">BTreeMatchingStrategy</a>
+              </li>
             </ul>
           </li>
           <li class="nav-group-name">
@@ -87,6 +90,9 @@
                 <a class="nav-group-task-link" href="Structs/Map.html">Map</a>
               </li>
               <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/SortedBag.html">SortedBag</a>
+              </li>
+              <li class="nav-group-task">
                 <a class="nav-group-task-link" href="Structs/SortedSet.html">SortedSet</a>
               </li>
             </ul>
@@ -101,7 +107,7 @@
             <a href='#fast-ordered-collections-for-swift-br-using-in-memory-b-trees' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h1 id='fast-ordered-collections-for-swift-br-using-in-memory-b-trees'>Fast Ordered Collections for Swift<br> Using In-Memory B-Trees</h1>
 
 <p><a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-3.0-blue.svg" alt="Swift 3.0"></a> 
-<a href="https://github.com/lorentey/BTree/blob/master/LICENCE.md"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="License"></a>
+<a href="https://github.com/lorentey/BTree/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="License"></a>
 <a href="https://developer.apple.com/platforms/"><img src="https://img.shields.io/badge/platforms-macOS%20%E2%88%99%20iOS%20%E2%88%99%20watchOS%20%E2%88%99%20tvOS-blue.svg" alt="Platform"></a></p>
 
 <p><a href="https://travis-ci.org/lorentey/BTree"><img src="https://travis-ci.org/lorentey/BTree.svg?branch=master" alt="Build Status"></a>
@@ -145,13 +151,20 @@ It is like <code>Set</code> in the standard library, but lookup, insertion and r
 has logarithmic complexity. Elements in an <code>SortedSet</code> are kept sorted in ascending order.
 Operations working on full sets (such as taking the union, intersection or difference) 
 can take as little as O(log(<em>n</em>)) time if the elements in the source sets aren&rsquo;t interleaved.</p></li>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/SortedBag.html"><code>SortedBag&lt;Element&gt;</code></a> implements an ordered <a href="https://en.wikipedia.org/wiki/Set_(abstract_data_type)#Multiset">multiset</a> with 
+comparable elements. This is a generalization of a set that allows multiple instances of the same value.
+(The standard library does not include such a collection, although you can use a dictionary to emulate one 
+by storing the multiplicities of the keys as values.)
+The implementation provided in this package stores each duplicate element separately, which may come useful
+if your elements are reference types with identities or you have some other means to distinguish between equal elements.
+<code>SortedBag</code> operations have the same time complexities as the equivalent operations in <code>SortedSet</code>.</p></li>
 <li><p><a href="http://lorentey.github.io/BTree/api/Structs/BTree.html"><code>BTree&lt;Key, Value&gt;</code></a> is the underlying primitive collection that serves as base storage
 for all of the above collections. It is a general key-value store with full support
 for elements with duplicate keys; it provides a sum of all operations individually provided
 by the higher-level abstractions above (and more!).</p>
 
 <p>The <code>BTree</code> type is public; you may want to use it if you need a collection flavor that 
-isn&rsquo;t provided by default (such as a MultiMap or a Bag), 
+isn&rsquo;t provided by default (such as a multimap) 
 or if you need to use an operation that isn&rsquo;t exposed by the wrappers.</p></li>
 </ul>
 
@@ -419,7 +432,7 @@ high-level operations to work with elements of a B-tree.</p>
 (Low-level access to individual tree nodes would be tricky to get right, and it would prevent
 future optimizations, such as moving node counts up to parent nodes.)</p></li>
 <li><p>By default, the tree order (a.k.a., the fanout, or the maximum number of children) is set such
-that <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift">each node stores about 16KiB data</a>. Larger node sizes make lookups faster, while
+that <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift#L23">each node stores about 16KiB data</a>. Larger node sizes make lookups faster, while
 insertion/removal becomes slower &ndash; 16KiB is a good enough approximation of the optimal node size
 on most modern systems.  (But you can also set a custom node size if you know better. Note though
 that you cannot mix-n-match trees of different orders.)  Thus, on a 64-bit system, a B-tree
@@ -495,7 +508,7 @@ to allow for super speedy elementwise insertions and removals. The counts are ca
 whenever the path moves off a node&rsquo;s branch in the tree.</li>
 </ul></li>
 <li><p>It would be overkill to create an explicit path to look up or modify a single element in the tree
-on its own, so <code>BTree</code> also provides a <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L281">set of recursive methods</a> that 
+on its own, so <code>BTree</code> also provides a <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L280-L419">set of recursive methods</a> that 
 implement the same sort of lookups and simple mutations. 
 They are faster when you need to retrieve a single item, but they aren&rsquo;t efficient when called repeatedly.</p></li>
 <li><p><code>BTree</code> includes a <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_xq__">bulk loading algorithm</a> that efficiently initializes fully loaded
@@ -514,11 +527,11 @@ a quicksort. (So sort elements on your own if you can spare the extra memory.)</
 <li><p>The package contains O(log(n)) methods to <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeFT4fromx2tox_GS0_xq__">extract a range of elements as a new B-tree</a>
 and to <a href="http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertFGVS_5BTreexq__T_">insert a B-tree into another B-tree</a>. (Keys need to remain ordered
 correctly, though.)</p></li>
-<li><p>Merge operations (such as <code>BTree.union</code> and <code>BTree.symmetricDifference</code>) are highly tuned to detect when
-they can skip over entire subtrees on their input, linking them into the result or skipping their contents
-as required. For input trees that contain long runs of distinct elements, these operations
+<li><p>Merge operations (such as <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree5unionFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__"><code>BTree.union</code></a> and <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree19symmetricDifferenceFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__"><code>BTree.symmetricDifference</code>)</a>
+are highly tuned to detect when they can skip over entire subtrees on their input, linking them into the result or 
+skipping their contents as required. For input trees that contain long runs of distinct elements, these operations
 can finish in as little as O(log(<em>n</em>)) time. These algorithms are expressed on top of a general
-tree merging construct called <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L217"><code>BTreeMerger</code></a>.</p></li>
+tree merging construct called <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L318"><code>BTreeMerger</code></a>.</p></li>
 <a href='#a-name-generics-remark-on-performance-of-imported-generics-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-generics-remark-on-performance-of-imported-generics-a'><a name="generics">Remark on Performance of Imported Generics</a></h3>
 
 <p><a name="perf"></a></p>
@@ -535,8 +548,8 @@ Relying on <code>import</code> will incur a <em>10-200x slowdown</em> when your 
 value types. (The effect is much reduced for reference types, though.)</p>
 
 <p>Without access to the full source code of the collection, the compiler is unable to optimize away abstractions
-like virtual dispatch tables, function calls and the rest of the <em>fluff</em> we&rsquo;ve learned to pretty much don&rsquo;t care about 
-for stuff inside a module. In cross-module generics, even retrieving a single <code>Int</code> will necessarily go through 
+like virtual dispatch tables, function calls and the rest of the <em>fluff</em> we&rsquo;ve learned to mostly ignore
+inside a module. In cross-module generics, even retrieving a single <code>Int</code> will necessarily go through 
 at least one lookup to a virtual table. This is because the code that implements the unspecialized generic also executes 
 for type parameters that contain reference types, whose reference count needs to be maintained.</p>
 
@@ -558,7 +571,7 @@ to manually specialize generics for a predetermined set of type parameters.</p>
       </article>
     </div>
     <section class="footer">
-      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-10-06)</p>
+      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-11-07)</p>
       <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
     </section>
   </body>
