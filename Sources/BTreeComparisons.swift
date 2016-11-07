@@ -109,7 +109,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSubset(of tree: BTree, by strategy: BTreeMatchStrategy) -> Bool {
+    public func isSubset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
         return isSubset(of: tree, by: strategy, strict: false)
     }
 
@@ -119,7 +119,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSubset(of tree: BTree, by strategy: BTreeMatchStrategy) -> Bool {
+    public func isStrictSubset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
         return isSubset(of: tree, by: strategy, strict: true)
     }
 
@@ -128,7 +128,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isSuperset(of tree: BTree, by strategy: BTreeMatchStrategy) -> Bool {
+    public func isSuperset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
         return tree.isSubset(of: self, by: strategy, strict: false)
     }
 
@@ -138,11 +138,11 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func isStrictSuperset(of tree: BTree, by strategy: BTreeMatchStrategy) -> Bool {
+    public func isStrictSuperset(of tree: BTree, by strategy: BTreeMatchingStrategy) -> Bool {
         return tree.isSubset(of: self, by: strategy, strict: true)
     }
 
-    internal func isSubset(of tree: BTree, by strategy: BTreeMatchStrategy, strict: Bool) -> Bool {
+    internal func isSubset(of tree: BTree, by strategy: BTreeMatchingStrategy, strict: Bool) -> Bool {
         var a = BTreeStrongPath(startOf: self.root)
         var b = BTreeStrongPath(startOf: tree.root)
         var knownStrict = false

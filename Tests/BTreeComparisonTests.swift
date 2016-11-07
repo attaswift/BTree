@@ -169,7 +169,7 @@ class BTreeComparisonTests: XCTestCase {
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
 
-        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+        for strategy in [BTreeMatchingStrategy.groupingMatches, .countingMatches] {
             XCTAssertTrue(a.isSubset(of: b, by: strategy))
             XCTAssertFalse(a.isSubset(of: c, by: strategy))
             XCTAssertTrue(a.isSubset(of: d, by: strategy))
@@ -216,7 +216,7 @@ class BTreeComparisonTests: XCTestCase {
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
 
-        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+        for strategy in [BTreeMatchingStrategy.groupingMatches, .countingMatches] {
             XCTAssertFalse(a.isStrictSubset(of: b, by: strategy))
             XCTAssertFalse(a.isStrictSubset(of: c, by: strategy))
             XCTAssertTrue(a.isStrictSubset(of: d, by: strategy))
@@ -263,7 +263,7 @@ class BTreeComparisonTests: XCTestCase {
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
 
-        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+        for strategy in [BTreeMatchingStrategy.groupingMatches, .countingMatches] {
             XCTAssertTrue(a.isSuperset(of: b, by: strategy))
             XCTAssertTrue(a.isSuperset(of: c, by: strategy))
             XCTAssertFalse(a.isSuperset(of: d, by: strategy))
@@ -310,7 +310,7 @@ class BTreeComparisonTests: XCTestCase {
         let e = makeTree(Array(0 ..< 50) + Array(51 ..< 100))
         let f = makeTree([50])
 
-        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+        for strategy in [BTreeMatchingStrategy.groupingMatches, .countingMatches] {
             XCTAssertFalse(b.isStrictSuperset(of: a, by: strategy))
             XCTAssertFalse(c.isStrictSuperset(of: a, by: strategy))
             XCTAssertTrue(d.isStrictSuperset(of: a, by: strategy))
@@ -356,7 +356,7 @@ class BTreeComparisonTests: XCTestCase {
         var z = x
         z.removeFirst()
 
-        for strategy in [BTreeMatchStrategy.groupingMatches, .countingMatches] {
+        for strategy in [BTreeMatchingStrategy.groupingMatches, .countingMatches] {
             XCTAssertTrue(x.isSubset(of: x, by: strategy))
             XCTAssertTrue(y.isSubset(of: x, by: strategy))
             XCTAssertTrue(z.isSubset(of: x, by: strategy))

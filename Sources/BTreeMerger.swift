@@ -6,8 +6,22 @@
 //  Copyright © 2016 Károly Lőrentey.
 //
 
-public enum BTreeMatchStrategy {
+/// The matching strategy to use when comparing elements from two trees with duplicate keys.
+public enum BTreeMatchingStrategy {
+
+    /// Use a matching strategy appropriate for a set. I.e., match partition classes over key equality rather than individual keys.
+    ///
+    /// This strategy ignores the multiplicity of keys, and only consider whether a key is included in the two trees at all.
+    /// E.g., a single element from one tree will be considered a match for any positive number of elements with the same key in
+    /// the other tree.
     case groupingMatches
+
+    /// Use a matching strategy appropriate for a multiset. I.e., try to establish a one-to-one correspondence between 
+    /// elements from the two trees with equal keys.
+    ///
+    /// This strategy keeps track of the multiplicity of each key, and matches every element from one tree with 
+    /// at most a single element with an equal key from the other tree. If a key has different multiplicities in 
+    /// the two trees, duplicate elements above the lesser multiplicity will not be considered matching.
     case countingMatches
 }
 
@@ -40,7 +54,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func union(_ other: BTree, by strategy: BTreeMatchStrategy) -> BTree {
+    public func union(_ other: BTree, by strategy: BTreeMatchingStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         switch strategy {
         case .groupingMatches:
@@ -84,7 +98,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
-    public func subtracting(_ other: BTree, by strategy: BTreeMatchStrategy) -> BTree {
+    public func subtracting(_ other: BTree, by strategy: BTreeMatchingStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.excludingOtherKey)
@@ -127,7 +141,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func symmetricDifference(_ other: BTree, by strategy: BTreeMatchStrategy) -> BTree {
+    public func symmetricDifference(_ other: BTree, by strategy: BTreeMatchingStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.copyFromFirst(.excludingOtherKey)
@@ -171,7 +185,7 @@ extension BTree {
     /// - Complexity:
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
-    public func intersection(_ other: BTree, by strategy: BTreeMatchStrategy) -> BTree {
+    public func intersection(_ other: BTree, by strategy: BTreeMatchingStrategy) -> BTree {
         var m = BTreeMerger(first: self, second: other)
         while !m.done {
             m.skipFromFirst(.excludingOtherKey)
@@ -195,7 +209,7 @@ extension BTree {
     ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
     /// - Complexity: O(*n* + `self.count`), where *n* is the number of keys in `sortedKeys`.
-    public func subtracting<S: Sequence>(sortedKeys: S, by strategy: BTreeMatchStrategy) -> BTree where S.Iterator.Element == Key {
+    public func subtracting<S: Sequence>(sortedKeys: S, by strategy: BTreeMatchingStrategy) -> BTree where S.Iterator.Element == Key {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
@@ -237,7 +251,7 @@ extension BTree {
     ///
     /// - Requires: `sortedKeys` is sorted in ascending order.
     /// - Complexity: O(*n* + `self.count`), where *n* is the number of keys in `sortedKeys`.
-    public func intersection<S: Sequence>(sortedKeys: S, by strategy: BTreeMatchStrategy) -> BTree where S.Iterator.Element == Key {
+    public func intersection<S: Sequence>(sortedKeys: S, by strategy: BTreeMatchingStrategy) -> BTree where S.Iterator.Element == Key {
         if self.isEmpty { return self }
 
         var b = BTreeBuilder<Key, Value>(order: self.order)
