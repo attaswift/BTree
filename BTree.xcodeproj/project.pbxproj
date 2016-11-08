@@ -265,19 +265,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		BB1747481C289539002C929C /* Reusable Test Helpers */ = {
-			isa = PBXGroup;
-			children = (
-				BB17474C1C289539002C929C /* Random.swift */,
-				BB17474A1C289539002C929C /* Permutations.swift */,
-				BB17474B1C289539002C929C /* PermutationTests.swift */,
-				BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */,
-				BB1747771C2897F8002C929C /* XCTest extensions.swift */,
-			);
-			name = "Reusable Test Helpers";
-			path = Helpers;
-			sourceTree = "<group>";
-		};
 		BB54D0A51C1F0357008A462B = {
 			isa = PBXGroup;
 			children = (
@@ -351,9 +338,22 @@
 				BB1F888D1D91BB2000974C2F /* BridgedListTests.swift */,
 				BBCB23ED1C8A510000A6E276 /* SortedSetTests.swift */,
 				BBB506301DCF6EAD00D0FC8E /* SortedBagTests.swift */,
-				BB1747481C289539002C929C /* Reusable Test Helpers */,
+				BBB506841DD16A0500D0FC8E /* Helpers */,
 			);
-			path = Tests;
+			name = Tests;
+			path = Tests/BTreeTests;
+			sourceTree = "<group>";
+		};
+		BBB506841DD16A0500D0FC8E /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				BB17474C1C289539002C929C /* Random.swift */,
+				BB17474A1C289539002C929C /* Permutations.swift */,
+				BB17474B1C289539002C929C /* PermutationTests.swift */,
+				BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */,
+				BB1747771C2897F8002C929C /* XCTest extensions.swift */,
+			);
+			name = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -911,7 +911,7 @@
 		BB3EAAE01C2707E90028E5A7 /* Unchecked */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.iOS;
 				PRODUCT_NAME = BTreeTests;
@@ -924,7 +924,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
@@ -1079,7 +1079,7 @@
 		BB54D0C71C1F0357008A462B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.iOS;
 				PRODUCT_NAME = BTreeTests;
@@ -1090,7 +1090,7 @@
 		BB54D0C81C1F0357008A462B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.iOS;
 				PRODUCT_NAME = BTreeTests;
@@ -1253,7 +1253,7 @@
 		BB8FE9C71C7C8E0F0051268F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.tvOS;
 				PRODUCT_NAME = BTreeTests;
@@ -1264,7 +1264,7 @@
 		BB8FE9C81C7C8E0F0051268F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.tvOS;
 				PRODUCT_NAME = BTreeTests;
@@ -1275,7 +1275,7 @@
 		BB8FE9C91C7C8E0F0051268F /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.tvOS;
 				PRODUCT_NAME = BTreeTests;
@@ -1286,7 +1286,7 @@
 		BB8FE9CA1C7C8E0F0051268F /* Unchecked */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.tvOS;
 				PRODUCT_NAME = BTreeTests;
@@ -1339,7 +1339,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
@@ -1353,7 +1353,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
@@ -1454,7 +1454,7 @@
 		BB9AE46C1C203A23002C5D63 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.iOS;
 				PRODUCT_NAME = BTreeTests;
@@ -1467,7 +1467,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = Tests/Info.plist;
+				INFOPLIST_FILE = Tests/BTreeTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Tests.Mac;
