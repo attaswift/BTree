@@ -1,6 +1,6 @@
 # Unreleased changes on master
 
-- None so far.
+- [Issue #5][issue5]: Add a benchmark suite
 
 # 4.0.1 (2016-11-08)
 

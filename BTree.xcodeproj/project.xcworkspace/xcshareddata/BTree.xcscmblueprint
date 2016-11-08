@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "05D6826B0162543BD57EFC4EE6354EB49FD59438",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "1C1227F33F1818028D5EE61FD15F57BEC36D44F4" : 9223372036854775807,
+    "05D6826B0162543BD57EFC4EE6354EB49FD59438" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "31E4AFD2-9BED-454B-B0DF-5BF3F6B626A2",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "1C1227F33F1818028D5EE61FD15F57BEC36D44F4" : "..\/..",
+    "05D6826B0162543BD57EFC4EE6354EB49FD59438" : "BTree\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "BTree",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "BTree.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/lorentey\/BTree.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "05D6826B0162543BD57EFC4EE6354EB49FD59438"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/lorentey\/GlueKit.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "1C1227F33F1818028D5EE61FD15F57BEC36D44F4"
+    }
+  ]
+}
