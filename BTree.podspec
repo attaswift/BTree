@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name         = 'BTree'
-    spec.version      = '4.0.0'
+    spec.version      = '4.0.1'
     spec.osx.deployment_target = "10.9"
     spec.ios.deployment_target = "8.0"
     spec.tvos.deployment_target = "9.0"
@@ -9,7 +9,7 @@ Pod::Spec.new do |spec|
     spec.author       = 'Károly Lőrentey'
     spec.homepage     = 'https://github.com/lorentey/BTree'
     spec.license      = { :type => 'MIT', :file => 'LICENSE.md' }
-    spec.source       = { :git => 'https://github.com/lorentey/BTree.git', :tag => 'v4.0.0' }
+    spec.source       = { :git => 'https://github.com/lorentey/BTree.git', :tag => 'v4.0.1' }
     spec.source_files = 'Sources/*.swift'
     spec.social_media_url = 'https://twitter.com/lorentey'
     spec.documentation_url = 'http://lorentey.github.io/BTree/api/'

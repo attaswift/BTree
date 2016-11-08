@@ -2,6 +2,16 @@
 
 - None so far.
 
+# 4.0.1 (2016-11-08)
+
+This is a quick bugfix release restoring support for the Swift Package Manager. It includes no source-level changes.
+
+#### Bug Fixes
+
+- [Issue #23][issue23]: BTree is not buildable with the Swift Package Manager
+
+[issue23]: https://github.com/lorentey/BTree/issues/21
+
 # 4.0.0 (2016-11-07)
 
 This is a major release incorporating API-breaking changes. It also includes fixes for several high-severity bugs uncovered while working on new features, so this is a highly recommended upgrade.
