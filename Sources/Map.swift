@@ -106,6 +106,7 @@ extension Map: BidirectionalCollection {
     public typealias Index = BTreeIndex<Key, Value>
     public typealias Iterator = BTreeIterator<Key, Value>
     public typealias Element = (Key, Value)
+    public typealias _Element = Element // For _IndexableBase
     public typealias SubSequence = Map<Key, Value>
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
