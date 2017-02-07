@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
     spec.name         = 'BTree'
-    spec.version      = '4.0.1'
+    spec.version      = '4.0.2'
     spec.osx.deployment_target = "10.9"
     spec.ios.deployment_target = "8.0"
     spec.tvos.deployment_target = "9.0"

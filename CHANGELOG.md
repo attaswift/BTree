@@ -1,6 +1,14 @@
-# Unreleased changes on master
+# 4.0.2 (2017-02-07)
 
-- [Issue #5][issue5]: Add a benchmark suite
+This release contains the following changes:
+
+- BTree now compiles in Swift 3.1.
+- [Issue #5][issue5]: There is a new `PerformanceTests` target in the Xcode project containing some simple benchmarks. This facility is experimental and may be replaced later.
+- (Xcode project) The macOS deployment target was corrected to 10.9. Previously it was set at 10.11 by mistake.
+- (Xcode project) The build number is now correctly set in the tvOS framework.
+- (Xcode project) Code signing has been disabled, following Xcode 8 best practices.
+
+[issue5]: https://github.com/lorentey/BTree/issues/5
 
 # 4.0.1 (2016-11-08)
 
