@@ -9,7 +9,8 @@ Pod::Spec.new do |spec|
     spec.author       = 'Károly Lőrentey'
     spec.homepage     = 'https://github.com/lorentey/BTree'
     spec.license      = { :type => 'MIT', :file => 'LICENSE.md' }
-    spec.source       = { :git => 'https://github.com/lorentey/BTree.git', :tag => 'v4.0.1' }
+    spec.source       = { :git => 'https://github.com/lorentey/BTree.git',
+                          :tag => 'v' + String(spec.version) }
     spec.source_files = 'Sources/*.swift'
     spec.social_media_url = 'https://twitter.com/lorentey'
     spec.documentation_url = 'http://lorentey.github.io/BTree/api/'
