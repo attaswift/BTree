@@ -424,7 +424,6 @@ extension Map {
     /// Remove all (key, value) pairs in the specified offset range.
     ///
     /// - Complexity: O(log(`count`))
-    @discardableResult
     public mutating func remove(atOffsets offsets: Range<Int>) {
         precondition(offsets.lowerBound >= 0 && offsets.upperBound <= count)
         tree.withCursor(atOffset: offsets.lowerBound) { cursor in
