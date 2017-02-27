@@ -1,3 +1,5 @@
 Carthage/Build
 gh-pages
 /.build
+xcuserdata
+.DS_Store
