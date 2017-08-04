@@ -1,0 +1,2344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Map Struct Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+
+    <a name="//apple_ref/swift/Struct/Map" class="dashAnchor"></a>
+
+    <a title="Map Struct Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="../index.html">
+          BTree Docs
+        </a>
+         (100% documented)
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/lorentey/BTree">
+            <img class="header-icon" src="../img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="dash-feed://https%3A%2F%2Florentey%2Egithub%2Eio%2FBTree%2Freference%2Fdocsets%2FBTree%2Exml">
+            <img class="header-icon" src="../img/dash.png"/>
+            Install in Dash
+          </a>
+        </p>
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="../index.html">BTree Reference</a>
+      <img class="carat" src="../img/carat.png" />
+      Map Struct Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/BTreeCursor.html">BTreeCursor</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/BTreeKeySelector.html">BTreeKeySelector</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/BTreeMatchingStrategy.html">BTreeMatchingStrategy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTree.html">BTree</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeIndex.html">BTreeIndex</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeIterator.html">BTreeIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeKeyIterator.html">BTreeKeyIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeValueIterator.html">BTreeValueIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/List.html">List</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/Map.html">Map</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/SortedBag.html">SortedBag</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/SortedSet.html">SortedSet</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content">
+            <h1>Map</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">Map</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">:</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span></code></pre>
+
+                </div>
+              </div>
+            <p>An ordered mapping from comparable keys to arbitrary values. 
+Works like <code>Dictionary</code>, but provides a well-defined ordering for its elements.</p>
+
+<p><code>Map</code> is a struct with copy-on-write value semantics, like Swift&rsquo;s standard collection types.
+It uses an in-memory B-tree for element storage, whose individual nodes may be shared with other maps.
+Modifying an element of a map whose storage is (partially or completely) shared requires copying of 
+only O(log(<code>count</code>)) elements. (Thus, mutation of shared maps may be relatively cheaper than dictionaries, 
+which need to clone all elements.)</p>
+
+<p>Lookup, insertion and removal of individual key-value pairs in a map have logarithmic complexity.
+This is in contrast to <code>Dictionary</code>&rsquo;s best-case O(1) (worst-case O(n)) implementations for the same operations.
+To make up for being typically slower, <code>Map</code> always keeps its elements in a well-defined order.</p>
+
+<p>While independently looking up individual elements takes O(log(n)) time, batch operations on lots of elements
+often complete faster than you might expect.
+For example, iterating over a <code>Map</code> using the generator API requires O(n) time, just like a dictionary.</p>
+
+<p>Due to its tree-based structure, <code>Map</code> is able to provide efficient implementations for several operations 
+that would be slower with dictionaries.</p>
+
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Initializers"></a>
+                <a name="//apple_ref/swift/Section/Initializers" class="dashAnchor"></a>
+                <a href="#/Initializers">
+                  <h3 class="section-name">Initializers</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3MapcFT_GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/init()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3MapcFT_GS0_xq__">init()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initialize an empty map.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L45-L47">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3MapcuRd__s8SequenceWd__8Iterator7Element_zTxq__rFqd__GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3MapcuRd__s8SequenceWd__8Iterator7Element_zTxq__rFqd__GS0_xq__">init(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initialize a new map from an unsorted sequence of elements, using a stable sort algorithm.</p>
+
+<p>If the sequence contains elements with duplicate keys, only the last element is kept in the map.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<em>n</em> * log(<em>n</em>)) where <em>n</em> is the number of items in <code>elements</code>.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">init</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">:</span> <span class="kt">Sequence</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">elements</span><span class="p">:</span> <span class="kt">S</span><span class="p">)</span> <span class="k">where</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Iterator</span><span class="o">.</span><span class="kt">Element</span> <span class="o">==</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L56-L58">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3MapcuRd__s8SequenceWd__8Iterator7Element_zTxq__rFT14sortedElementsqd___GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/init(sortedElements:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3MapcuRd__s8SequenceWd__8Iterator7Element_zTxq__rFT14sortedElementsqd___GS0_xq__">init(sortedElements:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initialize a new map from a sorted sequence of elements.</p>
+
+<p>If the sequence contains elements with duplicate keys, only the last element is kept in the map.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<em>n</em>) where <em>n</em> is the number of items in <code>elements</code>.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">init</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">:</span> <span class="kt">Sequence</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sortedElements</span> <span class="nv">elements</span><span class="p">:</span> <span class="kt">S</span><span class="p">)</span> <span class="k">where</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Iterator</span><span class="o">.</span><span class="kt">Element</span> <span class="o">==</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L65-L67">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3MapcFt17dictionaryLiteralGSaTxq____GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/init(dictionaryLiteral:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3MapcFt17dictionaryLiteralGSaTxq____GS0_xq__">init(dictionaryLiteral:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initialize a new map from the given elements.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="n">dictionaryLiteral</span> <span class="nv">elements</span><span class="p">:</span> <span class="p">(</span><span class="kt">Key</span><span class="p">,</span> <span class="kt">Value</span><span class="p">)</span><span class="o">...</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L72-L74">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Conversion%20to%20string"></a>
+                <a name="//apple_ref/swift/Section/Conversion to string" class="dashAnchor"></a>
+                <a href="#/Conversion%20to%20string">
+                  <h3 class="section-name">Conversion to string</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree3Map11descriptionSS"></a>
+                    <a name="//apple_ref/swift/Property/description" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree3Map11descriptionSS">description</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A textual representation of this map.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">description</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L81-L88">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree3Map16debugDescriptionSS"></a>
+                    <a name="//apple_ref/swift/Property/debugDescription" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree3Map16debugDescriptionSS">debugDescription</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A textual representation of this map, suitable for debugging.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">debugDescription</span><span class="p">:</span> <span class="kt">String</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L93-L100">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/CollectionType"></a>
+                <a name="//apple_ref/swift/Section/CollectionType" class="dashAnchor"></a>
+                <a href="#/CollectionType">
+                  <h3 class="section-name">CollectionType</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:iV5BTree3Map9subscriptFGVs5RangeGVS_10BTreeIndexxq___GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/subscript(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:iV5BTree3Map9subscriptFGVs5RangeGVS_10BTreeIndexxq___GS0_xq__">subscript(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a submap consisting of elements in the given range of indexes.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    The indexes in <code>range</code> originated from an unmutated copy of this map.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">subscript</span><span class="p">(</span><span class="nv">range</span><span class="p">:</span> <span class="kt">Range</span><span class="o">&lt;</span><span class="kt">Index</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L147">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:iV5BTree3Map9subscriptFGVS_10BTreeIndexxq__Txq__"></a>
+                    <a name="//apple_ref/swift/Method/subscript(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:iV5BTree3Map9subscriptFGVS_10BTreeIndexxq__Txq__">subscript(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the (key, value) pair at the given index.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> originated from an unmutated copy of this map.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">subscript</span><span class="p">(</span><span class="nv">index</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L139">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree3Map10startIndexGVS_10BTreeIndexxq__"></a>
+                    <a name="//apple_ref/swift/Property/startIndex" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree3Map10startIndexGVS_10BTreeIndexxq__">startIndex</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The index of the first element when non-empty. Otherwise the same as <code><a href="../Structs/Map.html#/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__">endIndex</a></code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">startIndex</span><span class="p">:</span> <span class="kt">Index</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L114-L116">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__"></a>
+                    <a name="//apple_ref/swift/Property/endIndex" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__">endIndex</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The <q>past-the-end</q> element index; the successor of the last valid subscript argument.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">endIndex</span><span class="p">:</span> <span class="kt">Index</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L121-L123">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree3Map5countSi"></a>
+                    <a name="//apple_ref/swift/Property/count" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree3Map5countSi">count</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The number of (key, value) pairs in this map.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L126-L128">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree3Map7isEmptySb"></a>
+                    <a name="//apple_ref/swift/Property/isEmpty" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree3Map7isEmptySb">isEmpty</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>True iff this collection has no elements.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isEmpty</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L131-L133">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map12makeIteratorFT_GVS_13BTreeIteratorxq__"></a>
+                    <a name="//apple_ref/swift/Method/makeIterator()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map12makeIteratorFT_GVS_13BTreeIteratorxq__">makeIterator()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an iterator over all (key, value) pairs in this map, in ascending key order.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">makeIterator</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Iterator</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L152-L154">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map5indexFT5afterGVS_10BTreeIndexxq___GS1_xq__"></a>
+                    <a name="//apple_ref/swift/Method/index(after:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map5indexFT5afterGVS_10BTreeIndexxq___GS1_xq__">index(after:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the successor of the given index.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> is a valid index of this map and it is not equal to <code><a href="../Structs/Map.html#/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__">endIndex</a></code>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    Amortized O(1).
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">index</span><span class="p">(</span><span class="n">after</span> <span class="nv">index</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Index</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L160-L162">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9formIndexFT5afterRGVS_10BTreeIndexxq___T_"></a>
+                    <a name="//apple_ref/swift/Method/formIndex(after:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9formIndexFT5afterRGVS_10BTreeIndexxq___T_">formIndex(after:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Replaces the given index with its successor.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> is a valid index of this map and it is not equal to <code><a href="../Structs/Map.html#/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__">endIndex</a></code>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    Amortized O(1).
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">formIndex</span><span class="p">(</span><span class="n">after</span> <span class="nv">index</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Index</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L168-L170">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map5indexFT6beforeGVS_10BTreeIndexxq___GS1_xq__"></a>
+                    <a name="//apple_ref/swift/Method/index(before:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map5indexFT6beforeGVS_10BTreeIndexxq___GS1_xq__">index(before:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the predecessor of the given index.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> is a valid index of this map and it is not equal to <code><a href="../Structs/Map.html#/s:vV5BTree3Map10startIndexGVS_10BTreeIndexxq__">startIndex</a></code>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    Amortized O(1).
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">index</span><span class="p">(</span><span class="n">before</span> <span class="nv">index</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Index</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L176-L178">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9formIndexFT6beforeRGVS_10BTreeIndexxq___T_"></a>
+                    <a name="//apple_ref/swift/Method/formIndex(before:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9formIndexFT6beforeRGVS_10BTreeIndexxq___T_">formIndex(before:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Replaces the given index with its predecessor.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> is a valid index of this map and it is not equal to <code><a href="../Structs/Map.html#/s:vV5BTree3Map10startIndexGVS_10BTreeIndexxq__">startIndex</a></code>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    Amortized O(1).
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">formIndex</span><span class="p">(</span><span class="n">before</span> <span class="nv">index</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Index</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L184-L186">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map5indexFTGVS_10BTreeIndexxq__8offsetBySi_GS1_xq__"></a>
+                    <a name="//apple_ref/swift/Method/index(_:offsetBy:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map5indexFTGVS_10BTreeIndexxq__8offsetBySi_GS1_xq__">index(_:offsetBy:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns an index that is the specified distance from the given index.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> must be a valid index of this map.
+         If <code>n</code> is positive, it must not exceed the distance from <code>index</code> to <code><a href="../Structs/Map.html#/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__">endIndex</a></code>.
+         If <code>n</code> is negative, it must not be less than the distance from <code>index</code> to <code><a href="../Structs/Map.html#/s:vV5BTree3Map10startIndexGVS_10BTreeIndexxq__">startIndex</a></code>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<em>count</em>)) where <em>count</em> is the number of elements in the map.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">index</span><span class="p">(</span><span class="n">_</span> <span class="nv">i</span><span class="p">:</span> <span class="kt">Index</span><span class="p">,</span> <span class="n">offsetBy</span> <span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Index</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L194-L196">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9formIndexFTRGVS_10BTreeIndexxq__8offsetBySi_T_"></a>
+                    <a name="//apple_ref/swift/Method/formIndex(_:offsetBy:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9formIndexFTRGVS_10BTreeIndexxq__8offsetBySi_T_">formIndex(_:offsetBy:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Offsets the given index by the specified distance.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> must be a valid index of this map.
+         If <code>n</code> is positive, it must not exceed the distance from <code>index</code> to <code><a href="../Structs/Map.html#/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__">endIndex</a></code>.
+         If <code>n</code> is negative, it must not be less than the distance from <code>index</code> to <code><a href="../Structs/Map.html#/s:vV5BTree3Map10startIndexGVS_10BTreeIndexxq__">startIndex</a></code>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<em>count</em>)) where <em>count</em> is the number of elements in the map.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">formIndex</span><span class="p">(</span><span class="n">_</span> <span class="nv">i</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Index</span><span class="p">,</span> <span class="n">offsetBy</span> <span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L204-L206">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map5indexFTGVS_10BTreeIndexxq__8offsetBySi9limitedByGS1_xq___GSqGS1_xq___"></a>
+                    <a name="//apple_ref/swift/Method/index(_:offsetBy:limitedBy:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map5indexFTGVS_10BTreeIndexxq__8offsetBySi9limitedByGS1_xq___GSqGS1_xq___">index(_:offsetBy:limitedBy:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns an index that is the specified distance from the given index, unless that distance is beyond a given limiting index.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> and <code>limit</code> must be valid indices in this map. The operation must not advance the index beyond <code><a href="../Structs/Map.html#/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__">endIndex</a></code> or before <code><a href="../Structs/Map.html#/s:vV5BTree3Map10startIndexGVS_10BTreeIndexxq__">startIndex</a></code>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<em>count</em>)) where <em>count</em> is the number of elements in the map.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">index</span><span class="p">(</span><span class="n">_</span> <span class="nv">i</span><span class="p">:</span> <span class="kt">Index</span><span class="p">,</span> <span class="n">offsetBy</span> <span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="n">limitedBy</span> <span class="nv">limit</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Index</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L212-L214">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9formIndexFTRGVS_10BTreeIndexxq__8offsetBySi9limitedByGS1_xq___Sb"></a>
+                    <a name="//apple_ref/swift/Method/formIndex(_:offsetBy:limitedBy:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9formIndexFTRGVS_10BTreeIndexxq__8offsetBySi9limitedByGS1_xq___Sb">formIndex(_:offsetBy:limitedBy:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Offsets the given index by the specified distance, or so that it equals the given limiting index.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>index</code> and <code>limit</code> must be valid indices in this map. The operation must not advance the index beyond <code><a href="../Structs/Map.html#/s:vV5BTree3Map8endIndexGVS_10BTreeIndexxq__">endIndex</a></code> or before <code><a href="../Structs/Map.html#/s:vV5BTree3Map10startIndexGVS_10BTreeIndexxq__">startIndex</a></code>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<em>count</em>)) where <em>count</em> is the number of elements in the map.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">formIndex</span><span class="p">(</span><span class="n">_</span> <span class="nv">i</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">Index</span><span class="p">,</span> <span class="n">offsetBy</span> <span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="n">limitedBy</span> <span class="nv">limit</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L221-L223">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map8distanceFT4fromGVS_10BTreeIndexxq__2toGS1_xq___Si"></a>
+                    <a name="//apple_ref/swift/Method/distance(from:to:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map8distanceFT4fromGVS_10BTreeIndexxq__2toGS1_xq___Si">distance(from:to:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the distance between two indices.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>start</code> and <code>end</code> must be valid indices in this map.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">distance</span><span class="p">(</span><span class="n">from</span> <span class="nv">start</span><span class="p">:</span> <span class="kt">Index</span><span class="p">,</span> <span class="n">to</span> <span class="nv">end</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L229-L231">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Algorithms"></a>
+                <a name="//apple_ref/swift/Section/Algorithms" class="dashAnchor"></a>
+                <a href="#/Algorithms">
+                  <h3 class="section-name">Algorithms</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map7forEachFzFzTxq__T_T_"></a>
+                    <a name="//apple_ref/swift/Method/forEach(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map7forEachFzFzTxq__T_T_">forEach(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Call <code>body</code> on each element in <code>self</code> in ascending key order.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">forEach</span><span class="p">(</span><span class="n">_</span> <span class="nv">body</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="p">())</span> <span class="k">rethrows</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L240-L242">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map3mapurFzFzTxq__qd__GSaqd___"></a>
+                    <a name="//apple_ref/swift/Method/map(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map3mapurFzFzTxq__qd__GSaqd___">map(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an <code>Array</code> containing the results of mapping <code>transform</code> over all elements in <code>self</code>.
+The elements are transformed in ascending key order.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">map</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">transform</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">T</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L248-L255">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map7flatMapuRd__s8SequencerFzFzTxq__qd__GSaWd__8Iterator7Element__"></a>
+                    <a name="//apple_ref/swift/Method/flatMap(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map7flatMapuRd__s8SequencerFzFzTxq__qd__GSaWd__8Iterator7Element__">flatMap(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an <code>Array</code> containing the concatenated results of mapping <code>transform</code> over <code>self</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">flatMap</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">:</span> <span class="kt">Sequence</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">transform</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">S</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">S</span><span class="o">.</span><span class="kt">Iterator</span><span class="o">.</span><span class="kt">Element</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L260-L266">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map7flatMapurFzFzTxq__GSqqd___GSaqd___"></a>
+                    <a name="//apple_ref/swift/Method/flatMap(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map7flatMapurFzFzTxq__GSqqd___GSaqd___">flatMap(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return an <code>Array</code> containing the non-<code>nil</code> results of mapping <code>transform</code> over <code>self</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">flatMap</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">transform</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">?)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">T</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L271-L279">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6reduceurFzTqd__FzTqd__Txq___qd___qd__"></a>
+                    <a name="//apple_ref/swift/Method/reduce(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6reduceurFzTqd__FzTqd__Txq___qd___qd__">reduce(_:_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Calculate the left fold of this map over <code>combine</code>:
+return the result of repeatedly calling <code>combine</code> with an accumulated value initialized to <code>initial</code>
+and each element of <code>self</code>, in turn. </p>
+
+<p>I.e., return <code>combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">reduce</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">initialResult</span><span class="p">:</span> <span class="kt">T</span><span class="p">,</span> <span class="n">_</span> <span class="nv">nextPartialResult</span><span class="p">:</span> <span class="p">(</span><span class="kt">T</span><span class="p">,</span> <span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="kt">T</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L288-L294">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Dictionary-like%20methods"></a>
+                <a name="//apple_ref/swift/Section/Dictionary-like methods" class="dashAnchor"></a>
+                <a href="#/Dictionary-like%20methods">
+                  <h3 class="section-name">Dictionary-like methods</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:iV5BTree3Map9subscriptFxGSqq__"></a>
+                    <a name="//apple_ref/swift/Method/subscript(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:iV5BTree3Map9subscriptFxGSqq__">subscript(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Provides access to the value for a given key. Nonexistent values are represented as <code>nil</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="nf">subscript</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Value</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L313">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree3Map4keysGVs17LazyMapCollectionGS0_xq__x_"></a>
+                    <a name="//apple_ref/swift/Property/keys" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree3Map4keysGVs17LazyMapCollectionGS0_xq__x_">keys</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A collection containing just the keys in this map, in ascending order.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">keys</span><span class="p">:</span> <span class="kt">LazyMapCollection</span><span class="o">&lt;</span><span class="kt">Map</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">Key</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L301-L303">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vV5BTree3Map6valuesGVs17LazyMapCollectionGS0_xq__q__"></a>
+                    <a name="//apple_ref/swift/Property/values" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vV5BTree3Map6valuesGVs17LazyMapCollectionGS0_xq__q__">values</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A collection containing just the values in this map, in order of ascending keys.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">values</span><span class="p">:</span> <span class="kt">LazyMapCollection</span><span class="o">&lt;</span><span class="kt">Map</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L306-L308">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map5indexFT6forKeyx_GSqGVS_10BTreeIndexxq___"></a>
+                    <a name="//apple_ref/swift/Method/index(forKey:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map5indexFT6forKeyx_GSqGVS_10BTreeIndexxq___">index(forKey:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the index for the given key, or <code>nil</code> if the key is not present in this map.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">index</span><span class="p">(</span><span class="n">forKey</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Index</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L330-L332">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map11updateValueFTq_6forKeyx_GSqq__"></a>
+                    <a name="//apple_ref/swift/Method/updateValue(_:forKey:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map11updateValueFTq_6forKeyx_GSqq__">updateValue(_:forKey:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Update the value stored in the map for the given key, or, if they key does not exist, add a new key-value pair to the map.
+Returns the value that was replaced, or <code>nil</code> if a new key-value pair was added.</p>
+
+<p>This method invalidates all existing indexes into <code>self</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">updateValue</span><span class="p">(</span><span class="n">_</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Value</span><span class="p">,</span> <span class="n">forKey</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Value</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L341-L343">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6removeFT2atGVS_10BTreeIndexxq___T3keyx5valueq__"></a>
+                    <a name="//apple_ref/swift/Method/remove(at:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6removeFT2atGVS_10BTreeIndexxq___T3keyx5valueq__">remove(at:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove the key-value pair at <code>index</code> from this map.</p>
+
+<p>This method invalidates all existing indexes into <code>self</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">at</span> <span class="nv">index</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">,</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Value</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L351-L353">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map11removeValueFT6forKeyx_GSqq__"></a>
+                    <a name="//apple_ref/swift/Method/removeValue(forKey:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map11removeValueFT6forKeyx_GSqq__">removeValue(forKey:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove a given key and the associated value from this map.
+Returns the value that was removed, or <code>nil</code> if the key was not present in the map.</p>
+
+<p>This method invalidates all existing indexes into <code>self</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">removeValue</span><span class="p">(</span><span class="n">forKey</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Value</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L362-L364">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9removeAllFT_T_"></a>
+                    <a name="//apple_ref/swift/Method/removeAll()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9removeAllFT_T_">removeAll()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove all elements from this map.</p>
+
+<p>This method invalidates all existing indexes into <code>self</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">removeAll</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L371-L373">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Offset-based%20access"></a>
+                <a name="//apple_ref/swift/Section/Offset-based access" class="dashAnchor"></a>
+                <a href="#/Offset-based%20access">
+                  <h3 class="section-name">Offset-based access</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map5indexFT8ofOffsetSi_GVS_10BTreeIndexxq__"></a>
+                    <a name="//apple_ref/swift/Method/index(ofOffset:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map5indexFT8ofOffsetSi_GVS_10BTreeIndexxq__">index(ofOffset:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the index of the element at <code>offset</code>.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>offset &gt;= 0 &amp;&amp; offset &lt; count</code>
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">index</span><span class="p">(</span><span class="n">ofOffset</span> <span class="nv">offset</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Index</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L383-L385">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6offsetFT2ofGVS_10BTreeIndexxq___Si"></a>
+                    <a name="//apple_ref/swift/Method/offset(of:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6offsetFT2ofGVS_10BTreeIndexxq___Si">offset(of:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the offset of the element at <code>index</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">offset</span><span class="p">(</span><span class="n">of</span> <span class="nv">index</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L390-L392">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6offsetFT2ofx_GSqSi_"></a>
+                    <a name="//apple_ref/swift/Method/offset(of:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6offsetFT2ofx_GSqSi_">offset(of:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns the offset of the element with the given key, or <code>nil</code> if there is no such element.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">offset</span><span class="p">(</span><span class="n">of</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L397-L399">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map7elementFT8atOffsetSi_Txq__"></a>
+                    <a name="//apple_ref/swift/Method/element(atOffset:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map7elementFT8atOffsetSi_Txq__">element(atOffset:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return the element stored at <code>offset</code> in this map.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">element</span><span class="p">(</span><span class="n">atOffset</span> <span class="nv">offset</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L404-L406">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map11updateValueFTq_8atOffsetSi_q_"></a>
+                    <a name="//apple_ref/swift/Method/updateValue(_:atOffset:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map11updateValueFTq_8atOffsetSi_q_">updateValue(_:atOffset:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Set the value of the element stored at <code>offset</code> in this map.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">updateValue</span><span class="p">(</span><span class="n">_</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Value</span><span class="p">,</span> <span class="n">atOffset</span> <span class="nv">offset</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Value</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L412-L414">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6removeFT8atOffsetSi_Txq__"></a>
+                    <a name="//apple_ref/swift/Method/remove(atOffset:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6removeFT8atOffsetSi_Txq__">remove(atOffset:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove and return the (key, value) pair at the specified offset from the start of the map.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">atOffset</span> <span class="nv">offset</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L420-L422">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6removeFT9atOffsetsGVs5RangeSi__T_"></a>
+                    <a name="//apple_ref/swift/Method/remove(atOffsets:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6removeFT9atOffsetsGVs5RangeSi__T_">remove(atOffsets:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove all (key, value) pairs in the specified offset range.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">atOffsets</span> <span class="nv">offsets</span><span class="p">:</span> <span class="kt">Range</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L428-L433">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Submaps"></a>
+                <a name="//apple_ref/swift/Section/Submaps" class="dashAnchor"></a>
+                <a href="#/Submaps">
+                  <h3 class="section-name">Submaps</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6submapFT4withGVs5RangeGVS_10BTreeIndexxq____GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/submap(with:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6submapFT4withGVs5RangeGVS_10BTreeIndexxq____GS0_xq__">submap(with:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a submap consisting of elements in the specified range of indexes.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">submap</span><span class="p">(</span><span class="n">with</span> <span class="nv">range</span><span class="p">:</span> <span class="kt">Range</span><span class="o">&lt;</span><span class="kt">Index</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L442-L444">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6submapFT11withOffsetsGVs5RangeSi__GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/submap(withOffsets:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6submapFT11withOffsetsGVs5RangeSi__GS0_xq__">submap(withOffsets:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a submap consisting of elements in the specified range of offsets.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">submap</span><span class="p">(</span><span class="n">withOffsets</span> <span class="nv">offsets</span><span class="p">:</span> <span class="kt">Range</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L449-L451">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6submapFT4fromx2tox_GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/submap(from:to:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6submapFT4fromx2tox_GS0_xq__">submap(from:to:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a submap consisting of all elements with keys greater than or equal to <code>start</code> but less than <code>end</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">submap</span><span class="p">(</span><span class="n">from</span> <span class="nv">start</span><span class="p">:</span> <span class="kt">Key</span><span class="p">,</span> <span class="n">to</span> <span class="nv">end</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L456-L458">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map6submapFT4fromx7throughx_GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/submap(from:through:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map6submapFT4fromx7throughx_GS0_xq__">submap(from:through:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a submap consisting of all elements with keys greater than or equal to <code>start</code> but less than or equal to <code>end</code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">submap</span><span class="p">(</span><span class="n">from</span> <span class="nv">start</span><span class="p">:</span> <span class="kt">Key</span><span class="p">,</span> <span class="n">through</span> <span class="nv">end</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L463-L465">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Equivalence"></a>
+                <a name="//apple_ref/swift/Section/Equivalence" class="dashAnchor"></a>
+                <a href="#/Equivalence">
+                  <h3 class="section-name">Equivalence</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map13elementsEqualFzTGS0_xq__2byFzTTxq__Txq___Sb_Sb"></a>
+                    <a name="//apple_ref/swift/Method/elementsEqual(_:by:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map13elementsEqualFzTGS0_xq__2byFzTTxq__Txq___Sb_Sb">elementsEqual(_:by:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return <code>true</code> iff <code>self</code> and <code>other</code> contain equivalent elements, using <code>isEquivalent</code> as the equivalence test.</p>
+
+<p>This method skips over shared subtrees when possible; this can drastically improve performance when the
+two maps are divergent mutations originating from the same value.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>isEquivalent</code> is an <a href="https://en.wikipedia.org/wiki/Equivalence_relation">equivalence relation</a>.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">elementsEqual</span><span class="p">(</span><span class="n">_</span> <span class="nv">other</span><span class="p">:</span> <span class="kt">Map</span><span class="p">,</span> <span class="n">by</span> <span class="nv">isEquivalent</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">,</span> <span class="kt">Element</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Bool</span><span class="p">)</span> <span class="k">rethrows</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L480-L482">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:Fe5BTree0_Rxs10Comparable_s9EquatablerVS_3Map13elementsEqualFGS2_xq__Sb"></a>
+                    <a name="//apple_ref/swift/Method/elementsEqual(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:Fe5BTree0_Rxs10Comparable_s9EquatablerVS_3Map13elementsEqualFGS2_xq__Sb">elementsEqual(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return <code>true</code> iff <code>self</code> and <code>other</code> contain equivalent elements.</p>
+
+<p>This method skips over shared subtrees when possible; this can drastically improve performance when the
+two maps are divergent mutations originating from the same value.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">elementsEqual</span><span class="p">(</span><span class="n">_</span> <span class="nv">other</span><span class="p">:</span> <span class="kt">Map</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L492-L494">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:ZFe5BTree0_Rxs10Comparable_s9EquatablerVS_3Mapoi2eeFTGS2_xq__GS2_xq___Sb"></a>
+                    <a name="//apple_ref/swift/Method/==(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:ZFe5BTree0_Rxs10Comparable_s9EquatablerVS_3Mapoi2eeFTGS2_xq__GS2_xq___Sb">==(_:_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return true iff <code>a</code> is equal to <code>b</code>.</p>
+
+<p>This function skips over shared subtrees when possible; this can drastically improve performance when the
+two maps are divergent mutations originating from the same value.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">==</span><span class="p">(</span><span class="nv">a</span><span class="p">:</span> <span class="kt">Map</span><span class="p">,</span> <span class="nv">b</span><span class="p">:</span> <span class="kt">Map</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L500-L502">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:ZFe5BTree0_Rxs10Comparable_s9EquatablerVS_3Mapoi2neFTGS2_xq__GS2_xq___Sb"></a>
+                    <a name="//apple_ref/swift/Method/!=(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:ZFe5BTree0_Rxs10Comparable_s9EquatablerVS_3Mapoi2neFTGS2_xq__GS2_xq___Sb">!=(_:_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return true iff <code>a</code> is not equal to <code>b</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">!=</span><span class="p">(</span><span class="nv">a</span><span class="p">:</span> <span class="kt">Map</span><span class="p">,</span> <span class="nv">b</span><span class="p">:</span> <span class="kt">Map</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L505-L507">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Merging"></a>
+                <a name="//apple_ref/swift/Section/Merging" class="dashAnchor"></a>
+                <a href="#/Merging">
+                  <h3 class="section-name">Merging</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map7mergingFGS0_xq__GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/merging(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map7mergingFGS0_xq__GS0_xq__">merging(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a map that combines elements from <code>self</code> with those in <code>other</code>.
+If a key is included in both maps, the value from <code>other</code> is used.</p>
+
+<p>This function links subtrees containing elements with distinct keys when possible;
+this can drastically improve performance when the keys of the two maps aren&rsquo;t too interleaved.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">merging</span><span class="p">(</span><span class="n">_</span> <span class="nv">other</span><span class="p">:</span> <span class="kt">Map</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L520-L522">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:ZFV5BTree3Mapoi1pFTGS0_xq__GS0_xq___GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/+(_:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:ZFV5BTree3Mapoi1pFTGS0_xq__GS0_xq___GS0_xq__">+(_:_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a map that combines elements from <code>a</code> with those in <code>b</code>.
+If a key is included in both maps, the value from <code>b</code> is used.</p>
+
+<p>This function links subtrees containing elements with distinct keys when possible;
+this can drastically improve performance when the keys of the two maps aren&rsquo;t too interleaved.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">+</span><span class="p">(</span><span class="nv">a</span><span class="p">:</span> <span class="kt">Map</span><span class="p">,</span> <span class="nv">b</span><span class="p">:</span> <span class="kt">Map</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L531-L533">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Including%20and%20excluding%20keys"></a>
+                <a name="//apple_ref/swift/Section/Including and excluding keys" class="dashAnchor"></a>
+                <a href="#/Including%20and%20excluding%20keys">
+                  <h3 class="section-name">Including and excluding keys</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9includingFGVS_9SortedSetx_GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/including(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9includingFGVS_9SortedSetx_GS0_xq__">including(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a map that contains all elements in <code>self</code> whose keys are in <code><a href="../Structs/Map.html#/s:vV5BTree3Map4keysGVs17LazyMapCollectionGS0_xq__x_">keys</a></code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code>keys.count</code> * log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">including</span><span class="p">(</span><span class="n">_</span> <span class="nv">keys</span><span class="p">:</span> <span class="kt"><a href="../Structs/SortedSet.html">SortedSet</a></span><span class="o">&lt;</span><span class="kt">Key</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L542-L544">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9includinguRd__s8SequencexzWd__8Iterator7Element_rFqd__GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/including(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9includinguRd__s8SequencexzWd__8Iterator7Element_rFqd__GS0_xq__">including(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a map that contains all elements in <code>self</code> whose keys are in <code><a href="../Structs/Map.html#/s:vV5BTree3Map4keysGVs17LazyMapCollectionGS0_xq__x_">keys</a></code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<em>n</em> * log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)) where <em>n</em> is the number of keys in <code><a href="../Structs/Map.html#/s:vV5BTree3Map4keysGVs17LazyMapCollectionGS0_xq__x_">keys</a></code>.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">including</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">:</span> <span class="kt">Sequence</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">keys</span><span class="p">:</span> <span class="kt">S</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span> <span class="k">where</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Iterator</span><span class="o">.</span><span class="kt">Element</span> <span class="o">==</span> <span class="kt">Key</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L549-L551">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9excludingFGVS_9SortedSetx_GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/excluding(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9excludingFGVS_9SortedSetx_GS0_xq__">excluding(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a map that contains all elements in <code>self</code> whose keys are not in <code><a href="../Structs/Map.html#/s:vV5BTree3Map4keysGVs17LazyMapCollectionGS0_xq__x_">keys</a></code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<code>keys.count</code> * log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">excluding</span><span class="p">(</span><span class="n">_</span> <span class="nv">keys</span><span class="p">:</span> <span class="kt"><a href="../Structs/SortedSet.html">SortedSet</a></span><span class="o">&lt;</span><span class="kt">Key</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L556-L558">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FV5BTree3Map9excludinguRd__s8SequencexzWd__8Iterator7Element_rFqd__GS0_xq__"></a>
+                    <a name="//apple_ref/swift/Method/excluding(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FV5BTree3Map9excludinguRd__s8SequencexzWd__8Iterator7Element_rFqd__GS0_xq__">excluding(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a map that contains all elements in <code>self</code> whose keys are not in <code><a href="../Structs/Map.html#/s:vV5BTree3Map4keysGVs17LazyMapCollectionGS0_xq__x_">keys</a></code>.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(<em>n</em> * log(<code><a href="../Structs/Map.html#/s:vV5BTree3Map5countSi">count</a></code>)) where <em>n</em> is the number of keys in <code><a href="../Structs/Map.html#/s:vV5BTree3Map4keysGVs17LazyMapCollectionGS0_xq__x_">keys</a></code>.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">excluding</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">:</span> <span class="kt">Sequence</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">keys</span><span class="p">:</span> <span class="kt">S</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Map</span> <span class="k">where</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Iterator</span><span class="o">.</span><span class="kt">Element</span> <span class="o">==</span> <span class="kt">Key</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L563-L565">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-11-08)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>
