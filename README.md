@@ -1,4 +1,4 @@
-# Fast Ordered Collections for Swift<br> Using In-Memory B-Trees 
+# Fast Sorted Collections for Swift<br>Using In-Memory B-Trees
 
 [![Swift 3.0](https://img.shields.io/badge/Swift-3.0-blue.svg)](https://swift.org) 
 [![License](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/lorentey/BTree/blob/master/LICENSE.md)
@@ -6,7 +6,6 @@
 
 [![Build Status](https://travis-ci.org/lorentey/BTree.svg?branch=master)](https://travis-ci.org/lorentey/BTree)
 [![Code Coverage](https://codecov.io/github/lorentey/BTree/coverage.svg?branch=master)](https://codecov.io/github/lorentey/BTree?branch=master)
-[![Documented](https://img.shields.io/cocoapods/metrics/doc-percent/BTree.svg)](http://lorentey.github.io/BTree/api)
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage)
 [![CocoaPod Version](https://img.shields.io/cocoapods/v/BTree.svg)](http://cocoapods.org/pods/BTree)
@@ -25,9 +24,9 @@
 ### <a name="overview">Overview</a>
 
 This project provides an efficient in-memory B-tree implementation in pure Swift, and several useful
-ordered collection types that use B-trees for their underlying storage.
+sorted collection types that use B-trees for their underlying storage.
 
--   [`Map<Key, Value>`][Map] implements an ordered mapping from unique comparable keys to arbitrary values.  
+-   [`Map<Key, Value>`][Map] implements a sorted mapping from unique comparable keys to arbitrary values.
     It is like `Dictionary` in the standard library, but it does not require keys to be hashable, 
     it has strong guarantees on worst-case performance, and it maintains its elements in a well-defined
     order.
@@ -40,13 +39,13 @@ ordered collection types that use B-trees for their underlying storage.
     removal of any subrange of elements, or extraction of an arbitrary sub-list are also
     operations with O(log(*n*)) complexity.
 
--   [`SortedSet<Element>`][SortedSet] implements an ordered collection of unique comparable elements.
+-   [`SortedSet<Element>`][SortedSet] implements a sorted collection of unique comparable elements.
     It is like `Set` in the standard library, but lookup, insertion and removal of any element
     has logarithmic complexity. Elements in an `SortedSet` are kept sorted in ascending order.
     Operations working on full sets (such as taking the union, intersection or difference) 
     can take as little as O(log(*n*)) time if the elements in the source sets aren't interleaved.
 
--   [`SortedBag<Element>`][SortedBag] implements an ordered [multiset][multiset] with 
+-   [`SortedBag<Element>`][SortedBag] implements a sorted [multiset][multiset] with
     comparable elements. This is a generalization of a set that allows multiple instances of the same value.
     (The standard library does not include such a collection, although you can use a dictionary to emulate one 
     by storing the multiplicities of the keys as values.)
@@ -55,7 +54,7 @@ ordered collection types that use B-trees for their underlying storage.
     `SortedBag` operations have the same time complexities as the equivalent operations in `SortedSet`.
 
 -   [`BTree<Key, Value>`][BTree] is the underlying primitive collection that serves as base storage
-    for all of the above collections. It is a general key-value store with full support
+    for all of the above collections. It is a general sorted key-value store with full support
     for elements with duplicate keys; it provides a sum of all operations individually provided
     by the higher-level abstractions above (and more!).
 
@@ -84,7 +83,7 @@ embedded in its source code.
 
 ### <a name="what">What Are B-Trees?</a>
 
-[B-trees][B-tree wiki] are search trees that provide an ordered key-value store with excellent performance
+[B-trees][B-tree wiki] are search trees that provide a sorted key-value store with excellent performance
 characteristics.  In essence, each node maintains a sorted array of its own elements, and
 another array for its children.  The tree is kept balanced by three constraints: 
 
@@ -98,7 +97,7 @@ B-trees have huge nodes: nodes often contain hundreds (or even thousands) of key
 This module implements a "vanilla" B-tree where every node contains full key-value pairs. 
 (The other popular type is the [B+-tree][b-plus tree] where only leaf nodes contain values; 
 internal nodes contain only copies of keys.
-This often makes more sense on an external storage device with a fixed block size, but it is less useful for 
+This often makes more sense on an external storage device with a fixed block size, but it seems less useful for
 an in-memory implementation.)
 
 Each node in the tree also maintains the count of all elements under it. 
@@ -144,7 +143,7 @@ For example, using a single array to hold a sorted list of items has quite horri
 complexity when there are many elements. However, up to a certain maximum size, a simple array is in fact 
 the most efficient way to represent a sorted list.
 
-![Typical benchmark results for ordered collections](http://lorentey.github.io/BTree/images/Ordered%20Collections%20in%20Swift.png)
+![Typical benchmark results for sorted collections](http://lorentey.github.io/BTree/images/Ordered%20Collections%20in%20Swift.png)
 
 The benchmark above demonstrates this really well: insertion of *n* elements into a sorted array 
 costs O(n^2) when there are many items, but for many reasonably sized data sets, it is still much faster 
@@ -225,7 +224,7 @@ is fiddling around with loading pointer values and dereferencing them.
 So it makes perfect sense to employ B-trees as an in-memory data structure.
 
 Think about this, though: how many times do you need to work with a hundred thousand
-ordered items in a typical app? Or even twenty thousand? Or even just two thousand? The most interesting 
+sorted items in a typical app? Or even twenty thousand? Or even just two thousand? The most interesting
 benefits of B-trees often occur at element counts well over a hundred thousand.
 However, B-trees are not much slower than arrays for low element counts (remember, they *are* arrays in that
 case), so it makes sense to use them when there's even a slight chance that the count will get large.
@@ -486,7 +485,7 @@ Let's enumerate:
 [BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFTqd__14dropDuplicatesSb5orderSi_GS0_xq__
 
 -   The package contains O(log(n)) methods to [extract a range of elements as a new B-tree][BTree.subtree]
-    and to [insert a B-tree into another B-tree][BTreeCursor.insertTree]. (Keys need to remain ordered
+    and to [insert a B-tree into another B-tree][BTreeCursor.insertTree]. (Keys need to remain sorted
     correctly, though.)
     
 -   Merge operations (such as [`BTree.union`][BTree.union] and [`BTree.symmetricDifference`)][BTree.symmetricDifference]
