@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BTree  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+
+
+    <a title="BTree  Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="index.html">
+          BTree Docs
+        </a>
+         (100% documented)
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/lorentey/BTree">
+            <img class="header-icon" src="img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="dash-feed://https%3A%2F%2Florentey%2Egithub%2Eio%2FBTree%2Freference%2Fdocsets%2FBTree%2Exml">
+            <img class="header-icon" src="img/dash.png"/>
+            Install in Dash
+          </a>
+        </p>
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="index.html">BTree Reference</a>
+      <img class="carat" src="img/carat.png" />
+      BTree  Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/BTreeCursor.html">BTreeCursor</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/BTreeKeySelector.html">BTreeKeySelector</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/BTreeMatchingStrategy.html">BTreeMatchingStrategy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTree.html">BTree</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTreeIndex.html">BTreeIndex</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTreeIterator.html">BTreeIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTreeKeyIterator.html">BTreeKeyIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTreeValueIterator.html">BTreeValueIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/List.html">List</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/Map.html">Map</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/SortedBag.html">SortedBag</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/SortedSet.html">SortedSet</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content">
+            
+            <a href='#fast-ordered-collections-for-swift-br-using-in-memory-b-trees' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h1 id='fast-ordered-collections-for-swift-br-using-in-memory-b-trees'>Fast Ordered Collections for Swift<br> Using In-Memory B-Trees</h1>
+
+<p><a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-3.0-blue.svg" alt="Swift 3.0"></a> 
+<a href="https://github.com/lorentey/BTree/blob/master/LICENSE.md"><img src="https://img.shields.io/badge/licence-MIT-blue.svg" alt="License"></a>
+<a href="https://developer.apple.com/platforms/"><img src="https://img.shields.io/badge/platforms-macOS%20%E2%88%99%20iOS%20%E2%88%99%20watchOS%20%E2%88%99%20tvOS-blue.svg" alt="Platform"></a></p>
+
+<p><a href="https://travis-ci.org/lorentey/BTree"><img src="https://travis-ci.org/lorentey/BTree.svg?branch=master" alt="Build Status"></a>
+<a href="https://codecov.io/github/lorentey/BTree?branch=master"><img src="https://codecov.io/github/lorentey/BTree/coverage.svg?branch=master" alt="Code Coverage"></a>
+<a href="http://lorentey.github.io/BTree/api"><img src="https://img.shields.io/cocoapods/metrics/doc-percent/BTree.svg" alt="Documented"></a></p>
+
+<p><a href="https://github.com/Carthage/Carthage"><img src="https://img.shields.io/badge/Carthage-compatible-4BC51D.svg" alt="Carthage compatible"></a>
+<a href="http://cocoapods.org/pods/BTree"><img src="https://img.shields.io/cocoapods/v/BTree.svg" alt="CocoaPod Version"></a></p>
+
+<p><a href="https://gitter.im/swift-btree/Lobby?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge&amp;utm_content=badge"><img src="https://badges.gitter.im/swift-btree/Lobby.svg" alt="Join the chat at https://gitter.im/swift-btree/Lobby"></a></p>
+
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#api">Reference Documentation</a></li>
+<li><a href="#what">What Are B-Trees?</a></li>
+<li><a href="#why">Why In-Memory B-Trees?</a></li>
+<li><a href="#boo">Laundry List of Issues with Standard Collection Types</a></li>
+<li><a href="#yay">B-Trees to the Rescue!</a></li>
+<li><a href="#notes">Implementation Notes</a></li>
+<li><a href="#generics">Remark on Performance of Imported Generics</a></li>
+</ul>
+<a href='#a-name-overview-overview-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-overview-overview-a'><a name="overview">Overview</a></h3>
+
+<p>This project provides an efficient in-memory B-tree implementation in pure Swift, and several useful
+ordered collection types that use B-trees for their underlying storage.</p>
+
+<ul>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/Map.html"><code>Map&lt;Key, Value&gt;</code></a> implements an ordered mapping from unique comparable keys to arbitrary values.<br>
+It is like <code>Dictionary</code> in the standard library, but it does not require keys to be hashable, 
+it has strong guarantees on worst-case performance, and it maintains its elements in a well-defined
+order.</p></li>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/List.html"><code>List&lt;Element&gt;</code></a> implements a random-access collection of arbitrary elements. 
+It is like <code>Array</code> in the standard library, but lookup, insertion and removal of elements at
+any index have logarithmic complexity. 
+(<code>Array</code> has O(1) lookup, but insertion and removal at an arbitrary index costs O(n).)
+Concatenation of two lists of any size, inserting a list into another list at any position,
+removal of any subrange of elements, or extraction of an arbitrary sub-list are also
+operations with O(log(<em>n</em>)) complexity.</p></li>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/SortedSet.html"><code>SortedSet&lt;Element&gt;</code></a> implements an ordered collection of unique comparable elements.
+It is like <code>Set</code> in the standard library, but lookup, insertion and removal of any element
+has logarithmic complexity. Elements in an <code>SortedSet</code> are kept sorted in ascending order.
+Operations working on full sets (such as taking the union, intersection or difference) 
+can take as little as O(log(<em>n</em>)) time if the elements in the source sets aren&rsquo;t interleaved.</p></li>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/SortedBag.html"><code>SortedBag&lt;Element&gt;</code></a> implements an ordered <a href="https://en.wikipedia.org/wiki/Set_(abstract_data_type)#Multiset">multiset</a> with 
+comparable elements. This is a generalization of a set that allows multiple instances of the same value.
+(The standard library does not include such a collection, although you can use a dictionary to emulate one 
+by storing the multiplicities of the keys as values.)
+The implementation provided in this package stores each duplicate element separately, which may come useful
+if your elements are reference types with identities or you have some other means to distinguish between equal elements.
+<code>SortedBag</code> operations have the same time complexities as the equivalent operations in <code>SortedSet</code>.</p></li>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/BTree.html"><code>BTree&lt;Key, Value&gt;</code></a> is the underlying primitive collection that serves as base storage
+for all of the above collections. It is a general key-value store with full support
+for elements with duplicate keys; it provides a sum of all operations individually provided
+by the higher-level abstractions above (and more!).</p>
+
+<p>The <code>BTree</code> type is public; you may want to use it if you need a collection flavor that 
+isn&rsquo;t provided by default (such as a multimap) 
+or if you need to use an operation that isn&rsquo;t exposed by the wrappers.</p></li>
+</ul>
+
+<p>All of these collections are structs and they implement the same copy-on-write value semantics as
+standard Swift collection types like <code>Array</code> and <code>Dictionary</code>. (In fact, copy-on-write works even
+better with these than standard collections; continue reading to find out why!)</p>
+
+<p>The latest version of <code>BTree</code> requires Swift 3.0. (The last release supporting Swift 2 was 2.1.0.)</p>
+<a href='#a-name-api-a-href-http-lorentey-github-io-btree-api-reference-documentation-a-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-api-a-href-http-lorentey-github-io-btree-api-reference-documentation-a-a'><a name="api"><a href="http://lorentey.github.io/BTree/api">Reference Documentation</a></a></h3>
+
+<p>The project includes <a href="http://lorentey.github.io/BTree/api">a nicely formatted reference document</a> generated from the documentation comments
+embedded in its source code.</p>
+<a href='#a-name-what-what-are-b-trees-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-what-what-are-b-trees-a'><a name="what">What Are B-Trees?</a></h3>
+
+<p><a href="https://en.wikipedia.org/wiki/B-tree">B-trees</a> are search trees that provide an ordered key-value store with excellent performance
+characteristics.  In essence, each node maintains a sorted array of its own elements, and
+another array for its children.  The tree is kept balanced by three constraints: </p>
+
+<ol>
+<li>Only the root node is allowed to be less than half full.</li>
+<li>No node may be larger than the maximum size.</li>
+<li>The leaf nodes are all at the same level.</li>
+</ol>
+
+<p>Compared to other popular search trees such as <a href="https://github.com/lorentey/RedBlackTree">red-black trees</a> or <a href="https://en.wikipedia.org/wiki/AVL_tree">AVL trees</a>, 
+B-trees have huge nodes: nodes often contain hundreds (or even thousands) of key-value pairs and children.</p>
+
+<p>This module implements a <q>vanilla</q> B-tree where every node contains full key-value pairs. 
+(The other popular type is the <a href="https://en.wikipedia.org/wiki/B%2B_tree">B+-tree</a> where only leaf nodes contain values; 
+internal nodes contain only copies of keys.
+This often makes more sense on an external storage device with a fixed block size, but it is less useful for 
+an in-memory implementation.)</p>
+
+<p>Each node in the tree also maintains the count of all elements under it. 
+This makes the tree an <a href="https://en.wikipedia.org/wiki/Order_statistic_tree">order statistic tree</a>, where efficient positional lookup is possible.</p>
+<a href='#a-name-why-why-in-memory-b-trees-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-why-why-in-memory-b-trees-a'><a name="why">Why In-Memory B-Trees?</a></h3>
+
+<p>The Swift standard library offers heavily optimized arrays and hash tables, but omits linked lists and
+tree-based data structures. This is a result of the Swift engineering team spending resources 
+(effort, code size) on the abstractions that provide the biggest bang for the buck. </p>
+
+<blockquote>
+<p>Indeed, the library lacks even a basic <a href="https://github.com/lorentey/Deque">double-ended queue</a> construct &ndash; 
+although Cocoa&rsquo;s <code>Foundation</code> framework does include one in <code>NSArray</code>.</p>
+</blockquote>
+
+<p>However, some problems call for a wider variety of data structures. </p>
+
+<p>In the past, linked lists and low-order search trees such as red-black trees were frequently employed;
+however, the performance of these constructs on modern hardware is greatly limited
+by their heavy use of pointers.</p>
+
+<p><a href="https://en.wikipedia.org/wiki/B-tree">B-trees</a> were originally invented in the 1970s as a data structure for slow external storage
+devices. As such, they are strongly optimized for locality of reference: 
+they prefer to keep data in long contiguous buffers and they keep pointer derefencing to a minimum.
+(Dereferencing a pointer in a B-tree usually meant reading another block of data from the spinning hard drive,
+which is a glacially slow device compared to the main memory.)</p>
+
+<p>Today&rsquo;s computers have multi-tiered memory architectures; they rely on caching to keep the system
+performant. This means that locality of reference has become a hugely important property for in-memory
+data structures, too.</p>
+
+<p>Arrays are the epitome of reference locality, so the Swift stdlib&rsquo;s heavy emphasis on <code>Array</code> as the
+universal collection type is well justified.</p>
+
+<p>For example, using a single array to hold a sorted list of items has quite horrible (quadratic) asymptotic
+complexity when there are many elements. However, up to a certain maximum size, a simple array is in fact 
+the most efficient way to represent a sorted list.</p>
+
+<p><img src="http://lorentey.github.io/BTree/images/Ordered%20Collections%20in%20Swift.png" alt="Typical benchmark results for ordered collections"></p>
+
+<p>The benchmark above demonstrates this really well: insertion of <em>n</em> elements into a sorted array 
+costs O(n^2) when there are many items, but for many reasonably sized data sets, it is still much faster 
+than creating a red-black tree with its fancypants O(n * log(n)) complexity. </p>
+
+<p>Near the beginning of the curve, up to about <em>eighteen thousand items</em>, a sorted array implementation
+imported from an external module is very consistently about 6-7 times faster than a red-black tree, with a
+slope that is indistinguishable from O(n * log(n)).</p>
+
+<p>Even after it catches up to quadratic complexity, in this particular benchmark, 
+it takes about a <em>hundred thousand items</em> for the sorted
+array to become slower than the red-black tree! </p>
+
+<blockquote>
+<p>The exact cutoff point depends on the type/size of elements that you work with, and the capabilities 
+of the compiler. This benchmark used tiny 8-byte integer elements, hence the huge number.</p>
+
+<p>The benchmark is based on <a href="https://github.com/lorentey/RedBlackTree">my own red-black tree implementation</a> that uses a single flat array to store
+node data. A <a href="http://airspeedvelocity.net/2015/07/22/a-persistent-tree-using-indirect-enums-in-swift/">more typical implementation</a> would store each node in a separately allocated object, so
+it would likely be even slower.</p>
+
+<p>The chart above is a <a href="https://en.wikipedia.org/wiki/Log%E2%80%93log_plot">log-log plot</a> which makes it easy to compare the polynomial exponents of 
+the complexity curves of competing algorithms at a glance. The slope of a quadratic algorithm on a log-log chart
+(like insertion into a sorted array&mdash;the green curves) is twice of that of a 
+linear algorithm (like appending <em>n</em> items to an unsorted array&mdash;light blue curve) or a quasilinear one 
+(like inserting into a red-black tree, red curve).</p>
+
+<p>Note that the big gap between collections imported from
+stdlib and those imported from external modules is caused by a <a href="#perf">limitation in the current Swift compiler/ABI</a>:
+when this limitation is lifted, the gap will narrow considerably, which will reduce the element count
+at which you&rsquo;ll be able to reap the benefits of lower asymptotic complexity.</p>
+
+<p>(This effect is already visible (albeit in reverse) on the benchmark for the <q>inlined</q> sorted array (light green), 
+which is essentially the same code as the regular one (dark green) except it was implemented
+in the same module as the benchmarking loop, so the compiler has more options to optimize away
+witness tables and other levels of abstraction. That line starts curving up much sooner, at about 2000 
+items&ndash;imagine having a B-tree implementation that&rsquo;s equally fast! Or better, try it yourself and report your
+results. Producing benchmarks like this takes a lot of time and effort.) :-)</p>
+</blockquote>
+
+<p>This remarkable result is due in large part to the vast number of (to a CPU, random-looking) memory 
+references that are needed to operate on red-black trees. 
+Their <a href="https://youtu.be/m9tse9Gr2pE?t=209">intricate ballet of tree rotations</a> looks mighty impressive 
+to us mere humans, but to the delicate caches of your poor CPU, 
+it looks more like a drunken elephant <a href="https://en.wikipedia.org/wiki/Moshing">moshing at a thrash metal concert</a>.</p>
+
+<p>Meanwhile, the humble <code>Array</code> does the only thing it knows: sliding around
+long contiguous memory regions. It does this over and over, ad nauseum. It doesn&rsquo;t look impressive,
+but (up to a point) it fits well with how computers work.</p>
+
+<p>So a small <code>Array</code> is perfect for maintaining a sorted list. But what if the list gets too long?
+The B-tree&rsquo;s answer is to simply cut the array in half, and to create a new index tree node on top to allow 
+it to quickly find its way around this more complex list structure. 
+These internal index nodes can also consist of arrays of elements and node references, 
+creating a nice recursive data structure.</p>
+
+<p>Because their fanout number is so high, B-trees are extremely shallow: for a B-tree with order 100 (which
+is actually rather on the low end), you can fit a billion items into a tree that&rsquo;s not more than five levels deep.</p>
+
+<p>Once you accept that small arrays are fast, it is easy to see why B-trees work so well: unless it holds more
+elements than its order, a B-tree quite literally <strong>is</strong> just an <code>Array</code>. 
+So it has the same performance behavior as an <code>Array</code> for a small number of elements, 
+and when it grows larger it prevents a quadratic upswing by never allowing its arrays to get too large.
+The yellow curve on the benchmark above demonstrates this behavior well.</p>
+
+<p>Consider that each node in a typical B-tree can hold about <em>ten full levels of a red-black tree</em> 
+(or AVL trees or whatever binary tree you like). 
+Looking up an item in a B-tree node still requires a binary search of the node
+array, but this search works on a contiguous memory region, while the conventional search tree
+is fiddling around with loading pointer values and dereferencing them.</p>
+
+<p>So it makes perfect sense to employ B-trees as an in-memory data structure.</p>
+
+<p>Think about this, though: how many times do you need to work with a hundred thousand
+ordered items in a typical app? Or even twenty thousand? Or even just two thousand? The most interesting 
+benefits of B-trees often occur at element counts well over a hundred thousand.
+However, B-trees are not much slower than arrays for low element counts (remember, they <em>are</em> arrays in that
+case), so it makes sense to use them when there&rsquo;s even a slight chance that the count will get large.</p>
+<a href='#a-name-boo-laundry-list-of-issues-with-standard-collection-types-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-boo-laundry-list-of-issues-with-standard-collection-types-a'><a name="boo">Laundry List of Issues with Standard Collection Types</a></h3>
+
+<p>The data structures implemented by <code>Array</code>, <code>Dictionary</code> and <code>Set</code> are remarkably versatile:
+a huge class of problems is easily and efficiently solved by simple combinations of these abstractions.
+However, they aren&rsquo;t without drawbacks: you have probably run into cases when the standard collections
+exhibit suboptimal behavior:</p>
+
+<ol>
+<li><p>Insertion and removal in the middle of an <code>Array</code> can be slow when there are many items. (Keep the previous section in mind, though.)</p></li>
+<li><p>The all-or-nothing <a href="https://en.wikipedia.org/wiki/Copy-on-write">copy-on-write behavior</a> of <code>Array</code>, <code>Dictionary</code> and <code>Set</code> can lead to performance problems
+that are hard to detect and fix.
+If the underlying storage buffer is being shared by multiple collection instances, the modification of a single element 
+in any of the instances requires creating a full copy of every element. </p>
+
+<p>It is not at all obvious from the code when this happens, and it is even harder to reliably check for. 
+You can&rsquo;t (easily) write unit tests to check against accidental copying of items with value semantics!</p></li>
+<li><p>With standard collection types, you often need to think about memory management.</p>
+
+<p>Arrays and dictionaries never release memory until they&rsquo;re entirely deallocated; 
+a long-lived collection may hold onto a large piece of memory due to an earlier, temporary spike in the 
+number of its elements. This is a form of subtle resource leak that can be hard to detect.
+On memory-constrained systems, wasting too much space may cause abrupt process termination.</p>
+
+<p>Appending a new element to an array, or inserting a new element into a dictionary or a set are 
+usually constant time operations, but they sometimes take O(<em>n</em>) time when the collection exhausts its allocated capacity.
+These spikes in execution time are often undesired, but preventing them requires careful size analysis.<br>
+If you reserve too little space, you&rsquo;ll still get spikes; if you reserve too much, you&rsquo;re wasting memory.</p></li>
+<li><p>The order of elements in a <code>Dictionary</code> or a <code>Set</code> is undefined, and it isn&rsquo;t even stable:
+it may change after seemingly simple mutations. Two collections with the exact same set of elements may store
+them in wildly different order.</p></li>
+<li><p>Hashing collections require their keys to be <code>Hashable</code>. If you want to use your own type as the key, 
+you need to write a hash function yourself. It is annoyingly hard to write a good hash function, and 
+it is even harder to test that it doesn&rsquo;t produce too many collisions for the sets of values your code 
+will typically use.</p></li>
+<li><p>The possibility of hash collisions make <code>Dictionary</code> and <code>Set</code> badly suited for tasks which require
+guaranteed worst-case performance. (E.g. server code may face low-bandwidth denial of service attacks due to
+<a href="http://arstechnica.com/business/2011/12/huge-portions-of-web-vulnerable-to-hashing-denial-of-service-attack/">artificial hash collisions</a>.)</p></li>
+<li><p>Array concatenation takes O(<em>n</em>) time, because it needs to put a copy of every element from both arrays 
+into a new contiguous buffer.</p></li>
+<li><p>Merging dictionaries or taking the union/intersection etc. of two sets are all costly
+O(<em>n</em>) operations, even if the elements aren&rsquo;t interleaved at all.</p></li>
+<li><p>Creating an independently editable sub-dictionary or subset requires elementwise iteration over either
+the entire collection, or the entire set of potential target items. This is often impractical, especially
+when the collection is large but sparse.</p>
+
+<p>Getting an independently editable sub-array out of an array takes time that is linear in the size of the result. 
+(<code>ArraySlice</code> is often helpful, but it is most effective as a short-lived read-only view in temporary local variables.)</p></li>
+</ol>
+
+<p>These issues don&rsquo;t always matter. In fact, lots of interesting problems can be solved without 
+running into any of them. When they do occur, the problems they cause are often insignificant.
+Even when they cause significant problems, it is usually straightforward to work around them by chosing a
+slightly different algorithm. </p>
+
+<p>But sometimes you run into a case where the standard collection types are too slow, 
+and it would be too painful to work around them.</p>
+<a href='#a-name-yay-b-trees-to-the-rescue-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-yay-b-trees-to-the-rescue-a'><a name="yay">B-Trees to the Rescue!</a></h3>
+
+<p>B-trees solve all of the issues above. 
+(Of course, they come with a set of different issues of their own. Life is hard.)</p>
+
+<p>Let&rsquo;s enumerate:</p>
+
+<ol>
+<li><p>Insertion or removal from any position in a B-tree-based data structure takes O(log(<em>n</em>)) time, no matter what.</p></li>
+<li><p>Like standard collection types, B-trees implement full copy-on-write value semantics.
+Copying a B-tree into another variable takes O(1) time; mutations of a copy do not affect the original instance.</p>
+
+<p>However, B-trees implement a greatly improved version of copy-on-write that is not all-or-nothing: 
+each node in the tree may be independently shared with other trees. </p>
+
+<p>If you need to insert/remove/update a single element, B-trees will copy at most O(log(<em>n</em>)) elements to satisfy
+value semantics, even if the tree was entirely shared before the mutation.</p></li>
+<li><p>Storage management in B-trees is granular; you do not need to reserve space for a B-tree in advance, and
+it never allocates more memory than it needs to store the actual number of elements it contains.</p>
+
+<p>Storage is gradually allocated and released in small increments as the tree grows and shrinks.
+Storage is only copied when mutating shared elements, and even then it is done in small batches.</p>
+
+<p>The performance of B-trees is extremely stable, with no irregular spikes ever.</p>
+
+<p>(Note that there is a bit of leeway in allocations to make it easy to balance the tree. 
+In the worst case, a B-tree may only fill 50% of the space it allocates. The ratio is typically 
+much higher than that, though.)</p></li>
+<li><p>B-trees always keep their items sorted in ascending key order, and they provide efficient positional lookups.
+You can get the <em>i*th smallest/largest item in a tree in O(log(</em>n*)) time.</p></li>
+<li><p>Keys of a B-tree need to be <code>Comparable</code>, not <code>Hashable</code>. It is often significantly easier to 
+write comparison operators than hash functions; it is also much easier to verify that the implementation works 
+correctly. A buggy <code>&lt;</code> operator will typically lead to obvious issues that are relatively easy to catch; 
+a badly collisioning hash may go undetected for years.</p></li>
+<li><p>Adversaries (or blind chance) will never produce a set of elements for which B-trees behave especially badly.
+The performance of B-trees only depends on the size of the tree, not its contents. 
+(Provided that key comparison also behaves uniformly, of course. 
+If you allow multi-megabyte strings as keys, you&rsquo;re gonna have a bad time.)</p></li>
+<li><p>Concatenation of any two B-trees takes O(log(<em>n</em>)) time. For trees that aren&rsquo;t of a trivial size, the result 
+will share some of its nodes with the input trees, deferring most copying until the time the tree needs to be modified.
+(Which may never happen.) Copy-on-write really shines with B-trees!</p></li>
+<li><p>Merging the contents of two B-trees into a single tree takes O(<em>n</em>) time in the worst case, but
+if the elements aren&rsquo;t too badly interleaved, it can often finish in O(log(<em>n</em>)) time by linking entire subtrees
+into the result in one go.</p>
+
+<p>Set operations on the keys of a B-tree (such as calculating the intersection set, subtraction set, 
+symmetric difference, etc.) also exploit the same trick for a huge performance boost.
+If the input trees are mutated versions of the same original tree, these operations are also able 
+to skip elementwise processing of entire subtrees that are shared between the inputs.</p></li>
+<li><p>The <code>SubSequence</code> of a B-tree is also a B-tree. You can slice and dice B-trees any way you like:
+getting a fully independent copy of any prefix, suffix or subrange in a tree only takes O(log(<em>n</em>)) time.
+You can then take the subtree you extracted and insert it into another tree; this also costs O(log(<em>n</em>)), 
+no matter where in the tree you want to put it. (You do need to keep the order of keys correct, though.)</p></li>
+</ol>
+<a href='#a-name-notes-implementation-notes-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-notes-implementation-notes-a'><a name="notes">Implementation Notes</a></h3>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/BTree.html"><code>BTree</code></a> is a generic struct with copy-on-write value semantics.  Internally, it stores its data in
+nodes with a fixed maximum size, arranged in a tree.  <code>BTree</code> type provides a full set of hand-tuned 
+high-level operations to work with elements of a B-tree.</p>
+
+<p>Nodes are represented by instances of a <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift">reference type</a> that is not exported as public API.
+(Low-level access to individual tree nodes would be tricky to get right, and it would prevent
+future optimizations, such as moving node counts up to parent nodes.)</p></li>
+<li><p>By default, the tree order (a.k.a., the fanout, or the maximum number of children) is set such
+that <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift#L23">each node stores about 16KiB data</a>. Larger node sizes make lookups faster, while
+insertion/removal becomes slower &ndash; 16KiB is a good enough approximation of the optimal node size
+on most modern systems.  (But you can also set a custom node size if you know better. Note though
+that you cannot mix-n-match trees of different orders.)  Thus, on a 64-bit system, a B-tree
+holding <code>Int</code> elements will store about 2047 elements per node. Wow!</p></li>
+<li><p>Individual B-tree nodes may be independently shared between multiple B-trees.  When mutating a
+(partially or fully) shared tree, copy-on-write is restricted to only clone the nodes whose subtree is
+actually affected by the mutation. This has the following consequences:</p>
+
+<ul>
+<li>Nodes cannot contain a reference to their parent node, because it is not necessarily unique.</li>
+<li>Mutations of shared trees are typically much cheaper than copying the entire collection at once, 
+which is what standard collection types do.</li>
+<li>The root node is never shared between trees that are not equal.</li>
+</ul></li>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/BTree.html"><code>BTree</code></a> allows elements with duplicate keys to be stored in the tree. 
+(In fact, <code>List</code> works by using the same (empty) key for all elements.) </p>
+
+<p>All methods that take a key to find an element <a href="http://lorentey.github.io/BTree/api/Enums/BTreeKeySelector.html">let you (optionally) specify</a> if you
+want to work with the first or last matching element, or if you&rsquo;re happy with any match. The latter
+option is sometimes faster as it often allows the search to stop at the topmost matching element. There
+is also a selector that looks for the element <em>after</em> the specified key &ndash; this can be nice to determine
+the position of the end of a range of matching items.</p></li>
+<li><p>Each node keeps track of the number of items in its entire subtree, so 
+<a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7elementFT8atOffsetSi_Txq__">efficient positional lookup</a>
+is possible.  For any <em>i</em>, you can get, set, remove or insert the *i*th item in the tree in log(n) time.</p></li>
+<li><p>There is a <a href="http://lorentey.github.io/BTree/api/Structs/BTreeIterator.html"><code>BTreeIterator</code></a> and a <a href="http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html"><code>BTreeIndex</code></a> that provide the
+usual generator/indexing semantics. While individual element lookup usually takes O(log(n))
+operations, iterating over all elements via these interfaces requires linear time. Using the
+generator is faster than indexing, so you should prefer using it whenever possible. 
+There are methods to start an iterator from the middle of the tree: 
+from any offset, any index, or any key.</p></li>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>Note that <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachFzFzTxq__T_T_"><code>forEach</code></a> has a specialized recursive implementation, 
+which makes it the fastest way to iterate over B-trees. There is even a variant that allows you
+to stop the iteration when you had seen enough items and want to get off the carousel.</p>
+
+</div>
+<li><p><a href="http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html"><code>BTreeCursor</code></a> is an easy-to-use, general-purpose batch editing facility that allows you to
+manipulate the elements of a B-tree conveniently and highly efficiently. You can use a cursor to
+walk over the contents of a tree, modifying/inserting/removing elements as needed without a
+per-element log(n) lookup overhead. If you need to insert or remove a bunch or consecutive elements,
+it is better to use the provided bulk removal/insertion methods than to process them individually 
+(Range operations have O(log(<em>n</em>)) complexity vs. elementwise processing takes O(<em>k</em> * log(n)).)</p></li>
+<li><p>Internally, navigation in a B-Tree is based on abstract primitives that maintain a path to a particular
+position in the tree, as described by the <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreePath.swift"><code>BTreePath</code></a> protocol. The methods directly
+provided by this protocol are too low-level for convenient use, but the protocol has extension methods
+built on top of these that support familiar concepts like moving back and forth step by step, jumping to
+a specific offset in the tree, or looking up a particular key.</p>
+
+<p>Indexes, generators and cursors use their particular implementation of <code>BTreePath</code> to represent their
+own path flavors. All three of them maintain a path of nodes from the root of the tree to a particular
+slot of a particular node, but the details are very different:</p>
+
+<ul>
+<li>A <a href="http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html"><code>BTreeIndex</code></a> may not hold a strong reference to its tree, because that would 
+interfere with copy-on-write when you want to mutate the tree at a certain index. Thus, indices
+are wrappers around a <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeIndex.swift#L87"><code>BTreeWeakPath</code></a>, which uses weak references, and 
+needs to tread very carefully in order to detect when one of its references gets out of date.</li>
+<li>Meanwhile a <a href="http://lorentey.github.io/BTree/api/Structs/BTreeIterator.html"><code>BTreeIterator</code></a> is supposed to support standalone iteration over the
+contents of the tree, so it must contain strong references. It uses a
+<a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeIterator.swift#L74"><code>BTreeStrongPath</code></a> to represent the path of its next element. While an iterator only
+needs to be able to move one step forward, <code>BTreeStrongPath</code> supports the full tree navigation API,
+making it very useful elsewhere in the codebase whenever we need a kind of read-only cursor into a
+tree. For example, the tree merging algorithm uses strong paths to represent its current positions in
+its input trees.</li>
+<li>Finally, a <a href="http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html"><code>BTreeCursor</code></a> needs to maintain a path where each node is uniquely
+held by the cursor, ready for mutation. (A cursor owns its own copy of the tree, and does
+not share it with the outside world until it is finished.) 
+This special path flavor is implemented by <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeCursor.swift#L96"><code>BTreeCursorPath</code></a>.
+To speed things up, this struct intentionally breaks the node counts on its current path, 
+to allow for super speedy elementwise insertions and removals. The counts are carefully recalculated
+whenever the path moves off a node&rsquo;s branch in the tree.</li>
+</ul></li>
+<li><p>It would be overkill to create an explicit path to look up or modify a single element in the tree
+on its own, so <code>BTree</code> also provides a <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L280-L419">set of recursive methods</a> that 
+implement the same sort of lookups and simple mutations. 
+They are faster when you need to retrieve a single item, but they aren&rsquo;t efficient when called repeatedly.</p></li>
+<li><p><code>BTree</code> includes a <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_xq__">bulk loading algorithm</a> that efficiently initializes fully loaded
+trees from any sorted sequence. You can also specify a fill factor that&rsquo;s less than 100% if you expect to
+insert data into the middle of the tree later; leaving some space available may reduce work to keep the
+tree balanced. The bulk loader can optionally filter out duplicate keys for you. It verifies that the
+elements are in the correct order and traps if they aren&rsquo;t.</p>
+
+<p>The bulk loader is based on a general <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeBuilder.swift"><code>BTreeBuilder</code></a> struct that specializes on
+appending elements to a newly created tree. Beside individual elements, it also supports efficiently 
+appending entire B-trees. This comes useful in optimized tree merging algorithms.</p></li>
+<li><p><a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFTqd__14dropDuplicatesSb5orderSi_GS0_xq__">Constructing a B-tree from an unsorted sequence of elements</a> inserts the elements into the tree one by
+one; no buffer is allocated to sort elements before loading them into the tree. This is done more
+efficiently than calling <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/Insertion">an insertion method</a> with each element one by one, but it is likely still slower than
+a quicksort. (So sort elements on your own if you can spare the extra memory.)</p></li>
+<li><p>The package contains O(log(n)) methods to <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeFT4fromx2tox_GS0_xq__">extract a range of elements as a new B-tree</a>
+and to <a href="http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertFGVS_5BTreexq__T_">insert a B-tree into another B-tree</a>. (Keys need to remain ordered
+correctly, though.)</p></li>
+<li><p>Merge operations (such as <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree5unionFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__"><code>BTree.union</code></a> and <a href="http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree19symmetricDifferenceFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__"><code>BTree.symmetricDifference</code>)</a>
+are highly tuned to detect when they can skip over entire subtrees on their input, linking them into the result or 
+skipping their contents as required. For input trees that contain long runs of distinct elements, these operations
+can finish in as little as O(log(<em>n</em>)) time. These algorithms are expressed on top of a general
+tree merging construct called <a href="https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L318"><code>BTreeMerger</code></a>.</p></li>
+<a href='#a-name-generics-remark-on-performance-of-imported-generics-a' class='anchor' aria-hidden=true><span class="header-anchor"></span></a><h3 id='a-name-generics-remark-on-performance-of-imported-generics-a'><a name="generics">Remark on Performance of Imported Generics</a></h3>
+
+<p><a name="perf"></a></p>
+
+<p>Current versions of the Swift compiler are unable to specialize generic types that are imported from 
+external modules other than the standard library. (In fact, it is not entirely incorrect to say that 
+the standard library works as if it was compiled each time anew as part of every Swift module rather than linked in 
+as an opaque external binary.)</p>
+
+<p>This limitation puts a considerable limit on the raw performance achievable by collection types imported
+from external modules, especially if they are parameterized with simple, extremely optimizable 
+value types such as <code>Int</code> or even <code>String</code>.
+Relying on <code>import</code> will incur a <em>10-200x slowdown</em> when your collection is holding these most basic 
+value types. (The effect is much reduced for reference types, though.)</p>
+
+<p>Without access to the full source code of the collection, the compiler is unable to optimize away abstractions
+like virtual dispatch tables, function calls and the rest of the <em>fluff</em> we&rsquo;ve learned to mostly ignore
+inside a module. In cross-module generics, even retrieving a single <code>Int</code> will necessarily go through 
+at least one lookup to a virtual table. This is because the code that implements the unspecialized generic also executes 
+for type parameters that contain reference types, whose reference count needs to be maintained.</p>
+
+<p>If raw performance is essential, currently the only way out of this pit is to put the collection&rsquo;s code inside 
+your module. (Other than hacking stdlib to include these extra types, of course &ndash; but that is a bad idea
+for a thousand obvious reasons.) However, having each module maintain its own set of collections would smell 
+horrible, plus it would make it hard or impossible to transfer collection instances across module boundaries.
+Plus, if this strategy would be used across many modules, it would lead to a C++ templates-style (or worse) code explosion.
+A better (but still rather unsatisfactory) workaround is to compile the collection code with the single module 
+that benefits most from specialization. The rest of the modules will still have access to it, if in a much slower way.</p>
+
+<p>The Swift compiler team has plans to address this issue in future compiler versions, e.g., by allowing library authors 
+to manually specialize generics for a predetermined set of type parameters.</p>
+
+          </div>
+        </section>
+
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-11-08)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>

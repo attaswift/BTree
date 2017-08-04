@@ -120,7 +120,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         expectValid(_root.value === root)
     }
 
-    internal func expectValid(_ expression: @autoclosure (Void) -> Bool, file: StaticString = #file, line: UInt = #line) {
+    internal func expectValid(_ expression: @autoclosure () -> Bool, file: StaticString = #file, line: UInt = #line) {
         precondition(expression(), "Invalid BTreeIndex", file: file, line: line)
     }
 

@@ -8,16 +8,14 @@ module="BTree"
 scheme="BTree-macOS"
 
 version="$(grep VERSION_STRING version.xcconfig | sed 's/^VERSION_STRING = //' | sed 's/ *$//')"
-case "$version" in
-*-dev)
-  # For dev versions, use the current revision.
-  ref="$(git rev-parse HEAD)"
-  ;;
-*)
-  # For releases, use the tagged commit.
-  ref="v$version"
-  ;;
-esac
+
+if git rev-parse "v$version" >/dev/null 2>&1; then
+    # Use the tagged commit when we have one
+    ref="v$version"
+else
+    # Otherwise, use the current commit.
+    ref="$(git rev-parse HEAD)"
+fi
 
 jazzy \
     --clean \

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Structs  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+
+
+    <a title="Structs  Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="index.html">
+          BTree Docs
+        </a>
+         (100% documented)
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/lorentey/BTree">
+            <img class="header-icon" src="img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="dash-feed://https%3A%2F%2Florentey%2Egithub%2Eio%2FBTree%2Freference%2Fdocsets%2FBTree%2Exml">
+            <img class="header-icon" src="img/dash.png"/>
+            Install in Dash
+          </a>
+        </p>
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="index.html">BTree Reference</a>
+      <img class="carat" src="img/carat.png" />
+      Structs  Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Classes/BTreeCursor.html">BTreeCursor</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/BTreeKeySelector.html">BTreeKeySelector</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Enums/BTreeMatchingStrategy.html">BTreeMatchingStrategy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTree.html">BTree</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTreeIndex.html">BTreeIndex</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTreeIterator.html">BTreeIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTreeKeyIterator.html">BTreeKeyIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/BTreeValueIterator.html">BTreeValueIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/List.html">List</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/Map.html">Map</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/SortedBag.html">SortedBag</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="Structs/SortedSet.html">SortedSet</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content">
+            <h1>Structs</h1>
+            <p>The following structs are available globally.</p>
+
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree9SortedBag"></a>
+                    <a name="//apple_ref/swift/Struct/SortedBag" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree9SortedBag">SortedBag</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A sorted collection of comparable elements; also known as a multiset.
+<code>SortedBag</code> is like a <code><a href="Structs/SortedSet.html">SortedSet</a></code> except it can contain multiple members that are equal to each other.
+Lookup, insertion and removal of any element has logarithmic complexity.</p>
+
+<p><code>SortedBag</code> stores duplicate elements in their entirety; it doesn&rsquo;t just count multiplicities.
+This is an important feature when equal elements can be distinguished by identity comparison or some other means.
+(If you&rsquo;re OK with just counting duplicates, use a <code><a href="Structs/Map.html">Map</a></code> or a <code>Dictionary</code> with the multiplicity as the value.)</p>
+
+<p><code>SortedBag</code> is a struct with copy-on-write value semantics, like Swift&rsquo;s standard collection types.
+It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other sorted sets or bags.
+Mutating a bag whose storage is (partially or completely) shared requires copying of only O(log(<code>count</code>)) elements.
+(Thus, mutation of shared <code>SortedBag</code>s may be cheaper than ordinary <code>Set</code>s, which need to copy all elements.)</p>
+
+<p>Set operations on sorted bags (such as taking the union, intersection or difference) can take as little as
+O(log(n)) time if the elements in the input bags aren&rsquo;t too interleaved.</p>
+
+<div class="aside aside-see-also">
+    <p class="aside-title">See also</p>
+    <code><a href="Structs/SortedSet.html">SortedSet</a></code>
+
+</div>
+
+                        <a href="Structs/SortedBag.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">SortedBag</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">:</span> <span class="kt">Comparable</span><span class="o">&gt;</span><span class="p">:</span> <span class="kt">SetAlgebra</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/SortedBag.swift#L26-L35">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree13BTreeIterator"></a>
+                    <a name="//apple_ref/swift/Struct/BTreeIterator" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree13BTreeIterator">BTreeIterator</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An iterator for all elements stored in a B-tree, in ascending key order.</p>
+
+                        <a href="Structs/BTreeIterator.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BTreeIterator</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">:</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span><span class="p">:</span> <span class="kt">IteratorProtocol</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeIterator.swift#L10-L30">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree18BTreeValueIterator"></a>
+                    <a name="//apple_ref/swift/Struct/BTreeValueIterator" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree18BTreeValueIterator">BTreeValueIterator</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An iterator for the values stored in a B-tree with an empty key.</p>
+
+                        <a href="Structs/BTreeValueIterator.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BTreeValueIterator</span><span class="o">&lt;</span><span class="kt">Value</span><span class="o">&gt;</span><span class="p">:</span> <span class="kt">IteratorProtocol</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeIterator.swift#L39-L53">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree16BTreeKeyIterator"></a>
+                    <a name="//apple_ref/swift/Struct/BTreeKeyIterator" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree16BTreeKeyIterator">BTreeKeyIterator</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An iterator for the keys stored in a B-tree without a value.</p>
+
+                        <a href="Structs/BTreeKeyIterator.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BTreeKeyIterator</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">:</span> <span class="kt">Comparable</span><span class="o">&gt;</span><span class="p">:</span> <span class="kt">IteratorProtocol</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeIterator.swift#L56-L70">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree5BTree"></a>
+                    <a name="//apple_ref/swift/Struct/BTree" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree5BTree">BTree</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>B-trees are search trees that provide an ordered key-value store with excellent performance characteristics.</p>
+
+                        <a href="Structs/BTree.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BTree</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">:</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTree.swift#L10-L34">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree10BTreeIndex"></a>
+                    <a name="//apple_ref/swift/Struct/BTreeIndex" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree10BTreeIndex">BTreeIndex</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An index into a collection that uses a B-tree for storage.</p>
+
+<p>BTree indices belong to a specific tree instance. Trying to use them with any other tree
+instance (including one holding the exact same elements, or one derived from a mutated version of the
+original instance) will cause a runtime error.</p>
+
+<p>This index satisfies <code>Collection</code>&rsquo;s requirement for O(1) access, but
+it is only suitable for read-only processing &ndash; most tree mutations will 
+invalidate all existing indexes.</p>
+
+<div class="aside aside-see-also">
+    <p class="aside-title">See also</p>
+    <code><a href="Classes/BTreeCursor.html">BTreeCursor</a></code> for an efficient way to modify a batch of values in a B-tree.
+
+</div>
+
+                        <a href="Structs/BTreeIndex.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">BTreeIndex</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">:</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeIndex.swift#L20-L64">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree4List"></a>
+                    <a name="//apple_ref/swift/Struct/List" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree4List">List</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A random-access collection of arbitrary elements.
+<code>List</code> works like an <code>Array</code>, but lookup, insertion and removal of elements at any index have
+logarithmic complexity. (<code>Array</code> has O(1) lookup, but removal/insertion at an arbitrary index costs O(count).)</p>
+
+<p><code>List</code> is a struct with copy-on-write value semantics, like Swift&rsquo;s standard collection types.
+It uses an in-memory B-tree for element storage, whose individual nodes may be shared with other lists.
+Mutating a list whose storage is (partially or completely) shared requires copying of only O(log(<code>count</code>)) elements.
+(Thus, mutation of shared lists may be relatively cheaper than arrays, which need to copy all elements.)</p>
+
+<p>Lookup, insertion and removal of individual elements anywhere in a list have logarithmic complexity.
+Using the batch operations provided by <code>List</code> can often be much faster than processing individual elements
+one by one. For example, splitting a list or concatenating two lists can be done in O(log(n)) time.</p>
+
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <code>List</code> implements all formal requirements of <code>CollectionType</code>, but it violates the semantic requirement
+that indexing has O(1) complexity: subscripting a <code>List</code> costs <code>O(log(count))</code>, since it requires an offset
+lookup in the B-tree. However, B-trees for typical element sizes and counts are extremely shallow 
+(less than 5 levels for a billion elements), so with practical element counts, offset lookup typically 
+behaves more like <code>O(1)</code> than <code>O(log(count))</code>.
+
+</div>
+
+                        <a href="Structs/List.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">List</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/List.swift#L28-L42">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree9SortedSet"></a>
+                    <a name="//apple_ref/swift/Struct/SortedSet" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree9SortedSet">SortedSet</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A sorted collection of unique comparable elements.
+<code>SortedSet</code> is like <code>Set</code> in the standard library, but it always keeps its elements in ascending order.
+Lookup, insertion and removal of any element has logarithmic complexity.</p>
+
+<p><code>SortedSet</code> is a struct with copy-on-write value semantics, like Swift&rsquo;s standard collection types.
+It uses an in-memory b-tree for element storage, whose individual nodes may be shared with other sorted sets.
+Mutating a set whose storage is (partially or completely) shared requires copying of only O(log(<code>count</code>)) elements.
+(Thus, mutation of shared <code>SortedSet</code>s may be cheaper than ordinary <code>Set</code>s, which need to copy all elements.)</p>
+
+<p>Set operations on sorted sets (such as taking the union, intersection or difference) can take as little as
+O(log(n)) time if the elements in the input sets aren&rsquo;t too interleaved.</p>
+
+<div class="aside aside-see-also">
+    <p class="aside-title">See also</p>
+    <code><a href="Structs/SortedBag.html">SortedBag</a></code>
+
+</div>
+
+                        <a href="Structs/SortedSet.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">SortedSet</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">:</span> <span class="kt">Comparable</span><span class="o">&gt;</span><span class="p">:</span> <span class="kt">SetAlgebra</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/SortedSet.swift#L22-L31">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:V5BTree3Map"></a>
+                    <a name="//apple_ref/swift/Struct/Map" class="dashAnchor"></a>
+                    <a class="token" href="#/s:V5BTree3Map">Map</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>An ordered mapping from comparable keys to arbitrary values. 
+Works like <code>Dictionary</code>, but provides a well-defined ordering for its elements.</p>
+
+<p><code>Map</code> is a struct with copy-on-write value semantics, like Swift&rsquo;s standard collection types.
+It uses an in-memory B-tree for element storage, whose individual nodes may be shared with other maps.
+Modifying an element of a map whose storage is (partially or completely) shared requires copying of 
+only O(log(<code>count</code>)) elements. (Thus, mutation of shared maps may be relatively cheaper than dictionaries, 
+which need to clone all elements.)</p>
+
+<p>Lookup, insertion and removal of individual key-value pairs in a map have logarithmic complexity.
+This is in contrast to <code>Dictionary</code>&rsquo;s best-case O(1) (worst-case O(n)) implementations for the same operations.
+To make up for being typically slower, <code>Map</code> always keeps its elements in a well-defined order.</p>
+
+<p>While independently looking up individual elements takes O(log(n)) time, batch operations on lots of elements
+often complete faster than you might expect.
+For example, iterating over a <code>Map</code> using the generator API requires O(n) time, just like a dictionary.</p>
+
+<p>Due to its tree-based structure, <code>Map</code> is able to provide efficient implementations for several operations 
+that would be slower with dictionaries.</p>
+
+                        <a href="Structs/Map.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">struct</span> <span class="kt">Map</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">:</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/Map.swift#L29-L39">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-11-08)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>

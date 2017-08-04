@@ -106,6 +106,7 @@ extension Map: BidirectionalCollection {
     public typealias Index = BTreeIndex<Key, Value>
     public typealias Iterator = BTreeIterator<Key, Value>
     public typealias Element = (Key, Value)
+    public typealias _Element = Element // For _IndexableBase
     public typealias SubSequence = Map<Key, Value>
 
     /// The index of the first element when non-empty. Otherwise the same as `endIndex`.
@@ -424,7 +425,6 @@ extension Map {
     /// Remove all (key, value) pairs in the specified offset range.
     ///
     /// - Complexity: O(log(`count`))
-    @discardableResult
     public mutating func remove(atOffsets offsets: Range<Int>) {
         precondition(offsets.lowerBound >= 0 && offsets.upperBound <= count)
         tree.withCursor(atOffset: offsets.lowerBound) { cursor in

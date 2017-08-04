@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BTreeCursor Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset="utf-8">
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+
+    <a name="//apple_ref/swift/Class/BTreeCursor" class="dashAnchor"></a>
+
+    <a title="BTreeCursor Class Reference"></a>
+
+    <header class="header">
+      <p class="header-col header-col--primary">
+        <a class="header-link" href="../index.html">
+          BTree Docs
+        </a>
+         (100% documented)
+      </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="https://github.com/lorentey/BTree">
+            <img class="header-icon" src="../img/gh.png"/>
+            View on GitHub
+          </a>
+        </p>
+    
+        <p class="header-col header-col--secondary">
+          <a class="header-link" href="dash-feed://https%3A%2F%2Florentey%2Egithub%2Eio%2FBTree%2Freference%2Fdocsets%2FBTree%2Exml">
+            <img class="header-icon" src="../img/dash.png"/>
+            Install in Dash
+          </a>
+        </p>
+    </header>
+
+    <p class="breadcrumbs">
+      <a class="breadcrumb" href="../index.html">BTree Reference</a>
+      <img class="carat" src="../img/carat.png" />
+      BTreeCursor Class Reference
+    </p>
+
+    <div class="content-wrapper">
+      <nav class="navigation">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Classes/BTreeCursor.html">BTreeCursor</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/BTreeKeySelector.html">BTreeKeySelector</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Enums/BTreeMatchingStrategy.html">BTreeMatchingStrategy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a class="nav-group-name-link" href="../Structs.html">Structs</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTree.html">BTree</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeIndex.html">BTreeIndex</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeIterator.html">BTreeIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeKeyIterator.html">BTreeKeyIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/BTreeValueIterator.html">BTreeValueIterator</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/List.html">List</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/Map.html">Map</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/SortedBag.html">SortedBag</a>
+              </li>
+              <li class="nav-group-task">
+                <a class="nav-group-task-link" href="../Structs/SortedSet.html">SortedSet</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+
+        <section class="section">
+          <div class="section-content">
+            <h1>BTreeCursor</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="kt">BTreeCursor</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">:</span> <span class="kt">Comparable</span><span class="p">,</span> <span class="kt">Value</span><span class="o">&gt;</span></code></pre>
+
+                </div>
+              </div>
+            <p>A stateful editing interface for efficiently inserting/removing/updating a range of elements in a B-tree.</p>
+
+<p>Creating a cursor over a tree takes exclusive ownership of it; the tree is in a transient invalid state
+while the cursor is active. (In particular, element counts are not finalized until the cursor is deactivated.)</p>
+
+<p>The cursor always focuses on a particular spot on the tree: either a particular element, or the empty spot after 
+the last element. There are methods to move the cursor to the next or previous element, to modify the currently 
+focused element, to insert a new element before the current position, and to remove the currently focused element
+from the tree.</p>
+
+<p>Note that the cursor does not verify that keys you insert/modify uphold tree invariants &ndash; it is your responsibility
+to guarantee keys remain in ascending order while you&rsquo;re working with the cursor.</p>
+
+<p>Creating a cursor takes O(log(<em>n</em>)) steps; once the cursor has been created, the complexity of most manipulations
+is amortized O(1). For example, appending <em>k</em> new elements without a cursor takes O(<em>k</em> * log(<em>n</em>)) steps;
+using a cursor to do the same only takes O(log(<em>n</em>) + <em>k</em>).</p>
+
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-content">
+            <div class="task-group">
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC5BTree11BTreeCursor5countSi"></a>
+                    <a name="//apple_ref/swift/Property/count" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC5BTree11BTreeCursor5countSi">count</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The number of elements in the tree currently being edited.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L319">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC5BTree11BTreeCursor6offsetSi"></a>
+                    <a name="//apple_ref/swift/Property/offset" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC5BTree11BTreeCursor6offsetSi">offset</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The offset of the currently focused element in the tree.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1) for the getter, O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>)) for the setter.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">offset</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L324-L331">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Simple%20properties"></a>
+                <a name="//apple_ref/swift/Section/Simple properties" class="dashAnchor"></a>
+                <a href="#/Simple%20properties">
+                  <h3 class="section-name">Simple properties</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC5BTree11BTreeCursor9isAtStartSb"></a>
+                    <a name="//apple_ref/swift/Property/isAtStart" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC5BTree11BTreeCursor9isAtStartSb">isAtStart</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return true iff the cursor is focused on the initial element.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isAtStart</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L338">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC5BTree11BTreeCursor7isAtEndSb"></a>
+                    <a name="//apple_ref/swift/Property/isAtEnd" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC5BTree11BTreeCursor7isAtEndSb">isAtEnd</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return true iff the cursor is focused on the spot beyond the last element.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">isAtEnd</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L340">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Navigation"></a>
+                <a name="//apple_ref/swift/Section/Navigation" class="dashAnchor"></a>
+                <a href="#/Navigation">
+                  <h3 class="section-name">Navigation</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor11moveForwardFT_T_"></a>
+                    <a name="//apple_ref/swift/Method/moveForward()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor11moveForwardFT_T_">moveForward()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Position the cursor on the next element in the B-tree.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>!isAtEnd</code>
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    Amortized O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">moveForward</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L364-L366">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor12moveBackwardFT_T_"></a>
+                    <a name="//apple_ref/swift/Method/moveBackward()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor12moveBackwardFT_T_">moveBackward()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Position this cursor on the previous element in the B-tree.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>!isAtStart</code>
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    Amortized O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">moveBackward</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L372-L374">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor11moveToStartFT_T_"></a>
+                    <a name="//apple_ref/swift/Method/moveToStart()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor11moveToStartFT_T_">moveToStart()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Position this cursor on the start of the B-tree.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor6offsetSi">offset</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">moveToStart</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L379-L381">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor9moveToEndFT_T_"></a>
+                    <a name="//apple_ref/swift/Method/moveToEnd()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor9moveToEndFT_T_">moveToEnd()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Position this cursor on the end of the B-tree, i.e., at the offset after the last element.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code> - <code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor6offsetSi">offset</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">moveToEnd</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L386-L388">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor4moveFT8toOffsetSi_T_"></a>
+                    <a name="//apple_ref/swift/Method/move(toOffset:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor4moveFT8toOffsetSi_T_">move(toOffset:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Move this cursor to the specified offset in the B-tree.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<em>distance</em>)), where <em>distance</em> is the absolute difference between the desired and current
+offsets.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">move</span><span class="p">(</span><span class="n">toOffset</span> <span class="nv">offset</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L394-L396">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor4moveFT2tox8choosingOS_16BTreeKeySelector_T_"></a>
+                    <a name="//apple_ref/swift/Method/move(to:choosing:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor4moveFT2tox8choosingOS_16BTreeKeySelector_T_">move(to:choosing:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Move this cursor to an element with the specified key. 
+If there are no such elements, the cursor is moved to the first element after <code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor3keyx">key</a></code> (or at the end of tree).
+If there are multiple such elements, <code>selector</code> specifies which one to find.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">move</span><span class="p">(</span><span class="n">to</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">,</span> <span class="n">choosing</span> <span class="nv">selector</span><span class="p">:</span> <span class="kt"><a href="../Enums/BTreeKeySelector.html">BTreeKeySelector</a></span> <span class="o">=</span> <span class="o">.</span><span class="n">any</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L403-L405">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Editing"></a>
+                <a name="//apple_ref/swift/Section/Editing" class="dashAnchor"></a>
+                <a href="#/Editing">
+                  <h3 class="section-name">Editing</h3>
+                </a>
+              </div>
+              <ul class="item-container">
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC5BTree11BTreeCursor7elementTxq__"></a>
+                    <a name="//apple_ref/swift/Property/element" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC5BTree11BTreeCursor7elementTxq__">element</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Get or replace the currently focused element.</p>
+
+<div class="aside aside-warning">
+    <p class="aside-title">Warning</p>
+    Changing the key is potentially dangerous; it is the caller&rsquo;s responsibility to ensure that
+keys remain in ascending order. This is not verified at runtime.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L414-L417">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC5BTree11BTreeCursor3keyx"></a>
+                    <a name="//apple_ref/swift/Property/key" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC5BTree11BTreeCursor3keyx">key</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Get or set the key of the currently focused element.</p>
+
+<div class="aside aside-warning">
+    <p class="aside-title">Warning</p>
+    Changing the key is potentially dangerous; it is the caller&rsquo;s responsibility to ensure that
+keys remain in ascending order. This is not verified at runtime.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L424-L427">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:vC5BTree11BTreeCursor5valueq_"></a>
+                    <a name="//apple_ref/swift/Property/value" class="dashAnchor"></a>
+                    <a class="token" href="#/s:vC5BTree11BTreeCursor5valueq_">value</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Get or set the value of the currently focused element.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Value</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L432-L435">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor8setValueFq_q_"></a>
+                    <a name="//apple_ref/swift/Method/setValue(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor8setValueFq_q_">setValue(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Update the value stored at the cursor&rsquo;s current position and return the previous value.
+This method does not change the cursor&rsquo;s position.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">setValue</span><span class="p">(</span><span class="n">_</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Value</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L441-L443">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor11insertAfterFTxq__T_"></a>
+                    <a name="//apple_ref/swift/Method/insertAfter(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor11insertAfterFTxq__T_">insertAfter(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Insert a new element after the cursor&rsquo;s current position, and position the cursor on the new element.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    amortized O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">insertAfter</span><span class="p">(</span><span class="n">_</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L448-L463">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor6insertFTxq__T_"></a>
+                    <a name="//apple_ref/swift/Method/insert(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor6insertFTxq__T_">insert(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Insert a new element at the cursor&rsquo;s current offset, and leave the cursor positioned on the original element.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    amortized O(1)
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">insert</span><span class="p">(</span><span class="n">_</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L468-L483">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor6insertFGVS_5BTreexq__T_"></a>
+                    <a name="//apple_ref/swift/Method/insert(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor6insertFGVS_5BTreexq__T_">insert(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Insert the contents of <code>tree</code> before the currently focused element, keeping the cursor&rsquo;s position on it.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code>count + tree.count</code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">insert</span><span class="p">(</span><span class="n">_</span> <span class="nv">tree</span><span class="p">:</span> <span class="kt">Tree</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L488-L490">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor6insertuRd__s8SequenceWd__8Iterator7Element_zTxq__rFqd__T_"></a>
+                    <a name="//apple_ref/swift/Method/insert(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor6insertuRd__s8SequenceWd__8Iterator7Element_zTxq__rFqd__T_">insert(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Insert all elements in a sequence before the currently focused element, keeping the cursor&rsquo;s position on it.</p>
+
+<div class="aside aside-requires">
+    <p class="aside-title">Requires</p>
+    <code>self.isValid</code> and <code>elements</code> is sorted by key.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>) + <em>c</em>), where <em>c</em> is the number of elements in the sequence.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="n">insert</span><span class="o">&lt;</span><span class="kt">S</span><span class="p">:</span> <span class="kt">Sequence</span><span class="o">&gt;</span><span class="p">(</span><span class="n">_</span> <span class="nv">elements</span><span class="p">:</span> <span class="kt">S</span><span class="p">)</span> <span class="k">where</span> <span class="kt">S</span><span class="o">.</span><span class="kt">Iterator</span><span class="o">.</span><span class="kt">Element</span> <span class="o">==</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L503-L505">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor6removeFT_Txq__"></a>
+                    <a name="//apple_ref/swift/Method/remove()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor6removeFT_Txq__">remove()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove and return the element at the cursor&rsquo;s current position, and position the cursor on its successor.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">remove</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Element</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L550-L586">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor6removeFSiT_"></a>
+                    <a name="//apple_ref/swift/Method/remove(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor6removeFSiT_">remove(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove <code>n</code> elements starting at the cursor&rsquo;s current position, and position the cursor on the successor of
+the last element that was removed.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">_</span> <span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L592-L616">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor9removeAllFT_T_"></a>
+                    <a name="//apple_ref/swift/Method/removeAll()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor9removeAllFT_T_">removeAll()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove all elements.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>)) if nodes of this tree are shared with other trees; O(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>) otherwise.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">removeAll</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L621-L623">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor15removeAllBeforeFT16includingCurrentSb_T_"></a>
+                    <a name="//apple_ref/swift/Method/removeAllBefore(includingCurrent:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor15removeAllBeforeFT16includingCurrentSb_T_">removeAllBefore(includingCurrent:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove all elements before (and if <code>inclusive</code> is true, including) the current position, and
+position the cursor at the start of the remaining tree.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>)) if nodes of this tree are shared with other trees; O(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>) otherwise.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">removeAllBefore</span><span class="p">(</span><span class="n">includingCurrent</span> <span class="nv">inclusive</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L629-L642">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor14removeAllAfterFT16includingCurrentSb_T_"></a>
+                    <a name="//apple_ref/swift/Method/removeAllAfter(includingCurrent:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor14removeAllAfterFT16includingCurrentSb_T_">removeAllAfter(includingCurrent:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Remove all elements before (and if <code>inclusive</code> is true, including) the current position, and
+position the cursor on the end of the remaining tree.</p>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>)) if nodes of this tree are shared with other trees; O(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>) otherwise.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">removeAllAfter</span><span class="p">(</span><span class="n">includingCurrent</span> <span class="nv">inclusive</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L648-L664">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:FC5BTree11BTreeCursor7extractFSiGVS_5BTreexq__"></a>
+                    <a name="//apple_ref/swift/Method/extract(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:FC5BTree11BTreeCursor7extractFSiGVS_5BTreexq__">extract(_:)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Extract <code>n</code> elements starting at the cursor&rsquo;s current position, and position the cursor on the successor of
+the last element that was removed.</p>
+
+<div class="aside aside-returns">
+    <p class="aside-title">Returns</p>
+    The extracted elements as a new B-tree.
+
+</div>
+
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(log(<code><a href="../Classes/BTreeCursor.html#/s:vC5BTree11BTreeCursor5countSi">count</a></code>))
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">extract</span><span class="p">(</span><span class="n">_</span> <span class="nv">n</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Tree</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The extracted elements as a new B-tree.</p>
+
+                      </div>
+                      <div class="slightly-smaller">
+                        <a href="https://github.com/lorentey/BTree/tree/v4.0.1/Sources/BTreeCursor.swift#L671-L704">Show on GitHub</a>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </article>
+    </div>
+    <section class="footer">
+      <p>&copy; 2016 <a class="link" href="https://twitter.com/lorentey" target="_blank" rel="external">Károly Lőrentey</a>. All rights reserved. (Last updated: 2016-11-08)</p>
+      <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+    </section>
+  </body>
+</div>
+</html>
