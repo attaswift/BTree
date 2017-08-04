@@ -82,7 +82,7 @@ embedded in its source code.
 
 [doc]: http://lorentey.github.io/BTree/api
 
-### <a name="book">Optimizing Collections: The Book</a>
+### <a name="book">[Optimizing Collections: The Book][OptimizingCollections]</a>
 
 If you want to learn more about how this package works, the book
 [Optimizing Collections][OptimizingCollections] includes detailed explanations of
