@@ -14,6 +14,7 @@
 
 * [Overview](#overview)
 * [Reference Documentation](#api)
+* [Optimizing Collections: The Book](#book)
 * [What Are B-Trees?](#what)
 * [Why In-Memory B-Trees?](#why)
 * [Laundry List of Issues with Standard Collection Types](#boo)
@@ -80,6 +81,19 @@ The project includes [a nicely formatted reference document][doc] generated from
 embedded in its source code.
 
 [doc]: http://lorentey.github.io/BTree/api
+
+### <a name="book">Optimizing Collections: The Book</a>
+
+If you want to learn more about how this package works, the book
+[Optimizing Collections][OptimizingCollections] includes detailed explanations of
+many of the algorithms and optimization tricks implemented by this package – and so, so much more.
+It is written by the same author, and published by the fine folks at objc.io.
+Buying a copy of the book is not only a nice way to support this project, it also gets you something quite interesting to read.
+Win-win!
+
+[![Optimizing Collections (eBook)](OptimizingCollections.png)][OptimizingCollections]
+
+[OptimizingCollections]: https://www.objc.io/books/optimizing-collections/
 
 ### <a name="what">What Are B-Trees?</a>
 
