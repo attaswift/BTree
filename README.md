@@ -143,7 +143,7 @@ For example, using a single array to hold a sorted list of items has quite horri
 complexity when there are many elements. However, up to a certain maximum size, a simple array is in fact 
 the most efficient way to represent a sorted list.
 
-![Typical benchmark results for sorted collections](http://lorentey.github.io/BTree/images/Ordered%20Collections%20in%20Swift.png)
+![Typical benchmark results for sorted collections](http://lorentey.github.io/BTree/images/Sorted%20Collections%20in%20Swift.png)
 
 The benchmark above demonstrates this really well: insertion of *n* elements into a sorted array 
 costs O(n^2) when there are many items, but for many reasonably sized data sets, it is still much faster 
