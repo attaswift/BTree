@@ -9,7 +9,7 @@
 import Foundation
 
 import XCTest
-@testable import BTree
+import BTree
 
 func assertEqualElements<Element: Equatable, S1: Sequence, S2: Sequence>(_ a: S1, _ b: S2, file: StaticString = #file, line: UInt = #line) where S1.Element == Element, S2.Element == Element {
     let aa = Array(a)
