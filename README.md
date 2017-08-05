@@ -1,6 +1,6 @@
 # Fast Sorted Collections for Swift<br>Using In-Memory B-Trees
 
-[![Swift 3.0](https://img.shields.io/badge/Swift-3.0-blue.svg)](https://swift.org) 
+[![Swift 4.0](https://img.shields.io/badge/Swift-4.0-blue.svg)](https://swift.org)
 [![License](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/lorentey/BTree/blob/master/LICENSE.md)
 [![Platform](https://img.shields.io/badge/platforms-macOS%20∙%20iOS%20∙%20watchOS%20∙%20tvOS-blue.svg)](https://developer.apple.com/platforms/)
 
