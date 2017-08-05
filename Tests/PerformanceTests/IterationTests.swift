@@ -3,7 +3,7 @@
 //  PerformanceTests
 //
 //  Created by Károly Lőrentey on 2016-11-08.
-//  Copyright © 2016. Károly Lőrentey. All rights reserved.
+//  Copyright © 2016–2017 Károly Lőrentey.
 //
 
 #if ENABLE_BENCHMARK_TESTS
