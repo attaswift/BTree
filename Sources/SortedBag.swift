@@ -53,7 +53,7 @@ extension SortedBag {
     /// If the sequence contains duplicate items, all of them are kept, in the same order.
     ///
     /// - Complexity: O(*n* * log(*n*)), where *n* is the number of items in the sequence.
-    public init<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+    public init<S: Sequence>(_ elements: S) where S.Element == Element {
         self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, ()) }, dropDuplicates: false))
     }
 
@@ -61,7 +61,7 @@ extension SortedBag {
     /// If the sequence contains duplicate items, all of them are kept.
     ///
     /// - Complexity: O(*n*), where *n* is the number of items in the sequence.
-    public init<S: Sequence>(sortedElements elements: S) where S.Iterator.Element == Element {
+    public init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
         self.init(Tree(sortedElements: elements.lazy.map { ($0, ()) }, dropDuplicates: false))
     }
 
@@ -256,7 +256,7 @@ extension SortedBag {
     }
 
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
-    public func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Iterator.Element] {
+    public func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         return try tree.flatMap { try transform($0.0) }
     }
 

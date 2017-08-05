@@ -440,7 +440,7 @@ class BTreeNodeTests: XCTestCase {
             let tree = BTree<Int, String>(order: 5)
             return tree.root
         }
-        func createNode<S: Sequence>(_ keys: S) -> Node where S.Iterator.Element == Int {
+        func createNode<S: Sequence>(_ keys: S) -> Node where S.Element == Int {
             let elements = keys.map { ($0, String($0)) }
             let tree = BTree(sortedElements: elements, order: 5)
             return tree.root

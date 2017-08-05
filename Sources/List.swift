@@ -47,7 +47,7 @@ extension List {
     /// Initialize a new list from the given elements.
     ///
     /// - Complexity: O(*n*) where *n* is the number of elements in the sequence.
-    public init<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+    public init<S: Sequence>(_ elements: S) where S.Element == Element {
         self.init(Tree(sortedElements: elements.lazy.map { (EmptyKey(), $0) }))
     }
 }
@@ -235,8 +235,8 @@ extension List {
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
     ///
     /// - Complexity: O(`result.count`)
-    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Iterator.Element] {
-        var result: [S.Iterator.Element] = []
+    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
+        var result: [S.Element] = []
         try self.forEach { element in
             result.append(contentsOf: try transform(element))
         }
@@ -398,7 +398,7 @@ extension List {
     /// Append the contents of `elements` to the end of this list.
     ///
     /// - Complexity: O(log(`count`) + *n*) where *n* is the number of elements in the sequence.
-    public mutating func append<S: Sequence>(contentsOf elements: S) where S.Iterator.Element == Element {
+    public mutating func append<S: Sequence>(contentsOf elements: S) where S.Element == Element {
         if let list = elements as? List<Element> {
             append(contentsOf: list)
             return
@@ -420,7 +420,7 @@ extension List {
     /// Insert the contents of `elements` into this list starting at `index`.
     ///
     /// - Complexity: O(log(`self.count`) + *n*) where *n* is the number of elements inserted.
-    public mutating func insert<S: Sequence>(contentsOf elements: S, at index: Int) where S.Iterator.Element == Element {
+    public mutating func insert<S: Sequence>(contentsOf elements: S, at index: Int) where S.Element == Element {
         if let list = elements as? List<Element> {
             insert(contentsOf: list, at: index)
             return
@@ -534,7 +534,7 @@ extension List: RangeReplaceableCollection {
     /// Replace elements in `range` with `elements`.
     ///
     /// - Complexity: O(log(`count`) + `max(range.count, elements.count)`)
-    public mutating func replaceSubrange<C: Collection>(_ range: Range<Int>, with elements: C) where C.Iterator.Element == Element {
+    public mutating func replaceSubrange<C: Collection>(_ range: Range<Int>, with elements: C) where C.Element == Element {
         precondition(range.lowerBound >= 0 && range.upperBound <= count)
         if let list = elements as? List<Element> {
             replaceSubrange(range, with: list)

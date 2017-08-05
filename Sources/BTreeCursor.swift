@@ -500,7 +500,7 @@ public final class BTreeCursor<Key: Comparable, Value> {
     ///
     /// - Requires: `self.isValid` and `elements` is sorted by key.
     /// - Complexity: O(log(`count`) + *c*), where *c* is the number of elements in the sequence.
-    public func insert<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+    public func insert<S: Sequence>(_ elements: S) where S.Element == Element {
         insertWithoutCloning(BTree(sortedElements: elements).root)
     }
 

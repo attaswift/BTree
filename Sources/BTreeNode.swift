@@ -27,6 +27,7 @@ internal let bTreeNodeSize = 16383
 /// A node in an in-memory B-tree data structure, efficiently mapping `Comparable` keys to arbitrary values.
 /// Iterating over the elements in a B-tree returns them in ascending order of their keys.
 internal final class BTreeNode<Key: Comparable, Value> {
+    typealias Iterator = BTreeIterator<Key, Value>
     typealias Element = Iterator.Element
     typealias Node = BTreeNode<Key, Value>
 
@@ -131,8 +132,6 @@ extension BTreeNode {
 //MARK: Sequence
 
 extension BTreeNode: Sequence {
-    typealias Iterator = BTreeIterator<Key, Value>
-
     var isEmpty: Bool { return count == 0 }
 
     func makeIterator() -> Iterator {

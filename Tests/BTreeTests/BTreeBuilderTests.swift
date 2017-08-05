@@ -15,7 +15,7 @@ class BTreeBuilderTests: XCTestCase {
     typealias Tree = BTree<Int, String>
     typealias Element = (Int, String)
 
-    func elements<S: Sequence>(_ range: S) -> [Element] where S.Iterator.Element == Int {
+    func elements<S: Sequence>(_ range: S) -> [Element] where S.Element == Int {
         return range.map { ($0, String($0)) }
     }
 

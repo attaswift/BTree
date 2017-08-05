@@ -272,7 +272,7 @@ struct DictionaryBag<Element: Hashable>: Collection {
 
     init() {}
 
-    init<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+    init<S: Sequence>(_ elements: S) where S.Element == Element {
         self.init()
         self.formUnion(elements)
     }
@@ -319,13 +319,13 @@ struct DictionaryBag<Element: Hashable>: Collection {
         }
     }
 
-    mutating func subtract<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+    mutating func subtract<S: Sequence>(_ elements: S) where S.Element == Element {
         for element in elements {
             self.remove(element)
         }
     }
 
-    mutating func subtractAll<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+    mutating func subtractAll<S: Sequence>(_ elements: S) where S.Element == Element {
         for element in elements {
             if let c = bag[element] {
                 bag[element] = nil
@@ -334,25 +334,25 @@ struct DictionaryBag<Element: Hashable>: Collection {
         }
     }
 
-    func subtracting<S: Sequence>(_ elements: S) -> DictionaryBag where S.Iterator.Element == Element {
+    func subtracting<S: Sequence>(_ elements: S) -> DictionaryBag where S.Element == Element {
         var bag = self
         bag.subtract(elements)
         return bag
     }
 
-    func subtractingAll<S: Sequence>(_ elements: S) -> DictionaryBag where S.Iterator.Element == Element {
+    func subtractingAll<S: Sequence>(_ elements: S) -> DictionaryBag where S.Element == Element {
         var bag = self
         bag.subtractAll(elements)
         return bag
     }
 
-    mutating func formUnion<S: Sequence>(_ elements: S) where S.Iterator.Element == Element {
+    mutating func formUnion<S: Sequence>(_ elements: S) where S.Element == Element {
         for element in elements {
             self.insert(element)
         }
     }
 
-    func union<S: Sequence>(_ elements: S) -> DictionaryBag where S.Iterator.Element == Element {
+    func union<S: Sequence>(_ elements: S) -> DictionaryBag where S.Element == Element {
         var bag = self
         bag.formUnion(elements)
         return bag
