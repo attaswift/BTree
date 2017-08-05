@@ -55,7 +55,7 @@ internal final class BTreeNode<Key: Comparable, Value> {
         self.children = children
         self.count = count
         self._depth = (children.count == 0 ? 0 : children[0]._depth + 1)
-        assert(children.index { $0._depth + 1 != self._depth } == nil)
+        assert(children.index { $0._depth + (1 as Int32) != self._depth } == nil)
     }
 }
 

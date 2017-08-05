@@ -16,8 +16,9 @@ extension BTree {
     /// - Parameter order: The desired B-tree order. If not specified (recommended), the default order is used.
     /// - Complexity: O(count * log(`count`))
     /// - SeeAlso: `init(sortedElements:order:fillFactor:)` for a (faster) variant that can be used if the sequence is already sorted.
-    public init<S: Sequence>(_ elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder)
+    public init<S: Sequence>(_ elements: S, dropDuplicates: Bool = false, order: Int? = nil)
         where S.Iterator.Element == Element {
+        let order = order ?? Node.defaultOrder
         self.init(Node(order: order))
         withCursorAtEnd { cursor in
             for element in elements {
@@ -46,12 +47,12 @@ extension BTree {
     ///      If not specified, a value of 1.0 is used, i.e., nodes will be loaded with as many elements as possible.
     /// - Complexity: O(count)
     /// - SeeAlso: `init(elements:order:fillFactor:)` for a (slower) unsorted variant.
-    public init<S: Sequence>(sortedElements elements: S, dropDuplicates: Bool = false, order: Int = Node.defaultOrder, fillFactor: Double = 1) where S.Iterator.Element == Element {
+    public init<S: Sequence>(sortedElements elements: S, dropDuplicates: Bool = false, order: Int? = nil, fillFactor: Double = 1) where S.Iterator.Element == Element {
         var iterator = elements.makeIterator()
-        self.init(order: order, fillFactor: fillFactor, dropDuplicates: dropDuplicates, next: { iterator.next() })
+        self.init(order: order ?? Node.defaultOrder, fillFactor: fillFactor, dropDuplicates: dropDuplicates, next: { iterator.next() })
     }
 
-    internal init(order: Int = Node.defaultOrder, fillFactor: Double = 1, dropDuplicates: Bool = false, next: () -> Element?) {
+    internal init(order: Int, fillFactor: Double = 1, dropDuplicates: Bool = false, next: () -> Element?) {
         precondition(order > 1)
         precondition(fillFactor >= 0.5 && fillFactor <= 1)
         let keysPerNode = Int(fillFactor * Double(order - 1) + 0.5)
