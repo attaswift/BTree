@@ -462,7 +462,7 @@ class ListTests: XCTestCase {
     }
 
     func test_Issue3_CrashInElementwiseAppend() {
-        // https://github.com/lorentey/BTree/issues/3
+        // https://github.com/attaswift/BTree/issues/3
         var list = List<String>()
         for i in 0 ..< 1000 {
             list.append("item \(i)")

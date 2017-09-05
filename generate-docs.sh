@@ -21,8 +21,8 @@ jazzy \
     --clean \
     --author "Károly Lőrentey" \
     --author_url "https://twitter.com/lorentey" \
-    --github_url "https://github.com/lorentey/$module" \
-    --github-file-prefix "https://github.com/lorentey/$module/tree/$ref" \
+    --github_url "https://github.com/attaswift/$module" \
+    --github-file-prefix "https://github.com/attaswift/$module/tree/$ref" \
     --module-version "$version" \
     --xcodebuild-arguments "-scheme,$scheme" \
     --module "$module" \
