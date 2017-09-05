@@ -1026,7 +1026,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.iOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1045,7 +1045,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Mac;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -1207,7 +1207,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.iOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1224,7 +1224,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.iOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1267,7 +1267,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.watchOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1285,7 +1285,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.watchOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1303,7 +1303,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.watchOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1321,7 +1321,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.watchOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
@@ -1339,7 +1339,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.tvOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -1358,7 +1358,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.tvOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -1377,7 +1377,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.tvOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -1396,7 +1396,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.tvOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
@@ -1461,7 +1461,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Mac;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -1480,7 +1480,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Mac;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -1581,7 +1581,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.iOS;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1600,7 +1600,7 @@
 				INFOPLIST_FILE = Sources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.github.lorentey.BTree.Mac;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(BUNDLE_IDENTIFIER_BASE).$(PLATFORM_DISPLAY_NAME:rfc1034identifier)";
 				PRODUCT_NAME = BTree;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
