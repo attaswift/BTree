@@ -7,9 +7,9 @@ Pod::Spec.new do |spec|
     spec.watchos.deployment_target = "2.0"
     spec.summary      = 'Fast ordered collections for Swift using in-memory B-trees'
     spec.author       = 'Károly Lőrentey'
-    spec.homepage     = 'https://github.com/lorentey/BTree'
+    spec.homepage     = 'https://github.com/attaswift/BTree'
     spec.license      = { :type => 'MIT', :file => 'LICENSE.md' }
-    spec.source       = { :git => 'https://github.com/lorentey/BTree.git',
+    spec.source       = { :git => 'https://github.com/attaswift/BTree.git',
                           :tag => 'v' + String(spec.version) }
     spec.source_files = 'Sources/*.swift'
     spec.social_media_url = 'https://twitter.com/lorentey'

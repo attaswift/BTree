@@ -1,11 +1,11 @@
 # Fast Sorted Collections for Swift<br>Using In-Memory B-Trees
 
 [![Swift 4.0](https://img.shields.io/badge/Swift-4.0-blue.svg)](https://swift.org)
-[![License](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/lorentey/BTree/blob/master/LICENSE.md)
+[![License](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/attaswift/BTree/blob/master/LICENSE.md)
 [![Platform](https://img.shields.io/badge/platforms-macOS%20∙%20iOS%20∙%20watchOS%20∙%20tvOS-blue.svg)](https://developer.apple.com/platforms/)
 
-[![Build Status](https://travis-ci.org/lorentey/BTree.svg?branch=master)](https://travis-ci.org/lorentey/BTree)
-[![Code Coverage](https://codecov.io/github/lorentey/BTree/coverage.svg?branch=master)](https://codecov.io/github/lorentey/BTree?branch=master)
+[![Build Status](https://travis-ci.org/attaswift/BTree.svg?branch=master)](https://travis-ci.org/attaswift/BTree)
+[![Code Coverage](https://codecov.io/github/attaswift/BTree/coverage.svg?branch=master)](https://codecov.io/github/attaswift/BTree?branch=master)
 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage)
 [![CocoaPod Version](https://img.shields.io/cocoapods/v/BTree.svg)](http://cocoapods.org/pods/BTree)
@@ -118,7 +118,7 @@ Each node in the tree also maintains the count of all elements under it.
 This makes the tree an [order statistic tree], where efficient positional lookup is possible.
 
 [B-tree wiki]: https://en.wikipedia.org/wiki/B-tree
-[red-black tree]: https://github.com/lorentey/RedBlackTree
+[red-black tree]: https://github.com/attaswift/RedBlackTree
 [avl wiki]: https://en.wikipedia.org/wiki/AVL_tree
 [order statistic tree]: https://en.wikipedia.org/wiki/Order_statistic_tree
 [b-plus tree]: https://en.wikipedia.org/wiki/B%2B_tree
@@ -132,7 +132,7 @@ tree-based data structures. This is a result of the Swift engineering team spend
 > Indeed, the library lacks even a basic [double-ended queue][deque] construct -- 
 > although Cocoa's `Foundation` framework does include one in `NSArray`.
 
-[deque]: https://github.com/lorentey/Deque
+[deque]: https://github.com/attaswift/Deque
 
 However, some problems call for a wider variety of data structures. 
 
@@ -390,7 +390,7 @@ Let's enumerate:
     that you cannot mix-n-match trees of different orders.)  Thus, on a 64-bit system, a B-tree
     holding `Int` elements will store about 2047 elements per node. Wow!
 
-[bTreeNodeSize]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift#L23
+[bTreeNodeSize]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeNode.swift#L23
 
 -   Individual B-tree nodes may be independently shared between multiple B-trees.  When mutating a
     (partially or fully) shared tree, copy-on-write is restricted to only clone the nodes whose subtree is
@@ -465,17 +465,17 @@ Let's enumerate:
       to allow for super speedy elementwise insertions and removals. The counts are carefully recalculated
       whenever the path moves off a node's branch in the tree.
           
-[BTreePath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreePath.swift
-[BTreeWeakPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeIndex.swift#L87
-[BTreeStrongPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeIterator.swift#L74
-[BTreeCursorPath]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeCursor.swift#L96
+[BTreePath]: https://github.com/attaswift/BTree/blob/master/Sources/BTreePath.swift
+[BTreeWeakPath]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeIndex.swift#L87
+[BTreeStrongPath]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeIterator.swift#L74
+[BTreeCursorPath]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeCursor.swift#L96
 
 -   It would be overkill to create an explicit path to look up or modify a single element in the tree
     on its own, so `BTree` also provides a [set of recursive methods][BTree-lookups] that 
     implement the same sort of lookups and simple mutations. 
     They are faster when you need to retrieve a single item, but they aren't efficient when called repeatedly.
     
-[BTree-lookups]: https://github.com/lorentey/BTree/blob/master/Sources/BTree.swift#L280-L419
+[BTree-lookups]: https://github.com/attaswift/BTree/blob/master/Sources/BTree.swift#L280-L419
 
 -   `BTree` includes a [bulk loading algorithm][BTree.bulkLoad] that efficiently initializes fully loaded
     trees from any sorted sequence. You can also specify a fill factor that's less than 100% if you expect to
@@ -488,7 +488,7 @@ Let's enumerate:
     appending entire B-trees. This comes useful in optimized tree merging algorithms.
 
 [BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_xq__
-[BTreeBuilder]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeBuilder.swift
+[BTreeBuilder]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeBuilder.swift
     
 -   [Constructing a B-tree from an unsorted sequence of elements][BTree.unsorted-load] inserts the elements into the tree one by
     one; no buffer is allocated to sort elements before loading them into the tree. This is done more
@@ -509,7 +509,7 @@ Let's enumerate:
     tree merging construct called [`BTreeMerger`][BTreeMerger].
 
 [BTree]: http://lorentey.github.io/BTree/api/Structs/BTree.html
-[BTreeNode]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeNode.swift
+[BTreeNode]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeNode.swift
 [BTreeKeySelector]: http://lorentey.github.io/BTree/api/Enums/BTreeKeySelector.html
 [BTreeIterator]: http://lorentey.github.io/BTree/api/Structs/BTreeIterator.html
 [BTreeIndex]: http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html
@@ -520,7 +520,7 @@ Let's enumerate:
 [BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeFT4fromx2tox_GS0_xq__
 [BTree.union]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree5unionFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__
 [BTree.symmetricDifference]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree19symmetricDifferenceFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__
-[BTreeMerger]: https://github.com/lorentey/BTree/blob/master/Sources/BTreeMerger.swift#L318
+[BTreeMerger]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeMerger.swift#L318
 
 ### <a name="generics">Remark on Performance of Imported Generics</a>
 <a name="perf"></a>
