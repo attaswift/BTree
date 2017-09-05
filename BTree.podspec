@@ -13,5 +13,5 @@ Pod::Spec.new do |spec|
                           :tag => 'v' + String(spec.version) }
     spec.source_files = 'Sources/*.swift'
     spec.social_media_url = 'https://twitter.com/lorentey'
-    spec.documentation_url = 'http://lorentey.github.io/BTree/api/'
+    spec.documentation_url = 'http://attaswift.github.io/BTree/api/'
 end

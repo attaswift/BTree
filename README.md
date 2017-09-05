@@ -67,10 +67,10 @@ All of these collections are structs and they implement the same copy-on-write v
 standard Swift collection types like `Array` and `Dictionary`. (In fact, copy-on-write works even
 better with these than standard collections; continue reading to find out why!)
 
-[Map]: http://lorentey.github.io/BTree/api/Structs/Map.html
-[List]: http://lorentey.github.io/BTree/api/Structs/List.html
-[SortedSet]: http://lorentey.github.io/BTree/api/Structs/SortedSet.html
-[SortedBag]: http://lorentey.github.io/BTree/api/Structs/SortedBag.html
+[Map]: http://attaswift.github.io/BTree/api/Structs/Map.html
+[List]: http://attaswift.github.io/BTree/api/Structs/List.html
+[SortedSet]: http://attaswift.github.io/BTree/api/Structs/SortedSet.html
+[SortedBag]: http://attaswift.github.io/BTree/api/Structs/SortedBag.html
 [multiset]: https://en.wikipedia.org/wiki/Set_(abstract_data_type)#Multiset
 
 The latest version of `BTree` requires Swift 3.0. (The last release supporting Swift 2 was 2.1.0.)
@@ -80,7 +80,7 @@ The latest version of `BTree` requires Swift 3.0. (The last release supporting S
 The project includes [a nicely formatted reference document][doc] generated from the documentation comments
 embedded in its source code.
 
-[doc]: http://lorentey.github.io/BTree/api
+[doc]: http://attaswift.github.io/BTree/api
 
 ### <a name="book">[Optimizing Collections: The Book][OptimizingCollections]</a>
 
@@ -487,7 +487,7 @@ Let's enumerate:
     appending elements to a newly created tree. Beside individual elements, it also supports efficiently 
     appending entire B-trees. This comes useful in optimized tree merging algorithms.
 
-[BTree.bulkLoad]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_xq__
+[BTree.bulkLoad]: http://attaswift.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFT14sortedElementsqd__14dropDuplicatesSb5orderSi10fillFactorSd_GS0_xq__
 [BTreeBuilder]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeBuilder.swift
     
 -   [Constructing a B-tree from an unsorted sequence of elements][BTree.unsorted-load] inserts the elements into the tree one by
@@ -495,8 +495,8 @@ Let's enumerate:
     efficiently than calling [an insertion method][BTree.insert] with each element one by one, but it is likely still slower than
     a quicksort. (So sort elements on your own if you can spare the extra memory.)
 
-[BTree.insert]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/Insertion
-[BTree.unsorted-load]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFTqd__14dropDuplicatesSb5orderSi_GS0_xq__
+[BTree.insert]: http://attaswift.github.io/BTree/api/Structs/BTree.html#/Insertion
+[BTree.unsorted-load]: http://attaswift.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTreecuRd__s8SequenceWd__8Iterator7Element_zTxq__rFTqd__14dropDuplicatesSb5orderSi_GS0_xq__
 
 -   The package contains O(log(n)) methods to [extract a range of elements as a new B-tree][BTree.subtree]
     and to [insert a B-tree into another B-tree][BTreeCursor.insertTree]. (Keys need to remain sorted
@@ -508,18 +508,18 @@ Let's enumerate:
     can finish in as little as O(log(*n*)) time. These algorithms are expressed on top of a general
     tree merging construct called [`BTreeMerger`][BTreeMerger].
 
-[BTree]: http://lorentey.github.io/BTree/api/Structs/BTree.html
+[BTree]: http://attaswift.github.io/BTree/api/Structs/BTree.html
 [BTreeNode]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeNode.swift
-[BTreeKeySelector]: http://lorentey.github.io/BTree/api/Enums/BTreeKeySelector.html
-[BTreeIterator]: http://lorentey.github.io/BTree/api/Structs/BTreeIterator.html
-[BTreeIndex]: http://lorentey.github.io/BTree/api/Structs/BTreeIndex.html
-[BTreeCursor]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html
-[BTree.elementAtOffset]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7elementFT8atOffsetSi_Txq__
-[BTree.forEach]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachFzFzTxq__T_T_
-[BTreeCursor.insertTree]: http://lorentey.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertFGVS_5BTreexq__T_
-[BTree.subtree]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeFT4fromx2tox_GS0_xq__
-[BTree.union]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree5unionFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__
-[BTree.symmetricDifference]: http://lorentey.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree19symmetricDifferenceFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__
+[BTreeKeySelector]: http://attaswift.github.io/BTree/api/Enums/BTreeKeySelector.html
+[BTreeIterator]: http://attaswift.github.io/BTree/api/Structs/BTreeIterator.html
+[BTreeIndex]: http://attaswift.github.io/BTree/api/Structs/BTreeIndex.html
+[BTreeCursor]: http://attaswift.github.io/BTree/api/Classes/BTreeCursor.html
+[BTree.elementAtOffset]: http://attaswift.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7elementFT8atOffsetSi_Txq__
+[BTree.forEach]: http://attaswift.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7forEachFzFzTxq__T_T_
+[BTreeCursor.insertTree]: http://attaswift.github.io/BTree/api/Classes/BTreeCursor.html#/s:FC5BTree11BTreeCursor6insertFGVS_5BTreexq__T_
+[BTree.subtree]: http://attaswift.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree7subtreeFT4fromx2tox_GS0_xq__
+[BTree.union]: http://attaswift.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree5unionFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__
+[BTree.symmetricDifference]: http://attaswift.github.io/BTree/api/Structs/BTree.html#/s:FV5BTree5BTree19symmetricDifferenceFTGS0_xq__2byOS_21BTreeMatchingStrategy_GS0_xq__
 [BTreeMerger]: https://github.com/attaswift/BTree/blob/master/Sources/BTreeMerger.swift#L318
 
 ### <a name="generics">Remark on Performance of Imported Generics</a>

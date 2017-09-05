@@ -26,6 +26,6 @@ jazzy \
     --module-version "$version" \
     --xcodebuild-arguments "-scheme,$scheme" \
     --module "$module" \
-    --root-url "https://lorentey.github.io/$module/reference/" \
+    --root-url "https://attaswift.github.io/$module/reference/" \
     --theme fullwidth \
     --output gh-pages/api
