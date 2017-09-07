@@ -71,7 +71,7 @@ better with these than standard collections; continue reading to find out why!)
 [SortedBag]: http://attaswift.github.io/BTree/api/Structs/SortedBag.html
 [multiset]: https://en.wikipedia.org/wiki/Set_(abstract_data_type)#Multiset
 
-The latest version of `BTree` requires Swift 3.0. (The last release supporting Swift 2 was 2.1.0.)
+The latest version of `BTree` requires Swift 4. (The last release supporting Swift 3 was 4.0.2.)
 
 ### <a name="api">[Reference Documentation][doc]</a>
 
