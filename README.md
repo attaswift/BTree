@@ -10,8 +10,6 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg)](https://github.com/Carthage/Carthage)
 [![CocoaPod Version](https://img.shields.io/cocoapods/v/BTree.svg)](http://cocoapods.org/pods/BTree)
 
-[![Join the chat at https://gitter.im/swift-btree/Lobby](https://badges.gitter.im/swift-btree/Lobby.svg)](https://gitter.im/swift-btree/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 * [Overview](#overview)
 * [Reference Documentation](#api)
 * [Optimizing Collections: The Book](#book)
