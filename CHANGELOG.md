@@ -1,3 +1,11 @@
+# 4.1.0 (2017-09-07)
+
+This release updates the project to Swift 4 with no functional changes.
+
+BTree is now part of the Attaswift project. The bundle identifiers in the supplied Xcode project have been updated accordingly.
+
+Note that the URL for the package's Git repository has changed; please update your references.
+
 # 4.0.2 (2017-02-07)
 
 This release contains the following changes:
