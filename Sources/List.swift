@@ -25,26 +25,48 @@
 ///   (less than 5 levels for a billion elements), so with practical element counts, offset lookup typically 
 ///   behaves more like `O(1)` than `O(log(count))`.
 ///
-public struct List<Element> {
+
+public struct List<Element:Codable>:Codable{
+
     internal typealias Tree = BTree<EmptyKey, Element>
 
-    #if !DISABLE_CODABLE_SUPPORT
-        /// The B-tree that serves as storage.
-        internal var tree: Tree
-    #else
-        /// The B-tree that serves as storage.
-        internal fileprivate(set) var tree: Tree
-    #endif
+    internal fileprivate(set) var tree: Tree
 
     internal init(_ tree: Tree) {
         self.tree = tree
     }
-    
+
     /// Initialize an empty list.
     public init() {
         self.tree = Tree()
     }
 
+    fileprivate var _transitionalArray:Array<Element>{
+        set{
+            self.removeAll()
+            self.append(contentsOf: newValue)
+        }
+        get{
+            var array = Array<Element>()
+            array.append(contentsOf: self)
+            return array
+        }
+    }
+
+    public enum ListCodingKeys: String,CodingKey{
+        case _transitionalArray
+    }
+
+    public init(from decoder: Decoder) throws{
+        self.init()
+        let values = try decoder.container(keyedBy: ListCodingKeys.self)
+        self._transitionalArray = try values.decode(Array<Element>.self,forKey: ._transitionalArray)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: ListCodingKeys.self)
+        try container.encode(self._transitionalArray,forKey: ._transitionalArray)
+    }
 }
 
 extension List {

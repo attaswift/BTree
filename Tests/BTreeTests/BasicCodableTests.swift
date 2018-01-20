@@ -9,16 +9,18 @@
 import XCTest
 @testable import BTree
 
+
+
 class BasicCodableTests: XCTestCase {
 
     func testEncodingDecodingList()  {
         do{
             var list = List<Int>()
-            list.append(666)
+            list.append(Int(666))
             let data = try JSONEncoder().encode(list)
             let list2 = try JSONDecoder().decode(List<Int>.self, from: data)
             XCTAssert(list2.count == 1,"Should contain one element, current count\(list2.count)")
-            //XCTAssert(list2[0] == 666)
+            XCTAssert(list2[0] == 666)
         }catch{
             XCTFail("\(error)")
         }
