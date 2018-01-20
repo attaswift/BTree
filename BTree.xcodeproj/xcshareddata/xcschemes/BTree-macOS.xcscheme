@@ -39,6 +39,14 @@
                BlueprintName = "Tests-Mac"
                ReferencedContainer = "container:BTree.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "BridgedListTests">
+               </Test>
+               <Test
+                  Identifier = "BridgedListTests/testListBaseline()">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>
