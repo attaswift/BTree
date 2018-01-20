@@ -28,8 +28,13 @@
 public struct List<Element> {
     internal typealias Tree = BTree<EmptyKey, Element>
 
-    /// The B-tree that serves as storage.
-    internal fileprivate(set) var tree: Tree
+    #if !DISABLE_CODABLE_SUPPORT
+        /// The B-tree that serves as storage.
+        internal var tree: Tree
+    #else
+        /// The B-tree that serves as storage.
+        internal fileprivate(set) var tree: Tree
+    #endif
 
     internal init(_ tree: Tree) {
         self.tree = tree
@@ -39,6 +44,7 @@ public struct List<Element> {
     public init() {
         self.tree = Tree()
     }
+
 }
 
 extension List {

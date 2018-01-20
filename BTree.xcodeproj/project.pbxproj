@@ -130,6 +130,13 @@
 		BBCB23EE1C8A510000A6E276 /* SortedSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23ED1C8A510000A6E276 /* SortedSetTests.swift */; };
 		BBCB23EF1C8A510000A6E276 /* SortedSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23ED1C8A510000A6E276 /* SortedSetTests.swift */; };
 		BBCB23F01C8A510000A6E276 /* SortedSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCB23ED1C8A510000A6E276 /* SortedSetTests.swift */; };
+		E5A1FDA42013493000558CF8 /* CodableSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1FDA2201348C100558CF8 /* CodableSupport.swift */; };
+		E5A1FDA52013493000558CF8 /* CodableSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1FDA2201348C100558CF8 /* CodableSupport.swift */; };
+		E5A1FDA62013493100558CF8 /* CodableSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1FDA2201348C100558CF8 /* CodableSupport.swift */; };
+		E5A1FDA72013493100558CF8 /* CodableSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1FDA2201348C100558CF8 /* CodableSupport.swift */; };
+		E5A1FDA9201352C500558CF8 /* BasicCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1FDA8201352C500558CF8 /* BasicCodableTests.swift */; };
+		E5A1FDAA201352C500558CF8 /* BasicCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1FDA8201352C500558CF8 /* BasicCodableTests.swift */; };
+		E5A1FDAB201352C500558CF8 /* BasicCodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1FDA8201352C500558CF8 /* BasicCodableTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -219,6 +226,8 @@
 		BBCABF9B1C2ECF8900825BF5 /* String Manipulation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String Manipulation.swift"; sourceTree = "<group>"; };
 		BBCB23E91C8A022B00A6E276 /* BTreeComparisonTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = BTreeComparisonTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		BBCB23ED1C8A510000A6E276 /* SortedSetTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; lineEnding = 0; path = SortedSetTests.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		E5A1FDA2201348C100558CF8 /* CodableSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CodableSupport.swift; sourceTree = "<group>"; };
+		E5A1FDA8201352C500558CF8 /* BasicCodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicCodableTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -348,6 +357,7 @@
 				BBB506671DD0D18400D0FC8E /* SortedBag.swift */,
 				BBB506681DD0D18400D0FC8E /* SortedSet.swift */,
 				BBB5067E1DD0D19600D0FC8E /* Compatibility.swift */,
+				E5A1FDA2201348C100558CF8 /* CodableSupport.swift */,
 				BB54D0B41C1F0357008A462B /* Info.plist */,
 			);
 			path = Sources;
@@ -357,6 +367,7 @@
 			isa = PBXGroup;
 			children = (
 				BB54D0C01C1F0357008A462B /* Info.plist */,
+				E5A1FDA8201352C500558CF8 /* BasicCodableTests.swift */,
 				BBB224DA1C7B9BAA0049FEF6 /* BTreeTestSupport.swift */,
 				BBB224D81C7B9BAA0049FEF6 /* BTreeNodeTests.swift */,
 				BB5B27C51C807C6200ED8D38 /* BTreePathTests.swift */,
@@ -707,6 +718,7 @@
 			files = (
 				BBB506711DD0D18400D0FC8E /* SortedBag.swift in Sources */,
 				BBB506491DD0D15400D0FC8E /* BTreeIterator.swift in Sources */,
+				E5A1FDA42013493000558CF8 /* CodableSupport.swift in Sources */,
 				BBB5064D1DD0D15400D0FC8E /* BTreePath.swift in Sources */,
 				BBB506521DD0D16600D0FC8E /* BTreeNode.swift in Sources */,
 				BBB506391DD0D13A00D0FC8E /* BTree.swift in Sources */,
@@ -738,6 +750,7 @@
 				BB1F888E1D91BB2000974C2F /* BridgedListTests.swift in Sources */,
 				BBB224E51C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
 				BBB224E31C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */,
+				E5A1FDA9201352C500558CF8 /* BasicCodableTests.swift in Sources */,
 				BBCB23EA1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
 				BBB224E71C7B9ED60049FEF6 /* MapTests.swift in Sources */,
 				BB5B27D91C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
@@ -755,6 +768,7 @@
 			files = (
 				BBB506731DD0D18400D0FC8E /* SortedBag.swift in Sources */,
 				BBB5064B1DD0D15400D0FC8E /* BTreeIterator.swift in Sources */,
+				E5A1FDA62013493100558CF8 /* CodableSupport.swift in Sources */,
 				BBB5064F1DD0D15400D0FC8E /* BTreePath.swift in Sources */,
 				BBB506541DD0D16600D0FC8E /* BTreeNode.swift in Sources */,
 				BBB5063B1DD0D13A00D0FC8E /* BTree.swift in Sources */,
@@ -778,6 +792,7 @@
 			files = (
 				BBB506741DD0D18400D0FC8E /* SortedBag.swift in Sources */,
 				BBB5064C1DD0D15400D0FC8E /* BTreeIterator.swift in Sources */,
+				E5A1FDA72013493100558CF8 /* CodableSupport.swift in Sources */,
 				BBB506501DD0D15400D0FC8E /* BTreePath.swift in Sources */,
 				BBB506551DD0D16600D0FC8E /* BTreeNode.swift in Sources */,
 				BBB5063C1DD0D13A00D0FC8E /* BTree.swift in Sources */,
@@ -809,6 +824,7 @@
 				BB1F88901D91BB2000974C2F /* BridgedListTests.swift in Sources */,
 				BB8FE9D31C7C8F730051268F /* BTreeTestSupport.swift in Sources */,
 				BB8FE9DD1C7C8F730051268F /* XCTest extensions.swift in Sources */,
+				E5A1FDAB201352C500558CF8 /* BasicCodableTests.swift in Sources */,
 				BBCB23EC1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
 				BB8FE9DB1C7C8F730051268F /* PermutationTests.swift in Sources */,
 				BB5B27DB1C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
@@ -826,6 +842,7 @@
 			files = (
 				BBB506721DD0D18400D0FC8E /* SortedBag.swift in Sources */,
 				BBB5064A1DD0D15400D0FC8E /* BTreeIterator.swift in Sources */,
+				E5A1FDA52013493000558CF8 /* CodableSupport.swift in Sources */,
 				BBB5064E1DD0D15400D0FC8E /* BTreePath.swift in Sources */,
 				BBB506531DD0D16600D0FC8E /* BTreeNode.swift in Sources */,
 				BBB5063A1DD0D13A00D0FC8E /* BTree.swift in Sources */,
@@ -857,6 +874,7 @@
 				BB1F888F1D91BB2000974C2F /* BridgedListTests.swift in Sources */,
 				BBB224EB1C7B9ED60049FEF6 /* BTreeCursorTests.swift in Sources */,
 				BBB224E91C7B9ED60049FEF6 /* BTreeTestSupport.swift in Sources */,
+				E5A1FDAA201352C500558CF8 /* BasicCodableTests.swift in Sources */,
 				BBCB23EB1C8A022B00A6E276 /* BTreeComparisonTests.swift in Sources */,
 				BBB224ED1C7B9ED60049FEF6 /* MapTests.swift in Sources */,
 				BB5B27DA1C83DAE400ED8D38 /* BTreeMergeTests.swift in Sources */,
