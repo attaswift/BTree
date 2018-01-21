@@ -59,13 +59,13 @@ public struct List<Element:Codable>:Codable{
 
     public init(from decoder: Decoder) throws{
         self.init()
-        let values = try decoder.container(keyedBy: ListCodingKeys.self)
-        self._transitionalArray = try values.decode(Array<Element>.self,forKey: ._transitionalArray)
+        var values = try decoder.unkeyedContainer()
+        self._transitionalArray = try values.decode(Array<Element>.self)
     }
 
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: ListCodingKeys.self)
-        try container.encode(self._transitionalArray,forKey: ._transitionalArray)
+        var container = encoder.unkeyedContainer()
+        try container.encode(self._transitionalArray)
     }
 }
 
