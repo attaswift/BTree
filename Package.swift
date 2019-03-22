@@ -12,7 +12,7 @@ import PackageDescription
 let package = Package(
     name: "BTree",
     products: [
-        .library(name: "BTree", type: .dynamic, targets: ["BTree"])
+        .library(name: "BTree", targets: ["BTree"])
     ],
     dependencies: [
     ],
