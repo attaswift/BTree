@@ -297,7 +297,7 @@ public extension List {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: List<Element>, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+    func elementsEqual(_ other: List<Element>, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
         return try self.tree.elementsEqual(other.tree, by: { try isEquivalent($0.1, $1.1) })
     }
 
@@ -305,7 +305,7 @@ public extension List {
     /// such value is not found.
     ///
     /// - Complexity: O(`count`)
-    public func index(where predicate: (Element) throws -> Bool) rethrows -> Index? {
+    func index(where predicate: (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
         try self.tree.forEach { element -> Bool in
             if try predicate(element.1) {
@@ -329,14 +329,14 @@ public extension List where Element: Equatable {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: List<Element>) -> Bool {
+    func elementsEqual(_ other: List<Element>) -> Bool {
         return self.tree.elementsEqual(other.tree, by: { $0.1 == $1.1 })
     }
 
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
     ///
     /// - Complexity: O(`count`)
-    public func index(of element: Element) -> Index? {
+    func index(of element: Element) -> Index? {
         var i = 0
         self.tree.forEach { e -> Bool in
             if element == e.1 {
@@ -349,7 +349,7 @@ public extension List where Element: Equatable {
     }
 
     /// Return true iff `element` is in `self`.
-    public func contains(_ element: Element) -> Bool {
+    func contains(_ element: Element) -> Bool {
         return index(of: element) != nil
     }
 
@@ -359,12 +359,12 @@ public extension List where Element: Equatable {
     /// two lists are divergent mutations originating from the same value.
     ///
     /// - Complexity: O(`count`)
-    public static func ==(a: List, b: List) -> Bool {
+    static func ==(a: List, b: List) -> Bool {
         return a.elementsEqual(b)
     }
 
     /// Returns false iff the two lists do not have the same elements in the same order.
-    public static func !=(a: List, b: List) -> Bool {
+    static func !=(a: List, b: List) -> Bool {
         return !(a == b)
     }
 }

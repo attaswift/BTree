@@ -687,7 +687,7 @@ internal extension BTreeStrongPath {
     }
 
     /// Move sideways `n` slots to the right, skipping over subtrees along the way.
-    internal mutating func skipForward(_ n: Int) {
+    mutating func skipForward(_ n: Int) {
         if !node.isLeaf {
             for i in 0 ..< n {
                 let s = slot! + i

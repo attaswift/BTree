@@ -289,14 +289,14 @@ public extension BTree {
     /// Returns the first element in this tree, or `nil` if the tree is empty.
     ///
     /// - Complexity: O(log(`count`))
-    public var first: Element? {
+    var first: Element? {
         return root.first
     }
 
     /// Returns the last element in this tree, or `nil` if the tree is empty.
     ///
     /// - Complexity: O(log(`count`))
-    public var last: Element? {
+    var last: Element? {
         return root.last
     }
 
@@ -304,7 +304,7 @@ public extension BTree {
     ///
     /// - Requires: `offset >= 0 && offset < count`
     /// - Complexity: O(log(`count`))
-    public func element(atOffset offset: Int) -> Element {
+    func element(atOffset offset: Int) -> Element {
         precondition(offset >= 0 && offset < count)
         var offset = offset
         var node = root
@@ -324,7 +324,7 @@ public extension BTree {
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
-    public func value(of key: Key, choosing selector: BTreeKeySelector = .any) -> Value? {
+    func value(of key: Key, choosing selector: BTreeKeySelector = .any) -> Value? {
         switch selector {
         case .any:
             var node = root
@@ -362,7 +362,7 @@ public extension BTree {
     /// This method never returns `endIndex`.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(forKey key: Key, choosing selector: BTreeKeySelector = .any) -> Index? {
+    func index(forKey key: Key, choosing selector: BTreeKeySelector = .any) -> Index? {
         let path = BTreeWeakPath(root: root, key: key, choosing: selector)
         guard !path.isAtEnd && (selector == .after || path.key == key) else { return nil }
         return Index(path)
@@ -374,7 +374,7 @@ public extension BTree {
     /// The returned index may be `endIndex` if the tree is empty or `key` is greater than or equal to the key of the largest element.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(forInserting key: Key, at selector: BTreeKeySelector = .any) -> Index {
+    func index(forInserting key: Key, at selector: BTreeKeySelector = .any) -> Index {
         let path = BTreeWeakPath(root: root, key: key, choosing: selector == .last ? .after : selector)
         return Index(path)
     }
@@ -383,7 +383,7 @@ public extension BTree {
     /// If there are multiple elements with the same key, `selector` indicates which matching element to find.
     ///
     /// - Complexity: O(log(`count`))
-    public func offset(forKey key: Key, choosing selector: BTreeKeySelector = .any) -> Int? {
+    func offset(forKey key: Key, choosing selector: BTreeKeySelector = .any) -> Int? {
         var node = root
         var offset = 0
         var match: Int? = nil
@@ -410,7 +410,7 @@ public extension BTree {
     /// Returns the offset of the element at `index`.
     ///
     /// - Complexity: O(1)
-    public func offset(of index: Index) -> Int {
+    func offset(of index: Index) -> Int {
         index.state.expectRoot(root)
         return index.state.offset
     }
@@ -419,7 +419,7 @@ public extension BTree {
     ///
     /// - Requires: `offset >= 0 && offset <= count`
     /// - Complexity: O(log(`count`))
-    public func index(ofOffset offset: Int) -> Index {
+    func index(ofOffset offset: Int) -> Index {
         return Index(BTreeWeakPath(root: root, offset: offset))
     }
 }
