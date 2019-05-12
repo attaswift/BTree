@@ -1,5 +1,5 @@
 language: objective-c
-osx_image: xcode9.3
+osx_image: xcode10.2
 script:
 - xcrun xcodebuild -project BTree.xcodeproj -scheme BTree-macOS test
 - xcrun xcodebuild -project BTree.xcodeproj -scheme BTree-iOS
