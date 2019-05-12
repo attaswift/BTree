@@ -13,7 +13,7 @@ internal func layoutColumns(lines: [[String]], separator: String = "   ") -> [St
     let columnCount = lines.reduce(0) { a, l in max(a, l.count) }
     var columnWidths = [Int](repeating: 0, count: columnCount)
     lines.lazy.flatMap { $0.enumerated() }.forEach { i, c in
-        columnWidths[i] = max(columnWidths[i], c.characters.count)
+        columnWidths[i] = max(columnWidths[i], c.count)
     }
 
     var result: [String] = []
@@ -25,7 +25,7 @@ internal func layoutColumns(lines: [[String]], separator: String = "   ") -> [St
                 line += separator
             }
             line += c
-            line += String(repeating: " ", count: columnWidths[i] - c.characters.count)
+            line += String(repeating: " ", count: columnWidths[i] - c.count)
         }
         result.append(line)
     }

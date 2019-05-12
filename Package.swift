@@ -20,5 +20,5 @@ let package = Package(
         .target(name: "BTree", dependencies: [], path: "Sources"),
         .testTarget(name: "BTreeTests", dependencies: ["BTree"], path: "Tests/BTreeTests")
     ],
-    swiftLanguageVersions: [4]
+    swiftLanguageVersions: [5]
 )
