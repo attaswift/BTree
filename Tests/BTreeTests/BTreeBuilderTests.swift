@@ -6,8 +6,8 @@
 //  Copyright © 2016–2017 Károly Lőrentey.
 //
 
-import XCTest
 @testable import BTree
+import XCTest
 
 class BTreeBuilderTests: XCTestCase {
     typealias Builder = BTreeBuilder<Int, String>

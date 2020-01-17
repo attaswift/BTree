@@ -13,7 +13,7 @@
 /// original instance) will cause a runtime error.
 ///
 /// This index satisfies `Collection`'s requirement for O(1) access, but
-/// it is only suitable for read-only processing -- most tree mutations will 
+/// it is only suitable for read-only processing -- most tree mutations will
 /// invalidate all existing indexes.
 ///
 /// - SeeAlso: `BTreeCursor` for an efficient way to modify a batch of values in a B-tree.
@@ -26,7 +26,7 @@ public struct BTreeIndex<Key: Comparable, Value> {
     internal init(_ state: State) {
         self.state = state
     }
-    
+
     /// Advance to the next index.
     ///
     /// - Requires: self is valid and not the end index.
@@ -34,7 +34,7 @@ public struct BTreeIndex<Key: Comparable, Value> {
     mutating func increment() {
         state.moveForward()
     }
-    
+
     /// Advance to the previous index.
     ///
     /// - Requires: self is valid and not the start index.
@@ -65,13 +65,13 @@ public struct BTreeIndex<Key: Comparable, Value> {
 
 extension BTreeIndex: Comparable {
     /// Return true iff `a` is equal to `b`.
-    public static func ==(a: BTreeIndex, b: BTreeIndex) -> Bool {
+    public static func == (a: BTreeIndex, b: BTreeIndex) -> Bool {
         precondition(a.state.root === b.state.root, "Indices to different trees cannot be compared")
         return a.state.offset == b.state.offset
     }
 
     /// Return true iff `a` is less than `b`.
-    public static func <(a: BTreeIndex, b: BTreeIndex) -> Bool {
+    public static func < (a: BTreeIndex, b: BTreeIndex) -> Bool {
         precondition(a.state.root === b.state.root, "Indices to different trees cannot be compared")
         return a.state.offset < b.state.offset
     }
@@ -96,26 +96,27 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
     var slot: Int?
 
     init(root: Node) {
-        self._root = Weak(root)
-        self.offset = root.count
-        self._path = []
-        self._slots = []
-        self._node = Weak(root)
-        self.slot = nil
+        _root = Weak(root)
+        offset = root.count
+        _path = []
+        _slots = []
+        _node = Weak(root)
+        slot = nil
     }
 
     var root: Node {
         guard let root = _root.value else { invalid() }
         return root
     }
+
     var count: Int { return root.count }
-    var length: Int { return _path.count + 1}
+    var length: Int { return _path.count + 1 }
 
     var node: Node {
         guard let node = _node.value else { invalid() }
         return node
     }
-    
+
     internal func expectRoot(_ root: Node) {
         expectValid(_root.value === root)
     }
@@ -124,12 +125,12 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         precondition(expression(), "Invalid BTreeIndex", file: file, line: line)
     }
 
-    internal func invalid(_ file: StaticString = #file, line: UInt = #line) -> Never  {
+    internal func invalid(_ file: StaticString = #file, line: UInt = #line) -> Never {
         preconditionFailure("Invalid BTreeIndex", file: file, line: line)
     }
 
     mutating func popFromSlots() {
-        assert(self.slot != nil)
+        assert(slot != nil)
         let node = self.node
         offset += node.count - node.offset(ofSlot: slot!)
         slot = nil
@@ -144,7 +145,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
     }
 
     mutating func pushToPath() {
-        assert(self.slot != nil)
+        assert(slot != nil)
         let child = node.children[slot!]
         _path.append(_node)
         _node = Weak(child)
@@ -169,8 +170,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
                 child = node
                 body(node, slot)
             }
-        }
-        else {
+        } else {
             for i in 0 ..< _path.count {
                 guard let node = _path[i].value else { invalid() }
                 let slot = _slots[i]
@@ -185,8 +185,7 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         if ascending {
             body(slot!)
             _slots.reversed().forEach(body)
-        }
-        else {
+        } else {
             _slots.forEach(body)
             body(slot!)
         }

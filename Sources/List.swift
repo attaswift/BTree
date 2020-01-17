@@ -21,8 +21,8 @@
 ///
 /// - Note: `List` implements all formal requirements of `CollectionType`, but it violates the semantic requirement
 ///   that indexing has O(1) complexity: subscripting a `List` costs `O(log(count))`, since it requires an offset
-///   lookup in the B-tree. However, B-trees for typical element sizes and counts are extremely shallow 
-///   (less than 5 levels for a billion elements), so with practical element counts, offset lookup typically 
+///   lookup in the B-tree. However, B-trees for typical element sizes and counts are extremely shallow
+///   (less than 5 levels for a billion elements), so with practical element counts, offset lookup typically
 ///   behaves more like `O(1)` than `O(log(count))`.
 ///
 public struct List<Element> {
@@ -34,15 +34,15 @@ public struct List<Element> {
     internal init(_ tree: Tree) {
         self.tree = tree
     }
-    
+
     /// Initialize an empty list.
     public init() {
-        self.tree = Tree()
+        tree = Tree()
     }
 }
 
 extension List {
-    //MARK: Initializers
+    // MARK: Initializers
 
     /// Initialize a new list from the given elements.
     ///
@@ -53,7 +53,7 @@ extension List {
 }
 
 extension List: ExpressibleByArrayLiteral {
-    //MARK: Conversion from an array literal
+    // MARK: Conversion from an array literal
 
     /// Initialize a new list from the given elements.
     public init(arrayLiteral elements: Element...) {
@@ -62,11 +62,11 @@ extension List: ExpressibleByArrayLiteral {
 }
 
 extension List: CustomStringConvertible {
-    //MARK: String conversion
+    // MARK: String conversion
 
     /// A textual representation of this list.
     public var description: String {
-        let contents = self.map { element in String(reflecting: element) }
+        let contents = map { element in String(reflecting: element) }
         return "[" + contents.joined(separator: ", ") + "]"
     }
 }
@@ -74,14 +74,14 @@ extension List: CustomStringConvertible {
 extension List: CustomDebugStringConvertible {
     /// A textual representation of this list, suitable for debugging.
     public var debugDescription: String {
-        let contents = self.map { element in String(reflecting: element) }
+        let contents = map { element in String(reflecting: element) }
         return "[" + contents.joined(separator: ", ") + "]"
     }
 }
 
 extension List: MutableCollection, RandomAccessCollection {
-    //MARK: CollectionType
-    
+    // MARK: CollectionType
+
     public typealias Index = Int
     public typealias Indices = CountableRange<Int>
     public typealias Iterator = BTreeValueIterator<Element>
@@ -127,7 +127,7 @@ extension List: MutableCollection, RandomAccessCollection {
             return List(tree.subtree(withOffsets: range))
         }
         set {
-            self.replaceSubrange(range, with: newValue)
+            replaceSubrange(range, with: newValue)
         }
     }
 
@@ -147,7 +147,7 @@ extension List: MutableCollection, RandomAccessCollection {
         index += 1
     }
 
-    /// Return the predecessor value of `index`. 
+    /// Return the predecessor value of `index`.
     /// This method does not verify that the given index or the result are valid in this list.
     public func index(before index: Index) -> Index {
         return index - 1
@@ -159,13 +159,13 @@ extension List: MutableCollection, RandomAccessCollection {
         index -= 1
     }
 
-    /// Add `n` to `i` and return the result. 
+    /// Add `n` to `i` and return the result.
     /// This method does not verify that the given index or the result are valid in this list.
     public func index(_ i: Index, offsetBy n: Int) -> Index {
         return i + n
     }
 
-    /// Add `n` to `i` in place. 
+    /// Add `n` to `i` in place.
     /// This method does not verify that the given index or the result are valid in this list.
     public func formIndex(_ i: inout Index, offsetBy n: Int) {
         i += n
@@ -211,11 +211,11 @@ extension List: MutableCollection, RandomAccessCollection {
 
 extension List {
     // MARK: Algorithms
-    
+
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func forEach(_ body: (Element) throws -> ()) rethrows {
+    public func forEach(_ body: (Element) throws -> Void) rethrows {
         try tree.forEach { try body($0.1) }
     }
 
@@ -225,8 +225,8 @@ extension List {
     /// - Complexity: O(`count`)
     public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
-        result.reserveCapacity(self.count)
-        try self.forEach {
+        result.reserveCapacity(count)
+        try forEach {
             result.append(try transform($0))
         }
         return result
@@ -237,7 +237,7 @@ extension List {
     /// - Complexity: O(`result.count`)
     public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         var result: [S.Element] = []
-        try self.forEach { element in
+        try forEach { element in
             result.append(contentsOf: try transform(element))
         }
         return result
@@ -248,7 +248,7 @@ extension List {
     /// - Complexity: O(`count`)
     public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
-        try self.forEach { element in
+        try forEach { element in
             if let t = try transform(element) {
                 result.append(t)
             }
@@ -265,7 +265,7 @@ extension List {
     /// - Complexity: O(`count`)
     public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
         var result = initialResult
-        try self.forEach {
+        try forEach {
             result = try nextPartialResult(result, $0)
         }
         return result
@@ -276,7 +276,7 @@ extension List {
     /// - Complexity: O(`count`)
     public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
-        try self.forEach {
+        try forEach {
             if try includeElement($0) {
                 result.append($0)
             }
@@ -286,7 +286,7 @@ extension List {
 }
 
 public extension List {
-    //MARK: Queries
+    // MARK: Queries
 
     /// Return `true` iff `self` and `other` contain equivalent elements, using `isEquivalent` as the equivalence test.
     ///
@@ -297,17 +297,17 @@ public extension List {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: List<Element>, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
-        return try self.tree.elementsEqual(other.tree, by: { try isEquivalent($0.1, $1.1) })
+    func elementsEqual(_ other: List<Element>, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
+        return try tree.elementsEqual(other.tree, by: { try isEquivalent($0.1, $1.1) })
     }
 
     /// Returns the first index where `predicate` returns `true` for the corresponding value, or `nil` if
     /// such value is not found.
     ///
     /// - Complexity: O(`count`)
-    public func index(where predicate: (Element) throws -> Bool) rethrows -> Index? {
+    func index(where predicate: (Element) throws -> Bool) rethrows -> Index? {
         var i = 0
-        try self.tree.forEach { element -> Bool in
+        try tree.forEach { element -> Bool in
             if try predicate(element.1) {
                 return false
             }
@@ -319,7 +319,6 @@ public extension List {
 }
 
 public extension List where Element: Equatable {
-
     /// Return `true` iff `self` and `other` contain equal elements.
     ///
     /// This method skips over shared subtrees when possible; this can drastically improve performance when the
@@ -329,16 +328,16 @@ public extension List where Element: Equatable {
     /// - Complexity:  O(`count`)
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
-    public func elementsEqual(_ other: List<Element>) -> Bool {
-        return self.tree.elementsEqual(other.tree, by: { $0.1 == $1.1 })
+    func elementsEqual(_ other: List<Element>) -> Bool {
+        return tree.elementsEqual(other.tree, by: { $0.1 == $1.1 })
     }
 
     /// Returns the first index where the given element appears in `self` or `nil` if the element is not found.
     ///
     /// - Complexity: O(`count`)
-    public func index(of element: Element) -> Index? {
+    func index(of element: Element) -> Index? {
         var i = 0
-        self.tree.forEach { e -> Bool in
+        tree.forEach { e -> Bool in
             if element == e.1 {
                 return false
             }
@@ -349,7 +348,7 @@ public extension List where Element: Equatable {
     }
 
     /// Return true iff `element` is in `self`.
-    public func contains(_ element: Element) -> Bool {
+    func contains(_ element: Element) -> Bool {
         return index(of: element) != nil
     }
 
@@ -359,18 +358,18 @@ public extension List where Element: Equatable {
     /// two lists are divergent mutations originating from the same value.
     ///
     /// - Complexity: O(`count`)
-    public static func ==(a: List, b: List) -> Bool {
+    static func == (a: List, b: List) -> Bool {
         return a.elementsEqual(b)
     }
 
     /// Returns false iff the two lists do not have the same elements in the same order.
-    public static func !=(a: List, b: List) -> Bool {
+    static func != (a: List, b: List) -> Bool {
         return !(a == b)
     }
 }
 
 extension List {
-    //MARK: Insertion
+    // MARK: Insertion
 
     /// Append `element` to the end of this list.
     ///
@@ -432,7 +431,7 @@ extension List {
 }
 
 extension List {
-    //MARK: Removal
+    // MARK: Removal
 
     /// Remove and return the element at `index`.
     ///
@@ -518,7 +517,7 @@ extension List {
 }
 
 extension List: RangeReplaceableCollection {
-    //MARK: Range replacement
+    // MARK: Range replacement
 
     /// Replace elements in `range` with `elements`.
     ///
@@ -549,8 +548,7 @@ extension List: RangeReplaceableCollection {
             }
             if cursor.offset < range.upperBound {
                 cursor.remove(range.upperBound - cursor.offset)
-            }
-            else {
+            } else {
                 cursor.insert(IteratorSequence(iterator!).lazy.map { (EmptyKey(), $0) })
             }
         }
@@ -559,7 +557,7 @@ extension List: RangeReplaceableCollection {
 
 extension List {
     /// Concatenate `a` with `b` and return the resulting `List`.
-    public static func +(a: List, b: List) -> List {
+    public static func + (a: List, b: List) -> List {
         var result = a
         result.append(contentsOf: b)
         return result

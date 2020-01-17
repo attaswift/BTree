@@ -31,11 +31,11 @@ public struct SortedSet<Element: Comparable>: SetAlgebra {
 }
 
 extension SortedSet {
-    //MARK: Initializers
+    // MARK: Initializers
 
     /// Create an empty set.
     public init() {
-        self.tree = Tree()
+        tree = Tree()
     }
 
     /// Create a set from a finite sequence of items. The sequence need not be sorted.
@@ -62,7 +62,7 @@ extension SortedSet {
 }
 
 extension SortedSet: BidirectionalCollection {
-    //MARK: CollectionType
+    // MARK: CollectionType
 
     public typealias Index = BTreeIndex<Element, Void>
     public typealias Iterator = BTreeKeyIterator<Element>
@@ -192,7 +192,7 @@ extension SortedSet: BidirectionalCollection {
 }
 
 extension SortedSet {
-    //MARK: Offset-based access
+    // MARK: Offset-based access
 
     /// Return the offset of `member`, if it is an element of this set. Otherwise, return `nil`.
     ///
@@ -215,7 +215,7 @@ extension SortedSet {
     public func offset(of index: Index) -> Int {
         return tree.offset(of: index)
     }
-    
+
     /// Returns the element at `offset` from the start of the set.
     ///
     /// - Complexity: O(log(`count`))
@@ -232,7 +232,7 @@ extension SortedSet {
 }
 
 extension SortedSet {
-    //MARK: Algorithms
+    // MARK: Algorithms
 
     /// Call `body` on each element in `self` in ascending order.
     public func forEach(_ body: (Element) throws -> Void) rethrows {
@@ -245,7 +245,7 @@ extension SortedSet {
     }
 
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
-    public func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
+    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         return try tree.flatMap { try transform($0.0) }
     }
 
@@ -257,7 +257,7 @@ extension SortedSet {
     /// Return an `Array` containing the elements of `self`, in ascending order, that satisfy the predicate `includeElement`.
     public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
-        try tree.forEach { e -> () in
+        try tree.forEach { e -> Void in
             if try includeElement(e.0) {
                 result.append(e.0)
             }
@@ -274,7 +274,7 @@ extension SortedSet {
 }
 
 extension SortedSet {
-    //MARK: Extractions
+    // MARK: Extractions
 
     /// Return the smallest element in the set, or `nil` if the set is empty.
     ///
@@ -333,7 +333,7 @@ extension SortedSet {
     /// If `maxLength` exceeds the number of elements, the result contains all the elements of `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(_  maxLength: Int) -> SortedSet {
+    public func prefix(_ maxLength: Int) -> SortedSet {
         return SortedSet(tree.prefix(maxLength))
     }
 
@@ -393,11 +393,11 @@ extension SortedSet {
 }
 
 extension SortedSet: CustomStringConvertible, CustomDebugStringConvertible {
-    //MARK: Conversion to string
+    // MARK: Conversion to string
 
     /// A textual representation of this set.
     public var description: String {
-        let contents = self.map { String(reflecting: $0) }
+        let contents = map { String(reflecting: $0) }
         return "[" + contents.joined(separator: ", ") + "]"
     }
 
@@ -408,7 +408,7 @@ extension SortedSet: CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 extension SortedSet {
-    //MARK: Queries
+    // MARK: Queries
 
     /// Return true if the set contains `element`.
     ///
@@ -472,7 +472,7 @@ extension SortedSet {
 }
 
 extension SortedSet {
-    //MARK: Set comparions
+    // MARK: Set comparions
 
     /// Return `true` iff `self` and `other` contain the same elements.
     ///
@@ -481,7 +481,7 @@ extension SortedSet {
     ///
     /// - Complexity:  O(`count`)
     public func elementsEqual(_ other: SortedSet<Element>) -> Bool {
-        return self.tree.elementsEqual(other.tree, by: { $0.0 == $1.0 })
+        return tree.elementsEqual(other.tree, by: { $0.0 == $1.0 })
     }
 
     /// Returns `true` iff `a` contains the same elements as `b`.
@@ -490,7 +490,7 @@ extension SortedSet {
     /// two sets are divergent mutations originating from the same value.
     ///
     /// - Complexity: O(`count`)
-    public static func ==(a: SortedSet<Element>, b: SortedSet<Element>) -> Bool {
+    public static func == (a: SortedSet<Element>, b: SortedSet<Element>) -> Bool {
         return a.elementsEqual(b)
     }
 
@@ -561,7 +561,7 @@ extension SortedSet {
 }
 
 extension SortedSet {
-    //MARK: Insertion
+    // MARK: Insertion
 
     /// Insert a member into the set if it is not already present.
     ///
@@ -594,7 +594,7 @@ extension SortedSet {
 }
 
 extension SortedSet {
-    //MARK: Removal
+    // MARK: Removal
 
     /// Remove the member from the set and return it if it was present.
     ///
@@ -619,7 +619,6 @@ extension SortedSet {
     public mutating func remove(atOffset offset: Int) -> Element {
         return tree.remove(atOffset: offset).0
     }
-
 
     /// Remove and return the smallest member in this set.
     ///
@@ -674,7 +673,7 @@ extension SortedSet {
 }
 
 extension SortedSet {
-    //MARK: Sorting
+    // MARK: Sorting
 
     /// Return an `Array` containing the members of this set, in ascending order.
     ///
@@ -688,7 +687,7 @@ extension SortedSet {
 }
 
 extension SortedSet {
-    //MARK: Set operations
+    // MARK: Set operations
 
     /// Return a set containing all members in both this set and `other`.
     ///
@@ -700,7 +699,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func union(_ other: SortedSet<Element>) -> SortedSet<Element> {
-        return SortedSet(self.tree.union(other.tree, by: .groupingMatches))
+        return SortedSet(tree.union(other.tree, by: .groupingMatches))
     }
 
     /// Return a set consisting of all members in `other` that are also in this set.
@@ -713,7 +712,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func intersection(_ other: SortedSet<Element>) -> SortedSet<Element> {
-        return SortedSet(self.tree.intersection(other.tree, by: .groupingMatches))
+        return SortedSet(tree.intersection(other.tree, by: .groupingMatches))
     }
 
     /// Return a set consisting of members from `self` and `other` that aren't in both sets at once.
@@ -726,7 +725,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func symmetricDifference(_ other: SortedSet<Element>) -> SortedSet<Element> {
-        return SortedSet(self.tree.symmetricDifference(other.tree, by: .groupingMatches))
+        return SortedSet(tree.symmetricDifference(other.tree, by: .groupingMatches))
     }
 
     /// Add all members in `other` to this set.
@@ -739,7 +738,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public mutating func formUnion(_ other: SortedSet<Element>) {
-        self = self.union(other)
+        self = union(other)
     }
 
     /// Remove all members from this set that are not included in `other`.
@@ -765,7 +764,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public mutating func formSymmetricDifference(_ other: SortedSet<Element>) {
-        self = self.symmetricDifference(other)
+        self = symmetricDifference(other)
     }
 
     /// Return a set containing those members of this set that aren't also included in `other`.
@@ -778,7 +777,7 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func subtracting(_ other: SortedSet) -> SortedSet {
-        return SortedSet(self.tree.subtracting(other.tree, by: .groupingMatches))
+        return SortedSet(tree.subtracting(other.tree, by: .groupingMatches))
     }
 
     /// Remove all members from this set that are also included in `other`.
@@ -791,12 +790,12 @@ extension SortedSet {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public mutating func subtract(_ other: SortedSet) {
-        self = self.subtracting(other)
+        self = subtracting(other)
     }
 }
 
 extension SortedSet {
-    //MARK: Interactions with ranges
+    // MARK: Interactions with ranges
 
     /// Return the count of elements in this set that are in `range`.
     ///
@@ -822,28 +821,28 @@ extension SortedSet {
     ///
     /// - Complexity: O(log(`self.count`))
     public func intersection(elementsIn range: Range<Element>) -> SortedSet<Element> {
-        return self.suffix(from: range.lowerBound).prefix(upTo: range.upperBound)
+        return suffix(from: range.lowerBound).prefix(upTo: range.upperBound)
     }
 
     /// Return a set consisting of all members in `self` that are also in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
     public func intersection(elementsIn range: ClosedRange<Element>) -> SortedSet<Element> {
-        return self.suffix(from: range.lowerBound).prefix(through: range.upperBound)
+        return suffix(from: range.lowerBound).prefix(through: range.upperBound)
     }
 
     /// Remove all members from this set that are not included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
     public mutating func formIntersection(elementsIn range: Range<Element>) {
-        self = self.intersection(elementsIn: range)
+        self = intersection(elementsIn: range)
     }
 
     /// Remove all members from this set that are not included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
     public mutating func formIntersection(elementsIn range: ClosedRange<Element>) {
-        self = self.intersection(elementsIn: range)
+        self = intersection(elementsIn: range)
     }
 
     /// Remove all elements in `range` from this set.
@@ -888,7 +887,7 @@ extension SortedSet {
 }
 
 extension SortedSet where Element: Strideable {
-    //MARK: Shifting
+    // MARK: Shifting
 
     /// Shift the value of all elements starting at `start` by `delta`.
     /// For a positive `delta`, this shifts elements to the right, creating an empty gap in `start ..< start + delta`.

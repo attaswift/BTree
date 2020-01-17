@@ -6,8 +6,8 @@
 //  Copyright © 2016–2017 Károly Lőrentey.
 //
 
-import XCTest
 @testable import BTree
+import XCTest
 
 private final class Test: Comparable, ExpressibleByIntegerLiteral, CustomStringConvertible {
     let value: Int
@@ -17,12 +17,11 @@ private final class Test: Comparable, ExpressibleByIntegerLiteral, CustomStringC
 
     var description: String { return "\(value)" }
 
-    static func ==(a: Test, b: Test) -> Bool { return a.value == b.value }
-    static func <(a: Test, b: Test) -> Bool { return a.value < b.value }
+    static func == (a: Test, b: Test) -> Bool { return a.value == b.value }
+    static func < (a: Test, b: Test) -> Bool { return a.value < b.value }
 }
 
 class SortedBagTests: XCTestCase {
-
     func test_emptyBag() {
         let bag = SortedBag<Int>()
 
@@ -46,7 +45,7 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_unsortedElements_uniqueItems() {
-        let c = 10_000
+        let c = 10000
         let bag = SortedBag((0 ..< c).reversed())
 
         XCTAssertEqual(bag.count, c)
@@ -54,7 +53,7 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_unsortedElements_duplicateItems() {
-        let c = 10_000
+        let c = 10000
         let bag = SortedBag((0 ..< c).reversed().repeatEach(10))
 
         XCTAssertEqual(bag.count, 10 * c)
@@ -62,7 +61,7 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_sortedElements_uniqueItems() {
-        let c = 10_000
+        let c = 10000
         let bag = SortedBag(sortedElements: 0 ..< c)
 
         XCTAssertEqual(bag.count, c)
@@ -70,7 +69,7 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_sortedElements_duplicateItems() {
-        let c = 10_000
+        let c = 10000
         let bag = SortedBag(sortedElements: (0 ..< c).repeatEach(10))
 
         XCTAssertEqual(bag.count, 10 * c)
@@ -96,7 +95,7 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_subscriptWithIndexing() {
-        let c = 10_000
+        let c = 10000
         let elements = (0 ..< c).repeatEach(3)
         let bag = SortedBag(elements)
         var i = 0
@@ -128,14 +127,14 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_makeIterator() {
-        let c = 10_000
+        let c = 10000
         let elements = (0 ..< c).repeatEach(2)
         let bag = SortedBag(elements)
         assertEqualElements(IteratorSequence(bag.makeIterator()), elements)
     }
 
     func test_subscriptByOffsets() {
-        let c = 10_000
+        let c = 10000
         let elements = (0 ..< c).repeatEach(2)
         let bag = SortedBag(elements)
         for i in 0 ..< 2 * c {
@@ -155,7 +154,7 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_indexing() {
-        let s = SortedBag(sortedElements: (0..<10))
+        let s = SortedBag(sortedElements: 0 ..< 10)
         var index = s.startIndex
         XCTAssertEqual(s.index(after: index), s.index(ofOffset: 1))
         XCTAssertEqual(s.index(index, offsetBy: 5), s.index(ofOffset: 5))
@@ -190,8 +189,7 @@ class SortedBagTests: XCTestCase {
         for m in 0 ..< 20 {
             if m & 1 == 0 {
                 XCTAssertEqual(s.offset(of: m), m)
-            }
-            else {
+            } else {
                 XCTAssertNil(s.offset(of: m))
             }
         }
@@ -201,7 +199,7 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_forEach() {
-        let c = 10_000
+        let c = 10000
         let bag = SortedBag(0 ..< c)
         var i = 0
         bag.forEach { n in
@@ -211,7 +209,7 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_map() {
-        let c = 10_000
+        let c = 10000
         let bag = SortedBag(0 ..< c)
         var i = 0
         let r = bag.map { (n: Int) -> Int in
@@ -341,8 +339,7 @@ class SortedBagTests: XCTestCase {
         for i in 0 ..< 500 {
             if i & 1 == 0 {
                 XCTAssertEqual(bag.count(of: i), 2)
-            }
-            else {
+            } else {
                 XCTAssertEqual(bag.count(of: i), 0)
             }
         }
@@ -356,8 +353,7 @@ class SortedBagTests: XCTestCase {
             if i & 1 == 0 {
                 XCTAssertEqual(index, bag.index(bag.startIndex, offsetBy: i / 2 * 3))
                 XCTAssertEqual(bag[index!], i)
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -374,8 +370,7 @@ class SortedBagTests: XCTestCase {
                 guard let index = index else { continue }
                 XCTAssertEqual(bag.offset(of: index), 3 * (i / 2 + 1))
                 XCTAssertEqual(bag[index], 2 * (i / 2 + 1))
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -395,13 +390,11 @@ class SortedBagTests: XCTestCase {
                 if i & 1 == 0 {
                     XCTAssertEqual(offset, 3 * (i / 2))
                     XCTAssertEqual(element, i)
-                }
-                else {
+                } else {
                     XCTAssertEqual(offset, 3 * (i / 2 + 1))
                     XCTAssertEqual(element, i + 1)
                 }
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -421,13 +414,11 @@ class SortedBagTests: XCTestCase {
                 if i & 1 == 0 {
                     XCTAssertEqual(offset, 3 * (i / 2) - 1)
                     XCTAssertEqual(element, i - 2)
-                }
-                else {
+                } else {
                     XCTAssertEqual(offset, 3 * (i / 2) + 2)
                     XCTAssertEqual(element, i - 1)
                 }
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -444,8 +435,7 @@ class SortedBagTests: XCTestCase {
                 guard let index = index else { continue }
                 XCTAssertEqual(bag.offset(of: index), 3 * (i / 2) + 2)
                 XCTAssertEqual(bag[index], i & ~1)
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -539,7 +529,6 @@ class SortedBagTests: XCTestCase {
         assertEqualElements(bag, (1 ... 100).repeatEach(2).map { Test($0) })
     }
 
-
     func test_remove() {
         let c = 500
         let elements = (0 ..< c).map { 2 * $0 }.repeatEach(2).map { Test($0) }
@@ -548,8 +537,7 @@ class SortedBagTests: XCTestCase {
             if i & 1 == 0 {
                 let removed = bag.remove(Test(i))
                 XCTAssert(removed === elements[i], "\(i)")
-            }
-            else {
+            } else {
                 XCTAssertNil(bag.remove(Test(i)))
             }
         }
@@ -557,8 +545,7 @@ class SortedBagTests: XCTestCase {
             if i & 1 == 0 {
                 let removed = bag.remove(Test(i))
                 XCTAssert(removed === elements[i + 1], "\(i)")
-            }
-            else {
+            } else {
                 XCTAssertNil(bag.remove(Test(i)))
             }
         }
@@ -722,25 +709,25 @@ class SortedBagTests: XCTestCase {
         let c = SortedBag(10 ..< 20)
         let d = SortedBag((20 ..< 30).repeatEach(2))
 
-        XCTAssertFalse(a.isDisjoint(with:a))
-        XCTAssertFalse(a.isDisjoint(with:b))
-        XCTAssertFalse(a.isDisjoint(with:c))
-        XCTAssertFalse(a.isDisjoint(with:d))
+        XCTAssertFalse(a.isDisjoint(with: a))
+        XCTAssertFalse(a.isDisjoint(with: b))
+        XCTAssertFalse(a.isDisjoint(with: c))
+        XCTAssertFalse(a.isDisjoint(with: d))
 
-        XCTAssertFalse(b.isDisjoint(with:a))
-        XCTAssertFalse(b.isDisjoint(with:b))
-        XCTAssertFalse(b.isDisjoint(with:c))
-        XCTAssertFalse(b.isDisjoint(with:d))
+        XCTAssertFalse(b.isDisjoint(with: a))
+        XCTAssertFalse(b.isDisjoint(with: b))
+        XCTAssertFalse(b.isDisjoint(with: c))
+        XCTAssertFalse(b.isDisjoint(with: d))
 
-        XCTAssertFalse(c.isDisjoint(with:a))
-        XCTAssertFalse(c.isDisjoint(with:b))
-        XCTAssertFalse(c.isDisjoint(with:c))
-        XCTAssertTrue(c.isDisjoint(with:d))
+        XCTAssertFalse(c.isDisjoint(with: a))
+        XCTAssertFalse(c.isDisjoint(with: b))
+        XCTAssertFalse(c.isDisjoint(with: c))
+        XCTAssertTrue(c.isDisjoint(with: d))
 
-        XCTAssertFalse(d.isDisjoint(with:a))
-        XCTAssertFalse(d.isDisjoint(with:b))
-        XCTAssertTrue(d.isDisjoint(with:c))
-        XCTAssertFalse(d.isDisjoint(with:d))
+        XCTAssertFalse(d.isDisjoint(with: a))
+        XCTAssertFalse(d.isDisjoint(with: b))
+        XCTAssertTrue(d.isDisjoint(with: c))
+        XCTAssertFalse(d.isDisjoint(with: d))
     }
 
     func test_isSubsetOf() {
@@ -852,73 +839,72 @@ class SortedBagTests: XCTestCase {
     }
 
     func test_countElementsInRange() {
-        let s = SortedBag(sortedElements: (0 ..< 10_000).repeatEach(2))
+        let s = SortedBag(sortedElements: (0 ..< 10000).repeatEach(2))
         XCTAssertEqual(s.count(elementsIn: -100 ..< -10), 0)
         XCTAssertEqual(s.count(elementsIn: 0 ..< 100), 2 * 100)
-        XCTAssertEqual(s.count(elementsIn: 3 ..< 9_999), 2 * 9_996)
-        XCTAssertEqual(s.count(elementsIn: 0 ..< 10_000), 2 * 10_000)
+        XCTAssertEqual(s.count(elementsIn: 3 ..< 9999), 2 * 9996)
+        XCTAssertEqual(s.count(elementsIn: 0 ..< 10000), 2 * 10000)
         XCTAssertEqual(s.count(elementsIn: -100 ..< 100), 2 * 100)
-        XCTAssertEqual(s.count(elementsIn: 9_900 ..< 10_100), 2 * 100)
-        XCTAssertEqual(s.count(elementsIn: -100 ..< 20_000), 2 * 10_000)
-
+        XCTAssertEqual(s.count(elementsIn: 9900 ..< 10100), 2 * 100)
+        XCTAssertEqual(s.count(elementsIn: -100 ..< 20000), 2 * 10000)
 
         XCTAssertEqual(s.count(elementsIn: -100 ... -10), 0)
         XCTAssertEqual(s.count(elementsIn: 0 ... 100), 2 * 101)
-        XCTAssertEqual(s.count(elementsIn: 3 ... 9_999), 2 * 9_997)
-        XCTAssertEqual(s.count(elementsIn: 0 ... 9_999), 2 * 10_000)
+        XCTAssertEqual(s.count(elementsIn: 3 ... 9999), 2 * 9997)
+        XCTAssertEqual(s.count(elementsIn: 0 ... 9999), 2 * 10000)
         XCTAssertEqual(s.count(elementsIn: -100 ... 100), 2 * 101)
-        XCTAssertEqual(s.count(elementsIn: 9_900 ... 10_100), 2 * 100)
-        XCTAssertEqual(s.count(elementsIn: -100 ... 20_000), 2 * 10_000)
+        XCTAssertEqual(s.count(elementsIn: 9900 ... 10100), 2 * 100)
+        XCTAssertEqual(s.count(elementsIn: -100 ... 20000), 2 * 10000)
     }
 
     func test_intersectionWithRange() {
-        var s = SortedBag(sortedElements: (0 ..< 10_000).repeatEach(2))
+        var s = SortedBag(sortedElements: (0 ..< 10000).repeatEach(2))
         assertEqualElements(s.intersection(elementsIn: -100 ..< -10), [])
-        assertEqualElements(s.intersection(elementsIn: 100 ..< 9_900), (100 ..< 9_900).repeatEach(2))
+        assertEqualElements(s.intersection(elementsIn: 100 ..< 9900), (100 ..< 9900).repeatEach(2))
         assertEqualElements(s.intersection(elementsIn: -100 ..< 100), (0 ..< 100).repeatEach(2))
-        assertEqualElements(s.intersection(elementsIn: 9_900 ..< 10_100), (9_900 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.intersection(elementsIn: 10_100 ..< 10_200), [])
+        assertEqualElements(s.intersection(elementsIn: 9900 ..< 10100), (9900 ..< 10000).repeatEach(2))
+        assertEqualElements(s.intersection(elementsIn: 10100 ..< 10200), [])
 
         assertEqualElements(s.intersection(elementsIn: -100 ... -10), [])
-        assertEqualElements(s.intersection(elementsIn: 100 ... 9_900), (100 ... 9_900).repeatEach(2))
+        assertEqualElements(s.intersection(elementsIn: 100 ... 9900), (100 ... 9900).repeatEach(2))
         assertEqualElements(s.intersection(elementsIn: -100 ... 100), (0 ... 100).repeatEach(2))
-        assertEqualElements(s.intersection(elementsIn: 9_900 ... 10_100), (9_900 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.intersection(elementsIn: 10_100 ... 10_200), [])
+        assertEqualElements(s.intersection(elementsIn: 9900 ... 10100), (9900 ..< 10000).repeatEach(2))
+        assertEqualElements(s.intersection(elementsIn: 10100 ... 10200), [])
 
-        s.formIntersection(elementsIn: 1_000 ..< 2_000)
-        assertEqualElements(s, (1_000 ..< 2_000).repeatEach(2))
+        s.formIntersection(elementsIn: 1000 ..< 2000)
+        assertEqualElements(s, (1000 ..< 2000).repeatEach(2))
 
-        s.formIntersection(elementsIn: 1_100 ... 1_200)
-        assertEqualElements(s, (1_100 ... 1_200).repeatEach(2))
+        s.formIntersection(elementsIn: 1100 ... 1200)
+        assertEqualElements(s, (1100 ... 1200).repeatEach(2))
     }
 
     func test_subtractionOfRange() {
-        var s = SortedBag(sortedElements: (0 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: -100 ..< 0), (0 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: 100 ..< 9_900), (0 ..< 100).repeatEach(2) + (9_900 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: -100 ..< 100), (100 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: 9_900 ..< 10_100), (0 ..< 9_900).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: 10_000 ..< 10_100), (0 ..< 10_000).repeatEach(2))
+        var s = SortedBag(sortedElements: (0 ..< 10000).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: -100 ..< 0), (0 ..< 10000).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: 100 ..< 9900), (0 ..< 100).repeatEach(2) + (9900 ..< 10000).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: -100 ..< 100), (100 ..< 10000).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: 9900 ..< 10100), (0 ..< 9900).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: 10000 ..< 10100), (0 ..< 10000).repeatEach(2))
 
-        assertEqualElements(s.subtracting(elementsIn: -100 ... -1), (0 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: 100 ... 9_900), (0 ..< 100).repeatEach(2) + (9_901 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: -100 ... 100), (101 ..< 10_000).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: 9_900 ... 10_100), (0 ..< 9_900).repeatEach(2))
-        assertEqualElements(s.subtracting(elementsIn: 10_000 ... 10_100), (0 ..< 10_000).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: -100 ... -1), (0 ..< 10000).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: 100 ... 9900), (0 ..< 100).repeatEach(2) + (9901 ..< 10000).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: -100 ... 100), (101 ..< 10000).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: 9900 ... 10100), (0 ..< 9900).repeatEach(2))
+        assertEqualElements(s.subtracting(elementsIn: 10000 ... 10100), (0 ..< 10000).repeatEach(2))
 
-        s.subtract(elementsIn: 1_000 ..< 9_000)
-        assertEqualElements(s, (0 ..< 1_000).repeatEach(2) + (9_000 ..< 10_000).repeatEach(2))
+        s.subtract(elementsIn: 1000 ..< 9000)
+        assertEqualElements(s, (0 ..< 1000).repeatEach(2) + (9000 ..< 10000).repeatEach(2))
 
         s.subtract(elementsIn: 100 ... 900)
-        assertEqualElements(s, (0 ..< 100).repeatEach(2) + (901 ..< 1_000).repeatEach(2) + (9_000 ..< 10_000).repeatEach(2))
+        assertEqualElements(s, (0 ..< 100).repeatEach(2) + (901 ..< 1000).repeatEach(2) + (9000 ..< 10000).repeatEach(2))
     }
-    
+
     func test_shiftStartingAtElement() {
         var a = SortedBag((0 ..< 10).map { 2 * $0 }.repeatEach(2))
-        
+
         a.shift(startingAt: 5, by: 5)
         assertEqualElements(a, [0, 0, 2, 2, 4, 4, 11, 11, 13, 13, 15, 15, 17, 17, 19, 19, 21, 21, 23, 23])
-        
+
         a.shift(startingAt: 19, by: -1)
         assertEqualElements(a, [0, 0, 2, 2, 4, 4, 11, 11, 13, 13, 15, 15, 17, 17, 18, 18, 20, 20, 22, 22])
 

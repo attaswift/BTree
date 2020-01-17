@@ -6,8 +6,8 @@
 //  Copyright © 2016–2017 Károly Lőrentey.
 //
 
-import XCTest
 @testable import BTree
+import XCTest
 
 class BTreeMergeTests: XCTestCase {
     typealias Builder = BTreeBuilder<Int, Void>
@@ -31,7 +31,7 @@ class BTreeMergeTests: XCTestCase {
         return Tree(b.finish())
     }
 
-    //MARK: Union by grouping matches
+    // MARK: Union by grouping matches
 
     func test_unionByGrouping_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -67,8 +67,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_unionByGrouping_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
+        let first = makeTree(0 ..< 50)
+        let second = makeTree(50 ..< 100)
 
         let u1 = first.union(second, by: .groupingMatches)
         u1.assertValid()
@@ -134,7 +134,7 @@ class BTreeMergeTests: XCTestCase {
         }
     }
 
-    //MARK: Union by counting matches
+    // MARK: Union by counting matches
 
     func test_unionByCounting_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -170,8 +170,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_unionByCounting_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
+        let first = makeTree(0 ..< 50)
+        let second = makeTree(50 ..< 100)
 
         let u1 = first.union(second, by: .countingMatches)
         u1.assertValid()
@@ -229,7 +229,7 @@ class BTreeMergeTests: XCTestCase {
         let tree = makeTree(keys)
         tree.forEachSubtree { subtree in
             let expected = keys.union(subtree.map { $0.0 }).sorted()
-            
+
             let u1 = subtree.union(tree, by: .countingMatches)
             u1.assertKeysEqual(expected)
 
@@ -238,7 +238,7 @@ class BTreeMergeTests: XCTestCase {
         }
     }
 
-    //MARK: Subtracting by grouping matches
+    // MARK: Subtracting by grouping matches
 
     func test_subtractingByGrouping_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -274,8 +274,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_subtractingByGrouping_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
+        let first = makeTree(0 ..< 50)
+        let second = makeTree(50 ..< 100)
 
         let u1 = first.subtracting(second, by: .groupingMatches)
         u1.assertValid()
@@ -341,7 +341,7 @@ class BTreeMergeTests: XCTestCase {
         }
     }
 
-    //MARK: Subtracting by counting matches
+    // MARK: Subtracting by counting matches
 
     func test_subtractingByCounting_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -377,8 +377,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_subtractingByCounting_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
+        let first = makeTree(0 ..< 50)
+        let second = makeTree(50 ..< 100)
 
         let u1 = first.subtracting(second, by: .countingMatches)
         u1.assertValid()
@@ -425,7 +425,7 @@ class BTreeMergeTests: XCTestCase {
         let u1 = first.subtracting(second, by: .countingMatches)
         u1.assertValid()
         u1.assertKeysEqual([3].repeatEach(20))
-        
+
         let u2 = second.subtracting(first, by: .countingMatches)
         u2.assertValid()
         u2.assertKeysEqual([7].repeatEach(20))
@@ -445,7 +445,7 @@ class BTreeMergeTests: XCTestCase {
         }
     }
 
-    //MARK: Symmetric difference by grouping matches
+    // MARK: Symmetric difference by grouping matches
 
     func test_symmetricDifferenceByGrouping_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -481,8 +481,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_symmetricDifferenceByGrouping_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
+        let first = makeTree(0 ..< 50)
+        let second = makeTree(50 ..< 100)
 
         let u1 = first.symmetricDifference(second, by: .groupingMatches)
         u1.assertValid()
@@ -550,7 +550,7 @@ class BTreeMergeTests: XCTestCase {
         }
     }
 
-    //MARK: Symmetric Difference by counting matches
+    // MARK: Symmetric Difference by counting matches
 
     func test_symmetricDifferenceByCounting_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -586,8 +586,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_symmetricDifferenceByCounting_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
+        let first = makeTree(0 ..< 50)
+        let second = makeTree(50 ..< 100)
 
         let u1 = first.symmetricDifference(second, by: .countingMatches)
         u1.assertValid()
@@ -655,7 +655,7 @@ class BTreeMergeTests: XCTestCase {
         }
     }
 
-    //MARK: Intersection by grouping matches
+    // MARK: Intersection by grouping matches
 
     func test_IntersectionByGrouping_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -691,8 +691,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_IntersectionByGrouping_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
+        let first = makeTree(0 ..< 50)
+        let second = makeTree(50 ..< 100)
 
         let u1 = first.intersection(second, by: .groupingMatches)
         u1.assertValid()
@@ -778,7 +778,7 @@ class BTreeMergeTests: XCTestCase {
         }
     }
 
-    //MARK: Intersection by counting matches
+    // MARK: Intersection by counting matches
 
     func test_IntersectionByCounting_simple() {
         let even = makeTree(stride(from: 0, to: 100, by: 2))
@@ -814,8 +814,8 @@ class BTreeMergeTests: XCTestCase {
     }
 
     func test_IntersectionByCounting_halves() {
-        let first = makeTree(0..<50)
-        let second = makeTree(50..<100)
+        let first = makeTree(0 ..< 50)
+        let second = makeTree(50 ..< 100)
 
         let u1 = first.intersection(second, by: .countingMatches)
         u1.assertValid()
@@ -974,6 +974,6 @@ class BTreeMergeTests: XCTestCase {
 
         let tree2 = BTree(sortedElements: (0 ..< 100).map { ($0 / 2, String($0)) })
         let t5 = tree2.intersection(sortedKeys: 0 ..< 50, by: .countingMatches)
-        assertEqualElements(t5.map { $0.0 }, (0 ..< 50))
+        assertEqualElements(t5.map { $0.0 }, 0 ..< 50)
     }
 }

@@ -6,9 +6,9 @@
 //  Copyright © 2015–2017 Károly Lőrentey.
 //
 
+@testable import BTree
 import Foundation
 import XCTest
-@testable import BTree
 
 extension BTree {
     func assertValid(file: StaticString = #file, line: UInt = #line) {
@@ -42,7 +42,7 @@ extension BTreeNode {
                 if node.elements.count > node.order - 1 {
                     defects.append("Oversize leaf node: \(node.elements.count) > \(node.order - 1)")
                 }
-                if level > 0 && node.elements.count < (node.order - 1) / 2 {
+                if level > 0, node.elements.count < (node.order - 1) / 2 {
                     defects.append("Undersize leaf node: \(node.elements.count) < \((node.order - 1) / 2)")
                 }
                 if !node.children.isEmpty {
@@ -58,10 +58,10 @@ extension BTreeNode {
             if node.children.count > node.order {
                 defects.append("Oversize internal node: \(node.children.count) > \(node.order)")
             }
-            if level > 0 && node.children.count < (node.order + 1) / 2 {
+            if level > 0, node.children.count < (node.order + 1) / 2 {
                 defects.append("Undersize internal node: \(node.children.count) < \((node.order + 1) / 2)")
             }
-            if level == 0 && node.children.count < 2 {
+            if level == 0, node.children.count < 2 {
                 defects.append("Undersize root node: \(node.children.count) < 2")
             }
             // Check item count
@@ -77,7 +77,8 @@ extension BTreeNode {
                     level: level + 1,
                     node: child,
                     minKey: (slot > 0 ? node.elements.map { $0.0 }[slot - 1] : minKey),
-                    maxKey: (slot < node.elements.count - 1 ? node.elements.map { $0.0 }[slot + 1] : maxKey))
+                    maxKey: (slot < node.elements.count - 1 ? node.elements.map { $0.0 }[slot + 1] : maxKey)
+                )
                 if node.depth != child.depth + 1 {
                     defects.append("Invalid depth: \(node.depth) in parent vs \(child.depth) in child")
                 }
@@ -97,7 +98,7 @@ extension BTreeNode {
     }
 
     func forEachNode(_ operation: (Node) -> Void) {
-        for level in (0 ... self.depth).reversed() {
+        for level in (0 ... depth).reversed() {
             forEachNode(onLevel: level, operation)
         }
     }
@@ -105,8 +106,7 @@ extension BTreeNode {
     func forEachNode(onLevel level: Int, _ operation: (Node) -> Void) {
         if level == 0 {
             operation(self)
-        }
-        else {
+        } else {
             for child in children {
                 child.forEachNode(onLevel: level - 1, operation)
             }
@@ -118,8 +118,7 @@ extension BTreeNode {
         if isLeaf {
             let keys = elements.lazy.map { "\($0.0)" }
             r += keys.joined(separator: " ")
-        }
-        else {
+        } else {
             for i in 0 ..< elements.count {
                 r += children[i].dump
                 r += " \(elements[i].0) "
@@ -201,7 +200,7 @@ class BTreeSupportTests: XCTestCase {
             i += 3
         }
 
-        assertEqualElements(node, (0..<8).map { ($0, String($0)) })
+        assertEqualElements(node, (0 ..< 8).map { ($0, String($0)) })
     }
 
     func testMinimalNodeOfDepth0() {
@@ -240,8 +239,8 @@ class BTreeSupportTests: XCTestCase {
             XCTAssertEqual(child.depth, 0)
             i += 2
         }
-        
-        assertEqualElements(node, (0..<3).map { ($0, String($0)) })
+
+        assertEqualElements(node, (0 ..< 3).map { ($0, String($0)) })
     }
 }
 
@@ -254,11 +253,11 @@ struct DictionaryBagIndex<Element: Hashable>: Comparable {
         self.elementIndex = elementIndex
     }
 
-    static func <(left: DictionaryBagIndex, right: DictionaryBagIndex) -> Bool {
+    static func < (left: DictionaryBagIndex, right: DictionaryBagIndex) -> Bool {
         return (left.dictionaryIndex, left.elementIndex) < (right.dictionaryIndex, right.elementIndex)
     }
 
-    static func ==(left: DictionaryBagIndex, right: DictionaryBagIndex) -> Bool {
+    static func == (left: DictionaryBagIndex, right: DictionaryBagIndex) -> Bool {
         return (left.dictionaryIndex, left.elementIndex) == (right.dictionaryIndex, right.elementIndex)
     }
 }
@@ -274,7 +273,7 @@ struct DictionaryBag<Element: Hashable>: Collection {
 
     init<S: Sequence>(_ elements: S) where S.Element == Element {
         self.init()
-        self.formUnion(elements)
+        formUnion(elements)
     }
 
     var startIndex: Index {
@@ -289,8 +288,7 @@ struct DictionaryBag<Element: Hashable>: Collection {
         let c = bag[i.dictionaryIndex].value
         if i.elementIndex < c - 1 {
             return Index(i.dictionaryIndex, i.elementIndex + 1)
-        }
-        else {
+        } else {
             return Index(bag.index(after: i.dictionaryIndex), 0)
         }
     }
@@ -312,8 +310,7 @@ struct DictionaryBag<Element: Hashable>: Collection {
         if c == 1 {
             bag[element] = nil
             count -= 1
-        }
-        else if c > 1 {
+        } else if c > 1 {
             bag[element] = c - 1
             count -= 1
         }
@@ -321,7 +318,7 @@ struct DictionaryBag<Element: Hashable>: Collection {
 
     mutating func subtract<S: Sequence>(_ elements: S) where S.Element == Element {
         for element in elements {
-            self.remove(element)
+            remove(element)
         }
     }
 
@@ -348,7 +345,7 @@ struct DictionaryBag<Element: Hashable>: Collection {
 
     mutating func formUnion<S: Sequence>(_ elements: S) where S.Element == Element {
         for element in elements {
-            self.insert(element)
+            insert(element)
         }
     }
 
@@ -364,7 +361,8 @@ struct Ref<Target: AnyObject>: Hashable {
     var hashValue: Int {
         return ObjectIdentifier(target).hashValue
     }
-    static func ==(left: Ref, right: Ref) -> Bool {
+
+    static func == (left: Ref, right: Ref) -> Bool {
         return left.target === right.target
     }
 }

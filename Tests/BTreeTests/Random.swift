@@ -16,7 +16,7 @@ func random(_ limit: Int) -> Int {
 
 extension Array {
     /// Returns a copy of this array with all elements randomly shuffled.
-    func shuffled() -> Array<Element> {
+    func shuffled() -> [Element] {
         var copy = self
         copy.shuffle()
         return copy
@@ -25,7 +25,7 @@ extension Array {
     /// Randomly shuffles the elements of this array.
     mutating func shuffle() {
         let count = self.count
-        for i in 0..<count {
+        for i in 0 ..< count {
             let j = random(count)
             (self[i], self[j]) = (self[j], self[i])
         }

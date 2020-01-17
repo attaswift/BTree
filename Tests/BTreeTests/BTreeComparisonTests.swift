@@ -6,8 +6,8 @@
 //  Copyright © 2016–2017 Károly Lőrentey.
 //
 
-import XCTest
 @testable import BTree
+import XCTest
 
 private typealias Builder = BTreeBuilder<Int, Void>
 private typealias Node = BTreeNode<Int, Void>
@@ -91,8 +91,8 @@ class BTreeComparisonTests: XCTestCase {
     }
 
     func test_elementsEqual_equatableValue() {
-        let a = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 5)
-        let b = BTree<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) }, order: 7)
+        let a = BTree<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) }, order: 5)
+        let b = BTree<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) }, order: 7)
         var c = a
         c.setValue(atOffset: 99, to: "*")
 
@@ -120,7 +120,6 @@ class BTreeComparisonTests: XCTestCase {
         XCTAssertTrue(a.elementsEqual(b, by: { $0.0 == $1.0 }))
         XCTAssertTrue(b.elementsEqual(a, by: { $0.0 == $1.0 }))
     }
-
 
     func test_isDisjointWith_SimpleCases() {
         let firstHalf = makeTree(0 ..< 100)

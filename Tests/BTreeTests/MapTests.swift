@@ -6,8 +6,8 @@
 //  Copyright © 2015–2017 Károly Lőrentey.
 //
 
-import XCTest
 @testable import BTree
+import XCTest
 
 class MapTests: XCTestCase {
     func testEmptyMap() {
@@ -26,7 +26,7 @@ class MapTests: XCTestCase {
         let dict: [Int: Int] = [1: 20, 2: 40, 3: 60, 4: 80, 5: 100]
 
         // Check that genarator API returns elements in order.
-        var lastKey: Int? = nil
+        var lastKey: Int?
         var i = 0
         var iterator = map.makeIterator()
         while let (key, _) = iterator.next() {
@@ -55,12 +55,12 @@ class MapTests: XCTestCase {
 
         // Check that keys are sorted.
         XCTAssertEqual(Array(map.keys), map.keys.sorted())
-        XCTAssertEqual(dict.keys.sorted(), map.map({ key, _ in key }))
+        XCTAssertEqual(dict.keys.sorted(), map.map { key, _ in key })
         XCTAssertEqual(dict.keys.sorted(), Array(map.keys))
 
         // Check that values match those in dict
         XCTAssertEqual(map.count, dict.count)
-        XCTAssertEqual(dict.values.sorted(), map.map({ _, value in value }).sorted())
+        XCTAssertEqual(dict.values.sorted(), map.map { _, value in value }.sorted())
         XCTAssertEqual(dict.values.sorted(), map.values.sorted())
         for k in dict.keys {
             XCTAssertEqual(map[k], dict[k])
@@ -68,7 +68,7 @@ class MapTests: XCTestCase {
     }
 
     func testMapForEach() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         var i = 0
         m.forEach { key, value in
             XCTAssertEqual(key, i)
@@ -79,7 +79,7 @@ class MapTests: XCTestCase {
     }
 
     func testMapMap() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         var i = 0
         let r = m.map { key, value -> Int in
             XCTAssertEqual(key, i)
@@ -88,11 +88,11 @@ class MapTests: XCTestCase {
             return key
         }
         XCTAssertEqual(i, 100)
-        assertEqualElements(r, 0..<100)
+        assertEqualElements(r, 0 ..< 100)
     }
 
     func testSequenceFlatMap() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         var i = 0
         let r = m.flatMap { key, value -> [Int] in
             XCTAssertEqual(key, i)
@@ -103,11 +103,11 @@ class MapTests: XCTestCase {
             }
             return []
         }
-        XCTAssertEqual(r, (0..<100).map { $0 & ~1 })
+        XCTAssertEqual(r, (0 ..< 100).map { $0 & ~1 })
     }
 
     func testOptionalFlatMap() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         var i = 0
         let r = m.flatMap { key, value -> Int? in
             XCTAssertEqual(key, i)
@@ -115,11 +115,11 @@ class MapTests: XCTestCase {
             i += 1
             return key & 1 == 0 ? key / 2 : nil
         }
-        assertEqualElements(r, 0..<50)
+        assertEqualElements(r, 0 ..< 50)
     }
 
     func testReduce() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         var i = 0
         let sum = m.reduce(0) { sum, element in
             XCTAssertEqual(element.0, i)
@@ -131,16 +131,16 @@ class MapTests: XCTestCase {
     }
 
     func testKeysAndValues() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
 
-        assertEqualElements(m.keys, 0..<100)
-        assertEqualElements(m.values, (0..<100).map { String($0) })
+        assertEqualElements(m.keys, 0 ..< 100)
+        assertEqualElements(m.values, (0 ..< 100).map { String($0) })
     }
 
     func testSubscriptLookup() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
 
-        for k in 0..<100 {
+        for k in 0 ..< 100 {
             XCTAssertEqual(m[k], String(k))
         }
         XCTAssertNil(m[-1])
@@ -157,7 +157,7 @@ class MapTests: XCTestCase {
     }
 
     func testSubscriptRange() {
-        let m = Map(sortedElements: (0..<10).map { ($0, String($0)) })
+        let m = Map(sortedElements: (0 ..< 10).map { ($0, String($0)) })
         let indexes = Array(m.indices) + [m.endIndex]
         assertEqualElements(m[indexes[0] ..< indexes[10]], m)
         assertEqualElements(m[indexes[2] ..< indexes[4]], [(2, "2"), (3, "3")])
@@ -166,7 +166,7 @@ class MapTests: XCTestCase {
     }
 
     func testIndexing() {
-        let m = Map(sortedElements: (0..<10).map { ($0, String($0)) })
+        let m = Map(sortedElements: (0 ..< 10).map { ($0, String($0)) })
         var index = m.startIndex
         XCTAssertEqual(m.index(after: index), m.index(ofOffset: 1))
         XCTAssertEqual(m.index(index, offsetBy: 5), m.index(ofOffset: 5))
@@ -197,10 +197,10 @@ class MapTests: XCTestCase {
     }
 
     func testIndexForKey() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
 
         var index = m.startIndex
-        for k in 0..<100 {
+        for k in 0 ..< 100 {
             let i = m.index(forKey: k)
             XCTAssertEqual(i, index)
             XCTAssertEqual(m[i!].0, k)
@@ -213,7 +213,7 @@ class MapTests: XCTestCase {
     }
 
     func testRemoveAtIndex() {
-        var m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        var m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         for i in (0 ..< 100).reversed() {
             if i & 1 == 1 {
                 let index = m.index(m.startIndex, offsetBy: i)
@@ -222,34 +222,34 @@ class MapTests: XCTestCase {
                 XCTAssertEqual(element.1, String(i))
             }
         }
-        assertEqualElements(m, (0..<50).map { (2 * $0, String(2 * $0)) })
+        assertEqualElements(m, (0 ..< 50).map { (2 * $0, String(2 * $0)) })
     }
 
     func testRemoveValueForKey() {
-        var m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        var m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         for k in (0 ..< 100).filter({ $0 & 1 == 1 }) {
             let value = m.removeValue(forKey: k)
             XCTAssertEqual(value, String(k))
         }
-        assertEqualElements(m, (0..<50).map { (2 * $0, String(2 * $0)) })
+        assertEqualElements(m, (0 ..< 50).map { (2 * $0, String(2 * $0)) })
     }
 
     func testRemoveAll() {
-        var m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        var m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         m.removeAll()
         XCTAssertTrue(m.isEmpty)
         assertEqualElements(m, [])
     }
 
     func testIndexOfOffset() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
-        for i in 0...100 {
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
+        for i in 0 ... 100 {
             XCTAssertEqual(m.index(ofOffset: i), m.index(m.startIndex, offsetBy: i))
         }
     }
 
     func testOffsetOfIndex() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         var index = m.startIndex
         for i in 0 ..< 100 {
             XCTAssertEqual(m.offset(of: index), i)
@@ -260,20 +260,19 @@ class MapTests: XCTestCase {
     }
 
     func testOffsetOfKey() {
-        let m = Map<Int, String>(sortedElements: (0..<50).map { (2 * $0, String(2 * $0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 50).map { (2 * $0, String(2 * $0)) })
         for k in 0 ..< 100 {
             let offset = m.offset(of: k)
             if k & 1 == 0 {
                 XCTAssertEqual(offset, k / 2)
-            }
-            else {
+            } else {
                 XCTAssertNil(offset)
             }
         }
     }
 
     func testElementAtOffset() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         for i in 0 ..< 100 {
             let element = m.element(atOffset: i)
             XCTAssertEqual(element.0, i)
@@ -282,20 +281,20 @@ class MapTests: XCTestCase {
     }
 
     func testUpdateValueAtOffset() {
-        var m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        var m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         for i in 0 ..< 100 {
             m.updateValue(String(i) + "*", atOffset: i)
         }
-        assertEqualElements(m, (0..<100).map { ($0, String($0) + "*") })
+        assertEqualElements(m, (0 ..< 100).map { ($0, String($0) + "*") })
     }
 
     func testSubmaps() {
-        let m = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let m = Map<Int, String>(sortedElements: (0 ..< 100).map { ($0, String($0)) })
         let indexRange = m.index(m.startIndex, offsetBy: 30) ..< m.index(m.startIndex, offsetBy: 80)
-        let referenceSeq = (30..<80).map { ($0, String($0)) }
+        let referenceSeq = (30 ..< 80).map { ($0, String($0)) }
         assertEqualElements(m[indexRange], referenceSeq)
         assertEqualElements(m.submap(with: indexRange), referenceSeq)
-        assertEqualElements(m.submap(withOffsets: 30..<80), referenceSeq)
+        assertEqualElements(m.submap(withOffsets: 30 ..< 80), referenceSeq)
         assertEqualElements(m.submap(from: 30, to: 80), referenceSeq)
         assertEqualElements(m.submap(from: 30, through: 79), referenceSeq)
     }
@@ -337,8 +336,8 @@ class MapTests: XCTestCase {
         func eq(a: (Int, Int), b: (Int, Int)) -> Bool {
             var ak = a.0
             var bk = b.0
-            while ak > 0 && ak & 1 == 0 { ak = ak >> 1 }
-            while bk > 0 && bk & 1 == 0 { bk = bk >> 1 }
+            while ak > 0, ak & 1 == 0 { ak = ak >> 1 }
+            while bk > 0, bk & 1 == 0 { bk = bk >> 1 }
             return ak == bk
         }
 
@@ -399,7 +398,6 @@ class MapTests: XCTestCase {
         m.remove(atOffsets: 1 ..< 3)
         assertEqualElements(m, [(1, 2), (9, 18)])
     }
-
 
     func testReplacements() {
         var m: Map<Int, Int> = [1: 2, 5: 10, 3: 6, 9: 18]

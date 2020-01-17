@@ -35,18 +35,18 @@ public struct SortedBag<Element: Comparable>: SetAlgebra {
 }
 
 extension SortedBag {
-    //MARK: Initializers
+    // MARK: Initializers
 
     /// Create an empty bag.
     public init() {
-        self.tree = Tree()
+        tree = Tree()
     }
 
     /// Create a bag that holds the same members as the specified sorted set.
-    /// 
+    ///
     /// Complexity: O(1); the new bag simply refers to the same storage as the set.
     public init(_ set: SortedSet<Element>) {
-        self.tree = set.tree
+        tree = set.tree
     }
 
     /// Create a bag from a finite sequence of items. The sequence need not be sorted.
@@ -73,7 +73,7 @@ extension SortedBag {
 }
 
 extension SortedBag: BidirectionalCollection {
-    //MARK: CollectionType
+    // MARK: CollectionType
 
     public typealias Index = BTreeIndex<Element, Void>
     public typealias Iterator = BTreeKeyIterator<Element>
@@ -203,7 +203,7 @@ extension SortedBag: BidirectionalCollection {
 }
 
 extension SortedBag {
-    //MARK: Offset-based access
+    // MARK: Offset-based access
 
     /// If `member` is in this bag, return the offset of its first instance. Otherwise, return `nil`.
     ///
@@ -243,7 +243,7 @@ extension SortedBag {
 }
 
 extension SortedBag {
-    //MARK: Algorithms
+    // MARK: Algorithms
 
     /// Call `body` on each element in `self` in ascending order.
     public func forEach(_ body: (Element) throws -> Void) rethrows {
@@ -256,7 +256,7 @@ extension SortedBag {
     }
 
     /// Return an `Array` containing the concatenated results of mapping `transform` over `self`.
-    public func flatMap<S : Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
+    public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         return try tree.flatMap { try transform($0.0) }
     }
 
@@ -268,7 +268,7 @@ extension SortedBag {
     /// Return an `Array` containing the elements of `self`, in ascending order, that satisfy the predicate `includeElement`.
     public func filter(_ includeElement: (Element) throws -> Bool) rethrows -> [Element] {
         var result: [Element] = []
-        try tree.forEach { e -> () in
+        try tree.forEach { e -> Void in
             if try includeElement(e.0) {
                 result.append(e.0)
             }
@@ -285,7 +285,7 @@ extension SortedBag {
 }
 
 extension SortedBag {
-    //MARK: Extractions
+    // MARK: Extractions
 
     /// Return (the first instance of) the smallest element in the bag, or `nil` if the bag is empty.
     ///
@@ -344,7 +344,7 @@ extension SortedBag {
     /// If `maxLength` exceeds the number of elements, the result contains all the elements of `self`.
     ///
     /// - Complexity: O(log(`count`))
-    public func prefix(_  maxLength: Int) -> SortedBag {
+    public func prefix(_ maxLength: Int) -> SortedBag {
         return SortedBag(tree.prefix(maxLength))
     }
 
@@ -404,11 +404,11 @@ extension SortedBag {
 }
 
 extension SortedBag: CustomStringConvertible, CustomDebugStringConvertible {
-    //MARK: Conversion to string
+    // MARK: Conversion to string
 
     /// A textual representation of this bag.
     public var description: String {
-        let contents = self.map { String(reflecting: $0) }
+        let contents = map { String(reflecting: $0) }
         return "[" + contents.joined(separator: ", ") + "]"
     }
 
@@ -419,7 +419,7 @@ extension SortedBag: CustomStringConvertible, CustomDebugStringConvertible {
 }
 
 extension SortedBag {
-    //MARK: Queries
+    // MARK: Queries
 
     /// Return true if the bag contains `element`.
     ///
@@ -494,7 +494,7 @@ extension SortedBag {
 }
 
 extension SortedBag {
-    //MARK: Set comparions
+    // MARK: Set comparions
 
     /// Return `true` iff `self` and `other` contain the same number of instances of all the same elements.
     ///
@@ -503,7 +503,7 @@ extension SortedBag {
     ///
     /// - Complexity:  O(`count`)
     public func elementsEqual(_ other: SortedBag<Element>) -> Bool {
-        return self.tree.elementsEqual(other.tree, by: { $0.0 == $1.0 })
+        return tree.elementsEqual(other.tree, by: { $0.0 == $1.0 })
     }
 
     /// Returns `true` iff `a` contains the exact same elements as `b`, including multiplicities.
@@ -512,7 +512,7 @@ extension SortedBag {
     /// two bags are divergent mutations originating from the same value.
     ///
     /// - Complexity: O(`count`)
-    public static func ==(a: SortedBag<Element>, b: SortedBag<Element>) -> Bool {
+    public static func == (a: SortedBag<Element>, b: SortedBag<Element>) -> Bool {
         return a.elementsEqual(b)
     }
 
@@ -583,14 +583,14 @@ extension SortedBag {
 }
 
 extension SortedBag {
-    //MARK: Insertion
+    // MARK: Insertion
 
     /// Unconditionally insert a new member into the bag, adding another instance if the member was already present.
     ///
     /// The new member is inserted after its existing instances, if any. (This is important when equal members can
     /// be distinguished by identity comparison or some other means.)
     ///
-    /// - Note: `SetAlgebra` requires `insert` to do nothing and return `(false, member)` if the set already contains 
+    /// - Note: `SetAlgebra` requires `insert` to do nothing and return `(false, member)` if the set already contains
     ///    a matching element. `SortedBag` ignores this requirement and always inserts a new copy of the specified element.
     ///
     /// - Parameter newMember: An element to insert into the set.
@@ -623,7 +623,7 @@ extension SortedBag {
 }
 
 extension SortedBag {
-    //MARK: Removal
+    // MARK: Removal
 
     /// Remove and return the first instance of `member` from the bag, or return `nil` if the bag contains no instances of `member`.
     ///
@@ -658,7 +658,6 @@ extension SortedBag {
     public mutating func remove(atOffset offset: Int) -> Element {
         return tree.remove(atOffset: offset).0
     }
-
 
     /// Remove and return the smallest member in this bag.
     ///
@@ -713,7 +712,7 @@ extension SortedBag {
 }
 
 extension SortedBag {
-    //MARK: Sorting
+    // MARK: Sorting
 
     /// Return an `Array` containing the members of this bag, in ascending order.
     ///
@@ -727,7 +726,7 @@ extension SortedBag {
 }
 
 extension SortedBag {
-    //MARK: Set operations
+    // MARK: Set operations
 
     /// Return a bag containing all members from both this bag and `other`.
     /// The result contains all elements of duplicate members from both bags.
@@ -742,7 +741,7 @@ extension SortedBag {
     ///    - O(`self.count` + `other.count`) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func union(_ other: SortedBag<Element>) -> SortedBag<Element> {
-        return SortedBag(self.tree.union(other.tree, by: .countingMatches))
+        return SortedBag(tree.union(other.tree, by: .countingMatches))
     }
 
     /// Add all members in `other` to this bag, also keeping all existing instances already in `self`.
@@ -755,11 +754,11 @@ extension SortedBag {
     ///    - O(`self.count` + `other.count`) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public mutating func formUnion(_ other: SortedBag<Element>) {
-        self = self.union(other)
+        self = union(other)
     }
 
     /// Return a set consisting of all members in `other` that are also in this bag.
-    /// For duplicate members, only as many instances from `other` are kept in the result that appear in `self`.  
+    /// For duplicate members, only as many instances from `other` are kept in the result that appear in `self`.
     ///
     /// The elements of the two input sets may be freely interleaved.
     /// However, if there are long runs of non-interleaved elements, parts of the input sets will be simply
@@ -769,7 +768,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func intersection(_ other: SortedBag<Element>) -> SortedBag<Element> {
-        return SortedBag(self.tree.intersection(other.tree, by: .countingMatches))
+        return SortedBag(tree.intersection(other.tree, by: .countingMatches))
     }
 
     /// Remove all members from this bag that are not also included in `other`.
@@ -798,11 +797,11 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func subtracting(_ other: SortedBag) -> SortedBag {
-        return SortedBag(self.tree.subtracting(other.tree, by: .countingMatches))
+        return SortedBag(tree.subtracting(other.tree, by: .countingMatches))
     }
 
     /// Remove all members from this bag that are also included in `other`.
-    /// For duplicate members whose multiplicity exceeds that of matching members in `other`, 
+    /// For duplicate members whose multiplicity exceeds that of matching members in `other`,
     /// the extra members aren't removed.
     ///
     /// The elements of the two input bags may be freely interleaved.
@@ -813,11 +812,11 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public mutating func subtract(_ other: SortedBag) {
-        self = self.subtracting(other)
+        self = subtracting(other)
     }
 
     /// Return a bag consisting of members from `self` and `other` that aren't in both bags at once.
-    /// For members whose multiplicity is different in the two bags, the last *d* members from the bag with the 
+    /// For members whose multiplicity is different in the two bags, the last *d* members from the bag with the
     /// greater multiplicity is kept in the result (where *d* is the absolute difference of multiplicities).
     ///
     /// The elements of the two input bags may be freely interleaved.
@@ -828,7 +827,7 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public func symmetricDifference(_ other: SortedBag<Element>) -> SortedBag<Element> {
-        return SortedBag(self.tree.symmetricDifference(other.tree, by: .countingMatches))
+        return SortedBag(tree.symmetricDifference(other.tree, by: .countingMatches))
     }
 
     /// Replace `self` with a set consisting of members from `self` and `other` that aren't in both sets at once.
@@ -841,12 +840,12 @@ extension SortedBag {
     ///    - O(min(`self.count`, `other.count`)) in general.
     ///    - O(log(`self.count` + `other.count`)) if there are only a constant amount of interleaving element runs.
     public mutating func formSymmetricDifference(_ other: SortedBag<Element>) {
-        self = self.symmetricDifference(other)
+        self = symmetricDifference(other)
     }
 }
 
 extension SortedBag {
-    //MARK: Interactions with ranges
+    // MARK: Interactions with ranges
 
     /// Return the count of elements in this bag that are in `range`.
     ///
@@ -872,28 +871,28 @@ extension SortedBag {
     ///
     /// - Complexity: O(log(`self.count`))
     public func intersection(elementsIn range: Range<Element>) -> SortedBag<Element> {
-        return self.suffix(from: range.lowerBound).prefix(upTo: range.upperBound)
+        return suffix(from: range.lowerBound).prefix(upTo: range.upperBound)
     }
 
     /// Return a bag consisting of all members in `self` that are also in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
     public func intersection(elementsIn range: ClosedRange<Element>) -> SortedBag<Element> {
-        return self.suffix(from: range.lowerBound).prefix(through: range.upperBound)
+        return suffix(from: range.lowerBound).prefix(through: range.upperBound)
     }
 
     /// Remove all members from this bag that are not included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
     public mutating func formIntersection(elementsIn range: Range<Element>) {
-        self = self.intersection(elementsIn: range)
+        self = intersection(elementsIn: range)
     }
 
     /// Remove all members from this bag that are not included in `range`.
     ///
     /// - Complexity: O(log(`self.count`))
     public mutating func formIntersection(elementsIn range: ClosedRange<Element>) {
-        self = self.intersection(elementsIn: range)
+        self = intersection(elementsIn: range)
     }
 
     /// Remove all elements in `range` from this bag.
@@ -938,7 +937,7 @@ extension SortedBag {
 }
 
 extension SortedBag where Element: Strideable {
-    //MARK: Shifting
+    // MARK: Shifting
 
     /// Shift the value of all elements starting at `start` by `delta`.
     /// For a positive `delta`, this shifts elements to the right, creating an empty gap in `start ..< start + delta`.
@@ -970,7 +969,7 @@ extension SortedBag where Element: Strideable {
     public mutating func shift(startingAt start: Index, by delta: Element.Stride) {
         guard delta != 0, tree.offset(of: start) != count else { return }
         tree.withCursor(at: start) { cursor in
-            if delta < 0 && !cursor.isAtStart {
+            if delta < 0, !cursor.isAtStart {
                 let k = cursor.key.advanced(by: delta)
                 cursor.moveBackward()
                 precondition(cursor.key <= k)
@@ -982,5 +981,4 @@ extension SortedBag where Element: Strideable {
             }
         }
     }
-
 }

@@ -31,8 +31,8 @@ public struct BTreeIterator<Key: Comparable, Value>: IteratorProtocol {
 
 /// A dummy, zero-size key that is useful in B-trees that don't need key-based lookup.
 internal struct EmptyKey: Comparable {
-    internal static func ==(a: EmptyKey, b: EmptyKey) -> Bool { return true }
-    internal static func <(a: EmptyKey, b: EmptyKey) -> Bool { return false }
+    internal static func == (_: EmptyKey, _: EmptyKey) -> Bool { return true }
+    internal static func < (_: EmptyKey, _: EmptyKey) -> Bool { return false }
 }
 
 /// An iterator for the values stored in a B-tree with an empty key.
@@ -84,18 +84,18 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
 
     init(root: Node) {
         self.root = root
-        self.offset = root.count
-        self._path = []
-        self._slots = []
-        self.node = root
-        self.slot = nil
+        offset = root.count
+        _path = []
+        _slots = []
+        node = root
+        slot = nil
     }
 
     var count: Int { return root.count }
     var length: Int { return _path.count + 1 }
 
     mutating func popFromSlots() {
-        assert(self.slot != nil)
+        assert(slot != nil)
         offset += node.count - node.offset(ofSlot: slot!)
         slot = nil
     }
@@ -127,8 +127,7 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
             for i in (0 ..< _path.count).reversed() {
                 body(_path[i], _slots[i])
             }
-        }
-        else {
+        } else {
             for i in 0 ..< _path.count {
                 body(_path[i], _slots[i])
             }
@@ -140,8 +139,7 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
         if ascending {
             body(slot!)
             _slots.reversed().forEach(body)
-        }
-        else {
+        } else {
             _slots.forEach(body)
             body(slot!)
         }

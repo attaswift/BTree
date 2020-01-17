@@ -11,10 +11,10 @@ import Foundation
 extension List where Element: AnyObject {
     /// Return a view of this list as an immutable `NSArray`, without copying elements.
     /// This is useful when you want to use `List` values in Objective-C APIs.
-    /// 
+    ///
     /// - Complexity: O(1)
     public var arrayView: NSArray {
-        return BridgedList<Element>(self.tree)
+        return BridgedList<Element>(tree)
     }
 }
 
@@ -37,8 +37,8 @@ internal class BridgedList<Value>: NSArray {
         self.init()
         self.tree = tree
     }
-    
-    public override func copy(with zone: NSZone? = nil) -> Any {
+
+    public override func copy(with _: NSZone? = nil) -> Any {
         return self
     }
 
@@ -54,7 +54,7 @@ internal class BridgedList<Value>: NSArray {
         return BridgedListEnumerator(iterator: tree.makeIterator())
     }
 
-    public override func countByEnumerating(with state: UnsafeMutablePointer<NSFastEnumerationState>, objects buffer: AutoreleasingUnsafeMutablePointer<AnyObject?>, count len: Int) -> Int {
+    public override func countByEnumerating(with state: UnsafeMutablePointer<NSFastEnumerationState>, objects buffer: AutoreleasingUnsafeMutablePointer<AnyObject?>, count _: Int) -> Int {
         precondition(MemoryLayout<(EmptyKey, Value)>.size == MemoryLayout<Value>.size)
         precondition(MemoryLayout<(EmptyKey, Value)>.stride == MemoryLayout<Value>.stride)
         precondition(MemoryLayout<(EmptyKey, Value)>.alignment == MemoryLayout<Value>.alignment)

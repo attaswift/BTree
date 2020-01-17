@@ -6,8 +6,8 @@
 //  Copyright © 2016–2017 Károly Lőrentey.
 //
 
-import XCTest
 import BTree
+import XCTest
 
 private final class Test: Comparable, ExpressibleByIntegerLiteral {
     let value: Int
@@ -15,12 +15,11 @@ private final class Test: Comparable, ExpressibleByIntegerLiteral {
     init(_ value: Int) { self.value = value }
     init(integerLiteral value: Int) { self.value = value }
 
-    static func ==(a: Test, b: Test) -> Bool { return a.value == b.value }
-    static func <(a: Test, b: Test) -> Bool { return a.value < b.value }
+    static func == (a: Test, b: Test) -> Bool { return a.value == b.value }
+    static func < (a: Test, b: Test) -> Bool { return a.value < b.value }
 }
 
 class SortedSetTests: XCTestCase {
-
     func test_emptySet() {
         let set = SortedSet<Int>()
 
@@ -44,7 +43,7 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_unsortedElements_uniqueItems() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet((0 ..< c).reversed())
 
         XCTAssertEqual(set.count, c)
@@ -52,7 +51,7 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_unsortedElements_duplicateItems() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet((0 ..< c).reversed().repeatEach(10))
 
         XCTAssertEqual(set.count, c)
@@ -60,7 +59,7 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_sortedElements_uniqueItems() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet(sortedElements: 0 ..< c)
 
         XCTAssertEqual(set.count, c)
@@ -68,7 +67,7 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_sortedElements_duplicateItems() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet(sortedElements: (0 ..< c).repeatEach(10))
 
         XCTAssertEqual(set.count, c)
@@ -83,7 +82,7 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_subscriptWithIndexing() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet(0 ..< c)
         var i = 0
         var index = set.startIndex
@@ -113,13 +112,13 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_makeIterator() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet(0 ..< c)
         assertEqualElements(IteratorSequence(set.makeIterator()), 0 ..< c)
     }
 
     func test_subscriptByOffsets() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet(0 ..< c)
         for i in 0 ..< c {
             XCTAssertEqual(set[i], i)
@@ -137,7 +136,7 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_indexing() {
-        let s = SortedSet(sortedElements: (0..<10))
+        let s = SortedSet(sortedElements: 0 ..< 10)
         var index = s.startIndex
         XCTAssertEqual(s.index(after: index), s.index(ofOffset: 1))
         XCTAssertEqual(s.index(index, offsetBy: 5), s.index(ofOffset: 5))
@@ -172,8 +171,7 @@ class SortedSetTests: XCTestCase {
         for m in 0 ..< 20 {
             if m & 1 == 0 {
                 XCTAssertEqual(s.offset(of: m), m / 2)
-            }
-            else {
+            } else {
                 XCTAssertNil(s.offset(of: m))
             }
         }
@@ -183,7 +181,7 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_forEach() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet(0 ..< c)
         var i = 0
         set.forEach { n in
@@ -193,7 +191,7 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_map() {
-        let c = 10_000
+        let c = 10000
         let set = SortedSet(0 ..< c)
         var i = 0
         let r = set.map { (n: Int) -> Int in
@@ -271,7 +269,6 @@ class SortedSetTests: XCTestCase {
         assertEqualElements(set.prefix(upTo: c), 0 ..< c)
 
         assertEqualElements(set.prefix(upTo: 2 * c), 0 ..< c)
-
     }
 
     func test_suffix() {
@@ -313,8 +310,7 @@ class SortedSetTests: XCTestCase {
             if i & 1 == 0 {
                 XCTAssertEqual(index, set.index(set.startIndex, offsetBy: i / 2))
                 XCTAssertEqual(set[index!], i)
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -332,12 +328,10 @@ class SortedSetTests: XCTestCase {
                 let element = set[index]
                 if i & 1 == 0 {
                     XCTAssertEqual(element, i + 2)
-                }
-                else {
+                } else {
                     XCTAssertEqual(element, i + 1)
                 }
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -355,12 +349,10 @@ class SortedSetTests: XCTestCase {
                 let element = set[index]
                 if i & 1 == 0 {
                     XCTAssertEqual(element, i)
-                }
-                else {
+                } else {
                     XCTAssertEqual(element, i + 1)
                 }
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -378,12 +370,10 @@ class SortedSetTests: XCTestCase {
                 let element = set[index]
                 if i & 1 == 0 {
                     XCTAssertEqual(element, i - 2)
-                }
-                else {
+                } else {
                     XCTAssertEqual(element, i - 1)
                 }
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -401,12 +391,10 @@ class SortedSetTests: XCTestCase {
                 let element = set[index]
                 if i & 1 == 0 {
                     XCTAssertEqual(element, i)
-                }
-                else {
+                } else {
                     XCTAssertEqual(element, i - 1)
                 }
-            }
-            else {
+            } else {
                 XCTAssertNil(index)
             }
         }
@@ -488,15 +476,13 @@ class SortedSetTests: XCTestCase {
         assertEqualElements(set, (1 ... 100).map { Test($0) })
     }
 
-
     func test_remove() {
         let c = 500
         var set = SortedSet((0 ..< c).map { 2 * $0 })
         for i in 0 ..< 2 * c {
             if i & 1 == 0 {
                 XCTAssertEqual(set.remove(i), i)
-            }
-            else {
+            } else {
                 XCTAssertNil(set.remove(i))
             }
         }
@@ -591,8 +577,8 @@ class SortedSetTests: XCTestCase {
         XCTAssertFalse(a == b)
         XCTAssertFalse(a == c)
 
-        XCTAssertFalse(a.isDisjoint(with:b))
-        XCTAssertTrue(b.isDisjoint(with:c))
+        XCTAssertFalse(a.isDisjoint(with: b))
+        XCTAssertTrue(b.isDisjoint(with: c))
 
         XCTAssertTrue(b.isSubset(of: a))
         XCTAssertTrue(c.isSubset(of: a))
@@ -612,65 +598,64 @@ class SortedSetTests: XCTestCase {
     }
 
     func test_countElementsInRange() {
-        let s = SortedSet(sortedElements: 0 ..< 10_000)
+        let s = SortedSet(sortedElements: 0 ..< 10000)
         XCTAssertEqual(s.count(elementsIn: -100 ..< -10), 0)
         XCTAssertEqual(s.count(elementsIn: 0 ..< 100), 100)
-        XCTAssertEqual(s.count(elementsIn: 3 ..< 9_999), 9_996)
-        XCTAssertEqual(s.count(elementsIn: 0 ..< 10_000), 10_000)
+        XCTAssertEqual(s.count(elementsIn: 3 ..< 9999), 9996)
+        XCTAssertEqual(s.count(elementsIn: 0 ..< 10000), 10000)
         XCTAssertEqual(s.count(elementsIn: -100 ..< 100), 100)
-        XCTAssertEqual(s.count(elementsIn: 9_900 ..< 10_100), 100)
-        XCTAssertEqual(s.count(elementsIn: -100 ..< 20_000), 10_000)
-
+        XCTAssertEqual(s.count(elementsIn: 9900 ..< 10100), 100)
+        XCTAssertEqual(s.count(elementsIn: -100 ..< 20000), 10000)
 
         XCTAssertEqual(s.count(elementsIn: -100 ... -10), 0)
         XCTAssertEqual(s.count(elementsIn: 0 ... 100), 101)
-        XCTAssertEqual(s.count(elementsIn: 3 ... 9_999), 9_997)
-        XCTAssertEqual(s.count(elementsIn: 0 ... 9_999), 10_000)
+        XCTAssertEqual(s.count(elementsIn: 3 ... 9999), 9997)
+        XCTAssertEqual(s.count(elementsIn: 0 ... 9999), 10000)
         XCTAssertEqual(s.count(elementsIn: -100 ... 100), 101)
-        XCTAssertEqual(s.count(elementsIn: 9_900 ... 10_100), 100)
-        XCTAssertEqual(s.count(elementsIn: -100 ... 20_000), 10_000)
+        XCTAssertEqual(s.count(elementsIn: 9900 ... 10100), 100)
+        XCTAssertEqual(s.count(elementsIn: -100 ... 20000), 10000)
     }
 
     func test_intersectionWithRange() {
-        var s = SortedSet(sortedElements: 0 ..< 10_000)
+        var s = SortedSet(sortedElements: 0 ..< 10000)
         assertEqualElements(s.intersection(elementsIn: -100 ..< -10), [])
-        assertEqualElements(s.intersection(elementsIn: 100 ..< 9_900), 100 ..< 9_900)
+        assertEqualElements(s.intersection(elementsIn: 100 ..< 9900), 100 ..< 9900)
         assertEqualElements(s.intersection(elementsIn: -100 ..< 100), 0 ..< 100)
-        assertEqualElements(s.intersection(elementsIn: 9_900 ..< 10_100), 9_900 ..< 10_000)
-        assertEqualElements(s.intersection(elementsIn: 10_100 ..< 10_200), [])
+        assertEqualElements(s.intersection(elementsIn: 9900 ..< 10100), 9900 ..< 10000)
+        assertEqualElements(s.intersection(elementsIn: 10100 ..< 10200), [])
 
         assertEqualElements(s.intersection(elementsIn: -100 ... -10), [])
-        assertEqualElements(s.intersection(elementsIn: 100 ... 9_900), 100 ... 9_900)
+        assertEqualElements(s.intersection(elementsIn: 100 ... 9900), 100 ... 9900)
         assertEqualElements(s.intersection(elementsIn: -100 ... 100), 0 ... 100)
-        assertEqualElements(s.intersection(elementsIn: 9_900 ... 10_100), 9_900 ..< 10_000)
-        assertEqualElements(s.intersection(elementsIn: 10_100 ... 10_200), [])
+        assertEqualElements(s.intersection(elementsIn: 9900 ... 10100), 9900 ..< 10000)
+        assertEqualElements(s.intersection(elementsIn: 10100 ... 10200), [])
 
-        s.formIntersection(elementsIn: 1_000 ..< 2_000)
-        assertEqualElements(s, 1_000 ..< 2_000)
+        s.formIntersection(elementsIn: 1000 ..< 2000)
+        assertEqualElements(s, 1000 ..< 2000)
 
-        s.formIntersection(elementsIn: 1_100 ... 1_200)
-        assertEqualElements(s, 1_100 ... 1_200)
+        s.formIntersection(elementsIn: 1100 ... 1200)
+        assertEqualElements(s, 1100 ... 1200)
     }
 
     func test_subtractionOfRange() {
-        var s = SortedSet(sortedElements: 0 ..< 10_000)
-        assertEqualElements(s.subtracting(elementsIn: -100 ..< 0), 0 ..< 10_000)
-        assertEqualElements(s.subtracting(elementsIn: 100 ..< 9_900), Array(0 ..< 100) + Array(9_900 ..< 10_000))
-        assertEqualElements(s.subtracting(elementsIn: -100 ..< 100), 100 ..< 10_000)
-        assertEqualElements(s.subtracting(elementsIn: 9_900 ..< 10_100), 0 ..< 9_900)
-        assertEqualElements(s.subtracting(elementsIn: 10_000 ..< 10_100), 0 ..< 10_000)
+        var s = SortedSet(sortedElements: 0 ..< 10000)
+        assertEqualElements(s.subtracting(elementsIn: -100 ..< 0), 0 ..< 10000)
+        assertEqualElements(s.subtracting(elementsIn: 100 ..< 9900), Array(0 ..< 100) + Array(9900 ..< 10000))
+        assertEqualElements(s.subtracting(elementsIn: -100 ..< 100), 100 ..< 10000)
+        assertEqualElements(s.subtracting(elementsIn: 9900 ..< 10100), 0 ..< 9900)
+        assertEqualElements(s.subtracting(elementsIn: 10000 ..< 10100), 0 ..< 10000)
 
-        assertEqualElements(s.subtracting(elementsIn: -100 ... -1), 0 ..< 10_000)
-        assertEqualElements(s.subtracting(elementsIn: 100 ... 9_900), Array(0 ..< 100) + Array(9_901 ..< 10_000))
-        assertEqualElements(s.subtracting(elementsIn: -100 ... 100), 101 ..< 10_000)
-        assertEqualElements(s.subtracting(elementsIn: 9_900 ... 10_100), 0 ..< 9_900)
-        assertEqualElements(s.subtracting(elementsIn: 10_000 ... 10_100), 0 ..< 10_000)
+        assertEqualElements(s.subtracting(elementsIn: -100 ... -1), 0 ..< 10000)
+        assertEqualElements(s.subtracting(elementsIn: 100 ... 9900), Array(0 ..< 100) + Array(9901 ..< 10000))
+        assertEqualElements(s.subtracting(elementsIn: -100 ... 100), 101 ..< 10000)
+        assertEqualElements(s.subtracting(elementsIn: 9900 ... 10100), 0 ..< 9900)
+        assertEqualElements(s.subtracting(elementsIn: 10000 ... 10100), 0 ..< 10000)
 
-        s.subtract(elementsIn: 1_000 ..< 9_000)
-        assertEqualElements(s, Array(0 ..< 1_000) + Array(9_000 ..< 10_000))
+        s.subtract(elementsIn: 1000 ..< 9000)
+        assertEqualElements(s, Array(0 ..< 1000) + Array(9000 ..< 10000))
 
         s.subtract(elementsIn: 100 ... 900)
-        assertEqualElements(s, Array(0 ..< 100) + Array(901 ..< 1_000) + Array(9_000 ..< 10_000))
+        assertEqualElements(s, Array(0 ..< 100) + Array(901 ..< 1000) + Array(9000 ..< 10000))
     }
 
     func test_shift() {

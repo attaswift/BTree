@@ -6,8 +6,8 @@
 //  Copyright © 2016–2017 Károly Lőrentey.
 //
 
-import XCTest
 @testable import BTree
+import XCTest
 
 @objc
 internal class Foo: NSObject {
@@ -21,13 +21,13 @@ internal class Foo: NSObject {
 
 class BridgedListTests: XCTestCase {
     #if Debug
-    let count = 5_000 // Make sure this is larger than the default tree order to get full code coverage
+        let count = 5000 // Make sure this is larger than the default tree order to get full code coverage
     #else
-    let count = 100_000
+        let count = 100_000
     #endif
 
     func testLeaks() {
-        weak var test: Foo? = nil
+        weak var test: Foo?
         do {
             let list = List((0 ..< count).lazy.map { Foo($0) })
             let arrayView = list.arrayView

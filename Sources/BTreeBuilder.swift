@@ -6,9 +6,8 @@
 //  Copyright © 2016–2017 Károly Lőrentey.
 //
 
-
 extension BTree {
-    //MARK: Bulk loading initializers
+    // MARK: Bulk loading initializers
 
     /// Create a new B-tree from elements of an unsorted sequence, using a stable sort algorithm.
     ///
@@ -27,12 +26,10 @@ extension BTree {
                 if match {
                     if dropDuplicates {
                         cursor.element = element
-                    }
-                    else {
+                    } else {
                         cursor.insertAfter(element)
                     }
-                }
-                else {
+                } else {
                     cursor.insert(element)
                 }
             }
@@ -72,9 +69,8 @@ extension BTree {
                 buffer = element
             }
             builder.append(buffer)
-        }
-        else {
-            var lastKey: Key? = nil
+        } else {
+            var lastKey: Key?
             while let element = next() {
                 precondition(lastKey == nil || lastKey! <= element.0)
                 lastKey = element.0
@@ -117,17 +113,17 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
     init(order: Int) {
         self.init(order: order, keysPerNode: order - 1)
     }
-    
+
     init(order: Int, keysPerNode: Int) {
         precondition(order > 1)
         precondition(keysPerNode >= (order - 1) / 2 && keysPerNode <= order - 1)
 
         self.order = order
         self.keysPerNode = keysPerNode
-        self.saplings = []
-        self.separators = []
-        self.seedling = Node(order: order)
-        self.state = .element
+        saplings = []
+        separators = []
+        seedling = Node(order: order)
+        state = .element
     }
 
     var lastKey: Key? {
@@ -180,8 +176,7 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
                 state = .element
                 if node.isEmpty { return }
                 seedling = node
-            }
-            else if seedling.count > 0 {
+            } else if seedling.count > 0 {
                 let sep = seedling.elements.removeLast()
                 seedling.count -= 1
                 if let splinter = seedling.shiftSlots(separator: sep, node: node, target: keysPerNode) {
@@ -189,8 +184,7 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
                     separators.append(splinter.separator)
                     seedling = splinter.node
                 }
-            }
-            else {
+            } else {
                 seedling = node
             }
             if seedling.count >= keysPerNode {
@@ -200,7 +194,7 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
             return
         }
 
-        if state == .element && seedling.count > 0 {
+        if state == .element, seedling.count > 0 {
             let sep = seedling.elements.removeLast()
             seedling.count -= 1
             closeSeedling()
@@ -244,25 +238,21 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
                 previous.children.append(sapling)
                 previous.count += sapling.count + 1
                 sapling = previous
-            }
-            else if previous.depth == sapling.depth && fullPrevious && fullSapling {
+            } else if previous.depth == sapling.depth && fullPrevious && fullSapling {
                 // We have two full nodes; add them as two branches of a new, deeper node.
                 sapling = Node(left: previous, separator: separator, right: sapling)
-            }
-            else if previous.depth > sapling.depth || fullPrevious {
+            } else if previous.depth > sapling.depth || fullPrevious {
                 // The new sapling can be appended to the line and we're done.
                 saplings.append(previous)
                 separators.append(separator)
                 break
-            }
-            else if let splinter = previous.shiftSlots(separator: separator, node: sapling, target: keysPerNode) {
+            } else if let splinter = previous.shiftSlots(separator: separator, node: sapling, target: keysPerNode) {
                 // We have made the previous sapling full; add it as a new one before trying again with the remainder.
                 assert(previous.elements.count == keysPerNode)
                 append(sapling: previous)
                 separators.append(splinter.separator)
                 sapling = splinter.node
-            }
-            else {
+            } else {
                 // We've combined the two saplings; try again with the result.
                 sapling = previous
             }
@@ -276,8 +266,7 @@ internal struct BTreeBuilder<Key: Comparable, Value> {
         if separators.count == saplings.count - 1 {
             assert(seedling.count == 0)
             root = saplings.removeLast()
-        }
-        else {
+        } else {
             root = seedling
         }
         assert(separators.count == saplings.count)

@@ -6,13 +6,13 @@
 //  Copyright © 2015–2017 Károly Lőrentey.
 //
 
-/// An ordered mapping from comparable keys to arbitrary values. 
+/// An ordered mapping from comparable keys to arbitrary values.
 /// Works like `Dictionary`, but provides a well-defined ordering for its elements.
 ///
 /// `Map` is a struct with copy-on-write value semantics, like Swift's standard collection types.
 /// It uses an in-memory B-tree for element storage, whose individual nodes may be shared with other maps.
-/// Modifying an element of a map whose storage is (partially or completely) shared requires copying of 
-/// only O(log(`count`)) elements. (Thus, mutation of shared maps may be relatively cheaper than dictionaries, 
+/// Modifying an element of a map whose storage is (partially or completely) shared requires copying of
+/// only O(log(`count`)) elements. (Thus, mutation of shared maps may be relatively cheaper than dictionaries,
 /// which need to clone all elements.)
 ///
 /// Lookup, insertion and removal of individual key-value pairs in a map have logarithmic complexity.
@@ -23,7 +23,7 @@
 /// often complete faster than you might expect.
 /// For example, iterating over a `Map` using the generator API requires O(n) time, just like a dictionary.
 ///
-/// Due to its tree-based structure, `Map` is able to provide efficient implementations for several operations 
+/// Due to its tree-based structure, `Map` is able to provide efficient implementations for several operations
 /// that would be slower with dictionaries.
 ///
 public struct Map<Key: Comparable, Value> {
@@ -39,11 +39,11 @@ public struct Map<Key: Comparable, Value> {
 }
 
 extension Map {
-    //MARK: Initializers
+    // MARK: Initializers
 
     /// Initialize an empty map.
     public init() {
-        self.tree = Tree()
+        tree = Tree()
     }
 }
 
@@ -54,7 +54,7 @@ extension Map {
     ///
     /// - Complexity: O(*n* * log(*n*)) where *n* is the number of items in `elements`.
     public init<S: Sequence>(_ elements: S) where S.Element == Element {
-        self.tree = Tree(elements, dropDuplicates: true)
+        tree = Tree(elements, dropDuplicates: true)
     }
 
     /// Initialize a new map from a sorted sequence of elements.
@@ -63,23 +63,23 @@ extension Map {
     ///
     /// - Complexity: O(*n*) where *n* is the number of items in `elements`.
     public init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
-        self.tree = Tree(sortedElements: elements, dropDuplicates: true)
+        tree = Tree(sortedElements: elements, dropDuplicates: true)
     }
 }
 
 extension Map: ExpressibleByDictionaryLiteral {
     /// Initialize a new map from the given elements.
     public init(dictionaryLiteral elements: (Key, Value)...) {
-        self.tree = Tree(elements, dropDuplicates: true)
+        tree = Tree(elements, dropDuplicates: true)
     }
 }
 
 extension Map: CustomStringConvertible {
-    //MARK: Conversion to string
-    
+    // MARK: Conversion to string
+
     /// A textual representation of this map.
     public var description: String {
-        let contents = self.map { (key, value) -> String in
+        let contents = map { (key, value) -> String in
             let ks = String(reflecting: key)
             let vs = String(reflecting: value)
             return "\(ks): \(vs)"
@@ -91,7 +91,7 @@ extension Map: CustomStringConvertible {
 extension Map: CustomDebugStringConvertible {
     /// A textual representation of this map, suitable for debugging.
     public var debugDescription: String {
-        let contents = self.map { (key, value) -> String in
+        let contents = map { (key, value) -> String in
             let ks = String(reflecting: key)
             let vs = String(reflecting: value)
             return "\(ks): \(vs)"
@@ -101,8 +101,8 @@ extension Map: CustomDebugStringConvertible {
 }
 
 extension Map: BidirectionalCollection {
-    //MARK: CollectionType
-    
+    // MARK: CollectionType
+
     public typealias Index = BTreeIndex<Key, Value>
     public typealias Iterator = BTreeIterator<Key, Value>
     public typealias Element = (Key, Value)
@@ -233,12 +233,12 @@ extension Map: BidirectionalCollection {
 }
 
 extension Map {
-    //MARK: Algorithms
-    
+    // MARK: Algorithms
+
     /// Call `body` on each element in `self` in ascending key order.
     ///
     /// - Complexity: O(`count`)
-    public func forEach(_ body: (Element) throws -> ()) rethrows {
+    public func forEach(_ body: (Element) throws -> Void) rethrows {
         try tree.forEach(body)
     }
 
@@ -248,8 +248,8 @@ extension Map {
     /// - Complexity: O(`count`)
     public func map<T>(_ transform: (Element) throws -> T) rethrows -> [T] {
         var result: [T] = []
-        result.reserveCapacity(self.count)
-        try self.forEach {
+        result.reserveCapacity(count)
+        try forEach {
             result.append(try transform($0))
         }
         return result
@@ -260,7 +260,7 @@ extension Map {
     /// - Complexity: O(`count`)
     public func flatMap<S: Sequence>(_ transform: (Element) throws -> S) rethrows -> [S.Element] {
         var result: [S.Element] = []
-        try self.forEach { element in
+        try forEach { element in
             result.append(contentsOf: try transform(element))
         }
         return result
@@ -271,7 +271,7 @@ extension Map {
     /// - Complexity: O(`count`)
     public func flatMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T] {
         var result: [T] = []
-        try self.forEach { element in
+        try forEach { element in
             if let t = try transform(element) {
                 result.append(t)
             }
@@ -281,14 +281,14 @@ extension Map {
 
     /// Calculate the left fold of this map over `combine`:
     /// return the result of repeatedly calling `combine` with an accumulated value initialized to `initial`
-    /// and each element of `self`, in turn. 
+    /// and each element of `self`, in turn.
     ///
     /// I.e., return `combine(combine(...combine(combine(initial, self[0]), self[1]),...self[count-2]), self[count-1])`.
     ///
     /// - Complexity: O(`count`)
     public func reduce<T>(_ initialResult: T, _ nextPartialResult: (T, Element) throws -> T) rethrows -> T {
         var result = initialResult
-        try self.forEach {
+        try forEach {
             result = try nextPartialResult(result, $0)
         }
         return result
@@ -296,20 +296,20 @@ extension Map {
 }
 
 extension Map {
-    //MARK: Dictionary-like methods
+    // MARK: Dictionary-like methods
 
     /// A collection containing just the keys in this map, in ascending order.
     public var keys: LazyMapCollection<Map<Key, Value>, Key> {
-        return self.lazy.map { $0.0 }
+        return `lazy`.map { $0.0 }
     }
 
     /// A collection containing just the values in this map, in order of ascending keys.
     public var values: LazyMapCollection<Map<Key, Value>, Value> {
-        return self.lazy.map { $0.1 }
+        return `lazy`.map { $0.1 }
     }
 
     /// Provides access to the value for a given key. Nonexistent values are represented as `nil`.
-    /// 
+    ///
     /// - Complexity: O(log(`count`))
     public subscript(key: Key) -> Value? {
         get {
@@ -318,8 +318,7 @@ extension Map {
         set(value) {
             if let value = value {
                 updateValue(value, forKey: key)
-            }
-            else {
+            } else {
                 removeValue(forKey: key)
             }
         }
@@ -375,7 +374,7 @@ extension Map {
 }
 
 extension Map {
-    //MARK: Offset-based access
+    // MARK: Offset-based access
 
     /// Returns the index of the element at `offset`.
     ///
@@ -434,7 +433,7 @@ extension Map {
 }
 
 extension Map {
-    //MARK: Submaps
+    // MARK: Submaps
 
     /// Return a submap consisting of elements in the specified range of indexes.
     ///
@@ -466,7 +465,7 @@ extension Map {
 }
 
 extension Map {
-    //MARK: Equivalence
+    // MARK: Equivalence
 
     /// Return `true` iff `self` and `other` contain equivalent elements, using `isEquivalent` as the equivalence test.
     ///
@@ -492,33 +491,33 @@ extension Map where Value: Equatable {
     public func elementsEqual(_ other: Map) -> Bool {
         return tree.elementsEqual(other.tree)
     }
-    
+
     /// Return true iff `a` is equal to `b`.
     ///
     /// This function skips over shared subtrees when possible; this can drastically improve performance when the
     /// two maps are divergent mutations originating from the same value.
-    public static func ==(a: Map, b: Map) -> Bool {
+    public static func == (a: Map, b: Map) -> Bool {
         return a.elementsEqual(b)
     }
 
     /// Return true iff `a` is not equal to `b`.
-    public static func !=(a: Map, b: Map) -> Bool {
+    public static func != (a: Map, b: Map) -> Bool {
         return !(a == b)
     }
 }
 
 extension Map {
-    //MARK: Merging
+    // MARK: Merging
 
     /// Return a map that combines elements from `self` with those in `other`.
     /// If a key is included in both maps, the value from `other` is used.
-    /// 
+    ///
     /// This function links subtrees containing elements with distinct keys when possible;
     /// this can drastically improve performance when the keys of the two maps aren't too interleaved.
     ///
     /// - Complexity: O(`count`)
     public func merging(_ other: Map) -> Map {
-        return Map(self.tree.union(other.tree, by: .groupingMatches))
+        return Map(tree.union(other.tree, by: .groupingMatches))
     }
 
     /// Return a map that combines elements from `a` with those in `b`.
@@ -528,19 +527,19 @@ extension Map {
     /// this can drastically improve performance when the keys of the two maps aren't too interleaved.
     ///
     /// - Complexity: O(`count`)
-    public static func +(a: Map, b: Map) -> Map {
+    public static func + (a: Map, b: Map) -> Map {
         return a.merging(b)
     }
 }
 
 extension Map {
-    //MARK: Including and excluding keys
+    // MARK: Including and excluding keys
 
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
     public func including(_ keys: SortedSet<Key>) -> Map {
-        return Map(self.tree.intersection(sortedKeys: keys, by: .groupingMatches))
+        return Map(tree.intersection(sortedKeys: keys, by: .groupingMatches))
     }
 
     /// Return a map that contains all elements in `self` whose keys are in `keys`.
@@ -554,7 +553,7 @@ extension Map {
     ///
     /// - Complexity: O(`keys.count` * log(`count`))
     public func excluding(_ keys: SortedSet<Key>) -> Map {
-        return Map(self.tree.subtracting(sortedKeys: keys, by: .groupingMatches))
+        return Map(tree.subtracting(sortedKeys: keys, by: .groupingMatches))
     }
 
     /// Return a map that contains all elements in `self` whose keys are not in `keys`.

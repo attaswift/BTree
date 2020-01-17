@@ -7,11 +7,11 @@
 //
 
 extension BTree {
-    //MARK: Comparison
+    // MARK: Comparison
 
     /// Return `true` iff `self` and `other` contain equivalent elements, using `isEquivalent` as the equivalence test.
     ///
-    /// This method skips over shared subtrees when possible; this can drastically improve performance when the 
+    /// This method skips over shared subtrees when possible; this can drastically improve performance when the
     /// two trees are divergent mutations originating from the same value.
     ///
     /// - Requires: `isEquivalent` is an [equivalence relation].
@@ -19,13 +19,13 @@ extension BTree {
     ///
     /// [equivalence relation]: https://en.wikipedia.org/wiki/Equivalence_relation
     public func elementsEqual(_ other: BTree, by isEquivalent: (Element, Element) throws -> Bool) rethrows -> Bool {
-        if self.root === other.root { return true }
-        if self.count != other.count { return false }
+        if root === other.root { return true }
+        if count != other.count { return false }
 
-        var a = BTreeStrongPath(startOf: self.root)
+        var a = BTreeStrongPath(startOf: root)
         var b = BTreeStrongPath(startOf: other.root)
         while !a.isAtEnd { // No need to check b: the trees have the same length, and each iteration moves equal steps in both trees.
-            if a.node === b.node && a.slot == b.slot {
+            if a.node === b.node, a.slot == b.slot {
                 // Ascend to first ancestor that isn't shared.
                 repeat {
                     a.ascendOneLevel()
@@ -53,7 +53,7 @@ extension BTree where Value: Equatable {
     ///
     /// - Complexity:  O(`count`)
     public func elementsEqual(_ other: BTree) -> Bool {
-        return self.elementsEqual(other, by: { $0.0 == $1.0 && $0.1 == $1.1 })
+        return elementsEqual(other, by: { $0.0 == $1.0 && $0.1 == $1.1 })
     }
 
     /// Return `true` iff `a` and `b` contain equal elements.
@@ -84,9 +84,9 @@ extension BTree {
     ///    - O(min(`self.count`, `tree.count`)) in general.
     ///    - O(log(`self.count` + `tree.count`)) if there are only a constant amount of interleaving element runs.
     public func isDisjoint(with tree: BTree) -> Bool {
-        var a = BTreeStrongPath(startOf: self.root)
+        var a = BTreeStrongPath(startOf: root)
         var b = BTreeStrongPath(startOf: tree.root)
-        if !a.isAtEnd && !b.isAtEnd {
+        if !a.isAtEnd, !b.isAtEnd {
             outer: while true {
                 if a.key == b.key {
                     return false
@@ -143,12 +143,12 @@ extension BTree {
     }
 
     internal func isSubset(of tree: BTree, by strategy: BTreeMatchingStrategy, strict: Bool) -> Bool {
-        var a = BTreeStrongPath(startOf: self.root)
+        var a = BTreeStrongPath(startOf: root)
         var b = BTreeStrongPath(startOf: tree.root)
         var knownStrict = false
         outer: while !a.isAtEnd && !b.isAtEnd {
             while a.key == b.key {
-                if a.node === b.node && a.slot == b.slot {
+                if a.node === b.node, a.slot == b.slot {
                     // Ascend to first ancestor that isn't shared.
                     repeat {
                         a.ascendOneLevel()
@@ -200,8 +200,7 @@ extension BTree {
             if !b.isAtEnd {
                 return true
             }
-        }
-        else if b.isAtEnd {
+        } else if b.isAtEnd {
             return false
         }
         return !strict || knownStrict

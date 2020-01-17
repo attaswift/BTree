@@ -31,4 +31,3 @@ internal func layoutColumns(lines: [[String]], separator: String = "   ") -> [St
     }
     return result
 }
-

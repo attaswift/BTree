@@ -12,6 +12,6 @@ private func unavailable() -> Never {
 
 extension BTree {
     @available(*, unavailable, renamed: "union(_:by:)",
-    message: "Use union with the .groupingMatches strategy instead.")
-    public func distinctUnion(_ other: BTree) -> BTree { unavailable() }
+               message: "Use union with the .groupingMatches strategy instead.")
+    public func distinctUnion(_: BTree) -> BTree { unavailable() }
 }
