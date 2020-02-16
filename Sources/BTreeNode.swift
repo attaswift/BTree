@@ -611,3 +611,48 @@ extension BTreeNode {
     }
 }
 
+#if swift(>=4.2)
+extension BTreeNode: Codable where Key: Codable, Value: Codable {
+    // Swift's tuples do not support Codable yet, so we have to generate this manually
+
+    enum CodingKeys: String, CodingKey {
+        case elements
+        case children
+        case count
+        case _order
+        case _depth
+    }
+
+    struct Pair<Key: Codable, Value: Codable>: Codable {
+        var key: Key
+        var value: Value
+        init(_ key: Key, _ value: Value) {
+            self.key = key
+            self.value = value
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(self.elements.map({Pair($0.0, $0.1)}), forKey: .elements)
+        try container.encode(children, forKey: .children)
+        try container.encode(count, forKey: .count)
+        try container.encode(_order, forKey: ._order)
+        try container.encode(_depth, forKey: ._depth)
+    }
+
+    convenience init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let elements = try container.decode(Array<Pair<Key, Value>>.self, forKey: .elements)
+        let children = try container.decode(Array<BTreeNode<Key, Value>>.self, forKey: .children)
+        let count = try container.decode(Int.self, forKey: .count)
+        let _order = try container.decode(Int32.self, forKey: ._order)
+        let _depth = try container.decode(Int32.self, forKey: ._depth)
+        assert(_depth == (children.count == 0 ? 0 : children[0]._depth + 1))
+        self.init(order: numericCast(_order),
+                  elements: elements.map({ ($0.key, $0.value) }),
+                  children: children,
+                  count: count)
+    }
+}
+#endif

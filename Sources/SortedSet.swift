@@ -20,7 +20,7 @@
 ///
 /// - SeeAlso: `SortedBag`
 public struct SortedSet<Element: Comparable>: SetAlgebra {
-    internal typealias Tree = BTree<Element, Void>
+    internal typealias Tree = BTree<Element, EmptyValue>
 
     /// The b-tree that serves as storage.
     internal fileprivate(set) var tree: Tree
@@ -43,7 +43,7 @@ extension SortedSet {
     ///
     /// - Complexity: O(*n* * log(*n*)), where *n* is the number of items in the sequence.
     public init<S: Sequence>(_ elements: S) where S.Element == Element {
-        self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, ()) }, dropDuplicates: true))
+        self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, EmptyValue.def) }, dropDuplicates: true))
     }
 
     /// Create a set from a sorted finite sequence of items.
@@ -51,7 +51,7 @@ extension SortedSet {
     ///
     /// - Complexity: O(*n*), where *n* is the number of items in the sequence.
     public init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
-        self.init(Tree(sortedElements: elements.lazy.map { ($0, ()) }, dropDuplicates: true))
+        self.init(Tree(sortedElements: elements.lazy.map { ($0, EmptyValue.def) }, dropDuplicates: true))
     }
 
     /// Create a set with the specified list of items.
@@ -64,7 +64,7 @@ extension SortedSet {
 extension SortedSet: BidirectionalCollection {
     //MARK: CollectionType
 
-    public typealias Index = BTreeIndex<Element, Void>
+    public typealias Index = BTreeIndex<Element, EmptyValue>
     public typealias Iterator = BTreeKeyIterator<Element>
     public typealias SubSequence = SortedSet<Element>
 
@@ -420,7 +420,7 @@ extension SortedSet {
     /// Returns the index of a given member, or `nil` if the member is not present in the set.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(of member: Element) -> BTreeIndex<Element, Void>? {
+    public func index(of member: Element) -> BTreeIndex<Element, EmptyValue>? {
         return tree.index(forKey: member)
     }
 
@@ -429,7 +429,7 @@ extension SortedSet {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, EmptyValue>? {
         let index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -440,7 +440,7 @@ extension SortedSet {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, EmptyValue>? {
         let index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -451,7 +451,7 @@ extension SortedSet {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfLastElement(before element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfLastElement(before element: Element) -> BTreeIndex<Element, EmptyValue>? {
         var index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -463,7 +463,7 @@ extension SortedSet {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the set.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, EmptyValue>? {
         var index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -572,7 +572,7 @@ extension SortedSet {
     /// - Complexity: O(log(`count`))
     @discardableResult
     public mutating func insert(_ newMember: Element) -> (inserted: Bool, memberAfterInsert: Element) {
-        guard let old = tree.insertOrFind((newMember, ())) else {
+        guard let old = tree.insertOrFind((newMember, EmptyValue.def)) else {
             return (true, newMember)
         }
         return (false, old.0)
@@ -589,7 +589,7 @@ extension SortedSet {
     ///   comparison or some other means.
     @discardableResult
     public mutating func update(with newMember: Element) -> Element? {
-        return tree.insertOrReplace((newMember, ()))?.0
+        return tree.insertOrReplace((newMember, EmptyValue.def))?.0
     }
 }
 
@@ -910,3 +910,17 @@ extension SortedSet where Element: Strideable {
         }
     }
 }
+
+// Swift Void is not codable, and having 2 Codable extensions is not allowed
+// for BTree<Codable, Codable> and for BTree<Codable, Void>
+//
+// thus the need for EmptyValue
+public struct EmptyValue {
+    static let def = EmptyValue()
+}
+
+#if swift(>=4.2)
+extension EmptyValue: Codable {}
+
+extension SortedSet: Codable where Element: Codable {}
+#endif

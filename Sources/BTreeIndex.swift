@@ -192,3 +192,9 @@ internal struct BTreeWeakPath<Key: Comparable, Value>: BTreePath {
         }
     }
 }
+
+#if swift(>=4.2)
+extension BTreeWeakPath: Codable where Key: Codable, Value: Codable {}
+
+extension BTreeIndex: Codable where Key: Codable, Value: Codable {}
+#endif

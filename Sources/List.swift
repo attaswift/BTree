@@ -565,3 +565,7 @@ extension List {
         return result
     }
 }
+
+#if swift(>=4.2)
+extension List: Codable where Element: Codable {}
+#endif

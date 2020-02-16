@@ -476,4 +476,22 @@ class ListTests: XCTestCase {
 
         assertEqualElements(l1 + l2, 0 ..< 20)
     }
+
+    #if swift(>=4.2)
+    func testCanBeCodedDecoded() {
+        let list: List<Int> = [0, 1, 2, 3, 4]
+        let encoder = PropertyListEncoder()
+        guard let data = try? encoder.encode(list) else {
+            XCTFail("failed encode")
+            return
+        }
+        let decoder = PropertyListDecoder()
+        guard let decodedList = try? decoder.decode(List<Int>.self, from: data) else {
+            XCTFail("failed decode")
+            return
+        }
+        assertEqualElements(IteratorSequence(decodedList.makeIterator()),
+                            IteratorSequence(list.makeIterator()))
+    }
+    #endif
 }

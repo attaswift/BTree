@@ -440,4 +440,22 @@ class MapTests: XCTestCase {
         assertEqualElements(m.excluding([0, 5, 10, 15]), ([1 ..< 5, 6 ..< 10, 11 ..< 15, 16 ..< 20] as [CountableRange<Int>]).joined().map { (k) -> (Int, String) in (k, String(k)) })
         assertEqualElements(m.excluding(-10 ..< 30), [])
     }
+
+    #if swift(>=4.2)
+    func testCanBeCodedDecoded() {
+        let map = Map<Int, String>(sortedElements: (0..<100).map { ($0, String($0)) })
+        let encoder = PropertyListEncoder()
+        guard let data = try? encoder.encode(map) else {
+            XCTFail("failed encode")
+            return
+        }
+        let decoder = PropertyListDecoder()
+        guard let decodedMap = try? decoder.decode(Map<Int, String>.self, from: data) else {
+            XCTFail("failed decode")
+            return
+        }
+        assertEqualElements(IteratorSequence(decodedMap.makeIterator()),
+                            IteratorSequence(map.makeIterator()))
+    }
+    #endif
 }

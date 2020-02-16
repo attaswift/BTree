@@ -13,3 +13,7 @@ internal struct Weak<T: AnyObject> {
         self.value = value
     }
 }
+
+#if swift(>=4.2)
+extension Weak: Codable where T: Codable {}
+#endif

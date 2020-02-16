@@ -982,4 +982,23 @@ class SortedBagTests: XCTestCase {
 
         assertEqualElements(copy, [0, 0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18])
     }
+
+    #if swift(>=4.2)
+    func testCanBeCodedDecoded() {
+        let c = 100
+        let bag = SortedBag((0 ..< c).map { 2 * $0 }.repeatEach(3))
+        let encoder = PropertyListEncoder()
+        guard let data = try? encoder.encode(bag) else {
+            XCTFail("failed encode")
+            return
+        }
+        let decoder = PropertyListDecoder()
+        guard let decodedBag = try? decoder.decode(SortedBag<Int>.self, from: data) else {
+            XCTFail("failed decode")
+            return
+        }
+        assertEqualElements(IteratorSequence(decodedBag.makeIterator()),
+                            IteratorSequence(bag.makeIterator()))
+    }
+    #endif
 }
