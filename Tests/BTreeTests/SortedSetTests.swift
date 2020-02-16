@@ -694,4 +694,23 @@ class SortedSetTests: XCTestCase {
         a.shift(startingAt: 15, by: -5)
         assertEqualElements(a, [0, 3, 5, 7, 8])
     }
+
+    #if swift(>=4.2)
+    func testCanBeCodedDecoded() {
+        let c = 1_000
+        let set = SortedSet((0 ..< c).reversed())
+        let encoder = PropertyListEncoder()
+        guard let data = try? encoder.encode(set) else {
+            XCTFail("failed encode")
+            return
+        }
+        let decoder = PropertyListDecoder()
+        guard let decodedSet = try? decoder.decode(SortedSet<Int>.self, from: data) else {
+            XCTFail("failed decode")
+            return
+        }
+        assertEqualElements(IteratorSequence(decodedSet.makeIterator()),
+                            IteratorSequence(set.makeIterator()))
+    }
+    #endif
 }

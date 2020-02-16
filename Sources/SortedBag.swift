@@ -24,7 +24,7 @@
 ///
 /// - SeeAlso: `SortedSet`
 public struct SortedBag<Element: Comparable>: SetAlgebra {
-    internal typealias Tree = BTree<Element, Void>
+    internal typealias Tree = BTree<Element, EmptyValue>
 
     /// The b-tree that serves as storage.
     internal fileprivate(set) var tree: Tree
@@ -54,7 +54,7 @@ extension SortedBag {
     ///
     /// - Complexity: O(*n* * log(*n*)), where *n* is the number of items in the sequence.
     public init<S: Sequence>(_ elements: S) where S.Element == Element {
-        self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, ()) }, dropDuplicates: false))
+        self.init(Tree(sortedElements: elements.sorted().lazy.map { ($0, EmptyValue.def) }, dropDuplicates: false))
     }
 
     /// Create a bag from a sorted finite sequence of items.
@@ -62,7 +62,7 @@ extension SortedBag {
     ///
     /// - Complexity: O(*n*), where *n* is the number of items in the sequence.
     public init<S: Sequence>(sortedElements elements: S) where S.Element == Element {
-        self.init(Tree(sortedElements: elements.lazy.map { ($0, ()) }, dropDuplicates: false))
+        self.init(Tree(sortedElements: elements.lazy.map { ($0, EmptyValue.def) }, dropDuplicates: false))
     }
 
     /// Create a bag with the specified list of items.
@@ -75,7 +75,7 @@ extension SortedBag {
 extension SortedBag: BidirectionalCollection {
     //MARK: CollectionType
 
-    public typealias Index = BTreeIndex<Element, Void>
+    public typealias Index = BTreeIndex<Element, EmptyValue>
     public typealias Iterator = BTreeKeyIterator<Element>
     public typealias SubSequence = SortedBag<Element>
 
@@ -442,7 +442,7 @@ extension SortedBag {
     /// Returns the index of the first instance of a given member, or `nil` if the member is not present in the bag.
     ///
     /// - Complexity: O(log(`count`))
-    public func index(of member: Element) -> BTreeIndex<Element, Void>? {
+    public func index(of member: Element) -> BTreeIndex<Element, EmptyValue>? {
         return tree.index(forKey: member, choosing: .first)
     }
 
@@ -451,7 +451,7 @@ extension SortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfFirstElement(after element: Element) -> BTreeIndex<Element, EmptyValue>? {
         let index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -462,7 +462,7 @@ extension SortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfFirstElement(notBefore element: Element) -> BTreeIndex<Element, EmptyValue>? {
         let index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == tree.count { return nil }
         return index
@@ -473,7 +473,7 @@ extension SortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfLastElement(before element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfLastElement(before element: Element) -> BTreeIndex<Element, EmptyValue>? {
         var index = tree.index(forInserting: element, at: .first)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -485,7 +485,7 @@ extension SortedBag {
     /// This function never returns `endIndex`. (If it returns non-nil, the returned index can be used to subscript the bag.)
     ///
     /// - Complexity: O(log(`count`))
-    public func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, Void>? {
+    public func indexOfLastElement(notAfter element: Element) -> BTreeIndex<Element, EmptyValue>? {
         var index = tree.index(forInserting: element, at: .last)
         if tree.offset(of: index) == 0 { return nil }
         tree.formIndex(before: &index)
@@ -600,7 +600,7 @@ extension SortedBag {
     /// - Complexity: O(log(`count`))
     @discardableResult
     public mutating func insert(_ newMember: Element) -> (inserted: Bool, memberAfterInsert: Element) {
-        tree.insert((newMember, ()), at: .after)
+        tree.insert((newMember, EmptyValue.def), at: .after)
         return (true, newMember)
     }
 
@@ -617,7 +617,7 @@ extension SortedBag {
     /// - Returns: Always returns `nil`, to satisfy the syntactic requirements of the `SetAlgebra` protocol.
     @discardableResult
     public mutating func update(with newMember: Element) -> Element? {
-        tree.insert((newMember, ()), at: .first)
+        tree.insert((newMember, EmptyValue.def), at: .first)
         return nil
     }
 }
@@ -984,3 +984,7 @@ extension SortedBag where Element: Strideable {
     }
 
 }
+
+#if swift(>=4.2)
+extension SortedBag: Codable where Element: Codable {}
+#endif

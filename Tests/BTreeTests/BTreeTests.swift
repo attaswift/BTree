@@ -1236,4 +1236,22 @@ class BTreeTests: XCTestCase {
         tree.assertValid()
         assertEqualElements(tree, [(0, "0*"), (1, "1*"), (2, "2*"), (3, "3*"), (4, "4*")])
     }
+
+    #if swift(>=4.2)
+    func testCanBeCodedDecoded() {
+        let tree = Tree(minimalTree(depth: 2, order: 5))
+        let encoder = PropertyListEncoder()
+        guard let data = try? encoder.encode(tree) else {
+            XCTFail("failed encode")
+            return
+        }
+        let decoder = PropertyListDecoder()
+        guard let decodedTree = try? decoder.decode(Tree.self, from: data) else {
+            XCTFail("failed decode")
+            return
+        }
+        assertEqualElements(IteratorSequence(decodedTree.makeIterator()),
+                            IteratorSequence(tree.makeIterator()))
+    }
+    #endif
 }

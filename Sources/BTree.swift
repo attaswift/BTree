@@ -1071,3 +1071,7 @@ extension BTree {
         return suffix(from: start).prefix(through: stop)
     }
 }
+
+#if swift(>=4.2)
+extension BTree:Codable where Key: Codable, Value:Codable {}
+#endif

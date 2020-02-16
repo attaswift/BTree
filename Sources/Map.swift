@@ -564,3 +564,7 @@ extension Map {
         return excluding(SortedSet(keys))
     }
 }
+
+#if swift(>=4.2)
+extension Map: Codable where Key: Codable, Value: Codable {}
+#endif

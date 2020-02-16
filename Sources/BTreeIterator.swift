@@ -54,7 +54,7 @@ public struct BTreeValueIterator<Value>: IteratorProtocol {
 
 /// An iterator for the keys stored in a B-tree without a value.
 public struct BTreeKeyIterator<Key: Comparable>: IteratorProtocol {
-    internal typealias Base = BTreeIterator<Key, Void>
+    internal typealias Base = BTreeIterator<Key, EmptyValue>
     fileprivate var base: Base
 
     internal init(_ base: Base) {
@@ -147,3 +147,15 @@ internal struct BTreeStrongPath<Key: Comparable, Value>: BTreePath {
         }
     }
 }
+
+#if swift(>=4.2)
+extension EmptyKey: Codable {}
+
+extension BTreeKeyIterator: Codable where Key: Codable {}
+
+extension BTreeValueIterator: Codable where Value: Codable {}
+
+extension BTreeIterator: Codable where Key: Codable, Value: Codable {}
+
+extension BTreeStrongPath: Codable where Key: Codable, Value: Codable {}
+#endif
